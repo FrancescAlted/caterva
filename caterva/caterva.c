@@ -1,30 +1,51 @@
 #include "caterva.h"
 
-void schunk_fill_from_array(void *arr_b, caterva_array *carr)
+caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_pparams pp)
+{   
+    caterva_array *carr;
+    carr->size = 1;
+    carr->csize = 1;
+    carr->esize = 1;
+    carr->dimensions = pp.dimensions;
+
+    for(int i = 0; i < MAXDIM; i++)
+    {
+        carr->shape[i] = pp.shape[i];
+        carr->cshape[i] = pp.cshape[i];
+        
+        if (i < pp.dimensions) {
+            if (pp.shape[i] % pp.cshape[i] == 0){
+                carr->eshape[i] = pp.shape[i];
+            }
+            else {
+                carr->eshape[i] = (size_t)pp.shape[i] + pp.cshape[i] - pp.shape[i] % pp.cshape[i];
+            }
+        }
+        else {
+            carr->eshape[i] = 1;
+        }
+        carr->size *= carr->shape[i];
+        carr->csize *= carr->cshape[i];
+        carr->esize *= carr->eshape[i];
+    }
+    return carr;
+}
+
+int caterva_schunk_fill_from_array(void *arr_b, caterva_array *carr)
 {
     // int8_t* arr_b = (int8_t *)arr;
 
     /* Define basic parameters */
 
-    caterva_pparams *pp = carr->pp;
     blosc2_schunk *sc = carr->sc;
-
-    size_t *s = pp->shape;
-    size_t *cs = pp->cshape;
-    size_t *es = pp->eshape;
-    size_t dimensions = pp->dimensions;
+    size_t *s = carr->shape;
+    size_t *cs = carr->cshape;
+    size_t *es = carr->eshape;
+    size_t size = carr->size;
+    size_t csize = carr->csize;
+    size_t esize = carr->esize;
+    size_t dimensions = carr->dimensions;
     int typesize = sc->typesize;
-
-    size_t size = 1;
-    size_t csize = 1;
-    size_t esize = 1;
-
-    for (int i = 0; i < MAXDIM; i++)
-    {
-        size *= s[i];
-        csize *= cs[i];
-        esize *= es[i];
-    }
 
     /* Initialise a chunk buffer */
 
@@ -128,7 +149,7 @@ void schunk_fill_from_array(void *arr_b, caterva_array *carr)
     }
 }
 
-void array_fill_from_schunk(caterva_array *carr, void *arr)
+void caterva_array_fill_from_schunk(caterva_array *carr, void *arr)
 {
     int8_t* arr_b = (int8_t *)arr;
 
