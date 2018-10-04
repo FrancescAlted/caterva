@@ -27,8 +27,15 @@ typedef struct
     size_t dimensions; /* data dimensions */
 } caterva_array;
 
-void schunk_fill_from_array(void *arr, caterva_array *carr);
 
-void array_fill_from_schunk(caterva_array *carr, void *arr);
+caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_pparams pp);
+
+int caterva_free_array(caterva_array *carr);
+
+int caterva_schunk_fill_from_array(void *arr, caterva_array *carr);
+
+int caterva_array_fill_from_schunk(caterva_array *carr, void *arr);
+
+int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t start[], size_t stop[], size_t step[]);
 
 #endif

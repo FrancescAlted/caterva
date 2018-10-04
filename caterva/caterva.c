@@ -172,7 +172,7 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
 
 int caterva_array_fill_from_schunk(caterva_array *carr, void *arr)
 {
-    int8_t* arr_b = (int8_t *)arr;
+    int8_t *arr_b = (int8_t *)arr;
 
     /* Define basic parameters */
 
@@ -285,5 +285,30 @@ int caterva_array_fill_from_schunk(caterva_array *carr, void *arr)
         }
     }
     free(chunk);
+    return 0;
+}
+
+int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t start[], size_t end[], size_t step[]) {
+    
+    /* Define params */
+
+    size_t *src_shape = src->shape;
+    size_t *src_cshape = src->cshape;
+    size_t *src_eshape = src->eshape;
+    size_t src_size = src->size;
+    size_t src_csize = src->csize;
+    size_t src_esize = src->esize;
+    size_t src_dimensions = src->dimensions;
+
+    size_t *dest_shape = dest->shape;
+    size_t *dest_cshape = dest->cshape;
+    size_t *dest_eshape = dest->eshape;
+    size_t dest_size = dest->size;
+    size_t dest_csize = dest->csize;
+    size_t dest_esizee = dest->esize;
+    size_t dest_dimensions = dest->dimensions;
+
+
+
     return 0;
 }
