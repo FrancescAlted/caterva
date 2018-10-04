@@ -2,7 +2,17 @@
 
 caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_pparams pp)
 {   
-    caterva_array *carr;
+    /* Create a caterva_array buffer */
+
+    caterva_array *carr = malloc(sizeof(caterva_array));
+
+    /* Create a schunk */
+
+    blosc2_schunk *sc = blosc2_new_schunk(cp, dp);
+    carr->sc = sc;
+
+    /* Fill all the caterva_array params */
+
     carr->size = 1;
     carr->csize = 1;
     carr->esize = 1;
@@ -18,7 +28,7 @@ caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_p
                 carr->eshape[i] = pp.shape[i];
             }
             else {
-                carr->eshape[i] = (size_t)pp.shape[i] + pp.cshape[i] - pp.shape[i] % pp.cshape[i];
+                carr->eshape[i] = pp.shape[i] + pp.cshape[i] - pp.shape[i] % pp.cshape[i];
             }
         }
         else {
@@ -31,9 +41,18 @@ caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_p
     return carr;
 }
 
-int caterva_schunk_fill_from_array(void *arr_b, caterva_array *carr)
+int caterva_free_array(caterva_array *carr)
 {
-    // int8_t* arr_b = (int8_t *)arr;
+    /* Free buffers used */
+
+    blosc2_free_schunk(carr->sc);
+    free(carr);
+    return 0;
+}
+
+int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
+{
+    int8_t* arr_b = (int8_t *)arr;
 
     /* Define basic parameters */
 
@@ -147,38 +166,29 @@ int caterva_schunk_fill_from_array(void *arr_b, caterva_array *carr)
 
         blosc2_append_buffer(sc, csize * typesize, chunk);
     }
+    free(chunk);
+    return 0;
 }
 
-void caterva_array_fill_from_schunk(caterva_array *carr, void *arr)
+int caterva_array_fill_from_schunk(caterva_array *carr, void *arr)
 {
     int8_t* arr_b = (int8_t *)arr;
 
     /* Define basic parameters */
 
-    caterva_pparams *pp = carr->pp;
-    blosc2_schunk *sc = carr->sc;
-    
-    size_t *s = pp->shape;
-    size_t *cs = pp->cshape;
-    size_t *es = pp->eshape;
-    size_t dimensions = pp->dimensions;
+     blosc2_schunk *sc = carr->sc;
+    size_t *s = carr->shape;
+    size_t *cs = carr->cshape;
+    size_t *es = carr->eshape;
+    size_t size = carr->size;
+    size_t csize = carr->csize;
+    size_t esize = carr->esize;
+    size_t dimensions = carr->dimensions;
     int typesize = sc->typesize;
-
-    size_t size = 1;
-    size_t csize = 1;
-    size_t esize = 1;
-
-    for (int i = 0; i < MAXDIM; i++)
-    {
-        size *= s[i];
-        csize *= cs[i];
-        esize *= es[i];
-    }
 
     /* Initialise a chunk buffer */
 
     int8_t *chunk = (int8_t*)malloc(csize * typesize);
-    double *chunk_d = (double*)chunk;
 
     /* Calculate the constants out of the for  */
 
@@ -274,4 +284,6 @@ void caterva_array_fill_from_schunk(caterva_array *carr, void *arr)
             }
         }
     }
+    free(chunk);
+    return 0;
 }
