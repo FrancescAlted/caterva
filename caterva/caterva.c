@@ -18,7 +18,7 @@ caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_p
     carr->esize = 1;
     carr->dimensions = pp.dimensions;
 
-    for(int i = 0; i < MAXDIM; i++)
+    for(int i = 0; i < CATERVA_MAXDIM; i++)
     {
         carr->shape[i] = pp.shape[i];
         carr->cshape[i] = pp.cshape[i];
@@ -72,18 +72,18 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
 
     /* Calculate the constants out of the for  */
 
-    size_t aux[MAXDIM];
+    size_t aux[CATERVA_MAXDIM];
 
     aux[0] = es[0] / cs[0];
 
-    for (int i = 1; i < MAXDIM; i++)
+    for (int i = 1; i < CATERVA_MAXDIM; i++)
     {
         aux[i] = es[i] / cs[i] * aux[i - 1];
     }
 
     /* Fill each chunk buffer */
 
-    size_t d[MAXDIM], r[MAXDIM];
+    size_t d[CATERVA_MAXDIM], r[CATERVA_MAXDIM];
 
     for (int ic = 0; ic < esize / csize; ic++)
     {
@@ -93,7 +93,7 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
 
         d[0] = ic % (es[0] / cs[0]) * cs[0];
 
-        for (int i = 1; i < MAXDIM; i++)
+        for (int i = 1; i < CATERVA_MAXDIM; i++)
         {
             d[i] = ic % (aux[i]) / (aux[i - 1]) * cs[i];
         }
@@ -107,7 +107,7 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
             r[0] = cs[0];
         }
 
-        for (int i = 1; i < MAXDIM; i++)
+        for (int i = 1; i < CATERVA_MAXDIM; i++)
         {
             if (d[i] + cs[i] > s[i]) {
                 r[i] = s[i] - d[i];
@@ -120,7 +120,7 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
         /* Copy each line of data from arr to buffer */
 
         size_t cpos, apos, aux;
-        size_t ii[MAXDIM];
+        size_t ii[CATERVA_MAXDIM];
 
         for (ii[1] = 0; ii[1] < r[1]; ii[1]++)
         {
@@ -139,7 +139,7 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
                                     cpos = 0;
                                     aux = cs[0];
 
-                                    for (int i = 1; i < MAXDIM; i++)
+                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
                                     {
                                         cpos += ii[i] * aux;
                                         aux *= cs[i];
@@ -148,7 +148,7 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr)
                                     apos = d[0];
                                     aux = s[0];
 
-                                    for (int i = 1; i < MAXDIM; i++)
+                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
                                     {
                                         apos += (d[i] + ii[i]) * aux;
                                         aux *= s[i];
@@ -184,18 +184,18 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
 
     /* Calculate the constants out of the for  */
 
-    size_t aux[MAXDIM];
+    size_t aux[CATERVA_MAXDIM];
 
     aux[0] = s->eshape[0] / s->cshape[0];
 
-    for (int i = 1; i < MAXDIM; i++)
+    for (int i = 1; i < CATERVA_MAXDIM; i++)
     {
         aux[i] = s->eshape[i] / s->cshape[i] * aux[i - 1];
     }
 
     /* Fill array from schunk (chunk by chunk) */
 
-    size_t desp[MAXDIM], r[MAXDIM];
+    size_t desp[CATERVA_MAXDIM], r[CATERVA_MAXDIM];
 
     for (int ci = 0; ci < s->esize / s->csize; ci++)
     {
@@ -207,7 +207,7 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
 
         desp[0] = ci % aux[0] * s->cshape[0];
 
-        for (int i = 1; i < MAXDIM; i++)
+        for (int i = 1; i < CATERVA_MAXDIM; i++)
         {
             desp[i] = ci % (aux[i]) / (aux[i - 1]) * s->cshape[i];
         }
@@ -221,7 +221,7 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
             r[0] = s->cshape[0];
         }
     
-        for (int i = 1; i < MAXDIM; i++)
+        for (int i = 1; i < CATERVA_MAXDIM; i++)
         {
             if (desp[i] + s->cshape[i] > s->shape[i]) {
                 r[i] = s->shape[i] - desp[i];
@@ -234,7 +234,7 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
         /* Copy each line of data from chunk to arr */
 
         size_t s_coord_f, d_coord_f, s_a, d_a;
-        size_t ii[MAXDIM];
+        size_t ii[CATERVA_MAXDIM];
 
         for (ii[1] = 0; ii[1] < r[1]; ii[1]++)
         {
@@ -253,7 +253,7 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
                                     s_coord_f = 0;
                                     s_a = s->cshape[0];
 
-                                    for (int i = 1; i < MAXDIM; i++)
+                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
                                     {
                                         s_coord_f += ii[i] * s_a;
                                         s_a *= s->cshape[i];
@@ -262,7 +262,7 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
                                     d_coord_f = desp[0];
                                     d_a = s->shape[0];
 
-                                    for (int i = 1; i < MAXDIM; i++)
+                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
                                     {
                                         d_coord_f += (desp[i] + ii[i]) * d_a;
                                         d_a *= s->shape[i];
@@ -294,18 +294,18 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
 
     /* Calculate the constants out of the for (to avoid divisions into) */
 
-    size_t s_aux[MAXDIM], d_aux[MAXDIM];
+    size_t s_aux[CATERVA_MAXDIM], d_aux[CATERVA_MAXDIM];
 
     s_aux[0] = 1;
     d_aux[0] = d->eshape[0] / d->cshape[0];
 
-    for (int i = 1; i < MAXDIM; i++)
+    for (int i = 1; i < CATERVA_MAXDIM; i++)
     {
         s_aux[i] = s->eshape[i] / s->cshape[i] * s_aux[i - 1];
         d_aux[i] = d->eshape[i] / d->cshape[i] * d_aux[i - 1];
     }
 
-    size_t desp[MAXDIM], o_coord[MAXDIM], s_coord[MAXDIM], d_coord[MAXDIM];
+    size_t desp[CATERVA_MAXDIM], o_coord[CATERVA_MAXDIM], s_coord[CATERVA_MAXDIM], d_coord[CATERVA_MAXDIM];
 
     size_t s_ci, s_ci_b;
     
@@ -324,7 +324,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
 
         desp[0] = d_ci % (d_aux[0]) * d->cshape[0] + start[0];
 
-        for (int i = 1; i < MAXDIM; i++)
+        for (int i = 1; i < CATERVA_MAXDIM; i++)
         {
             desp[i] = d_ci % (d_aux[i]) / (d_aux[i - 1]) * d->cshape[i] + start[i];
         }
@@ -357,7 +357,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
 
                                         /* Calculate the position of the desired element in unpartitioned data */
 
-                                        for(size_t i = 0; i < MAXDIM; i++)
+                                        for(size_t i = 0; i < CATERVA_MAXDIM; i++)
                                         {
                                             o_coord[i] = d_coord[i] + desp[i];
                                         }
@@ -366,7 +366,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
 
                                         s_ci = o_coord[0] / s->cshape[0];
                                         
-                                        for(size_t i = 1; i < MAXDIM; i++)
+                                        for(size_t i = 1; i < CATERVA_MAXDIM; i++)
                                         {
                                             s_ci += (o_coord[i] / s->cshape[i]) * s_aux[i];
                                         }
@@ -378,7 +378,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
                                         
                                         /* Calculate the position of the desired element in src_chunk. */
 
-                                        for(size_t i = 0; i < MAXDIM; i++)
+                                        for(size_t i = 0; i < CATERVA_MAXDIM; i++)
                                         {
                                             s_coord[i] = o_coord[i] % s->cshape[i];
                                         }
@@ -388,7 +388,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
                                         s_coord_f = 0;
                                         s_a = 1;
 
-                                        for(size_t i = 0; i < MAXDIM; i++)
+                                        for(size_t i = 0; i < CATERVA_MAXDIM; i++)
                                         {
                                             s_coord_f += s_coord[i] * s_a;
                                             s_a *= s->cshape[i];
@@ -397,7 +397,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
                                         d_coord_f = 0;
                                         d_a = 1;
                                         
-                                        for(size_t i = 0; i < MAXDIM; i++)
+                                        for(size_t i = 0; i < CATERVA_MAXDIM; i++)
                                         {
                                             d_coord_f += d_coord[i] * d_a;
                                             d_a *= d->cshape[i];

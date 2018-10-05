@@ -6,21 +6,21 @@
 #include <string.h>
 #include <blosc.h>
 
-#define MAXDIM 8
+#define CATERVA_MAXDIM 8
 
 typedef struct
 {
-    size_t shape[MAXDIM]; /* the shape of original data */
-    size_t cshape[MAXDIM]; /* the shape of each chunk */
+    size_t shape[CATERVA_MAXDIM]; /* the shape of original data */
+    size_t cshape[CATERVA_MAXDIM]; /* the shape of each chunk */
     size_t dimensions; /* data dimensions */
 } caterva_pparams;
 
 typedef struct
 {
     blosc2_schunk* sc;
-    size_t shape[MAXDIM]; /* shape of original data */
-    size_t cshape[MAXDIM]; /* shape of each chunk */
-    size_t eshape[MAXDIM]; /* shape of schunk */
+    size_t shape[CATERVA_MAXDIM]; /* shape of original data */
+    size_t cshape[CATERVA_MAXDIM]; /* shape of each chunk */
+    size_t eshape[CATERVA_MAXDIM]; /* shape of schunk */
     size_t size; /* size of original data */
     size_t csize; /* size of each chunnk */
     size_t esize; /* shape of schunk */
