@@ -4,13 +4,13 @@ int main(int argc, char const *argv[])
 {
     /* Define parameters values */
 
-    size_t src_shape[MAXDIM] = {4, 4, 4, 1, 1, 1, 1, 1};
-    size_t src_cshape[MAXDIM] = {2, 2, 2, 1, 1, 1, 1, 1};
-    size_t src_dim = 3;
+    size_t src_shape[MAXDIM] = {9, 9, 1, 1, 1, 1, 1, 1};
+    size_t src_cshape[MAXDIM] = {3, 3, 1, 1, 1, 1, 1, 1};
+    size_t src_dim = 2;
 
-    size_t dest_shape[MAXDIM] = {4, 4, 1, 1, 1, 1, 1, 1};
+    size_t dest_shape[MAXDIM] = {6, 4, 1, 1, 1, 1, 1, 1};
     size_t dest_cshape[MAXDIM] = {2, 2, 1, 1, 1, 1, 1, 1};
-    size_t dest_dim = 3;
+    size_t dest_dim = 2;
 
     /* Create dparams and cparams */
 
@@ -58,8 +58,8 @@ int main(int argc, char const *argv[])
 
     /* Define start, stop and step values */
 
-    size_t start[MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
-    size_t stop[MAXDIM] = {4, 4, 1, 1, 1, 1, 1, 1};
+    size_t start[MAXDIM] = {1, 1, 0, 0, 0, 0, 0, 0};
+    size_t stop[MAXDIM] = {7, 5, 1, 1, 1, 1, 1, 1};
     size_t step[MAXDIM] = {1, 1, 1, 1, 1, 1, 1, 1};
 
     caterva_get_slice(src, dest, start, stop, step);
@@ -68,11 +68,16 @@ int main(int argc, char const *argv[])
 
     double *arr_dest = (double *)malloc(dest->size * sizeof(double));
 
-    /* Fill array dest frfom dest caterva array */
+    /* Fill array dest from dest caterva array */
 
     caterva_array_fill_from_schunk(dest, arr_dest);
 
     /* Testing */
 
+    for(size_t i = 0; i < dest->size; i++)
+    {
+        printf("Pos. %lu: %f\n", i, arr_dest[i]);
+    }
+    
     return 0;
 }
