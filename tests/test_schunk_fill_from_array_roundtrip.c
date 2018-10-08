@@ -1,7 +1,5 @@
 #include "tests_common.h"
 
-#define MAXDIM 8
-
 int tests_run = 0;
 
 int convert_to_array(char *line, size_t *shape)
@@ -51,7 +49,7 @@ char* test_roundtrip(size_t shape[], size_t cshape[], int dimensions)
     blosc2_dparams dp = BLOSC_DPARAMS_DEFAULTS;
 
     caterva_pparams pp;
-    for (int i = 0; i < MAXDIM; i++)
+    for (int i = 0; i < CATERVA_MAXDIM; i++)
     {
         pp.shape[i] = shape[i];
         pp.cshape[i] = cshape[i];
@@ -123,8 +121,8 @@ int main()
     
     /* Define data needed for run a test */
 
-    size_t shape[MAXDIM];
-    size_t cshape[MAXDIM];
+    size_t shape[CATERVA_MAXDIM];
+    size_t cshape[CATERVA_MAXDIM];
     int dimensions;
 
     /* Print test result */
