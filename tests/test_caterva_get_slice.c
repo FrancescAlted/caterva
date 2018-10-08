@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
         src_pp.shape[i] = src_shape[i];
         src_pp.cshape[i] = src_cshape[i];
     }
-    src_pp.dimensions = src_dim;
+    src_pp.dim = src_dim;
 
     caterva_array *src = caterva_new_array(cp, dp, src_pp);
 
@@ -40,7 +40,7 @@ int main(int argc, char const *argv[])
         dest_pp.shape[i] = dest_shape[i];
         dest_pp.cshape[i] = dest_cshape[i];
     }
-    dest_pp.dimensions = dest_dim;
+    dest_pp.dim = dest_dim;
 
     caterva_array *dest = caterva_new_array(cp, dp, dest_pp);
 
@@ -74,11 +74,12 @@ int main(int argc, char const *argv[])
 
     /* Testing */
 
-     
     for(size_t i = 0; i < dest->size; i++)
     {
         printf("Pos. %lu: %f\n", i, arr_dest[i]);
     }
     
+    caterva_free_array(src);
+    caterva_free_array(dest);
     return 0;
 }

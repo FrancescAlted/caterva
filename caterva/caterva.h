@@ -12,7 +12,7 @@ typedef struct
 {
     size_t shape[CATERVA_MAXDIM]; /* the shape of original data */
     size_t cshape[CATERVA_MAXDIM]; /* the shape of each chunk */
-    size_t dimensions; /* data dimensions */
+    size_t dim; /* data dimensions */
 } caterva_pparams;
 
 typedef struct
@@ -24,7 +24,7 @@ typedef struct
     size_t size; /* size of original data */
     size_t csize; /* size of each chunnk */
     size_t esize; /* shape of schunk */
-    size_t dimensions; /* data dimensions */
+    size_t dim; /* data dimensions */
 } caterva_array;
 
 
