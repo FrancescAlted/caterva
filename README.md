@@ -1,6 +1,6 @@
-# Caterva
+# Caterva 
 
-## Testing
+## Compile and test (bash in OSX)
 
 ```
 cd tests/

@@ -4,13 +4,17 @@ int main(int argc, char const *argv[])
 {
     /* Define parameters values */
 
-    size_t src_shape[CATERVA_MAXDIM] = {8, 8, 1, 1, 1, 1, 1, 1};
-    size_t src_cshape[CATERVA_MAXDIM] = {4, 4, 1, 1, 1, 1, 1, 1};
-    size_t src_dim = 2;
+    size_t src_shape[CATERVA_MAXDIM] = {128, 128, 128, 1, 1, 1, 1, 1};
+    size_t src_cshape[CATERVA_MAXDIM] = {16, 16, 16, 1, 1, 1, 1, 1};
+    size_t src_dim = 3;
 
-    size_t dest_shape[CATERVA_MAXDIM] = {4, 4, 1, 1, 1, 1, 1, 1};
-    size_t dest_cshape[CATERVA_MAXDIM] = {3, 3, 1, 1, 1, 1, 1, 1};
-    size_t dest_dim = 2;
+    /* Define start, stop and step values */
+
+    size_t start[CATERVA_MAXDIM] = {15, 4, 80, 0, 0, 0, 0, 0};
+    size_t stop[CATERVA_MAXDIM] = {20, 8, 120, 1, 1, 1, 1, 1};
+    size_t step[CATERVA_MAXDIM] = {1, 1, 1, 1, 1, 1, 1, 1}; /* Not working */
+    size_t dest_cshape[CATERVA_MAXDIM] = {3, 2, 12, 1, 1, 1, 1, 1};
+    size_t dest_dim = 3;
 
     /* Create dparams and cparams */
 
@@ -37,7 +41,7 @@ int main(int argc, char const *argv[])
     caterva_pparams dest_pp;
     for (int i = 0; i < CATERVA_MAXDIM; i++)
     {
-        dest_pp.shape[i] = dest_shape[i];
+        dest_pp.shape[i] = stop[i] - start[i];
         dest_pp.cshape[i] = dest_cshape[i];
     }
     dest_pp.dim = dest_dim;
@@ -56,11 +60,7 @@ int main(int argc, char const *argv[])
 
     caterva_schunk_fill_from_array(arr, src);
 
-    /* Define start, stop and step values */
-
-    size_t start[CATERVA_MAXDIM] = {1, 1, 0, 0, 0, 0, 0, 0};
-    size_t stop[CATERVA_MAXDIM] = {5, 5, 1, 1, 1, 1, 1, 1};
-    size_t step[CATERVA_MAXDIM] = {1, 1, 1, 1, 1, 1, 1, 1};
+    /* Obtain a subset of data from src caterva_array */
 
     caterva_get_slice(src, dest, start, stop, step);
 
@@ -74,9 +74,10 @@ int main(int argc, char const *argv[])
 
     /* Testing */
 
+    
     for(size_t i = 0; i < dest->size; i++)
     {
-        printf("Pos. %lu: %f\n", i, arr_dest[i]);
+        printf("%.2f\n", arr_dest[i]);
     }
     
     caterva_free_array(src);
