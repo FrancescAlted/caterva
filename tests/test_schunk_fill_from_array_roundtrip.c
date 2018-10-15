@@ -54,7 +54,7 @@ char* test_roundtrip(size_t shape[], size_t cshape[], int dimensions)
         pp.shape[i] = shape[i];
         pp.cshape[i] = cshape[i];
     }
-    pp.dimensions = dimensions;
+    pp.dim = dimensions;
 
     /* Create a caterva array */
 
