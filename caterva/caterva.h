@@ -1,5 +1,5 @@
-#ifndef HEADER_FILE
-#define HEADER_FILE
+#ifndef CATERVA_HEADER_FILE
+#define CATERVA_HEADER_FILE
 
 #include <stdio.h>
 #include <stdlib.h>
