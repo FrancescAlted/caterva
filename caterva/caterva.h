@@ -27,7 +27,6 @@ typedef struct
     size_t dim; /* data dimensions */
 } caterva_array;
 
-
 caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_pparams pp);
 
 int caterva_free_array(caterva_array *carr);

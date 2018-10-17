@@ -279,7 +279,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
 
     for (int i = 1; i < CATERVA_MAXDIM; i++)
     {
-        s_aux[i] = s->eshape[i] / s->cshape[i] * s_aux[i - 1];
+        s_aux[i] = s->eshape[i-1] / s->cshape[i-1] * s_aux[i - 1];
         d_aux[i] = d->eshape[i] / d->cshape[i] * d_aux[i - 1];
     }
 
