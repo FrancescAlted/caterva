@@ -6,9 +6,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <math.h>
-#include "../caterva/caterva.c"
-#include "../partcompute/partcompute.c"
-
+#include <caterva.h>
 
 #define mu_assert(message, test) do { if (!(test)) return message; } while (0)
 
