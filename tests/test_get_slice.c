@@ -161,8 +161,10 @@ char* test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_
     
     caterva_free_array(src);
     caterva_free_array(dest);
+    free(arr);
     free(res);
     free(arr_dest);
+
     return 0;
 }
 
