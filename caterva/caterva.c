@@ -8,7 +8,7 @@ caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_p
 
     /* Create a schunk */
 
-    blosc2_schunk *sc = blosc2_new_schunk(cp, dp);
+    blosc2_schunk *sc = blosc2_new_schunk(cp, dp, NULL);
     carr->sc = sc;
 
     /* Fill all the caterva_array params */
@@ -149,7 +149,7 @@ int caterva_schunk_fill_from_array(void *s, caterva_array *d)
 
         /* Append buffer to schunk */
 
-        blosc2_append_buffer(d->sc, d->csize * typesize, chunk);
+        blosc2_schunk_append_buffer(d->sc, chunk, d->csize * typesize);
     }
     free(chunk);
     return 0;
@@ -186,7 +186,7 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
     {
         /* Decompress a chunk */
 
-        blosc2_decompress_chunk(s->sc, ci, chunk, s->csize * typesize);
+        blosc2_schunk_decompress_chunk(s->sc, ci, chunk, s->csize * typesize);
    
         /* Calculate the coord. of the chunk first element in arr buffer */
 
@@ -361,7 +361,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
 
                                         if (s_ci != s_ci_b) {
                                             s_ci_b = s_ci;
-                                            blosc2_decompress_chunk(s->sc, s_ci, s_chunk, s->csize * typesize);
+                                            blosc2_schunk_decompress_chunk(s->sc, s_ci, s_chunk, s->csize * typesize);
                                         }
                                         
                                         /* Calculate the position of the desired element in src_chunk. */
@@ -413,7 +413,7 @@ int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t
 
         /* Append dest_chunk to dest array */
 
-        blosc2_append_buffer(d->sc, d->csize * typesize, d_chunk);
+        blosc2_schunk_append_buffer(d->sc, d_chunk, d->csize * typesize);
 
     }
 
