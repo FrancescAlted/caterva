@@ -93,11 +93,11 @@ char* test_roundtrip(size_t shape[], size_t cshape[], int dimensions)
     return 0;
 }
 
-static char* all_tests(size_t shape[], size_t cshape[], int* dimensions) {
+static char* all_tests(char *filename, size_t shape[], size_t cshape[], int* dimensions) {
 
     /* Read csv file */
 
-    FILE *stream = fopen("test_schunk_fill_from_array_roundtrip.csv", "r");
+    FILE *stream = fopen(filename, "r");
     mu_assert("ERROR al abrir el fichero csv", stream != NULL);
 
     /* Run a test for each line of csv file */
@@ -113,7 +113,7 @@ static char* all_tests(size_t shape[], size_t cshape[], int* dimensions) {
     return 0;
 }
 
-int main()
+int main(int argc, char **argv)
 {
     /* Set stream buffer */
 
@@ -121,13 +121,15 @@ int main()
     
     /* Define data needed for run a test */
 
+    char *filename = argv[1];
+    printf("%s\n", filename);
     size_t shape[CATERVA_MAXDIM];
     size_t cshape[CATERVA_MAXDIM];
     int dimensions;
 
     /* Print test result */
 
-    char* result = all_tests(shape, cshape, &dimensions);
+    char* result = all_tests(filename, shape, cshape, &dimensions);
 
     if (result != 0) {
         printf(" (%s)", result);
@@ -137,5 +139,5 @@ int main()
     }
     printf("\tTests run: %d\n", tests_run);
 
-    return 0;
+    return result != 0;
 }

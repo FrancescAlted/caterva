@@ -155,9 +155,8 @@ char* test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_
     
     for(size_t i = 0; i < dest->size; i++)
     {
-        printf("%lf - %lf\n",  res[i], arr_dest[i]);
+        //printf("%f - %f\n", res[i], arr_dest[i]);
         mu_assert("ERROR. Original and resulting arrays are not equal!", res[i] == arr_dest[i]);
-
     }
     
     caterva_free_array(src);
@@ -169,12 +168,12 @@ char* test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_
     return 0;
 }
 
-static char* all_tests(size_t src_shape[], size_t src_cshape[], int* src_dim, size_t start[], size_t stop[], 
+static char* all_tests(char *filename, size_t src_shape[], size_t src_cshape[], int* src_dim, size_t start[], size_t stop[], 
                        size_t step[], size_t dest_cshape[], int *dest_dim, double **res) {
 
     /* Read csv file (generated via notebook generating_results_for_get_slice.ipynb) */
 
-    FILE *stream = fopen("test_get_slice.csv", "r");
+    FILE *stream = fopen(filename, "r");
     mu_assert("ERROR al abrir el fichero csv", stream != NULL);
 
     /* Run a test for each line of csv file */
@@ -191,7 +190,7 @@ static char* all_tests(size_t src_shape[], size_t src_cshape[], int* src_dim, si
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
     /* Set stream buffer */
 
@@ -200,6 +199,8 @@ int main()
     /* Define data needed for run a test */
 
     /* Define src values */
+
+    char *filename = argv[1];
 
     size_t src_shape[CATERVA_MAXDIM];
     size_t src_cshape[CATERVA_MAXDIM];
@@ -218,7 +219,7 @@ int main()
 
     /* Print test result */
 
-    char* result = all_tests(src_shape, src_cshape, &src_dim, start, stop, step, dest_cshape, &dest_dim, &res);
+    char* result = all_tests(filename, src_shape, src_cshape, &src_dim, start, stop, step, dest_cshape, &dest_dim, &res);
 
     if (result != 0) {
         printf(" (%s)", result);
@@ -228,5 +229,5 @@ int main()
     }
     printf("\tTests run: %d\n", tests_run);
 
-    return 0;
+    return result != 0;
 }
