@@ -3,12 +3,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug",
+            "name": "Debug Tests",
             "type": "cppdbg",
             "request": "launch",
-            "program": "./build/roundtrip",
-            "cwd": "${workspaceRoot}/",
-            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}",
+            "args": [
+                "./tests/${fileBasenameNoExtension}.csv"
+            ],
+            "cwd": "${workspaceFolder}/",
             "externalConsole": false,
             "MIMode": "lldb"
         }
