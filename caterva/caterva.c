@@ -8,7 +8,9 @@ caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_p
 
     /* Create a schunk */
 
-    blosc2_schunk *sc = blosc2_new_schunk(cp, dp, NULL);
+    const blosc2_frame *fr = &BLOSC_EMPTY_FRAME;
+
+    blosc2_schunk *sc = blosc2_new_schunk(cp, dp, fr);
     carr->sc = sc;
 
     /* Fill all the caterva_array params */
