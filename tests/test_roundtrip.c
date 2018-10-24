@@ -81,6 +81,7 @@ char* test_roundtrip(size_t shape[], size_t cshape[], int dimensions)
 
     for(size_t i = 0; i < carr->size; i++)
     {
+        // printf("%f - %f\n", arr[i], arr_dest[i]);
         mu_assert("ERROR. Original and resulting arrays are not equal!", arr[i] == arr_dest[i]);
     }
     
