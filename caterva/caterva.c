@@ -25,7 +25,7 @@ caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_p
         carr->shape[i] = pp.shape[i];
         carr->cshape[i] = pp.cshape[i];
         
-        if (i < pp.dim) {
+        if (i >= CATERVA_MAXDIM - pp.dim) {
             if (pp.shape[i] % pp.cshape[i] == 0){
                 carr->eshape[i] = pp.shape[i];
             }
@@ -68,11 +68,11 @@ int caterva_schunk_fill_from_array(void *s, caterva_array *d)
 
     size_t aux[CATERVA_MAXDIM];
 
-    aux[0] = d->eshape[0] / d->cshape[0];
+    aux[7] = d->eshape[7] / d->cshape[7];
 
-    for (int i = 1; i < CATERVA_MAXDIM; i++)
+    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
     {
-        aux[i] = d->eshape[i] / d->cshape[i] * aux[i - 1];
+        aux[i] = d->eshape[i] / d->cshape[i] * aux[i + 1];
     }
 
     /* Fill each chunk buffer */
@@ -85,16 +85,16 @@ int caterva_schunk_fill_from_array(void *s, caterva_array *d)
 
         /* Calculate the coord. of the chunk first element */
 
-        desp[0] = ci % (d->eshape[0] / d->cshape[0]) * d->cshape[0];
+        desp[7] = ci % (d->eshape[7] / d->cshape[7]) * d->cshape[7];
 
-        for (int i = 1; i < CATERVA_MAXDIM; i++)
+        for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
         {
-            desp[i] = ci % (aux[i]) / (aux[i - 1]) * d->cshape[i];
+            desp[i] = ci % (aux[i]) / (aux[i + 1]) * d->cshape[i];
         }
 
         /* Calculate if pad with 0 are needed in this chunk */
 
-        for (int i = 0; i < CATERVA_MAXDIM; i++)
+        for (int i = CATERVA_MAXDIM - 1; i >= 0; i--)
         {
             if (desp[i] + d->cshape[i] > d->shape[i]) {
                 r[i] = d->shape[i] - desp[i];
@@ -109,38 +109,38 @@ int caterva_schunk_fill_from_array(void *s, caterva_array *d)
         size_t s_coord_f, d_coord_f, s_a, d_a;
         size_t ii[CATERVA_MAXDIM];
 
-        for (ii[1] = 0; ii[1] < r[1]; ii[1]++)
+        for (ii[6] = 0; ii[6] < r[6]; ii[6]++)
         {
-            for (ii[2] = 0; ii[2] < r[2]; ii[2]++)
+            for (ii[5] = 0; ii[5] < r[5]; ii[5]++)
             {
-                for (ii[3] = 0; ii[3] < r[3]; ii[3]++)
+                for (ii[4] = 0; ii[4] < r[4]; ii[4]++)
                 {
-                    for (ii[4] = 0; ii[4] < r[4]; ii[4]++)
+                    for (ii[3] = 0; ii[3] < r[3]; ii[3]++)
                     {
-                        for (ii[5] = 0; ii[5] < r[5]; ii[5]++)
+                        for (ii[2] = 0; ii[2] < r[2]; ii[2]++)
                         {
-                            for (ii[6] = 0; ii[6] < r[6]; ii[6]++)
+                            for (ii[1] = 0; ii[1] < r[1]; ii[1]++)
                             {
-                                for (ii[7] = 0; ii[7] < r[7]; ii[7]++)
+                                for (ii[0] = 0; ii[0] < r[0]; ii[0]++)
                                 {
                                     d_coord_f = 0;
-                                    d_a = d->cshape[0];
+                                    d_a = d->cshape[7];
 
-                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
+                                    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
                                     {
                                         d_coord_f += ii[i] * d_a;
                                         d_a *= d->cshape[i];
                                     }
 
-                                    s_coord_f = desp[0];
-                                    s_a = d->shape[0];
+                                    s_coord_f = desp[7];
+                                    s_a = d->shape[7];
 
-                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
+                                    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
                                     {
                                         s_coord_f += (desp[i] + ii[i]) * s_a;
                                         s_a *= d->shape[i];
                                     }
-                                    memcpy(&chunk[d_coord_f * typesize], &s_b[s_coord_f * typesize], r[0] * typesize);
+                                    memcpy(&chunk[d_coord_f * typesize], &s_b[s_coord_f * typesize], r[7] * typesize);
                                 }
                             }
                         }
@@ -173,11 +173,11 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
 
     size_t aux[CATERVA_MAXDIM];
 
-    aux[0] = s->eshape[0] / s->cshape[0];
+    aux[7] = s->eshape[7] / s->cshape[7];
 
-    for (int i = 1; i < CATERVA_MAXDIM; i++)
+    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
     {
-        aux[i] = s->eshape[i] / s->cshape[i] * aux[i - 1];
+        aux[i] = s->eshape[i] / s->cshape[i] * aux[i + 1];
     }
 
     /* Fill array from schunk (chunk by chunk) */
@@ -192,16 +192,16 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
    
         /* Calculate the coord. of the chunk first element in arr buffer */
 
-        desp[0] = ci % aux[0] * s->cshape[0];
+        desp[7] = ci % aux[7] * s->cshape[7];
 
-        for (int i = 1; i < CATERVA_MAXDIM; i++)
+        for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
         {
-            desp[i] = ci % (aux[i]) / (aux[i - 1]) * s->cshape[i];
+            desp[i] = ci % (aux[i]) / (aux[i + 1]) * s->cshape[i];
         }
 
         /* Calculate if pad with 0 are needed in this chunk */
 
-        for (int i = 0; i < CATERVA_MAXDIM; i++)
+        for (int i = CATERVA_MAXDIM - 1; i >= 0; i--)
         {
             if (desp[i] + s->cshape[i] > s->shape[i]) {
                 r[i] = s->shape[i] - desp[i];
@@ -216,38 +216,38 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d)
         size_t s_coord_f, d_coord_f, s_a, d_a;
         size_t ii[CATERVA_MAXDIM];
 
-        for (ii[1] = 0; ii[1] < r[1]; ii[1]++)
+        for (ii[6] = 0; ii[6] < r[6]; ii[6]++)
         {
-            for (ii[2] = 0; ii[2] < r[2]; ii[2]++)
+            for (ii[5] = 0; ii[5] < r[5]; ii[5]++)
             {
-                for (ii[3] = 0; ii[3] < r[3]; ii[3]++)
+                for (ii[4] = 0; ii[4] < r[4]; ii[4]++)
                 {
-                    for (ii[4] = 0; ii[4] < r[4]; ii[4]++)
+                    for (ii[3] = 0; ii[3] < r[3]; ii[3]++)
                     {
-                        for (ii[5] = 0; ii[5] < r[5]; ii[5]++)
+                        for (ii[2] = 0; ii[2] < r[2]; ii[2]++)
                         {
-                            for (ii[6] = 0; ii[6] < r[6]; ii[6]++)
+                            for (ii[1] = 0; ii[1] < r[1]; ii[1]++)
                             {
-                                for (ii[7] = 0; ii[7] < r[7]; ii[7]++)
+                                for (ii[0] = 0; ii[0] < r[0]; ii[0]++)
                                 {
                                     s_coord_f = 0;
-                                    s_a = s->cshape[0];
+                                    s_a = s->cshape[7];
 
-                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
+                                    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
                                     {
                                         s_coord_f += ii[i] * s_a;
                                         s_a *= s->cshape[i];
                                     }
 
-                                    d_coord_f = desp[0];
-                                    d_a = s->shape[0];
+                                    d_coord_f = desp[7];
+                                    d_a = s->shape[7];
 
-                                    for (int i = 1; i < CATERVA_MAXDIM; i++)
+                                    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--)
                                     {
                                         d_coord_f += (desp[i] + ii[i]) * d_a;
                                         d_a *= s->shape[i];
                                     }
-                                    memcpy(&d_b[d_coord_f * typesize], &chunk[s_coord_f * typesize], r[0] * typesize);
+                                    memcpy(&d_b[d_coord_f * typesize], &chunk[s_coord_f * typesize], r[7] * typesize);
                                 }
                             }
                         }
