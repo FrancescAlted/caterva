@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2018  Francesc Alted
+ * Copyright (C) 2018  Aleix Alcacer
+ */
+
 #include "caterva.h"
 
 caterva_array* caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_pparams pp)

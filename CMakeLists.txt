@@ -1,12 +1,15 @@
+# Copyright (C) 2018  Francesc Alted
+# Copyright (C) 2018  Aleix Alcacer
+
+
 cmake_minimum_required(VERSION 2.8.10)
 
 project(caterva)
 
 set(CATERVA ${CMAKE_SOURCE_DIR}/caterva)
+include_directories(${CATERVA})
 
 enable_testing()
-
-# include_directories("/opt/intel/mkl/include")
 
 add_library(caterva STATIC ${CATERVA}/caterva.c)
 
@@ -22,5 +25,3 @@ foreach (source ${SOURCES})
     target_link_libraries(${target} LINK_PUBLIC caterva blosc)
     add_test(NAME ${target} COMMAND ${target} "${CMAKE_SOURCE_DIR}/tests/${target}.csv")
 endforeach (source)
-
-

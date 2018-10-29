@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2018  Francesc Alted
+ * Copyright (C) 2018  Aleix Alcacer
+ */
+
 #ifndef CATERVA_HEADER_FILE
 #define CATERVA_HEADER_FILE
 
