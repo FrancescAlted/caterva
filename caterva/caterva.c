@@ -16,13 +16,13 @@ caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_p
     carr->size = 1;
     carr->csize = 1;
     carr->esize = 1;
-    carr->dim = pp.dim;
+    carr->ndims = pp.ndims;
 
     for (int i = 0; i < CATERVA_MAXDIM; i++) {
         carr->shape[i] = pp.shape[i];
         carr->cshape[i] = pp.cshape[i];
 
-        if (i >= CATERVA_MAXDIM - pp.dim) {
+        if (i >= CATERVA_MAXDIM - pp.ndims) {
             if (pp.shape[i] % pp.cshape[i] == 0) {
                 carr->eshape[i] = pp.shape[i];
             } else {

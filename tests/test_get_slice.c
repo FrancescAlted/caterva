@@ -104,7 +104,7 @@ char *test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_
         src_pp.shape[i] = src_shape[i];
         src_pp.cshape[i] = src_cshape[i];
     }
-    src_pp.dim = src_dim;
+    src_pp.ndims = src_dim;
 
     caterva_array *src = caterva_new_array(cp, dp, src_pp);
 
@@ -114,7 +114,7 @@ char *test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_
         dest_pp.shape[i] = stop[i] - start[i];
         dest_pp.cshape[i] = dest_cshape[i];
     }
-    dest_pp.dim = dest_dim;
+    dest_pp.ndims = dest_dim;
 
     caterva_array *dest = caterva_new_array(cp, dp, dest_pp);
 

@@ -38,7 +38,7 @@ void get_fields(char *line, size_t *shape, size_t *cshape, int *dimensions) {
     convert_to_array(cshape_str, cshape);
 }
 
-char *test_roundtrip(size_t shape[], size_t cshape[], int dimensions) {
+char *test_roundtrip(const size_t *shape, const size_t *cshape, int dimensions) {
 
     // Create dparams, cparams and pparams
     blosc2_cparams cp = BLOSC_CPARAMS_DEFAULTS;
@@ -52,7 +52,7 @@ char *test_roundtrip(size_t shape[], size_t cshape[], int dimensions) {
         pp.shape[i] = shape[i];
         pp.cshape[i] = cshape[i];
     }
-    pp.dim = dimensions;
+    pp.ndims = dimensions;
 
     /* Create a caterva array */
     caterva_array *carr = caterva_new_array(cp, dp, pp);
