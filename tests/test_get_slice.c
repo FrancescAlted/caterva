@@ -13,7 +13,7 @@ int convert_to_array_d(char *line, double *shape) {
     tok = strtok(line, "-");
     int i = 0;
     while (tok != NULL) {
-        sscanf(tok, "%lf", &shape[i]);
+        shape[i] = strtod(tok, NULL);
         tok = strtok(NULL, "-");
         i++;
     }
@@ -26,17 +26,16 @@ int convert_to_array(char *line, size_t *shape) {
     tok = strtok(line, "-");
     int i = 0;
     while (tok != NULL) {
-        sscanf(tok, "%lu", &shape[i]);
+        shape[i] = strtoul(tok, NULL, 10);
         tok = strtok(NULL, "-");
         i++;
     }
     return 0;
 }
 
-int get_fields(char *line, size_t *src_shape, size_t *src_cshape, int *src_dim, size_t *start,
-               size_t *stop, size_t *step, size_t *dest_cshape, int *dest_dim, double **res) {
-    /* Get the fields of a csv line */
-
+/* Get the fields of a csv line */
+int get_fields(char *line, size_t *src_shape, size_t *src_cshape, size_t *src_dim, size_t *start,
+               size_t *stop, size_t *step, size_t *dest_cshape, size_t *dest_dim, double **res) {
     char *src_shape_str;
     char *src_cshape_str;
     char *src_dim_str;
@@ -71,12 +70,12 @@ int get_fields(char *line, size_t *src_shape, size_t *src_cshape, int *src_dim, 
 
     convert_to_array(src_shape_str, src_shape);
     convert_to_array(src_cshape_str, src_cshape);
-    *src_dim = atoi(src_dim_str);
+    *src_dim = (size_t)strtol(src_dim_str, NULL, 10);
     convert_to_array(start_str, start);
     convert_to_array(stop_str, stop);
     convert_to_array(step_str, step);
     convert_to_array(dest_cshape_str, dest_cshape);
-    *dest_dim = atoi(dest_dim_str);
+    *dest_dim = (size_t)strtol(dest_dim_str, NULL, 10);
 
     size_t dest_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; i++) {
@@ -88,9 +87,9 @@ int get_fields(char *line, size_t *src_shape, size_t *src_cshape, int *src_dim, 
     return 0;
 }
 
-char *test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_t start[],
-                     size_t stop[], size_t step[], size_t dest_cshape[], int dest_dim,
-                     double *res) {
+char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t src_dim,
+                     size_t start[], size_t stop[], size_t step[], const size_t *dest_cshape,
+                     size_t dest_dim, double *res) {
     /* Create dparams and cparams */
     blosc2_cparams cp = BLOSC_CPARAMS_DEFAULTS;
     cp.typesize = sizeof(double);
@@ -130,7 +129,6 @@ char *test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_
     caterva_array_fill_from_schunk(dest, arr_dest);
 
     for (size_t i = 0; i < dest->size; i++) {
-        //printf("%f - %f\n", res[i], arr_dest[i]);
         mu_assert("ERROR. Original and resulting arrays are not equal!", res[i] == arr_dest[i]);
     }
 
@@ -143,9 +141,9 @@ char *test_roundtrip(size_t src_shape[], size_t src_cshape[], int src_dim, size_
     return 0;
 }
 
-static char *all_tests(char *filename, size_t src_shape[], size_t src_cshape[], int *src_dim,
+static char *all_tests(char *filename, size_t src_shape[], size_t src_cshape[], size_t *src_dim,
                        size_t start[], size_t stop[], size_t step[], size_t dest_cshape[],
-                       int *dest_dim, double **res) {
+                       size_t *dest_dim, double **res) {
 
     /* Read csv file (generated via notebook generating_results_for_get_slice.ipynb) */
     FILE *stream = fopen(filename, "r");
@@ -171,10 +169,15 @@ int main(int argc, char **argv) {
     /* Define data needed for run a test */
 
     /* Set src values */
-    char *filename = argv[1];
+    char *filename = NULL;
+    if (argc > 1) {
+        filename = argv[1];
+    } else {
+        printf("Please, pass the source dims in a CSV file");
+    }
     size_t src_shape[CATERVA_MAXDIM];
     size_t src_cshape[CATERVA_MAXDIM];
-    int src_dim;
+    size_t src_dim;
 
     /* Define start, stop and step values */
     size_t start[CATERVA_MAXDIM];
@@ -183,7 +186,7 @@ int main(int argc, char **argv) {
 
     /* Define dest values */
     size_t dest_cshape[CATERVA_MAXDIM];
-    int dest_dim;
+    size_t dest_dim;
     double *res;
 
     char *result = all_tests(filename, src_shape, src_cshape, &src_dim, start, stop, step,

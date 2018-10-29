@@ -13,14 +13,14 @@ int convert_to_array(char *line, size_t *shape) {
     tok = strtok(line, "-");
     int i = 0;
     while (tok != NULL) {
-        sscanf(tok, "%lu", &shape[i]);
+        shape[i] = strtoul(tok, NULL, 10);
         tok = strtok(NULL, "-");
         i++;
     }
     return 0;
 }
 
-void get_fields(char *line, size_t *shape, size_t *cshape, int *dimensions) {
+void get_fields(char *line, size_t *shape, size_t *cshape, size_t *dimensions) {
     char *shape_str;
     char *cshape_str;
     char *tok;
@@ -32,13 +32,14 @@ void get_fields(char *line, size_t *shape, size_t *cshape, int *dimensions) {
     tok = strtok(NULL, ";");
     cshape_str = strdup(tok);
     tok = strtok(NULL, ";");
-    *dimensions = atoi(tok);
+    *dimensions = (size_t)strtol(tok, NULL, 10);
+
 
     convert_to_array(shape_str, shape);
     convert_to_array(cshape_str, cshape);
 }
 
-char *test_roundtrip(const size_t *shape, const size_t *cshape, int dimensions) {
+char *test_roundtrip(const size_t *shape, const size_t *cshape, size_t dimensions) {
 
     // Create dparams, cparams and pparams
     blosc2_cparams cp = BLOSC_CPARAMS_DEFAULTS;
@@ -59,7 +60,7 @@ char *test_roundtrip(const size_t *shape, const size_t *cshape, int dimensions) 
 
     /* Create original data */
     double *arr = (double *) malloc(carr->size * sizeof(double));
-    for (int i = 0; i < carr->size; i++) {
+    for (int i = 0; i < (int)carr->size; i++) {
         arr[i] = (double) i;
     }
 
@@ -83,7 +84,7 @@ char *test_roundtrip(const size_t *shape, const size_t *cshape, int dimensions) 
     return 0;
 }
 
-static char *all_tests(char *filename, size_t shape[], size_t cshape[], int *dimensions) {
+static char *all_tests(char *filename, size_t shape[], size_t cshape[], size_t *dimensions) {
 
     /* Read csv file */
     FILE *stream = fopen(filename, "r");
@@ -107,11 +108,17 @@ int main(int argc, char **argv) {
     setbuf(stdout, NULL);
 
     /* Define data needed for run a test */
-    char *filename = argv[1];
+    char *filename = NULL;
+    if (argc > 1) {
+        filename = argv[1];
+    } else {
+        printf("Please, pass the source dims in a CSV file");
+    }
+
     printf("%s\n", filename);
     size_t shape[CATERVA_MAXDIM];
     size_t cshape[CATERVA_MAXDIM];
-    int dimensions;
+    size_t dimensions;
 
     /* Print test result */
     char *result = all_tests(filename, shape, cshape, &dimensions);
