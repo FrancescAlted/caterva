@@ -38,7 +38,6 @@ int caterva_schunk_fill_from_array(void *arr, caterva_array *carr);
 
 int caterva_array_fill_from_schunk(caterva_array *carr, void *arr);
 
-int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t start[], size_t stop[],
-                      size_t step[]);
+int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t start[], size_t stop[]);
 
 #endif

@@ -192,8 +192,7 @@ int caterva_array_fill_from_schunk(caterva_array *s, void *d) {
     return 0;
 }
 
-int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t stop[],
-                      size_t step[]) {
+int caterva_get_slice(caterva_array *s, caterva_array *d, size_t start[], size_t stop[]) {
 
     /* Create chunk buffers */
     int typesize = s->sc->typesize;

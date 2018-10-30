@@ -35,13 +35,12 @@ int convert_to_array(char *line, size_t *shape) {
 
 /* Get the fields of a csv line */
 int get_fields(char *line, size_t *src_shape, size_t *src_cshape, size_t *src_dim, size_t *start,
-               size_t *stop, size_t *step, size_t *dest_cshape, size_t *dest_dim, double **res) {
+               size_t *stop, size_t *dest_cshape, size_t *dest_dim, double **res) {
     char *src_shape_str;
     char *src_cshape_str;
     char *src_dim_str;
     char *start_str;
     char *stop_str;
-    char *step_str;
     char *dest_cshape_str;
     char *dest_dim_str;
     char *res_str;
@@ -60,8 +59,6 @@ int get_fields(char *line, size_t *src_shape, size_t *src_cshape, size_t *src_di
     tok = strtok(NULL, ";");
     stop_str = strdup(tok);
     tok = strtok(NULL, ";");
-    step_str = strdup(tok);
-    tok = strtok(NULL, ";");
     dest_cshape_str = strdup(tok);
     tok = strtok(NULL, ";");
     dest_dim_str = strdup(tok);
@@ -73,7 +70,6 @@ int get_fields(char *line, size_t *src_shape, size_t *src_cshape, size_t *src_di
     *src_dim = (size_t)strtol(src_dim_str, NULL, 10);
     convert_to_array(start_str, start);
     convert_to_array(stop_str, stop);
-    convert_to_array(step_str, step);
     convert_to_array(dest_cshape_str, dest_cshape);
     *dest_dim = (size_t)strtol(dest_dim_str, NULL, 10);
 
@@ -88,7 +84,7 @@ int get_fields(char *line, size_t *src_shape, size_t *src_cshape, size_t *src_di
 }
 
 char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t src_dim,
-                     size_t start[], size_t stop[], size_t step[], const size_t *dest_cshape,
+                     size_t start[], size_t stop[], const size_t *dest_cshape,
                      size_t dest_dim, double *res) {
     /* Create dparams and cparams */
     blosc2_cparams cp = BLOSC_CPARAMS_DEFAULTS;
@@ -124,7 +120,7 @@ char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t s
     }
 
     caterva_schunk_fill_from_array(arr, src);
-    caterva_get_slice(src, dest, start, stop, step);
+    caterva_get_slice(src, dest, start, stop);
     double *arr_dest = (double *) malloc(dest->size * sizeof(double));
     caterva_array_fill_from_schunk(dest, arr_dest);
 
@@ -142,8 +138,8 @@ char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t s
 }
 
 static char *all_tests(char *filename, size_t src_shape[], size_t src_cshape[], size_t *src_dim,
-                       size_t start[], size_t stop[], size_t step[], size_t dest_cshape[],
-                       size_t *dest_dim, double **res) {
+                       size_t start[], size_t stop[], size_t dest_cshape[], size_t *dest_dim, 
+                       double **res) {
 
     /* Read csv file (generated via notebook generating_results_for_get_slice.ipynb) */
     FILE *stream = fopen(filename, "r");
@@ -154,9 +150,8 @@ static char *all_tests(char *filename, size_t src_shape[], size_t src_cshape[], 
     fgets(line, 32768, stream);
     while (fgets(line, 32768, stream)) {
         char *tmp = line;
-        get_fields(tmp, src_shape, src_cshape, src_dim, start, stop, step, dest_cshape, dest_dim,
-                   res);
-        mu_run_test(test_roundtrip(src_shape, src_cshape, *src_dim, start, stop, step, dest_cshape,
+        get_fields(tmp, src_shape, src_cshape, src_dim, start, stop, dest_cshape, dest_dim, res);
+        mu_run_test(test_roundtrip(src_shape, src_cshape, *src_dim, start, stop, dest_cshape,
                                    *dest_dim, *res));
     }
     return 0;
@@ -182,14 +177,13 @@ int main(int argc, char **argv) {
     /* Define start, stop and step values */
     size_t start[CATERVA_MAXDIM];
     size_t stop[CATERVA_MAXDIM];
-    size_t step[CATERVA_MAXDIM];  /* not working yet */
 
     /* Define dest values */
     size_t dest_cshape[CATERVA_MAXDIM];
     size_t dest_dim;
     double *res;
 
-    char *result = all_tests(filename, src_shape, src_cshape, &src_dim, start, stop, step,
+    char *result = all_tests(filename, src_shape, src_cshape, &src_dim, start, stop,
                              dest_cshape, &dest_dim, &res);
 
     if (result != 0) {
