@@ -56,35 +56,35 @@ char *test_roundtrip(const size_t *shape, const size_t *cshape, size_t dimension
     pp.ndims = dimensions;
 
     /* Create a caterva array */
-    caterva_array *carr = caterva_new_array(cp, dp, pp);
+    caterva_array *carr = caterva_new_array(cp, dp, &BLOSC_EMPTY_FRAME, pp);
 
     /* Create original data */
-    double *arr = (double *) malloc(carr->size * sizeof(double));
+    double *bufsrc = (double *) malloc(carr->size * sizeof(double));
     for (int i = 0; i < (int)carr->size; i++) {
-        arr[i] = (double) i;
+        bufsrc[i] = (double) i;
     }
 
     /* Fill empty caterva_array with original data */
-    caterva_schunk_fill_from_array(arr, carr);
+    caterva_from_buffer(carr, bufsrc);
 
     /* Fill dest array with caterva_array data */
-    double *arr_dest = (double *) malloc(carr->size * sizeof(double));
-    caterva_array_fill_from_schunk(carr, arr_dest);
+    double *bufdest = (double *) malloc(carr->size * sizeof(double));
+    caterva_to_buffer(carr, bufdest);
 
     /* Testing */
     for (size_t i = 0; i < carr->size; i++) {
-        mu_assert("ERROR. Original and resulting arrays are not equal!", arr[i] == arr_dest[i]);
+        mu_assert("ERROR. Original and resulting arrays are not equal!", bufsrc[i] == bufdest[i]);
     }
 
     /* Free mallocs */
-    free(arr);
-    free(arr_dest);
+    free(bufsrc);
+    free(bufdest);
     caterva_free_array(carr);
 
     return 0;
 }
 
-static char *all_tests(char *filename, size_t shape[], size_t cshape[], size_t *dimensions) {
+static char *all_tests(char *filename, size_t *shape, size_t *cshape, size_t *dimensions) {
 
     /* Read csv file */
     FILE *stream = fopen(filename, "r");

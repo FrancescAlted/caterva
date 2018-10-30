@@ -30,13 +30,13 @@ typedef struct {
     size_t ndims;  /* data dimensions */
 } caterva_array;
 
-caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, caterva_pparams pp);
+caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp);
 
 int caterva_free_array(caterva_array *carr);
 
-int caterva_schunk_fill_from_array(void *arr, caterva_array *carr);
+int caterva_from_buffer(caterva_array *dest, void *src);
 
-int caterva_array_fill_from_schunk(caterva_array *carr, void *arr);
+int caterva_to_buffer(caterva_array *src, void *dest);
 
 int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t start[], size_t stop[]);
 

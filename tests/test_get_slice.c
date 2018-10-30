@@ -84,7 +84,7 @@ int get_fields(char *line, size_t *src_shape, size_t *src_cshape, size_t *src_di
 }
 
 char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t src_dim,
-                     size_t start[], size_t stop[], const size_t *dest_cshape,
+                     size_t *start, size_t *stop, const size_t *dest_cshape,
                      size_t dest_dim, double *res) {
     /* Create dparams and cparams */
     blosc2_cparams cp = BLOSC_CPARAMS_DEFAULTS;
@@ -101,7 +101,7 @@ char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t s
     }
     src_pp.ndims = src_dim;
 
-    caterva_array *src = caterva_new_array(cp, dp, src_pp);
+    caterva_array *src = caterva_new_array(cp, dp, NULL, src_pp);
 
     /* Create caterva_array dest */
     caterva_pparams dest_pp;
@@ -111,18 +111,18 @@ char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t s
     }
     dest_pp.ndims = dest_dim;
 
-    caterva_array *dest = caterva_new_array(cp, dp, dest_pp);
+    caterva_array *dest = caterva_new_array(cp, dp, NULL, dest_pp);
 
     /* Create original data */
     double *arr = (double *) malloc(src->size * sizeof(double));
-    for (int i = 0; i < src->size; i++) {
+    for (unsigned int i = 0; i < src->size; i++) {
         arr[i] = (double) i;
     }
 
-    caterva_schunk_fill_from_array(arr, src);
+    caterva_from_buffer(src, arr);
     caterva_get_slice(src, dest, start, stop);
     double *arr_dest = (double *) malloc(dest->size * sizeof(double));
-    caterva_array_fill_from_schunk(dest, arr_dest);
+    caterva_to_buffer(dest, arr_dest);
 
     for (size_t i = 0; i < dest->size; i++) {
         mu_assert("ERROR. Original and resulting arrays are not equal!", res[i] == arr_dest[i]);
@@ -137,8 +137,8 @@ char *test_roundtrip(const size_t *src_shape, const size_t *src_cshape, size_t s
     return 0;
 }
 
-static char *all_tests(char *filename, size_t src_shape[], size_t src_cshape[], size_t *src_dim,
-                       size_t start[], size_t stop[], size_t dest_cshape[], size_t *dest_dim, 
+static char *all_tests(char *filename, size_t *src_shape, size_t *src_cshape, size_t *src_dim,
+                       size_t *start, size_t *stop, size_t *dest_cshape, size_t *dest_dim,
                        double **res) {
 
     /* Read csv file (generated via notebook generating_results_for_get_slice.ipynb) */
