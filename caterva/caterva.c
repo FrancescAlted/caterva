@@ -306,3 +306,29 @@ int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t *start, si
     free(d_chunk);
     return 0;
 }
+
+int caterva_equal_data(caterva_array *a, caterva_array *b){
+
+    if (a->size != b->size) {
+        return -1;
+    }
+    if (a->sc->typesize != b->sc->typesize) {
+        return -1;
+    }
+
+    size_t size =  a->size;
+    int typesize = a->sc->typesize;
+
+    uint8_t *abuf = malloc(size * typesize);
+    caterva_to_buffer(a, abuf);
+
+    uint8_t *bbuf = malloc(size * typesize);
+    caterva_to_buffer(b, bbuf);
+
+    for (size_t i = 0; i < size * typesize; i++) {
+        if (abuf[i] != bbuf[i]){
+            return -1;
+        }
+    }
+    return 0;
+}

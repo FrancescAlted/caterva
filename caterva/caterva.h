@@ -40,4 +40,6 @@ int caterva_to_buffer(caterva_array *src, void *dest);
 
 int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t start[], size_t stop[]);
 
+int caterva_equal_data(caterva_array *a, caterva_array *b);
+
 #endif
