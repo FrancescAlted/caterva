@@ -330,5 +330,7 @@ int caterva_equal_data(caterva_array *a, caterva_array *b){
             return -1;
         }
     }
+    free(abuf);
+    free(bbuf);
     return 0;
 }
