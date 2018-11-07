@@ -19,6 +19,12 @@ typedef struct {
     size_t ndims;  /* data dimensions */
 } caterva_pparams;
 
+// The next is useful for initializing pparams structs
+static const caterva_pparams CATERVA_PPARAMS_ONES = {
+    .shape = {1,1,1,1,1,1,1,1},
+    .cshape = {1,1,1,1,1,1,1,1},
+    .ndims = 1};
+
 typedef struct {
     blosc2_schunk *sc;
     size_t shape[CATERVA_MAXDIM];  /* shape of original data */
