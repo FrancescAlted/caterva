@@ -10,19 +10,15 @@ set(CATERVA_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(CATERVA_SRC ${CMAKE_CURRENT_LIST_DIR}/caterva)
 include_directories(${CATERVA_SRC})
 
-enable_testing()
-
 add_library(caterva STATIC ${CATERVA_SRC}/caterva.c)
 
 install(TARGETS caterva DESTINATION lib)
 
 install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 
-file(GLOB SOURCES ${CATERVA_ROOT}/tests/test_*.c)
+enable_testing()
 
-foreach (source ${SOURCES})
-    get_filename_component(target ${source} NAME_WE)
-    add_executable(${target} ${CATERVA_ROOT}/tests/${target}.c)
-    target_link_libraries(${target} LINK_PUBLIC caterva ${BLOSC_LIB})
-    add_test(NAME ${target} COMMAND ${target} "${CMAKE_SOURCE_DIR}/tests/${target}.csv")
-endforeach (source)
+add_subdirectory(tests)
+
+
+
