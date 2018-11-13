@@ -265,17 +265,17 @@ int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *sto
                                                     for (jj[4] = c_start[4]; jj[4] < c_stop[4]; ++jj[4]) {
                                                         for (jj[5] = c_start[5]; jj[5] < c_stop[5]; ++jj[5]) {
                                                             for (jj[6] = c_start[6]; jj[6] < c_stop[6]; ++jj[6]) {
-                                                                size_t chunk_pointer = jj[7];
-                                                                size_t chunk_pointer_inc = src->cshape[7];
-                                                                for (int i = CATERVA_MAXDIM - 2; i >= 0 ; --i) {
+                                                                size_t chunk_pointer = 0;
+                                                                size_t chunk_pointer_inc = 1;
+                                                                for (int i = CATERVA_MAXDIM - 1; i >= 0 ; --i) {
                                                                     chunk_pointer += jj[i] * chunk_pointer_inc;
                                                                     chunk_pointer_inc *= src->cshape[i];
                                                                 }
-                                                                size_t buf_pointer = (jj[7] + src->cshape[7]*ii[7] - start[7]);
-                                                                size_t buf_pointer_inc = stop[7] - start[7];
-                                                                for (int i = CATERVA_MAXDIM - 2; i >= 0; --i) {
+                                                                size_t buf_pointer = 0;
+                                                                size_t buf_pointer_inc = 1;
+                                                                for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
                                                                     buf_pointer += (jj[i] + src->cshape[i]*ii[i] - start[i]) * buf_pointer_inc;
-                                                                    buf_pointer_inc *= stop[i] - start[i];
+                                                                    buf_pointer_inc *= (stop[i] - start[i]);
                                                                 }
                                                                 memcpy(&dest[buf_pointer * typesize], &chunk[chunk_pointer * typesize], (c_stop[7] - c_start[7]) * typesize);
                                                             }
