@@ -209,6 +209,7 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
 
 int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *stop) {
 
+    printf("\n");
     /* Create chunk buffers */
     int typesize = src->sc->typesize;
 
@@ -225,27 +226,65 @@ int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *sto
     start = start_aux;
 
     /* Calculate the used chunks */
-    size_t ii[CATERVA_MAXDIM];
-    for (ii[7] = start[7] / src->cshape[7]; ii[7] <= (stop[7]-1) / src->cshape[7]; ++ii[7]) {
-        for (ii[6] = start[6] / src->cshape[6]; ii[6] <= (stop[6]-1) / src->cshape[6]; ++ii[6]) {
-            for (ii[5] = start[5] / src->cshape[5]; ii[5] <= (stop[5]-1) / src->cshape[5]; ++ii[5]) {
-                for (ii[4] = start[4] / src->cshape[4]; ii[4] <= (stop[4]-1) / src->cshape[4]; ++ii[4]) {
-                    for (ii[3] = start[3] / src->cshape[3]; ii[3] <= (stop[3]-1) / src->cshape[3]; ++ii[3]) {
-                        for (ii[2] = start[2] / src->cshape[2]; ii[2] <= (stop[2]-1) / src->cshape[2]; ++ii[2]) {
-                            for (ii[1] = start[1] / src->cshape[1]; ii[1] <= (stop[1]-1) / src->cshape[1]; ++ii[1]) {
-                                for (ii[0] = start[0] / src->cshape[0]; ii[0] <= (stop[0]-1) / src->cshape[0]; ++ii[0]) {
+    size_t ii[CATERVA_MAXDIM], jj[CATERVA_MAXDIM];
+    size_t c_start[CATERVA_MAXDIM], c_stop[CATERVA_MAXDIM];
+    for (ii[0] = start[0] / src->cshape[0]; ii[0] <= (stop[0]-1) / src->cshape[0]; ++ii[0]) {
+        for (ii[1] = start[1] / src->cshape[1]; ii[1] <= (stop[1]-1) / src->cshape[1]; ++ii[1]) {
+            for (ii[2] = start[2] / src->cshape[2]; ii[2] <= (stop[2]-1) / src->cshape[2]; ++ii[2]) {
+                for (ii[3] = start[3] / src->cshape[3]; ii[3] <= (stop[3]-1) / src->cshape[3]; ++ii[3]) {
+                    for (ii[4] = start[3] / src->cshape[3]; ii[3] <= (stop[3]-1) / src->cshape[3]; ++ii[3]) {
+                        for (ii[5] = start[5] / src->cshape[5]; ii[5] <= (stop[5]-1) / src->cshape[5]; ++ii[5]) {
+                            for (ii[6] = start[6] / src->cshape[6]; ii[6] <= (stop[6]-1) / src->cshape[6]; ++ii[6]) {
+                                for (ii[7] = start[7] / src->cshape[7]; ii[7] <= (stop[7]-1) / src->cshape[7]; ++ii[7]) {
 
                                     int nchunk = 0;
                                     int inc = 1;
-                                    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+                                    for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
                                         nchunk += ii[i] * inc;
                                         inc *= src->eshape[i] / src->cshape[i];
                                     }
-                                    printf("Chunk: %d\n", nchunk);
-
                                     blosc2_schunk_decompress_chunk(src->sc, nchunk, chunk, src->csize * typesize);
-
-                                    /* Hay que mirar que elementos descomprimir y donde copiarlos */
+                                    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+                                        if(ii[i] == (start[i] / src->cshape[i])) {
+                                            c_start[i] = start[i] % src->cshape[i];
+                                        } else {
+                                            c_start[i] = 0;
+                                        }
+                                        if(ii[i] == stop[i] / src->cshape[i]) {
+                                            c_stop[i] = stop[i] % src->cshape[i];
+                                        } else {
+                                            c_stop[i] = src->cshape[i];
+                                        }
+                                        //printf("- %d: start=%d  stop=%d\n", i, (int)c_start[i], (int)c_stop[i]);
+                                    }
+                                    jj[7] = c_start[7];
+                                    for (jj[0] = c_start[0]; jj[0] < c_stop[0]; ++jj[0]) {
+                                        for (jj[1] = c_start[1]; jj[1] < c_stop[1]; ++jj[1]) {
+                                            for (jj[2] = c_start[2]; jj[2] < c_stop[2]; ++jj[2]) {
+                                                for (jj[3] = c_start[3]; jj[3] < c_stop[3]; ++jj[3]) {
+                                                    for (jj[4] = c_start[4]; jj[4] < c_stop[4]; ++jj[4]) {
+                                                        for (jj[5] = c_start[5]; jj[5] < c_stop[5]; ++jj[5]) {
+                                                            for (jj[6] = c_start[6]; jj[6] < c_stop[6]; ++jj[6]) {
+                                                                size_t chunk_pointer = jj[7];
+                                                                size_t chunk_pointer_inc = src->cshape[7];
+                                                                for (int i = CATERVA_MAXDIM - 2; i >= 0 ; --i) {
+                                                                    chunk_pointer += jj[i] * chunk_pointer_inc;
+                                                                    chunk_pointer_inc *= src->cshape[i];
+                                                                }
+                                                                size_t buf_pointer = (jj[7] + src->cshape[7]*ii[7] - start[7]);
+                                                                size_t buf_pointer_inc = stop[7] - start[7];
+                                                                for (int i = CATERVA_MAXDIM - 2; i >= 0; --i) {
+                                                                    buf_pointer += (jj[i] + src->cshape[i]*ii[i] - start[i]) * buf_pointer_inc;
+                                                                    buf_pointer_inc *= stop[i] - start[i];
+                                                                }
+                                                                memcpy(&dest[buf_pointer * typesize], &chunk[chunk_pointer * typesize], (c_stop[7] - c_start[7]) * typesize);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
