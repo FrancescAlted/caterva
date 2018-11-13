@@ -209,7 +209,6 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
 
 int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *stop) {
 
-    printf("\n");
     /* Create chunk buffers */
     int typesize = src->sc->typesize;
 
@@ -232,7 +231,7 @@ int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *sto
         for (ii[1] = start[1] / src->cshape[1]; ii[1] <= (stop[1]-1) / src->cshape[1]; ++ii[1]) {
             for (ii[2] = start[2] / src->cshape[2]; ii[2] <= (stop[2]-1) / src->cshape[2]; ++ii[2]) {
                 for (ii[3] = start[3] / src->cshape[3]; ii[3] <= (stop[3]-1) / src->cshape[3]; ++ii[3]) {
-                    for (ii[4] = start[3] / src->cshape[3]; ii[3] <= (stop[3]-1) / src->cshape[3]; ++ii[3]) {
+                    for (ii[4] = start[4] / src->cshape[4]; ii[4] <= (stop[4]-1) / src->cshape[4]; ++ii[4]) {
                         for (ii[5] = start[5] / src->cshape[5]; ii[5] <= (stop[5]-1) / src->cshape[5]; ++ii[5]) {
                             for (ii[6] = start[6] / src->cshape[6]; ii[6] <= (stop[6]-1) / src->cshape[6]; ++ii[6]) {
                                 for (ii[7] = start[7] / src->cshape[7]; ii[7] <= (stop[7]-1) / src->cshape[7]; ++ii[7]) {
