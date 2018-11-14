@@ -27,22 +27,23 @@ void test_roundtrip(caterva_array *src) {
     /* Free mallocs */
     free(bufsrc);
     free(bufdest);
-    caterva_free_array(src);
 }
 
 LWTEST_DATA(roundtrip) {
     blosc2_cparams cp;
     blosc2_dparams dp;
+    caterva_ctxt *ctxt;
 };
 
 LWTEST_SETUP(roundtrip){
     data->cp = BLOSC_CPARAMS_DEFAULTS;
     data->cp.typesize = sizeof(double);
     data->dp = BLOSC_DPARAMS_DEFAULTS;
+    data->ctxt = caterva_new_ctxt(NULL, NULL);
 }
 
 LWTEST_TEARDOWN(roundtrip){
-
+    data->ctxt->free(data->ctxt);
 }
 
 LWTEST_FIXTURE(roundtrip, 3_dim){
@@ -51,9 +52,10 @@ LWTEST_FIXTURE(roundtrip, 3_dim){
     size_t cshape[ndim] = {2, 2, 2};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 3_dim_2){
@@ -62,9 +64,10 @@ LWTEST_FIXTURE(roundtrip, 3_dim_2){
     size_t cshape[ndim] = {26, 17, 34};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 4_dim){
@@ -73,9 +76,10 @@ LWTEST_FIXTURE(roundtrip, 4_dim){
     size_t cshape[ndim] = {2, 2, 3, 3};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 4_dim_2){
@@ -84,9 +88,10 @@ LWTEST_FIXTURE(roundtrip, 4_dim_2){
     size_t cshape[ndim] = {13, 32, 18, 12};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_dim){
@@ -95,9 +100,10 @@ LWTEST_FIXTURE(roundtrip, 5_dim){
     size_t cshape[ndim] = {2, 2, 3, 3, 4};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_dim_2){
@@ -106,9 +112,10 @@ LWTEST_FIXTURE(roundtrip, 5_dim_2){
     size_t cshape[ndim] = {13, 32, 18, 12, 5};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 6_dim){
@@ -117,9 +124,10 @@ LWTEST_FIXTURE(roundtrip, 6_dim){
     size_t cshape[ndim] = {2, 2, 3, 3, 4, 5};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 7_dim){
@@ -128,9 +136,10 @@ LWTEST_FIXTURE(roundtrip, 7_dim){
     size_t cshape[ndim] = {5, 7, 9, 8, 5, 3, 7};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }
 
 LWTEST_FIXTURE(roundtrip, 8_dim){
@@ -139,7 +148,8 @@ LWTEST_FIXTURE(roundtrip, 8_dim){
     size_t cshape[ndim] = {3, 2, 3, 3, 4, 5, 4, 2};
 
     caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
     test_roundtrip(src);
+    caterva_free_array(src);
 }

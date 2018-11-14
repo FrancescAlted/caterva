@@ -32,16 +32,18 @@ void test_get_slice(caterva_array *src, size_t *start, size_t *stop, double *res
 LWTEST_DATA(get_slice) {
     blosc2_cparams cp;
     blosc2_dparams dp;
+    caterva_ctxt *ctxt;
 };
 
 LWTEST_SETUP(get_slice) {
     data->cp = BLOSC_CPARAMS_DEFAULTS;
     data->cp.typesize = sizeof(double);
     data->dp = BLOSC_DPARAMS_DEFAULTS;
+    data->ctxt = caterva_new_ctxt(NULL, NULL);
 }
 
 LWTEST_TEARDOWN(get_slice) {
-
+    data->ctxt->free(data->ctxt);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_2) {
@@ -53,7 +55,7 @@ LWTEST_FIXTURE(get_slice, ndim_2) {
     double result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
                            77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
     caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
     double *buf = (double *) malloc(src->size * src->sc->typesize);
     for (int i = 0; i < src->size; ++i) {
@@ -86,7 +88,7 @@ LWTEST_FIXTURE(get_slice, ndim_3) {
                            543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
                            563, 564, 565, 566, 567, 568, 569};
     caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
     double *buf = (double *) malloc(src->size * src->sc->typesize);
     for (int i = 0; i < src->size; ++i) {
@@ -112,7 +114,7 @@ LWTEST_FIXTURE(get_slice, ndim_4) {
                            7493, 7494, 7495, 7496, 7592, 7593, 7594, 7595, 7596, 8392, 8393, 8394,
                            8395, 8396, 8492, 8493, 8494, 8495, 8496, 8592, 8593, 8594, 8595, 8596};
     caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
     double *buf = (double *) malloc(src->size * src->sc->typesize);
     for (int i = 0; i < src->size; ++i) {
@@ -139,7 +141,7 @@ LWTEST_FIXTURE(get_slice, ndim_5) {
                            74558, 74559, 75557, 75558, 75559, 76557, 76558, 76559, 77557, 77558,
                            77559, 78557, 78558, 78559};
     caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
     double *buf = (double *) malloc(src->size * src->sc->typesize);
     for (int i = 0; i < src->size; ++i) {
@@ -168,7 +170,7 @@ LWTEST_FIXTURE(get_slice, ndim_6) {
                            63451, 63452, 63461, 63462, 63471, 63472, 63551, 63552, 63561, 63562,
                            63571, 63572};
     caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
     double *buf = (double *) malloc(src->size * src->sc->typesize);
     for (int i = 0; i < src->size; ++i) {
@@ -207,7 +209,7 @@ LWTEST_FIXTURE(get_slice, ndim_7) {
                            7538651, 7538652, 7538661, 7538662, 7548451, 7548452, 7548461, 7548462,
                            7548551, 7548552, 7548561, 7548562, 7548651, 7548652, 7548661, 7548662};
     caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
     double *buf = (double *) malloc(src->size * src->sc->typesize);
     for (int i = 0; i < src->size; ++i) {
@@ -249,7 +251,7 @@ LWTEST_FIXTURE(get_slice, ndim_8) {
                            55355161, 55355162, 55355260, 55355261, 55355262, 55356160, 55356161,
                            55356162, 55356260, 55356261, 55356262};
     caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
     double *buf = (double *) malloc(src->size * src->sc->typesize);
     for (int i = 0; i < src->size; ++i) {

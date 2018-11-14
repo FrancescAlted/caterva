@@ -5,6 +5,23 @@
 
 #include "caterva.h"
 
+caterva_ctxt *caterva_new_ctxt(void *(*c_alloc)(size_t), void (*c_free)(void *)) {
+    caterva_ctxt *ctxt;
+    if(c_alloc == NULL) {
+        ctxt = (caterva_ctxt *) malloc(sizeof(caterva_ctxt));
+        ctxt->alloc = malloc;
+    } else {
+        ctxt = (caterva_ctxt *) c_alloc(sizeof(caterva_ctxt));
+        ctxt->alloc = c_alloc;
+    }
+    if(c_free == NULL) {
+        ctxt->free = free;
+    } else{
+        ctxt->free = c_free;
+    }
+    return ctxt;
+}
+
 caterva_pparams caterva_new_pparams(size_t *shape, size_t *cshape, size_t ndim) {
     caterva_pparams pparams = CATERVA_PPARAMS_ONES;
     for (int i = 0; i < ndim; ++i) {
@@ -15,10 +32,9 @@ caterva_pparams caterva_new_pparams(size_t *shape, size_t *cshape, size_t ndim) 
     return pparams;
 }
 
-caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp) {
+caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp, caterva_ctxt *ctxt) {
     /* Create a caterva_array buffer */
-    caterva_array *carr = (caterva_array *) malloc(sizeof(caterva_array));
-
+    caterva_array *carr = (caterva_array *) ctxt->alloc(sizeof(caterva_array));
     /* Create a schunk */
     blosc2_schunk *sc = blosc2_new_schunk(cp, dp, fp);
     carr->sc = sc;
@@ -43,13 +59,22 @@ caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_fr
         carr->size *= carr->shape[i];
         carr->csize *= carr->cshape[i];
         carr->esize *= carr->eshape[i];
+        carr->ctxt = (caterva_ctxt *) ctxt->alloc(sizeof(caterva_ctxt));
+        memcpy(&carr->ctxt[0], &ctxt[0], sizeof(caterva_ctxt));
     }
     return carr;
 }
 
+int caterva_free_ctxt(caterva_ctxt *ctxt) {
+    ctxt->free(ctxt);
+    return 0;
+}
+
 int caterva_free_array(caterva_array *carr) {
     blosc2_free_schunk(carr->sc);
-    free(carr);
+    void (*aux_free)(void *) = carr->ctxt->free;
+    caterva_free_ctxt(carr->ctxt);
+    aux_free(carr);
     return 0;
 }
 
@@ -62,8 +87,9 @@ int caterva_from_buffer(caterva_array *dest, void *src) {
         return -1;
     }
 
+    caterva_ctxt *ctxt = dest->ctxt;
     int typesize = dest->sc->typesize;
-    int8_t *chunk = malloc(dest->csize * typesize);
+    int8_t *chunk = ctxt->alloc(dest->csize * typesize);
 
     /* Calculate the constants out of the for  */
     size_t aux[CATERVA_MAXDIM];
@@ -129,7 +155,7 @@ int caterva_from_buffer(caterva_array *dest, void *src) {
         blosc2_schunk_append_buffer(dest->sc, chunk, dest->csize * typesize);
     }
 
-    free(chunk);
+    ctxt->free(chunk);
     return 0;
 }
 
@@ -137,8 +163,9 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
     int8_t *d_b = (int8_t *) dest;
 
     /* Initialise a chunk buffer */
+    caterva_ctxt *ctxt = src->ctxt;
     int typesize = src->sc->typesize;
-    int8_t *chunk = (int8_t *) malloc(src->csize * typesize);
+    int8_t *chunk = (int8_t *) ctxt->alloc(src->csize * typesize);
 
     /* Calculate the constants out of the for  */
     size_t aux[CATERVA_MAXDIM];
@@ -203,16 +230,16 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
         }
     }
 
-    free(chunk);
+    ctxt->free(chunk);
     return 0;
 }
 
 int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *stop) {
 
     /* Create chunk buffers */
+    caterva_ctxt *ctxt = src->ctxt;
     int typesize = src->sc->typesize;
-
-    uint8_t *chunk = (uint8_t *) malloc(src->csize * typesize);
+    uint8_t *chunk = (uint8_t *) ctxt->alloc(src->csize * typesize);
 
     /* Reformat start and stop */
     size_t start_aux[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -292,7 +319,7 @@ int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *sto
             }
         }    
     }
-    free(chunk);
+    ctxt->free(chunk);
 
     return 0;
 }

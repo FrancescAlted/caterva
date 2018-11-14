@@ -14,6 +14,11 @@
 #define CATERVA_MAXDIM 8
 
 typedef struct {
+    void *(*alloc)(size_t);
+    void (*free)(void *);
+} caterva_ctxt;
+
+typedef struct {
     size_t shape[CATERVA_MAXDIM];  /* the shape of original data */
     size_t cshape[CATERVA_MAXDIM];  /* the shape of each chunk */
     size_t ndim;  /* data dimensions */
@@ -35,11 +40,16 @@ typedef struct {
     size_t csize;  /* size of each chunnk */
     size_t esize;  /* shape of schunk */
     size_t ndim;  /* data dimensions */
+    caterva_ctxt *ctxt;  /* caterva context */
 } caterva_array;
+
+caterva_ctxt *caterva_new_ctxt(void *(*all)(size_t), void (*free)(void *));
 
 caterva_pparams caterva_new_pparams(size_t *shape, size_t *cshape, size_t ndim);
 
-caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp);
+caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp, caterva_ctxt *ctxt);
+
+int caterva_free_ctxt(caterva_ctxt *ctxt);
 
 int caterva_free_array(caterva_array *carr);
 
