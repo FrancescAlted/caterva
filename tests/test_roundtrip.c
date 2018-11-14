@@ -3,7 +3,7 @@
  * Copyright (C) 2018  Aleix Alcacer
  */
 
-#include "tests_common.h"
+#include "test_common.h"
 
 void test_roundtrip(caterva_array *src) {
 

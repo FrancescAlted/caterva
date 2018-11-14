@@ -3,7 +3,7 @@
  * Copyright (C) 2018  Aleix Alcacer
  */
 
-#include "tests_common.h"
+#include "test_common.h"
 
 void assert_buf(double *exp, double *real, size_t size, double tol) {
     for (int i = 0; i < size; ++i) {
