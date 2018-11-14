@@ -7,7 +7,7 @@
 #define TEST_COMMON_H
 
 #include <caterva.h>
-#include "core.h"
-#include "assert.h"
+#include "include/core.h"
+#include "include/assert.h"
 
 #endif
