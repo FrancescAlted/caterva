@@ -21,21 +21,21 @@ typedef struct {
 
 typedef struct {
     size_t shape[CATERVA_MAXDIM];  /* the shape of original data */
-    size_t cshape[CATERVA_MAXDIM];  /* the shape of each chunk */
+    size_t pshape[CATERVA_MAXDIM];  /* the shape of each chunk */
     size_t ndim;  /* data dimensions */
 } caterva_pparams;
 
 // The next is useful for initializing pparams structs
 static const caterva_pparams CATERVA_PPARAMS_ONES = {
     .shape = {1, 1, 1, 1, 1, 1, 1, 1},
-    .cshape = {1, 1, 1, 1, 1, 1, 1, 1},
+    .pshape = {1, 1, 1, 1, 1, 1, 1, 1},
     .ndim = 1
 };
 
 typedef struct {
     blosc2_schunk *sc;
     size_t shape[CATERVA_MAXDIM];  /* shape of original data */
-    size_t cshape[CATERVA_MAXDIM];  /* shape of each chunk */
+    size_t pshape[CATERVA_MAXDIM];  /* shape of each chunk */
     size_t eshape[CATERVA_MAXDIM];  /* shape of schunk */
     size_t size;  /* size of original data */
     size_t csize;  /* size of each chunnk */
