@@ -1,134 +1,155 @@
 /*
- * Copyright (C) 2018  Francesc Alted
- * Copyright (C) 2018  Aleix Alcacer
+ * Created by Aleix Alcacer
  */
 
 #include "tests_common.h"
 
-int tests_run = 0;
-
-int convert_to_array(char *line, size_t *shape) {
-    /* Convert string to an array */
-    char *tok;
-    tok = strtok(line, "-");
-    int i = 0;
-    while (tok != NULL) {
-        shape[i] = strtoul(tok, NULL, 10);
-        tok = strtok(NULL, "-");
-        i++;
-    }
-    return 0;
-}
-
-void get_fields(char *line, size_t *shape, size_t *cshape, size_t *dimensions) {
-    char *shape_str;
-    char *cshape_str;
-    char *tok;
-    char *tmp = line;
-
-    // Get the fields of a csv line
-    tok = strtok(tmp, ";");
-    shape_str = strdup(tok);
-    tok = strtok(NULL, ";");
-    cshape_str = strdup(tok);
-    tok = strtok(NULL, ";");
-    *dimensions = (size_t)strtol(tok, NULL, 10);
-
-
-    convert_to_array(shape_str, shape);
-    convert_to_array(cshape_str, cshape);
-}
-
-char *test_roundtrip(const size_t *shape, const size_t *cshape, size_t dimensions) {
-
-    // Create dparams, cparams and pparams
-    blosc2_cparams cp = BLOSC_CPARAMS_DEFAULTS;
-    cp.typesize = sizeof(double);
-    cp.filters[BLOSC_MAX_FILTERS - 1] = BLOSC_SHUFFLE;
-
-    blosc2_dparams dp = BLOSC_DPARAMS_DEFAULTS;
-
-    caterva_pparams pp;
-    for (int i = 0; i < CATERVA_MAXDIM; i++) {
-        pp.shape[i] = shape[i];
-        pp.cshape[i] = cshape[i];
-    }
-    pp.ndims = dimensions;
-
-    /* Create a caterva array */
-    caterva_array *carr = caterva_new_array(cp, dp, &BLOSC_EMPTY_FRAME, pp);
+void test_roundtrip(caterva_array *src) {
 
     /* Create original data */
-    double *bufsrc = (double *) malloc(carr->size * sizeof(double));
-    for (int i = 0; i < (int)carr->size; i++) {
+    double *bufsrc = (double *) malloc(src->size * sizeof(double));
+    for (int i = 0; i < (int)src->size; i++) {
         bufsrc[i] = (double) i;
     }
 
     /* Fill empty caterva_array with original data */
-    caterva_from_buffer(carr, bufsrc);
+    caterva_from_buffer(src, bufsrc);
 
     /* Fill dest array with caterva_array data */
-    double *bufdest = (double *) malloc(carr->size * sizeof(double));
-    caterva_to_buffer(carr, bufdest);
+    double *bufdest = (double *) malloc(src->size * sizeof(double));
+    caterva_to_buffer(src, bufdest);
 
     /* Testing */
-    for (size_t i = 0; i < carr->size; i++) {
-        mu_assert("ERROR. Original and resulting arrays are not equal!", bufsrc[i] == bufdest[i]);
+    for (size_t i = 0; i < src->size; i++) {
+        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(bufsrc[i], bufdest[i], 1e-15);
     }
 
     /* Free mallocs */
     free(bufsrc);
     free(bufdest);
-    caterva_free_array(carr);
-
-    return 0;
 }
 
-static char *all_tests(char *filename, size_t *shape, size_t *cshape, size_t *dimensions) {
+LWTEST_DATA(roundtrip) {
+    blosc2_cparams cp;
+    blosc2_dparams dp;
+    caterva_ctxt *ctxt;
+};
 
-    /* Read csv file */
-    FILE *stream = fopen(filename, "r");
-    mu_assert("ERROR al abrir el fichero csv", stream != NULL);
-
-    /* Run a test for each line of csv file */
-    char line[1024];
-    fgets(line, 1024, stream);
-    while (fgets(line, 1024, stream)) {
-        char *tmp = line;
-        get_fields(tmp, shape, cshape, dimensions);
-        mu_run_test(test_roundtrip(shape, cshape, *dimensions));
-    }
-
-    return 0;
+LWTEST_SETUP(roundtrip){
+    data->cp = BLOSC_CPARAMS_DEFAULTS;
+    data->cp.typesize = sizeof(double);
+    data->dp = BLOSC_DPARAMS_DEFAULTS;
+    data->ctxt = caterva_new_ctxt(NULL, NULL);
 }
 
-int main(int argc, char **argv) {
+LWTEST_TEARDOWN(roundtrip){
+    data->ctxt->free(data->ctxt);
+}
 
-    /* Set stream buffer */
-    setbuf(stdout, NULL);
+LWTEST_FIXTURE(roundtrip, 3_dim){
+    const size_t ndim = 3;
+    size_t shape[ndim] = {4, 3, 3};
+    size_t cshape[ndim] = {2, 2, 2};
 
-    /* Define data needed for run a test */
-    char *filename = NULL;
-    if (argc > 1) {
-        filename = argv[1];
-    } else {
-        printf("Please, pass the source dims in a CSV file");
-    }
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
-    printf("%s\n", filename);
-    size_t shape[CATERVA_MAXDIM];
-    size_t cshape[CATERVA_MAXDIM];
-    size_t dimensions;
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
 
-    /* Print test result */
-    char *result = all_tests(filename, shape, cshape, &dimensions);
+LWTEST_FIXTURE(roundtrip, 3_dim_2){
+    const size_t ndim = 3;
+    size_t shape[ndim] = {134, 56, 204};
+    size_t cshape[ndim] = {26, 17, 34};
 
-    if (result != 0) {
-        printf(" (%s)", result);
-    } else {
-        printf(" ALL TESTS PASSED");
-    }
-    printf("\tTests run: %d\n", tests_run);
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
 
-    return result != 0;
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
+
+LWTEST_FIXTURE(roundtrip, 4_dim){
+    const size_t ndim = 4;
+    size_t shape[ndim] = {4, 3, 8, 5};
+    size_t cshape[ndim] = {2, 2, 3, 3};
+
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
+
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
+
+LWTEST_FIXTURE(roundtrip, 4_dim_2){
+    const size_t ndim = 4;
+    size_t shape[ndim] = {78, 85, 34, 56};
+    size_t cshape[ndim] = {13, 32, 18, 12};
+
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
+
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
+
+LWTEST_FIXTURE(roundtrip, 5_dim){
+    const size_t ndim = 5;
+    size_t shape[ndim] = {4, 3, 8, 5, 10};
+    size_t cshape[ndim] = {2, 2, 3, 3, 4};
+
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
+
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
+
+LWTEST_FIXTURE(roundtrip, 5_dim_2){
+    const size_t ndim = 5;
+    size_t shape[ndim] = {35, 55, 24, 36, 12};
+    size_t cshape[ndim] = {13, 32, 18, 12, 5};
+
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
+
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
+
+LWTEST_FIXTURE(roundtrip, 6_dim){
+    const size_t ndim = 6;
+    size_t shape[ndim] = {4, 3, 8, 5, 10, 12};
+    size_t cshape[ndim] = {2, 2, 3, 3, 4, 5};
+
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
+
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
+
+LWTEST_FIXTURE(roundtrip, 7_dim){
+    const size_t ndim = 7;
+    size_t shape[ndim] = {12, 15, 24, 16, 12, 8, 7};
+    size_t cshape[ndim] = {5, 7, 9, 8, 5, 3, 7};
+
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
+
+    test_roundtrip(src);
+    caterva_free_array(src);
+}
+
+LWTEST_FIXTURE(roundtrip, 8_dim){
+    const size_t ndim = 8;
+    size_t shape[ndim] = {4, 3, 8, 5, 10, 12, 6, 4};
+    size_t cshape[ndim] = {3, 2, 3, 3, 4, 5, 4, 2};
+
+    caterva_pparams src_pp = caterva_new_pparams(shape, cshape, ndim);
+    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, src_pp, data->ctxt);
+
+    test_roundtrip(src);
+    caterva_free_array(src);
 }
