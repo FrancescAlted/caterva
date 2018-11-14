@@ -1,5 +1,6 @@
 /*
- * Created by Aleix Alcacer
+ * Copyright (C) 2018  Francesc Alted
+ * Copyright (C) 2018  Aleix Alcacer
  */
 
 #include "tests_common.h"

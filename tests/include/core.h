@@ -1,5 +1,6 @@
 /*
  * Created by Aleix Alcacer
+ * Parts of this source code is based on https://github.com/bvdberg/ctest/
  */
 
 #ifndef LWTEST_CORE_H

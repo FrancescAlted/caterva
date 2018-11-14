@@ -1,9 +1,10 @@
 /*
- * Created by Aleix Alcacer
+ * Copyright (C) 2018  Francesc Alted
+ * Copyright (C) 2018  Aleix Alcacer
  */
 
 #include <stdio.h>
-#include "main.h"
+#include "include/main.h"
 
 int main(int argc, const char *argv[])
 {
