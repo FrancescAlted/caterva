@@ -15,6 +15,7 @@
 
 typedef struct {
     void *(*alloc)(size_t);
+
     void (*free)(void *);
 } caterva_ctxt;
 
@@ -47,7 +48,8 @@ caterva_ctxt *caterva_new_ctxt(void *(*all)(size_t), void (*free)(void *));
 
 caterva_pparams caterva_new_pparams(size_t *shape, size_t *cshape, size_t ndim);
 
-caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp, caterva_ctxt *ctxt);
+caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp,
+                                 caterva_ctxt *ctxt);
 
 int caterva_free_ctxt(caterva_ctxt *ctxt);
 
@@ -60,6 +62,5 @@ int caterva_to_buffer(caterva_array *src, void *dest);
 int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *stop);
 
 int caterva_equal_data(caterva_array *a, caterva_array *b);
-
 
 #endif

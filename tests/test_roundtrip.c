@@ -9,7 +9,7 @@ void test_roundtrip(caterva_array *src) {
 
     /* Create original data */
     double *bufsrc = (double *) malloc(src->size * sizeof(double));
-    for (int i = 0; i < (int)src->size; i++) {
+    for (int i = 0; i < (int) src->size; i++) {
         bufsrc[i] = (double) i;
     }
 
@@ -36,18 +36,18 @@ LWTEST_DATA(roundtrip) {
     caterva_ctxt *ctxt;
 };
 
-LWTEST_SETUP(roundtrip){
+LWTEST_SETUP(roundtrip) {
     data->cp = BLOSC_CPARAMS_DEFAULTS;
     data->cp.typesize = sizeof(double);
     data->dp = BLOSC_DPARAMS_DEFAULTS;
     data->ctxt = caterva_new_ctxt(NULL, NULL);
 }
 
-LWTEST_TEARDOWN(roundtrip){
+LWTEST_TEARDOWN(roundtrip) {
     data->ctxt->free(data->ctxt);
 }
 
-LWTEST_FIXTURE(roundtrip, 3_dim){
+LWTEST_FIXTURE(roundtrip, 3_dim) {
     const size_t ndim = 3;
     size_t shape[ndim] = {4, 3, 3};
     size_t cshape[ndim] = {2, 2, 2};
@@ -59,7 +59,7 @@ LWTEST_FIXTURE(roundtrip, 3_dim){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 3_dim_2){
+LWTEST_FIXTURE(roundtrip, 3_dim_2) {
     const size_t ndim = 3;
     size_t shape[ndim] = {134, 56, 204};
     size_t cshape[ndim] = {26, 17, 34};
@@ -71,7 +71,7 @@ LWTEST_FIXTURE(roundtrip, 3_dim_2){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 4_dim){
+LWTEST_FIXTURE(roundtrip, 4_dim) {
     const size_t ndim = 4;
     size_t shape[ndim] = {4, 3, 8, 5};
     size_t cshape[ndim] = {2, 2, 3, 3};
@@ -83,7 +83,7 @@ LWTEST_FIXTURE(roundtrip, 4_dim){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 4_dim_2){
+LWTEST_FIXTURE(roundtrip, 4_dim_2) {
     const size_t ndim = 4;
     size_t shape[ndim] = {78, 85, 34, 56};
     size_t cshape[ndim] = {13, 32, 18, 12};
@@ -95,7 +95,7 @@ LWTEST_FIXTURE(roundtrip, 4_dim_2){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 5_dim){
+LWTEST_FIXTURE(roundtrip, 5_dim) {
     const size_t ndim = 5;
     size_t shape[ndim] = {4, 3, 8, 5, 10};
     size_t cshape[ndim] = {2, 2, 3, 3, 4};
@@ -107,7 +107,7 @@ LWTEST_FIXTURE(roundtrip, 5_dim){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 5_dim_2){
+LWTEST_FIXTURE(roundtrip, 5_dim_2) {
     const size_t ndim = 5;
     size_t shape[ndim] = {35, 55, 24, 36, 12};
     size_t cshape[ndim] = {13, 32, 18, 12, 5};
@@ -119,7 +119,7 @@ LWTEST_FIXTURE(roundtrip, 5_dim_2){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 6_dim){
+LWTEST_FIXTURE(roundtrip, 6_dim) {
     const size_t ndim = 6;
     size_t shape[ndim] = {4, 3, 8, 5, 10, 12};
     size_t cshape[ndim] = {2, 2, 3, 3, 4, 5};
@@ -131,7 +131,7 @@ LWTEST_FIXTURE(roundtrip, 6_dim){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 7_dim){
+LWTEST_FIXTURE(roundtrip, 7_dim) {
     const size_t ndim = 7;
     size_t shape[ndim] = {12, 15, 24, 16, 12, 8, 7};
     size_t cshape[ndim] = {5, 7, 9, 8, 5, 3, 7};
@@ -143,7 +143,7 @@ LWTEST_FIXTURE(roundtrip, 7_dim){
     caterva_free_array(src);
 }
 
-LWTEST_FIXTURE(roundtrip, 8_dim){
+LWTEST_FIXTURE(roundtrip, 8_dim) {
     const size_t ndim = 8;
     size_t shape[ndim] = {4, 3, 8, 5, 10, 12, 6, 4};
     size_t cshape[ndim] = {3, 2, 3, 3, 4, 5, 4, 2};
