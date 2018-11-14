@@ -36,7 +36,7 @@ typedef struct {
     size_t ndims;  /* data dimensions */
 } caterva_array;
 
-caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp);
+caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pparams);
 
 int caterva_free_array(caterva_array *carr);
 

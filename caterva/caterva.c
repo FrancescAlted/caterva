@@ -5,9 +5,64 @@
 
 #include "caterva.h"
 
-caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pp) {
+// Serialize the partition params
+uint8_t* serialize_attrs(caterva_pparams pparams) {
+    int8_t ndim = (int8_t)pparams.ndims;
+    uint8_t* sattrs = malloc(4096);
+    uint8_t *pattrs = sattrs;
+
+    // Build a map with 3 entries (ndim, shape, pshape)
+    *pattrs++ = (0b1000 << 4) + 3;
+
+    // ndim entry
+    *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("ndim");
+    memcpy(pattrs, "ndim", strlen("ndim"));
+    pattrs += strlen("ndim");
+    *pattrs++ = 0xcc;  // uint8
+    memcpy(pattrs, &ndim, sizeof(uint8_t));
+    pattrs += sizeof(uint8_t);
+
+    // shape entry
+    *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("shape");
+    memcpy(pattrs, "shape", strlen("shape"));
+    pattrs += strlen("shape");
+    *pattrs++ = (uint8_t)(0b1001 << 4) + (uint8_t)ndim;  // fix array with ndim elements
+    for (int8_t i = 0; i < ndim; i++) {
+        *pattrs++ = 0xcf;  // uint64
+        memcpy(pattrs, &(pparams.shape[i]), sizeof(uint64_t));
+        pattrs += sizeof(uint64_t);
+    }
+
+    // pshape entry
+    *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("pshape");
+    memcpy(pattrs, "pshape", strlen("pshape"));
+    pattrs += strlen("shape");
+    *pattrs++ = (uint8_t)(0b1001 << 4) + (uint8_t)ndim;  // fix array with ndim elements
+    for (int8_t i = 0; i < ndim; i++) {
+        *pattrs++ = 0xcf;  // uint64
+        memcpy(pattrs, &(pparams.cshape[i]), sizeof(uint64_t));
+        pattrs += sizeof(uint64_t);
+    }
+
+    size_t slen = pattrs - sattrs;
+    sattrs = realloc(sattrs, slen);  // get rid of the excess of bytes allocated
+
+    return sattrs;
+}
+
+caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pparams) {
+    uint8_t *sattrs = NULL;
+
     /* Create a caterva_array buffer */
     caterva_array *carr = (caterva_array *) malloc(sizeof(caterva_array));
+
+    if (fp != NULL) {
+        // Serialize the system attributes for the caterva array
+        sattrs = serialize_attrs(pparams);
+        fp->attrs = malloc(sizeof(blosc2_frame_attrs));
+        fp->attrs->namespace = strdup("caterva");
+        fp->attrs->sattrs = sattrs;
+    }
 
     /* Create a schunk */
     blosc2_schunk *sc = blosc2_new_schunk(cp, dp, fp);
@@ -15,17 +70,17 @@ caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_fr
     carr->size = 1;
     carr->csize = 1;
     carr->esize = 1;
-    carr->ndims = pp.ndims;
+    carr->ndims = pparams.ndims;
 
     for (unsigned int i = 0; i < CATERVA_MAXDIM; i++) {
-        carr->shape[i] = pp.shape[i];
-        carr->cshape[i] = pp.cshape[i];
+        carr->shape[i] = pparams.shape[i];
+        carr->cshape[i] = pparams.cshape[i];
 
-        if (i >= CATERVA_MAXDIM - pp.ndims) {
-            if (pp.shape[i] % pp.cshape[i] == 0) {
-                carr->eshape[i] = pp.shape[i];
+        if (i >= CATERVA_MAXDIM - pparams.ndims) {
+            if (pparams.shape[i] % pparams.cshape[i] == 0) {
+                carr->eshape[i] = pparams.shape[i];
             } else {
-                carr->eshape[i] = pp.shape[i] + pp.cshape[i] - pp.shape[i] % pp.cshape[i];
+                carr->eshape[i] = pparams.shape[i] + pparams.cshape[i] - pparams.shape[i] % pparams.cshape[i];
             }
         } else {
             carr->eshape[i] = 1;
