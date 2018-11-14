@@ -14,16 +14,23 @@
 #define CATERVA_MAXDIM 8
 
 typedef struct {
+    void *(*alloc)(size_t);
+
+    void (*free)(void *);
+} caterva_ctxt;
+
+typedef struct {
     size_t shape[CATERVA_MAXDIM];  /* the shape of original data */
     size_t cshape[CATERVA_MAXDIM];  /* the shape of each chunk */
-    size_t ndims;  /* data dimensions */
+    size_t ndim;  /* data dimensions */
 } caterva_pparams;
 
 // The next is useful for initializing pparams structs
 static const caterva_pparams CATERVA_PPARAMS_ONES = {
-    .shape = {1,1,1,1,1,1,1,1},
-    .cshape = {1,1,1,1,1,1,1,1},
-    .ndims = 1};
+    .shape = {1, 1, 1, 1, 1, 1, 1, 1},
+    .cshape = {1, 1, 1, 1, 1, 1, 1, 1},
+    .ndim = 1
+};
 
 typedef struct {
     blosc2_schunk *sc;
@@ -33,10 +40,18 @@ typedef struct {
     size_t size;  /* size of original data */
     size_t csize;  /* size of each chunnk */
     size_t esize;  /* shape of schunk */
-    size_t ndims;  /* data dimensions */
+    size_t ndim;  /* data dimensions */
+    caterva_ctxt *ctxt;  /* caterva context */
 } caterva_array;
 
-caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pparams);
+caterva_ctxt *caterva_new_ctxt(void *(*all)(size_t), void (*free)(void *));
+
+caterva_pparams caterva_new_pparams(size_t *shape, size_t *cshape, size_t ndim);
+
+caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_pparams pparams,
+                                 caterva_ctxt *ctxt);
+
+int caterva_free_ctxt(caterva_ctxt *ctxt);
 
 int caterva_free_array(caterva_array *carr);
 
@@ -44,7 +59,7 @@ int caterva_from_buffer(caterva_array *dest, void *src);
 
 int caterva_to_buffer(caterva_array *src, void *dest);
 
-int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t start[], size_t stop[]);
+int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *stop);
 
 int caterva_equal_data(caterva_array *a, caterva_array *b);
 
