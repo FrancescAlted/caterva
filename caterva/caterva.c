@@ -85,11 +85,17 @@ caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_fr
     caterva_array *carr = (caterva_array *) ctxt->alloc(sizeof(caterva_array));
 
     if (fp != NULL) {
-        // Serialize the system attributes for the caterva array
+        if (fp->nclients >= BLOSC2_MAX_FRAME_CLIENTS) {
+            fprintf(stderr, "the number of clients for this frame has been exceeded\n");
+            return NULL;
+        }
+        // Serialize the system attributes for caterva as a client
         sattrs = serialize_attrs(pparams);
-        fp->attrs = malloc(sizeof(blosc2_frame_attrs));
-        fp->attrs->namespace = strdup("caterva");
-        fp->attrs->sattrs = sattrs;
+        blosc2_frame_attrs *attrs = malloc(sizeof(blosc2_frame_attrs));
+        attrs->namespace = strdup("caterva");
+        attrs->sattrs = sattrs;
+        fp->attrs[fp->nclients] = attrs;
+        fp->nclients++;
     }
 
     /* Create a schunk */
