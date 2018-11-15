@@ -235,22 +235,12 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
     return 0;
 }
 
-int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *stop) {
+int _caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *stop) {
 
     /* Create chunk buffers */
     caterva_ctxt *ctxt = src->ctxt;
     int typesize = src->sc->typesize;
     uint8_t *chunk = (uint8_t *) ctxt->alloc(src->csize * typesize);
-
-    /* Reformat start and stop */
-    size_t start_aux[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    size_t stop_aux[8] = {1, 1, 1, 1, 1, 1, 1, 1};
-    for (int i = 0; i < src->ndim; ++i) {
-        start_aux[CATERVA_MAXDIM - src->ndim + i] = start[i];
-        stop_aux[CATERVA_MAXDIM - src->ndim + i] = stop[i];
-    }
-    stop = stop_aux;
-    start = start_aux;
 
     size_t i_start[8], i_stop[8];
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -330,5 +320,56 @@ int caterva_get_slice(caterva_array *src, void *dest, size_t *start, size_t *sto
     }
     ctxt->free(chunk);
 
+    return 0;
+}
+
+int caterva_get_slice(caterva_array *src, caterva_array *dest, size_t *start, size_t *stop){
+    
+    int typesize = src->sc->typesize;
+    caterva_ctxt *ctxt = src->ctxt;
+    uint8_t *chunk = ctxt->alloc(dest->csize * typesize);
+
+    /* Reformat start and stop */
+    size_t start_aux[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    size_t stop_aux[8] = {1, 1, 1, 1, 1, 1, 1, 1};
+    for (int i = 0; i < src->ndim; ++i) {
+        start_aux[CATERVA_MAXDIM - src->ndim + i] = start[i];
+        stop_aux[CATERVA_MAXDIM - src->ndim + i] = stop[i];
+    }
+    stop = stop_aux;
+    start = start_aux;
+    
+    size_t ii[CATERVA_MAXDIM];
+    for (ii[0] = start[0]; ii[0] < stop[0]; ii[0] += dest->cshape[0]) {
+        for (ii[1] = start[1]; ii[1] < stop[1]; ii[1] += dest->cshape[1]) {
+            for (ii[2] = start[2]; ii[2] < stop[2]; ii[2] += dest->cshape[2]) {
+                for (ii[3] = start[3]; ii[3] < stop[3]; ii[3] += dest->cshape[3]) {
+                    for (ii[4] = start[4]; ii[4] < stop[4]; ii[4] += dest->cshape[4]) {
+                        for (ii[5] = start[5]; ii[5] < stop[5]; ii[5] += dest->cshape[5]) {
+                            for (ii[6] = start[6]; ii[6] < stop[6]; ii[6] += dest->cshape[6]) {
+                                for (ii[7] = start[7]; ii[7] < stop[7]; ii[7] += dest->cshape[7]) {
+                                    memset(chunk, 0, dest->csize * typesize);
+                                    size_t jj[CATERVA_MAXDIM];
+                                    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+                                        if (ii[i] + dest->cshape[i] > stop[i]) {
+                                            jj[i] = stop[i];
+                                        }
+                                        else {
+                                            jj[i] = ii[i] + dest->cshape[i];
+                                        }
+                                    }
+
+                                    _caterva_get_slice(src, chunk, ii, jj);
+
+                                    blosc2_schunk_append_buffer(dest->sc, chunk, dest->csize * typesize);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }   
+    }
+    
     return 0;
 }
