@@ -7,7 +7,6 @@
 #define LWTEST_MAIN_H
 
 #include "core.h"
-#include "benchmark.h"
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -106,16 +105,6 @@ int lwtest_main(int argc, const char *argv[]) {
         filter = suite_filter;
     }
 
-    time_t c_time = time(NULL);
-    struct tm *tm = localtime(&c_time);
-    char s[64];
-    strftime(s, sizeof(s), "%c", tm);
-    printf("%s\n", s);
-
-    double t_start, t_end, t_test_start, t_test_end;
-
-    LWTEST_GET_CPU_TIME(&t_start);
-
     struct lwtest *lwtest_begin = &_LWTEST_SNAME(suite, test);
     struct lwtest *lwtest_end = &_LWTEST_SNAME(suite, test);
     // find begin and end of section by comparing magics
@@ -154,7 +143,6 @@ int lwtest_main(int argc, const char *argv[]) {
                 num_skip++;
             } else {
 
-                LWTEST_GET_CPU_TIME(&t_test_start);
                 int result = setjmp(lwtest_err);
                 if (result == 0) {
                     if (test->setup && *test->setup) (*test->setup)(test->data);
@@ -169,20 +157,17 @@ int lwtest_main(int argc, const char *argv[]) {
                     printf("[FAIL] ");
                     num_fail++;
                 }
-                LWTEST_GET_CPU_TIME(&t_test_end);
-
-                printf("%.2f s\n", (t_test_end - t_test_start) / 1e9);
 
                 if (lwtest_errorsize != MSG_SIZE - 1) printf("%s", lwtest_errorbuffer);
             }
+            printf("\n");
             idx++;
         }
     }
 
-    LWTEST_GET_CPU_TIME(&t_end);
 
-    printf("RESULTS: %d tests (%d ok, %d failed, %d skipped) ran in %.2f s", total, num_ok,
-           num_fail, num_skip, (t_end - t_start) / 1e9);
+    printf("RESULTS: %d tests (%d ok, %d failed, %d skipped)\n", total, num_ok,
+           num_fail, num_skip);
 
     return num_fail;
 }
