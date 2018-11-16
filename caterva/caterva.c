@@ -454,3 +454,15 @@ int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims star
     
     return 0;
 }
+
+int caterva_reshape(caterva_array *dest, caterva_array *src, caterva_dims pshape) {
+    size_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
+    caterva_dims start = caterva_new_dims(start_, pshape.ndim);
+    size_t stop_[CATERVA_MAXDIM];
+    for (int i = 0; i < pshape.ndim; ++i) {
+        stop_[i] = src->shape[CATERVA_MAXDIM - pshape.ndim + i];
+    }
+    caterva_dims stop = caterva_new_dims(stop_, pshape.ndim);
+    caterva_get_slice(dest, src, start, stop);
+    return 0;
+}

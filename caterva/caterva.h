@@ -58,6 +58,8 @@ int caterva_to_buffer(caterva_array *src, void *dest);
 
 int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims start, caterva_dims stop);
 
+int caterva_reshape(caterva_array *dest, caterva_array *src, caterva_dims pshape);
+
 int caterva_equal_data(caterva_array *a, caterva_array *b);
 
 #endif
