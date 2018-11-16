@@ -159,11 +159,11 @@ int caterva_from_buffer(caterva_array *dest, caterva_dims shape, void *src) {
         return -1;
     }
 
-    _caterva_update_array(dest, shape);
+    caterva_update_array(dest, shape);
 
     caterva_ctx *ctxt = dest->ctx;
     int typesize = dest->sc->typesize;
-    int8_t *chunk = ctxt->alloc(dest->csize * typesize);
+    int8_t *chunk = malloc(dest->csize * typesize);
 
     /* Calculate the constants out of the for  */
     size_t aux[CATERVA_MAXDIM];

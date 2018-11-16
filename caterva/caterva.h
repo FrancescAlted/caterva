@@ -52,7 +52,7 @@ int caterva_free_ctxt(caterva_ctx *ctx);
 
 int caterva_free_array(caterva_array *carr);
 
-int _caterva_update_array(caterva_array *dest, caterva_dims shape);
+int caterva_update_array(caterva_array *dest, caterva_dims shape);
 
 int caterva_from_buffer(caterva_array *dest, caterva_dims shape, void *src);
 
