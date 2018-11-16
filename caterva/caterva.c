@@ -3,6 +3,7 @@
  * Copyright (C) 2018  Aleix Alcacer
  */
 
+#include <caterva.h>
 #include "caterva.h"
 
 caterva_ctx *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *)) {
@@ -308,8 +309,8 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
     return 0;
 }
 
-int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop);
-int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop) {
+int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop, const size_t *dest_pshape);
+int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop, const size_t *dest_pshape) {
 
     /* Create chunk buffers */
     caterva_ctx *ctxt = src->ctx;
@@ -372,7 +373,7 @@ int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, cons
                                                                 for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
                                                                     buf_pointer += (jj[i] + src->pshape[i] * ii[i] -
                                                                         start[i]) * buf_pointer_inc;
-                                                                    buf_pointer_inc *= (stop[i] - start[i]);
+                                                                    buf_pointer_inc *= dest_pshape[i];
                                                                 }
                                                                 memcpy(&dest[buf_pointer * typesize],
                                                                        &chunk[chunk_pointer * typesize],
@@ -440,8 +441,7 @@ int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims star
                                         }
                                     }
 
-                                    _caterva_get_slice(src, chunk, ii, jj);
-                                    printf("Chunk[0]: %f\n", ((double *)chunk)[0]);
+                                    _caterva_get_slice(src, chunk, ii, jj, dest->pshape);
                                     blosc2_schunk_append_buffer(dest->sc, chunk, dest->csize * typesize);
                                 }
                             }
