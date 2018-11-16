@@ -7,70 +7,79 @@
 
 void assert_buf(double *exp, double *real, size_t size, double tol) {
     for (int i = 0; i < size; ++i) {
+        printf("%d\n", i);
         LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(exp[i], real[i], tol);
     }
 }
 
-void print_buf(double *buf, size_t size) {
-    for (int i = 0; i < size; ++i) {
-        printf("%.f  ", buf[i]);
-    }
-}
+void test_get_slice(caterva_array *dest, caterva_array *src, caterva_dims start, caterva_dims stop, double *result) {
 
-void test_get_slice(caterva_array *src, size_t *start, size_t *stop, double *result) {
-    size_t buf_size = 1;
-    for (int i = 0; i < src->ndim; ++i) {
-        buf_size *= (stop[i] - start[i]);
-    }
+    caterva_get_slice(dest, src, start, stop);
 
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    caterva_get_slice(src, buf, start, stop);
-    assert_buf(buf, result, buf_size, 1e-14);
-    //print_buf(buf, buf_size);
+    double *buf = (double *) malloc(dest->size * src->sc->typesize);
+
+    caterva_to_buffer(dest, buf);
+
+    assert_buf(buf, result, dest->size, 1e-14);
     free(buf);
 }
 
 LWTEST_DATA(get_slice) {
     blosc2_cparams cp;
     blosc2_dparams dp;
-    caterva_ctxt *ctxt;
+    caterva_ctx *ctx;
 };
 
 LWTEST_SETUP(get_slice) {
     data->cp = BLOSC_CPARAMS_DEFAULTS;
     data->cp.typesize = sizeof(double);
     data->dp = BLOSC_DPARAMS_DEFAULTS;
-    data->ctxt = caterva_new_ctxt(NULL, NULL);
+    data->ctx = caterva_new_ctx(NULL, NULL);
 }
 
 LWTEST_TEARDOWN(get_slice) {
-    data->ctxt->free(data->ctxt);
+    data->ctx->free(data->ctx);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_2) {
     const size_t ndim = 2;
-    size_t shape[ndim] = {10, 10};
-    size_t cshape[ndim] = {3, 2};
-    size_t start[ndim] = {5, 3};
-    size_t stop[ndim] = {9, 10};
+    size_t shape_[ndim] = {10, 10};
+    caterva_dims shape = caterva_new_dims(shape_, ndim);
+    size_t pshape_[ndim] = {3, 2};
+    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
+    size_t start_[ndim] = {5, 3};
+    caterva_dims start = caterva_new_dims(start_, ndim);
+    size_t stop_[ndim] = {9, 10};
+    caterva_dims stop = caterva_new_dims(stop_, ndim);
+    size_t pshape_dest_[ndim] = {3, 2};
+    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
+
     double result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
                            77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
-    caterva_pparams pp = caterva_new_pparams(shape, cshape, ndim);
-    caterva_array *src = caterva_new_array(data->cp, data->dp, NULL, pp, data->ctxt);
 
-    double *buf = (double *) malloc(src->size * src->sc->typesize);
-    for (int i = 0; i < src->size; ++i) {
-        buf[i] = i;
+    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
+
+    size_t buf_size = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        buf_size *= (shape.dims[i]);
     }
-    caterva_from_buffer(src, buf);
 
-    test_get_slice(src, start, stop, result);
+    double *buf = (double *) malloc(buf_size * src->sc->typesize);
+    for (int i = 0; i < buf_size; ++i) {
+        buf[i] = (double) i;
+    }
+    caterva_from_buffer(src, shape, buf);
+
+    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
+
+    test_get_slice(dest, src, start, stop, result);
 
     caterva_free_array(src);
+    caterva_free_array(dest);
     free(buf);
 }
 
-
+/*
 LWTEST_FIXTURE(get_slice, ndim_3) {
     const size_t ndim = 3;
     size_t shape[ndim] = {10, 10, 10};
@@ -265,3 +274,4 @@ LWTEST_FIXTURE(get_slice, ndim_8) {
     caterva_free_array(src);
     free(buf);
 }
+ */

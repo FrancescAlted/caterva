@@ -7,8 +7,13 @@
 
 void test_roundtrip(caterva_array *src, caterva_dims shape) {
 
+    size_t buf_size = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        buf_size *= (shape.dims[i]);
+    }
+
     /* Create original data */
-    double *bufsrc = (double *) malloc(src->size * sizeof(double));
+    double *bufsrc = (double *) malloc(buf_size * sizeof(double));
     for (int i = 0; i < (int) src->size; i++) {
         bufsrc[i] = (double) i;
     }
@@ -17,12 +22,12 @@ void test_roundtrip(caterva_array *src, caterva_dims shape) {
     caterva_from_buffer(src, shape, bufsrc);
 
     /* Fill dest array with caterva_array data */
-    double *bufdest = (double *) malloc(src->size * sizeof(double));
+    double *bufdest = (double *) malloc(buf_size * sizeof(double));
     caterva_to_buffer(src, bufdest);
 
     /* Testing */
     for (size_t i = 0; i < src->size; i++) {
-        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(bufsrc[i], bufdest[i], 1e-10);
+        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(bufsrc[i], bufdest[i], 1e-15);
     }
 
     /* Free mallocs */
