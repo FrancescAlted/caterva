@@ -4,6 +4,7 @@
  */
 
 #include "caterva.h"
+#include "assert.h"
 
 caterva_ctxt *caterva_new_ctxt(void *(*c_alloc)(size_t), void (*c_free)(void *)) {
     caterva_ctxt *ctxt;
@@ -33,13 +34,14 @@ caterva_pparams caterva_new_pparams(size_t *shape, size_t *pshape, size_t ndim) 
 }
 
 // Serialize the partition params
-uint8_t* serialize_attrs(caterva_pparams pparams) {
+int32_t serialize_attrs(caterva_pparams pparams, uint8_t **sattrs) {
     int8_t ndim = (int8_t)pparams.ndim;
-    uint8_t* sattrs = malloc(4096);
-    uint8_t *pattrs = sattrs;
+    int32_t max_sattrs_size = 4096;
+    *sattrs = malloc((size_t)max_sattrs_size);
+    uint8_t *pattrs = *sattrs;
 
     // Build a map with 3 entries (ndim, shape, pshape)
-    *pattrs++ = (0b1000 << 4) + 3;
+    *pattrs++ = 0x80 + 3;
 
     // ndim entry
     *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("ndim");
@@ -48,6 +50,7 @@ uint8_t* serialize_attrs(caterva_pparams pparams) {
     *pattrs++ = 0xcc;  // uint8
     memcpy(pattrs, &ndim, sizeof(uint8_t));
     pattrs += sizeof(uint8_t);
+    assert(pattrs - *sattrs < max_sattrs_size);
 
     // shape entry
     *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("shape");
@@ -59,6 +62,7 @@ uint8_t* serialize_attrs(caterva_pparams pparams) {
         memcpy(pattrs, &(pparams.shape[i]), sizeof(uint64_t));
         pattrs += sizeof(uint64_t);
     }
+    assert(pattrs - *sattrs < max_sattrs_size);
 
     // pshape entry
     *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("pshape");
@@ -70,11 +74,12 @@ uint8_t* serialize_attrs(caterva_pparams pparams) {
         memcpy(pattrs, &(pparams.pshape[i]), sizeof(uint64_t));
         pattrs += sizeof(uint64_t);
     }
+    assert(pattrs - *sattrs < max_sattrs_size);
 
-    size_t slen = pattrs - sattrs;
-    sattrs = realloc(sattrs, slen);  // get rid of the excess of bytes allocated
+    int32_t slen = (int32_t)(pattrs - *sattrs);
+    *sattrs = realloc(*sattrs, (size_t)slen);  // get rid of the excess of bytes allocated
 
-    return sattrs;
+    return slen;
 }
 
 caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp,
@@ -90,10 +95,15 @@ caterva_array *caterva_new_array(blosc2_cparams cp, blosc2_dparams dp, blosc2_fr
             return NULL;
         }
         // Serialize the system attributes for caterva as a client
-        sattrs = serialize_attrs(pparams);
+        int32_t sattrs_len = serialize_attrs(pparams, &sattrs);
+        if (sattrs_len < 0) {
+            fprintf(stderr, "error during serializing attrs for Caterva");
+            return NULL;
+        }
         blosc2_frame_attrs *attrs = malloc(sizeof(blosc2_frame_attrs));
         attrs->namespace = strdup("caterva");
         attrs->sattrs = sattrs;
+        attrs->sattrs_len = sattrs_len;
         fp->attrs[fp->nclients] = attrs;
         fp->nclients++;
     }
