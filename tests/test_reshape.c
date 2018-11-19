@@ -5,14 +5,14 @@
 
 #include "test_common.h"
 
-void test_reshape(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, size_t ndim, size_t *shape_, size_t *pshape_,
+void test_reshape(caterva_ctx *ctx, size_t ndim, size_t *shape_, size_t *pshape_,
                   size_t *pshape_dest_) {
 
     caterva_dims shape = caterva_new_dims(shape_, ndim);
     caterva_dims pshape = caterva_new_dims(pshape_, ndim);
     caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
 
-    caterva_array *src = caterva_empty_array(ctx, cp, dp, NULL, pshape);
+    caterva_array *src = caterva_empty_array(ctx, NULL, pshape);
 
     size_t buf_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -24,7 +24,7 @@ void test_reshape(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, size_t
 
     caterva_from_buffer(src, shape, buf_src);
 
-    caterva_array *dest = caterva_empty_array(ctx, cp, dp, NULL, pshape_dest);
+    caterva_array *dest = caterva_empty_array(ctx, NULL, pshape_dest);
 
     caterva_reshape(dest, src);
 
@@ -40,16 +40,12 @@ void test_reshape(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, size_t
 }
 
 LWTEST_DATA(reshape) {
-    blosc2_cparams cp;
-    blosc2_dparams dp;
     caterva_ctx *ctx;
 };
 
 LWTEST_SETUP(reshape) {
-    data->cp = BLOSC_CPARAMS_DEFAULTS;
-    data->cp.typesize = sizeof(double);
-    data->dp = BLOSC_DPARAMS_DEFAULTS;
-    data->ctx = caterva_new_ctx(NULL, NULL);
+    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC_CPARAMS_DEFAULTS, BLOSC_DPARAMS_DEFAULTS);
+    data->ctx->cparams.typesize = sizeof(double);
 }
 
 LWTEST_TEARDOWN(reshape) {
@@ -62,7 +58,7 @@ LWTEST_FIXTURE(reshape, ndim2) {
     size_t pshape_[ndim] = {10, 10};
     size_t pshape_dest_[ndim] = {20, 20};
 
-    test_reshape(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, pshape_dest_);
+    test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
 }
 
 LWTEST_FIXTURE(reshape, ndim2_n) {
@@ -71,7 +67,7 @@ LWTEST_FIXTURE(reshape, ndim2_n) {
     size_t pshape_[ndim] = {356, 353};
     size_t pshape_dest_[ndim] = {1033, 1033};
 
-    test_reshape(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, pshape_dest_);
+    test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
 }
 
 LWTEST_FIXTURE(reshape, ndim6) {
@@ -80,5 +76,5 @@ LWTEST_FIXTURE(reshape, ndim6) {
     size_t pshape_[ndim] = {2, 5, 4, 9, 4, 12};
     size_t pshape_dest_[ndim] = {3, 6, 8, 13, 15, 11};
 
-    test_reshape(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, pshape_dest_);
+    test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
 }

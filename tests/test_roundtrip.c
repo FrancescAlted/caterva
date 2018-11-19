@@ -5,12 +5,12 @@
 
 #include "test_common.h"
 
-void test_roundtrip(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, size_t ndim, size_t *shape_, size_t *pshape_) {
+void test_roundtrip(caterva_ctx *ctx, size_t ndim, size_t *shape_, size_t *pshape_) {
 
     caterva_dims shape = caterva_new_dims(shape_, ndim);
     caterva_dims pshape = caterva_new_dims(pshape_, ndim);
 
-    caterva_array *src = caterva_empty_array(ctx, cp, dp, NULL, pshape);
+    caterva_array *src = caterva_empty_array(ctx, NULL, pshape);
 
     size_t buf_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -38,17 +38,14 @@ void test_roundtrip(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, size
 }
 
 LWTEST_DATA(roundtrip) {
-    blosc2_cparams cp;
-    blosc2_dparams dp;
     caterva_ctx *ctx;
 };
 
 LWTEST_SETUP(roundtrip) {
-    data->cp = BLOSC_CPARAMS_DEFAULTS;
-    data->cp.typesize = sizeof(double);
-    data->dp = BLOSC_DPARAMS_DEFAULTS;
-    data->ctx = caterva_new_ctx(NULL, NULL);
+    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC_CPARAMS_DEFAULTS, BLOSC_DPARAMS_DEFAULTS);
+    data->ctx->cparams.typesize = sizeof(double);
 }
+
 LWTEST_TEARDOWN(roundtrip) {
     caterva_free_ctx(data->ctx);
 }
@@ -58,7 +55,7 @@ LWTEST_FIXTURE(roundtrip, 3_dim) {
     size_t shape_[ndim] = {4, 3, 3};
     size_t pshape_[ndim] = {2, 2, 2};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 3_dim_2) {
@@ -66,7 +63,7 @@ LWTEST_FIXTURE(roundtrip, 3_dim_2) {
     size_t shape_[ndim] = {134, 56, 204};
     size_t pshape_[ndim] = {26, 17, 34};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 4_dim) {
@@ -74,7 +71,7 @@ LWTEST_FIXTURE(roundtrip, 4_dim) {
     size_t shape_[ndim] = {4, 3, 8, 5};
     size_t pshape_[ndim] = {2, 2, 3, 3};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 4_dim_2) {
@@ -82,7 +79,7 @@ LWTEST_FIXTURE(roundtrip, 4_dim_2) {
     size_t shape_[ndim] = {78, 85, 34, 56};
     size_t pshape_[ndim] = {13, 32, 18, 12};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_dim) {
@@ -90,7 +87,7 @@ LWTEST_FIXTURE(roundtrip, 5_dim) {
     size_t shape_[ndim] = {4, 3, 8, 5, 10};
     size_t pshape_[ndim] = {2, 2, 3, 3, 4};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_dim_2) {
@@ -98,7 +95,7 @@ LWTEST_FIXTURE(roundtrip, 5_dim_2) {
     size_t shape_[ndim] = {35, 55, 24, 36, 12};
     size_t pshape_[ndim] = {13, 32, 18, 12, 5};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 6_dim) {
@@ -106,7 +103,7 @@ LWTEST_FIXTURE(roundtrip, 6_dim) {
     size_t shape_[ndim] = {4, 3, 8, 5, 10, 12};
     size_t pshape_[ndim] = {2, 2, 3, 3, 4, 5};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 7_dim) {
@@ -114,7 +111,7 @@ LWTEST_FIXTURE(roundtrip, 7_dim) {
     size_t shape_[ndim] = {12, 15, 24, 16, 12, 8, 7};
     size_t pshape_[ndim] = {5, 7, 9, 8, 5, 3, 7};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 8_dim) {
@@ -122,5 +119,5 @@ LWTEST_FIXTURE(roundtrip, 8_dim) {
     size_t shape_[ndim] = {4, 3, 8, 5, 10, 12, 6, 4};
     size_t pshape_[ndim] = {3, 2, 3, 3, 4, 5, 4, 2};
 
-    test_roundtrip(data->ctx, data->cp, data->dp, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }

@@ -17,6 +17,9 @@ typedef struct {
     void *(*alloc)(size_t);
 
     void (*free)(void *);
+
+    blosc2_cparams cparams;
+    blosc2_dparams dparams;
 } caterva_ctx;
 
 typedef struct {
@@ -42,11 +45,11 @@ typedef struct {
     size_t ndim;  /* data dimensions */
 } caterva_array;
 
-caterva_ctx *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *));
+caterva_ctx *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
 caterva_dims caterva_new_dims(size_t *dims, size_t ndim);
 
-caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fr, caterva_dims pshape);
+caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_frame *fr, caterva_dims pshape);
 
 int caterva_free_ctx(caterva_ctx *ctx);
 

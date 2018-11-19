@@ -6,7 +6,7 @@
 #include <caterva.h>
 #include "caterva.h"
 
-caterva_ctx *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *)) {
+caterva_ctx *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *), blosc2_cparams cparams, blosc2_dparams dparams) {
     caterva_ctx *ctx;
     if (c_alloc == NULL) {
         ctx = (caterva_ctx *) malloc(sizeof(caterva_ctx));
@@ -20,6 +20,8 @@ caterva_ctx *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *)) {
     } else {
         ctx->free = c_free;
     }
+    ctx->cparams = cparams;
+    ctx->dparams = dparams;
     return ctx;
 }
 
@@ -67,7 +69,7 @@ uint8_t* serialize_attrs(caterva_dims dims_s) {
     return sattrs;
 }
 
-caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fp, caterva_dims pshape) {
+caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_frame *fp, caterva_dims pshape) {
     uint8_t *sattrs = NULL;
 
     /* Create a caterva_array buffer */
@@ -94,7 +96,7 @@ caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_cparams cp, blosc2_d
     }
 
     /* Create a schunk */
-    blosc2_schunk *sc = blosc2_new_schunk(cp, dp, fp);
+    blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, fp);
     carr->sc = sc;
     carr->size = 1;
     carr->csize = 1;
