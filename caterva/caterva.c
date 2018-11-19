@@ -311,9 +311,9 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
     return 0;
 }
 
+
 int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop, const size_t *dest_pshape);
 int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop, const size_t *dest_pshape) {
-
     /* Create chunk buffers */
     caterva_ctx *ctxt = src->ctx;
     int typesize = src->sc->typesize;
@@ -400,6 +400,7 @@ int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, cons
     return 0;
 }
 
+
 int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims start, caterva_dims stop){
 
     if (start.ndim != stop.ndim) {
@@ -444,6 +445,7 @@ int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims star
                                     }
 
                                     _caterva_get_slice(src, chunk, ii, jj, dest->pshape);
+
                                     blosc2_schunk_append_buffer(dest->sc, chunk, dest->csize * typesize);
                                 }
                             }
@@ -467,4 +469,5 @@ int caterva_reshape(caterva_array *dest, caterva_array *src) {
     caterva_dims stop = caterva_new_dims(stop_, dest->ndim);
     caterva_get_slice(dest, src, start, stop);
     return 0;
+
 }
