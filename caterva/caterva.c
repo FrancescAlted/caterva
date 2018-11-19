@@ -110,7 +110,7 @@ caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_cparams cp, blosc2_d
     return carr;
 }
 
-int caterva_free_ctxt(caterva_ctx *ctx) {
+int caterva_free_ctx(caterva_ctx *ctx) {
     ctx->free(ctx);
     return 0;
 }
@@ -118,7 +118,7 @@ int caterva_free_ctxt(caterva_ctx *ctx) {
 int caterva_free_array(caterva_array *carr) {
     blosc2_free_schunk(carr->sc);
     void (*aux_free)(void *) = carr->ctx->free;
-    caterva_free_ctxt(carr->ctx);
+    caterva_free_ctx(carr->ctx);
     aux_free(carr);
     return 0;
 }
@@ -455,14 +455,14 @@ int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims star
     return 0;
 }
 
-int caterva_reshape(caterva_array *dest, caterva_array *src, caterva_dims pshape) {
+int caterva_reshape(caterva_array *dest, caterva_array *src) {
     size_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
-    caterva_dims start = caterva_new_dims(start_, pshape.ndim);
+    caterva_dims start = caterva_new_dims(start_, dest->ndim);
     size_t stop_[CATERVA_MAXDIM];
-    for (int i = 0; i < pshape.ndim; ++i) {
-        stop_[i] = src->shape[CATERVA_MAXDIM - pshape.ndim + i];
+    for (int i = 0; i < dest->ndim; ++i) {
+        stop_[i] = src->shape[CATERVA_MAXDIM - dest->ndim + i];
     }
-    caterva_dims stop = caterva_new_dims(stop_, pshape.ndim);
+    caterva_dims stop = caterva_new_dims(stop_, dest->ndim);
     caterva_get_slice(dest, src, start, stop);
     return 0;
 }

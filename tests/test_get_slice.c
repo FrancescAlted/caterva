@@ -5,22 +5,40 @@
 
 #include "test_common.h"
 
-void assert_buf(double *exp, double *real, size_t size, double tol) {
-    for (int i = 0; i < size; ++i) {
-        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(exp[i], real[i], tol);
-    }
-}
+void test_get_slice(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, size_t ndim, size_t *shape_, size_t *pshape_, size_t *start_, size_t *stop_, size_t *pshape_dest_, double *result) {
 
-void test_get_slice(caterva_array *dest, caterva_array *src, caterva_dims start, caterva_dims stop, double *result) {
+    caterva_dims shape = caterva_new_dims(shape_, ndim);
+    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
+    caterva_dims start = caterva_new_dims(start_, ndim);
+    caterva_dims stop = caterva_new_dims(stop_, ndim);
+    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
+
+    caterva_array *src = caterva_empty_array(ctx, cp, dp, NULL, pshape);
+
+    size_t buf_size = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        buf_size *= (shape.dims[i]);
+    }
+
+    double *buf_src = (double *) malloc(buf_size * src->sc->typesize);
+    for (int i = 0; i < buf_size; ++i) {
+        buf_src[i] = (double) i;
+    }
+    caterva_from_buffer(src, shape, buf_src);
+
+    caterva_array *dest = caterva_empty_array(ctx, cp, dp, NULL, pshape_dest);
 
     caterva_get_slice(dest, src, start, stop);
 
-    double *buf = (double *) malloc(dest->size * src->sc->typesize);
+    double *buf_dest = (double *) malloc(dest->size * src->sc->typesize);
 
-    caterva_to_buffer(dest, buf);
+    caterva_to_buffer(dest, buf_dest);
 
-    assert_buf(buf, result, dest->size, 1e-14);
-    free(buf);
+    assert_buf(buf_dest, result, dest->size, 1e-14);
+    free(buf_src);
+    free(buf_dest);
+    caterva_free_array(src);
+    caterva_free_array(dest);
 }
 
 LWTEST_DATA(get_slice) {
@@ -37,7 +55,7 @@ LWTEST_SETUP(get_slice) {
 }
 
 LWTEST_TEARDOWN(get_slice) {
-    data->ctx->free(data->ctx);
+    caterva_free_ctx(data->ctx);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_2) {
@@ -48,35 +66,10 @@ LWTEST_FIXTURE(get_slice, ndim_2) {
     size_t stop_[ndim] = {9, 10};
     size_t pshape_dest_[ndim] = {3, 2};
 
-    caterva_dims shape = caterva_new_dims(shape_, ndim);
-    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims start = caterva_new_dims(start_, ndim);
-    caterva_dims stop = caterva_new_dims(stop_, ndim);
-    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-
     double result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
                            77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
 
-    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
-
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    for (int i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
-    }
-    caterva_from_buffer(src, shape, buf);
-
-    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
-
-    test_get_slice(dest, src, start, stop, result);
-
-    caterva_free_array(src);
-    caterva_free_array(dest);
-    free(buf);
+    test_get_slice(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }
 
 
@@ -87,12 +80,6 @@ LWTEST_FIXTURE(get_slice, ndim_3) {
     size_t start_[ndim] = {3, 0, 3};
     size_t stop_[ndim] = {6, 7, 10};
     size_t pshape_dest_[ndim] = {2, 4, 3};
-
-    caterva_dims shape = caterva_new_dims(shape_, ndim);
-    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims start = caterva_new_dims(start_, ndim);
-    caterva_dims stop = caterva_new_dims(stop_, ndim);
-    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
 
     double result[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
                            323, 324, 325, 326, 327, 328, 329, 333, 334, 335, 336, 337, 338, 339,
@@ -106,26 +93,8 @@ LWTEST_FIXTURE(get_slice, ndim_3) {
                            543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
                            563, 564, 565, 566, 567, 568, 569};
 
-    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
 
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    for (int i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
-    }
-    caterva_from_buffer(src, shape, buf);
-
-    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
-
-    test_get_slice(dest, src, start, stop, result);
-
-    caterva_free_array(src);
-    caterva_free_array(dest);
-    free(buf);
+    test_get_slice(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_4) {
@@ -136,38 +105,13 @@ LWTEST_FIXTURE(get_slice, ndim_4) {
     size_t stop_[ndim] = {9, 6, 10, 7};
     size_t pshape_dest_[ndim] = {3, 2, 2, 3};
 
-    caterva_dims shape = caterva_new_dims(shape_, ndim);
-    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims start = caterva_new_dims(start_, ndim);
-    caterva_dims stop = caterva_new_dims(stop_, ndim);
-    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-
     double result[1024] = {5392, 5393, 5394, 5395, 5396, 5492, 5493, 5494, 5495, 5496, 5592, 5593,
                            5594, 5595, 5596, 6392, 6393, 6394, 6395, 6396, 6492, 6493, 6494, 6495,
                            6496, 6592, 6593, 6594, 6595, 6596, 7392, 7393, 7394, 7395, 7396, 7492,
                            7493, 7494, 7495, 7496, 7592, 7593, 7594, 7595, 7596, 8392, 8393, 8394,
                            8395, 8396, 8492, 8493, 8494, 8495, 8496, 8592, 8593, 8594, 8595, 8596};
 
-    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
-
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    for (int i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
-    }
-    caterva_from_buffer(src, shape, buf);
-
-    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
-
-    test_get_slice(dest, src, start, stop, result);
-
-    caterva_free_array(src);
-    caterva_free_array(dest);
-    free(buf);
+    test_get_slice(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_5) {
@@ -178,12 +122,6 @@ LWTEST_FIXTURE(get_slice, ndim_5) {
     size_t stop_[ndim] = {8, 9, 6, 6, 10};
     size_t pshape_dest_[ndim] = {3, 5, 2, 4, 5};
 
-    caterva_dims shape = caterva_new_dims(shape_, ndim);
-    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims start = caterva_new_dims(start_, ndim);
-    caterva_dims stop = caterva_new_dims(stop_, ndim);
-    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-
     double result[1024] = {60557, 60558, 60559, 61557, 61558, 61559, 62557, 62558, 62559, 63557,
                            63558, 63559, 64557, 64558, 64559, 65557, 65558, 65559, 66557, 66558,
                            66559, 67557, 67558, 67559, 68557, 68558, 68559, 70557, 70558, 70559,
@@ -191,26 +129,7 @@ LWTEST_FIXTURE(get_slice, ndim_5) {
                            74558, 74559, 75557, 75558, 75559, 76557, 76558, 76559, 77557, 77558,
                            77559, 78557, 78558, 78559};
 
-    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
-
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    for (int i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
-    }
-    caterva_from_buffer(src, shape, buf);
-
-    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
-
-    test_get_slice(dest, src, start, stop, result);
-
-    caterva_free_array(src);
-    caterva_free_array(dest);
-    free(buf);
+    test_get_slice(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_6) {
@@ -221,12 +140,6 @@ LWTEST_FIXTURE(get_slice, ndim_6) {
     size_t stop_[ndim] = {1, 7, 4, 6, 8, 3};
     size_t pshape_dest_[ndim] = {2, 2, 2, 2, 2, 2};
 
-    caterva_dims shape = caterva_new_dims(shape_, ndim);
-    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims start = caterva_new_dims(start_, ndim);
-    caterva_dims stop = caterva_new_dims(stop_, ndim);
-    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-
     double result[1024] = {42451, 42452, 42461, 42462, 42471, 42472, 42551, 42552, 42561, 42562,
                            42571, 42572, 43451, 43452, 43461, 43462, 43471, 43472, 43551, 43552,
                            43561, 43562, 43571, 43572, 52451, 52452, 52461, 52462, 52471, 52472,
@@ -236,26 +149,7 @@ LWTEST_FIXTURE(get_slice, ndim_6) {
                            63451, 63452, 63461, 63462, 63471, 63472, 63551, 63552, 63561, 63562,
                            63571, 63572};
 
-    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
-
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    for (int i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
-    }
-    caterva_from_buffer(src, shape, buf);
-
-    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
-
-    test_get_slice(dest, src, start, stop, result);
-
-    caterva_free_array(src);
-    caterva_free_array(dest);
-    free(buf);
+    test_get_slice(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_7) {
@@ -265,12 +159,6 @@ LWTEST_FIXTURE(get_slice, ndim_7) {
     size_t start_[ndim] = {5, 4, 3, 8, 4, 5, 1};
     size_t stop_[ndim] = {8, 6, 5, 9, 7, 7, 3};
     size_t pshape_dest_[ndim] = {2, 2, 1, 2, 2, 3, 4};
-
-    caterva_dims shape = caterva_new_dims(shape_, ndim);
-    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims start = caterva_new_dims(start_, ndim);
-    caterva_dims stop = caterva_new_dims(stop_, ndim);
-    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
 
     double result[1024] = {5438451, 5438452, 5438461, 5438462, 5438551, 5438552, 5438561, 5438562,
                            5438651, 5438652, 5438661, 5438662, 5448451, 5448452, 5448461, 5448462,
@@ -291,26 +179,7 @@ LWTEST_FIXTURE(get_slice, ndim_7) {
                            7538651, 7538652, 7538661, 7538662, 7548451, 7548452, 7548461, 7548462,
                            7548551, 7548552, 7548561, 7548562, 7548651, 7548652, 7548661, 7548662};
 
-    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
-
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    for (int i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
-    }
-    caterva_from_buffer(src, shape, buf);
-
-    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
-
-    test_get_slice(dest, src, start, stop, result);
-
-    caterva_free_array(src);
-    caterva_free_array(dest);
-    free(buf);
+    test_get_slice(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_8) {
@@ -320,12 +189,6 @@ LWTEST_FIXTURE(get_slice, ndim_8) {
     size_t start_[ndim] = {3, 5, 2, 4, 5, 1, 6, 0};
     size_t stop_[ndim] = {6, 6, 4, 6, 7, 3, 7, 3};
     size_t pshape_dest_[ndim] = {2, 1, 1, 3, 2, 2, 2, 2};
-
-    caterva_dims shape = caterva_new_dims(shape_, ndim);
-    caterva_dims pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims start = caterva_new_dims(start_, ndim);
-    caterva_dims stop = caterva_new_dims(stop_, ndim);
-    caterva_dims pshape_dest = caterva_new_dims(pshape_dest_, ndim);
 
     double result[1024] = {35245160, 35245161, 35245162, 35245260, 35245261, 35245262, 35246160,
                            35246161, 35246162, 35246260, 35246261, 35246262, 35255160, 35255161,
@@ -349,24 +212,5 @@ LWTEST_FIXTURE(get_slice, ndim_8) {
                            55355161, 55355162, 55355260, 55355261, 55355262, 55356160, 55356161,
                            55356162, 55356260, 55356261, 55356262};
 
-    caterva_array *src = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape);
-
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf = (double *) malloc(buf_size * src->sc->typesize);
-    for (int i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
-    }
-    caterva_from_buffer(src, shape, buf);
-
-    caterva_array *dest = caterva_empty_array(data->ctx, data->cp, data->dp, NULL, pshape_dest);
-
-    test_get_slice(dest, src, start, stop, result);
-
-    caterva_free_array(src);
-    caterva_free_array(dest);
-    free(buf);
+    test_get_slice(data->ctx, data->cp, data->dp, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }

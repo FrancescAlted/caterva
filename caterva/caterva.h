@@ -48,7 +48,7 @@ caterva_dims caterva_new_dims(size_t *dims, size_t ndim);
 
 caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_cparams cp, blosc2_dparams dp, blosc2_frame *fr, caterva_dims pshape);
 
-int caterva_free_ctxt(caterva_ctx *ctx);
+int caterva_free_ctx(caterva_ctx *ctx);
 
 int caterva_free_array(caterva_array *carr);
 
@@ -58,7 +58,7 @@ int caterva_to_buffer(caterva_array *src, void *dest);
 
 int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims start, caterva_dims stop);
 
-int caterva_reshape(caterva_array *dest, caterva_array *src, caterva_dims pshape);
+int caterva_reshape(caterva_array *dest, caterva_array *src);
 
 int caterva_equal_data(caterva_array *a, caterva_array *b);
 
