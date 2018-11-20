@@ -36,6 +36,8 @@ caterva_dims caterva_new_dims(size_t *dims, size_t ndim) {
 }
 
 // Serialize the partition params
+//FIXME: Review if that is correct
+
 uint8_t* serialize_attrs(caterva_dims dims_s) {
     int8_t ndim = (int8_t)dims_s.ndim;
     uint8_t* sattrs = malloc(4096);
@@ -79,8 +81,6 @@ caterva_array *caterva_empty_array(caterva_ctx *ctx, blosc2_frame *fp, caterva_d
     carr->ctx = (caterva_ctx *) ctx->alloc(sizeof(caterva_ctx));
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx));
 
-    // FIXME: Place wrong to serialize the system attributes
-    
     if (fp != NULL) {
         if (fp->nclients >= BLOSC2_MAX_FRAME_CLIENTS) {
             fprintf(stderr, "the number of clients for this frame has been exceeded\n");
@@ -125,8 +125,7 @@ int caterva_free_array(caterva_array *carr) {
     return 0;
 }
 
-int _caterva_update_array(caterva_array *carr, caterva_dims shape);
-int _caterva_update_array(caterva_array *carr, caterva_dims shape) {
+int _caterva_update_shape(caterva_array *carr, caterva_dims shape) {
 
     if (carr->ndim != shape.ndim) {
         printf("caterva array ndim and shape ndim are not equal\n");
@@ -148,7 +147,9 @@ int _caterva_update_array(caterva_array *carr, caterva_dims shape) {
         carr->size *= carr->shape[i];
         carr->esize *= carr->eshape[i];
     }
-    
+
+    //FIXME: Serialize the shape here
+
     return 0;
 }
 
@@ -162,7 +163,7 @@ int caterva_from_buffer(caterva_array *dest, caterva_dims shape, void *src) {
         return -1;
     }
 
-    _caterva_update_array(dest, shape);
+    _caterva_update_shape(dest, shape);
 
     caterva_ctx *ctxt = dest->ctx;
     int typesize = dest->sc->typesize;
@@ -311,8 +312,6 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
     return 0;
 }
 
-
-int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop, const size_t *dest_pshape);
 int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop, const size_t *dest_pshape) {
     /* Create chunk buffers */
     caterva_ctx *ctxt = src->ctx;
@@ -422,7 +421,7 @@ int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims star
         start.dims[i] = 0;
     }
     caterva_dims shape = caterva_new_dims(shape_, start.ndim);
-    _caterva_update_array(dest, shape);
+    _caterva_update_shape(dest, shape);
 
     size_t ii[CATERVA_MAXDIM];
     for (ii[0] = start.dims[0]; ii[0] < stop.dims[0]; ii[0] += dest->pshape[0]) {
@@ -455,7 +454,6 @@ int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims star
             }
         }   
     }
-    
     return 0;
 }
 
@@ -470,4 +468,52 @@ int caterva_repart(caterva_array *dest, caterva_array *src) {
     caterva_get_slice(dest, src, start, stop);
     return 0;
 
+}
+
+int caterva_squeeze(caterva_array *src) {
+    size_t nones = 0;
+    size_t newshape_[src->ndim];
+    size_t newpshape_[src->ndim];
+
+    for (int i = CATERVA_MAXDIM - (int) src->ndim; i < CATERVA_MAXDIM; ++i) {
+        if (src->shape[i] != 1) {
+            newshape_[nones] = src->shape[i];
+            newpshape_[nones] = src->pshape[i];
+            nones += 1;
+        }
+    }
+
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        if (i < nones){
+            src->pshape[i] = 1;
+        } else {
+            src->pshape[i] = newpshape_[nones];
+        }
+    }
+    src->ndim = nones;
+
+    caterva_dims newshape = caterva_new_dims(newshape_, nones);
+
+    _caterva_update_shape(src, newshape);
+
+    return 0;
+}
+
+int caterva_get_ndim(caterva_array *src, size_t *ndim) {
+    *ndim = src->ndim;
+    return 0;
+}
+
+int caterva_get_shape(caterva_array *src, size_t *shape){
+    for (int i = 0; i < src->ndim; ++i) {
+        shape[i] = src->shape[CATERVA_MAXDIM - src->ndim + i];
+    }
+    return 0;
+}
+
+int caterva_get_pshape(caterva_array *src, size_t *pshape) {
+    for (int i = 0; i < src->ndim; ++i) {
+        pshape[i] = src->pshape[CATERVA_MAXDIM - src->ndim + i];
+    }
+    return 0;
 }

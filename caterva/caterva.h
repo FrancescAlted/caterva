@@ -63,6 +63,14 @@ int caterva_get_slice(caterva_array *dest, caterva_array *src, caterva_dims star
 
 int caterva_repart(caterva_array *dest, caterva_array *src);
 
+int caterva_squeeze(caterva_array *src);
+
+int caterva_get_ndim(caterva_array *src, size_t *ndim);
+
+int caterva_get_shape(caterva_array *src, size_t *shape);
+
+int caterva_get_pshape(caterva_array *src, size_t *pshape);
+
 int caterva_equal_data(caterva_array *a, caterva_array *b);
 
 #endif
