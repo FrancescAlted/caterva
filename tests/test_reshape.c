@@ -26,7 +26,7 @@ void test_reshape(caterva_ctx *ctx, size_t ndim, size_t *shape_, size_t *pshape_
 
     caterva_array *dest = caterva_empty_array(ctx, NULL, pshape_dest);
 
-    caterva_reshape(dest, src);
+    caterva_repart(dest, src);
 
     double *buf_dest = (double *) malloc(dest->size * src->sc->typesize);
 
