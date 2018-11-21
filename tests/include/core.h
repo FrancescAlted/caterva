@@ -39,7 +39,7 @@ struct lwtest {
 
 #if defined(_MSC_VER)
 #pragma data_seg(push)
-#pragma data_seg(".ctest$u")
+#pragma data_seg(".lwtest$u")
 #pragma data_seg(pop)
 #define LWTEST_IMPL_SECTION __declspec(allocate(".lwtest$u")) __declspec(align(1))
 #elif defined(__APPLE__)

@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <blosc.h>
+#include "../../c-blosc2/blosc/blosc.h"
 
 #define CATERVA_MAXDIM 8
 

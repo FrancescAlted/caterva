@@ -52,72 +52,72 @@ LWTEST_TEARDOWN(roundtrip) {
 
 LWTEST_FIXTURE(roundtrip, 3_dim) {
     const size_t ndim = 3;
-    size_t shape_[ndim] = {4, 3, 3};
-    size_t pshape_[ndim] = {2, 2, 2};
+    size_t shape_[] = {4, 3, 3};
+    size_t pshape_[] = {2, 2, 2};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 3_dim_2) {
     const size_t ndim = 3;
-    size_t shape_[ndim] = {134, 56, 204};
-    size_t pshape_[ndim] = {26, 17, 34};
+    size_t shape_[] = {134, 56, 204};
+    size_t pshape_[] = {26, 17, 34};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 4_dim) {
     const size_t ndim = 4;
-    size_t shape_[ndim] = {4, 3, 8, 5};
-    size_t pshape_[ndim] = {2, 2, 3, 3};
+    size_t shape_[] = {4, 3, 8, 5};
+    size_t pshape_[] = {2, 2, 3, 3};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 4_dim_2) {
     const size_t ndim = 4;
-    size_t shape_[ndim] = {78, 85, 34, 56};
-    size_t pshape_[ndim] = {13, 32, 18, 12};
+    size_t shape_[] = {78, 85, 34, 56};
+    size_t pshape_[] = {13, 32, 18, 12};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_dim) {
     const size_t ndim = 5;
-    size_t shape_[ndim] = {4, 3, 8, 5, 10};
-    size_t pshape_[ndim] = {2, 2, 3, 3, 4};
+    size_t shape_[] = {4, 3, 8, 5, 10};
+    size_t pshape_[] = {2, 2, 3, 3, 4};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_dim_2) {
     const size_t ndim = 5;
-    size_t shape_[ndim] = {35, 55, 24, 36, 12};
-    size_t pshape_[ndim] = {13, 32, 18, 12, 5};
+    size_t shape_[] = {35, 55, 24, 36, 12};
+    size_t pshape_[] = {13, 32, 18, 12, 5};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 6_dim) {
     const size_t ndim = 6;
-    size_t shape_[ndim] = {4, 3, 8, 5, 10, 12};
-    size_t pshape_[ndim] = {2, 2, 3, 3, 4, 5};
+    size_t shape_[] = {4, 3, 8, 5, 10, 12};
+    size_t pshape_[] = {2, 2, 3, 3, 4, 5};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 7_dim) {
     const size_t ndim = 7;
-    size_t shape_[ndim] = {12, 15, 24, 16, 12, 8, 7};
-    size_t pshape_[ndim] = {5, 7, 9, 8, 5, 3, 7};
+    size_t shape_[] = {12, 15, 24, 16, 12, 8, 7};
+    size_t pshape_[] = {5, 7, 9, 8, 5, 3, 7};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
 LWTEST_FIXTURE(roundtrip, 8_dim) {
     const size_t ndim = 8;
-    size_t shape_[ndim] = {4, 3, 8, 5, 10, 12, 6, 4};
-    size_t pshape_[ndim] = {3, 2, 3, 3, 4, 5, 4, 2};
+    size_t shape_[] = {4, 3, 8, 5, 10, 12, 6, 4};
+    size_t pshape_[] = {3, 2, 3, 3, 4, 5, 4, 2};
 
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }

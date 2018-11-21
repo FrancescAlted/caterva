@@ -7,16 +7,16 @@
 #define LWTEST_MAIN_H
 
 #include "core.h"
-#include "benchmark.h"
+//#include "benchmark.h"
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#ifndef _WIN32
-#include <unistd.h>
-#else
-#include <windows.h>
-#endif
+//#ifndef _WIN32
+//#include <unistd.h>
+//#else
+//#include <windows.h>
+//#endif
 
 
 #define MSG_SIZE 4096
@@ -84,16 +84,6 @@ static int suite_filter(struct lwtest *t) {
     return strncmp(suite_name, t->ssname, strlen(suite_name)) == 0;
 }
 
-#include <signal.h>
-
-static void sighandler(int signum) {
-    LWTEST_ERR("%d %s", signum, sys_siglist[signum]);
-    fflush(stdout);
-
-    signal(signum, SIG_DFL);
-    kill(getpid(), signum);
-}
-
 int lwtest_main(int argc, const char *argv[]) {
     static int total = 0;
     static int num_ok = 0;
@@ -101,10 +91,6 @@ int lwtest_main(int argc, const char *argv[]) {
     static int num_skip = 0;
     static int idx = 1;
     static lwtest_filter_func filter = suite_all;
-
-    signal(SIGSEGV, sighandler);
-    signal(SIGFPE, sighandler);
-    signal(SIGILL, sighandler);
 
     if (argc == 2) {
         suite_name = argv[1];
@@ -117,9 +103,9 @@ int lwtest_main(int argc, const char *argv[]) {
     strftime(s, sizeof(s), "%c", tm);
     printf("%s\n", s);
 
-    double t_start, t_end, t_test_start, t_test_end;
+    //double t_start, t_end, t_test_start, t_test_end;
 
-    LWTEST_GET_CPU_TIME(&t_start);
+    //LWTEST_GET_CPU_TIME(&t_start);
 
     struct lwtest *lwtest_begin = &_LWTEST_SNAME(suite, test);
     struct lwtest *lwtest_end = &_LWTEST_SNAME(suite, test);
@@ -159,7 +145,7 @@ int lwtest_main(int argc, const char *argv[]) {
                 num_skip++;
             } else {
 
-                LWTEST_GET_CPU_TIME(&t_test_start);
+                //LWTEST_GET_CPU_TIME(&t_test_start);
                 int result = setjmp(lwtest_err);
                 if (result == 0) {
                     if (test->setup && *test->setup) (*test->setup)(test->data);
@@ -174,9 +160,9 @@ int lwtest_main(int argc, const char *argv[]) {
                     printf("[FAIL] ");
                     num_fail++;
                 }
-                LWTEST_GET_CPU_TIME(&t_test_end);
+                //LWTEST_GET_CPU_TIME(&t_test_end);
 
-                printf("%.2f s\n", (t_test_end - t_test_start) / 1e9);
+                //printf("%.2f s\n", (t_test_end - t_test_start) / 1e9);
 
                 if (lwtest_errorsize != MSG_SIZE - 1) printf("%s", lwtest_errorbuffer);
             }
@@ -184,10 +170,11 @@ int lwtest_main(int argc, const char *argv[]) {
         }
     }
 
-    LWTEST_GET_CPU_TIME(&t_end);
+    //LWTEST_GET_CPU_TIME(&t_end);
 
-    printf("RESULTS: %d tests (%d ok, %d failed, %d skipped) ran in %.2f s", total, num_ok,
-           num_fail, num_skip, (t_end - t_start) / 1e9);
+	//printf("RESULTS: %d tests (%d ok, %d failed, %d skipped) ran in %.2f s", total, num_ok,
+	//       num_fail, num_skip, (t_end - t_start) / 1e9);
+    printf("RESULTS: %d tests (%d ok, %d failed, %d skipped)", total, num_ok, num_fail, num_skip);
 
     return num_fail;
 }

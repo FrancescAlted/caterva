@@ -54,27 +54,27 @@ LWTEST_TEARDOWN(reshape) {
 
 LWTEST_FIXTURE(reshape, ndim2) {
     const size_t ndim = 2;
-    size_t shape_[ndim] = {100, 100};
-    size_t pshape_[ndim] = {10, 10};
-    size_t pshape_dest_[ndim] = {20, 20};
+    size_t shape_[] = {100, 100};
+    size_t pshape_[] = {10, 10};
+    size_t pshape_dest_[] = {20, 20};
 
     test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
 }
 
 LWTEST_FIXTURE(reshape, ndim2_n) {
     const size_t ndim = 2;
-    size_t shape_[ndim] = {8563, 8234};
-    size_t pshape_[ndim] = {356, 353};
-    size_t pshape_dest_[ndim] = {1033, 1033};
+    size_t shape_[] = {8563, 8234};
+    size_t pshape_[] = {356, 353};
+    size_t pshape_dest_[] = {1033, 1033};
 
     test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
 }
 
 LWTEST_FIXTURE(reshape, ndim6) {
     const size_t ndim = 6;
-    size_t shape_[ndim] = {20, 15, 18, 14, 19, 20};
-    size_t pshape_[ndim] = {2, 5, 4, 9, 4, 12};
-    size_t pshape_dest_[ndim] = {3, 6, 8, 13, 15, 11};
+    size_t shape_[] = {20, 15, 18, 14, 19, 20};
+    size_t pshape_[] = {2, 5, 4, 9, 4, 12};
+    size_t pshape_dest_[] = {3, 6, 8, 13, 15, 11};
 
     test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
 }

@@ -50,11 +50,11 @@ LWTEST_TEARDOWN(reshape) {
 
 LWTEST_FIXTURE(reshape, ndim2) {
     const size_t ndim = 3;
-    size_t shape_[ndim] = {100, 100, 100};
-    size_t pshape_[ndim] = {10, 10, 10};
-    size_t pshape_dest_[ndim] = {21, 1, 12};
-    size_t start_[ndim] = {5, 20, 60};
-    size_t stop_[ndim] = {23, 21, 99};
+    size_t shape_[] = {100, 100, 100};
+    size_t pshape_[] = {10, 10, 10};
+    size_t pshape_dest_[] = {21, 1, 12};
+    size_t start_[] = {5, 20, 60};
+    size_t stop_[] = {23, 21, 99};
 
     test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
 }

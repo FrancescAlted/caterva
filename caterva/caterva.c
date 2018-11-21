@@ -336,6 +336,7 @@ int caterva_to_buffer(caterva_array *src, void *dest) {
 }
 
 int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, const size_t *stop, const size_t *d_pshape) {
+	uint8_t *bdest = dest;   // for allowing pointer arithmetic
     size_t s_shape[CATERVA_MAXDIM];
     size_t s_pshape[CATERVA_MAXDIM];
     size_t s_eshape[CATERVA_MAXDIM];
@@ -410,7 +411,7 @@ int _caterva_get_slice(caterva_array *src, void *dest, const size_t *start, cons
                                                                         start[i]) * buf_pointer_inc;
                                                                     buf_pointer_inc *= d_pshape[i];
                                                                 }
-                                                                memcpy(&dest[buf_pointer * typesize],
+                                                                memcpy(&bdest[buf_pointer * typesize],
                                                                        &chunk[chunk_pointer * typesize],
                                                                        (c_stop[7] - c_start[7]) * typesize);
                                                             }
@@ -526,8 +527,8 @@ int caterva_repart(caterva_array *dest, caterva_array *src) {
 
 int caterva_squeeze(caterva_array *src) {
     size_t nones = 0;
-    size_t newshape_[src->ndim];
-    size_t newpshape_[src->ndim];
+    size_t newshape_[CATERVA_MAXDIM];
+    size_t newpshape_[CATERVA_MAXDIM];
 
     for (int i = 0; i < src->ndim; ++i) {
         if (src->shape[i] != 1) {
