@@ -29,20 +29,7 @@ void test_squeeze(caterva_ctx *ctx, size_t ndim, size_t *shape_, size_t *pshape_
     caterva_array *dest = caterva_empty_array(ctx, NULL, pshape_dest);
 
     caterva_get_slice(dest, src, start, stop);
-
-    caterva_squeeze(dest);
-
-    size_t ndim_s;
-    caterva_get_ndim(dest, &ndim_s);
-    size_t *shape_s = (size_t *) malloc(ndim_s * sizeof(size_t));
-    caterva_get_shape(dest, shape_s);
-
-    printf("Dimensiones de dest: %d\n", (int) ndim_s);
-    printf("Shape de dest: (");
-    for (int j = 0; j < ndim_s - 1; ++j) {
-        printf("%d, ", (int) shape_s[j]);
-    }
-    printf("%d)", (int) shape_s[ndim_s - 1]);
+    
     free(buf_src);
     caterva_free_array(src);
     caterva_free_array(dest);

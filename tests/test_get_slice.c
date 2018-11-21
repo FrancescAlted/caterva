@@ -99,7 +99,7 @@ LWTEST_FIXTURE(get_slice, ndim_4) {
     size_t pshape_[ndim] = {3, 5, 2, 7};
     size_t start_[ndim] = {5, 3, 9, 2};
     size_t stop_[ndim] = {9, 6, 10, 7};
-    size_t pshape_dest_[ndim] = {3, 2, 2, 3};
+    size_t pshape_dest_[ndim] = {3, 2, 1, 3};
 
     double result[1024] = {5392, 5393, 5394, 5395, 5396, 5492, 5493, 5494, 5495, 5496, 5592, 5593,
                            5594, 5595, 5596, 6392, 6393, 6394, 6395, 6396, 6492, 6493, 6494, 6495,
@@ -116,7 +116,7 @@ LWTEST_FIXTURE(get_slice, ndim_5) {
     size_t pshape_[ndim] = {3, 5, 2, 4, 5};
     size_t start_[ndim] = {6, 0, 5, 5, 7};
     size_t stop_[ndim] = {8, 9, 6, 6, 10};
-    size_t pshape_dest_[ndim] = {3, 5, 2, 4, 5};
+    size_t pshape_dest_[ndim] = {3, 5, 1, 1, 5};
 
     double result[1024] = {60557, 60558, 60559, 61557, 61558, 61559, 62557, 62558, 62559, 63557,
                            63558, 63559, 64557, 64558, 64559, 65557, 65558, 65559, 66557, 66558,
@@ -134,7 +134,7 @@ LWTEST_FIXTURE(get_slice, ndim_6) {
     size_t pshape_[ndim] = {4, 5, 3, 8, 3, 3};
     size_t start_[ndim] = {0, 4, 2, 4, 5, 1};
     size_t stop_[ndim] = {1, 7, 4, 6, 8, 3};
-    size_t pshape_dest_[ndim] = {2, 2, 2, 2, 2, 2};
+    size_t pshape_dest_[ndim] = {1, 2, 2, 2, 2, 2};
 
     double result[1024] = {42451, 42452, 42461, 42462, 42471, 42472, 42551, 42552, 42561, 42562,
                            42571, 42572, 43451, 43452, 43461, 43462, 43471, 43472, 43551, 43552,
@@ -154,7 +154,7 @@ LWTEST_FIXTURE(get_slice, ndim_7) {
     size_t pshape_[ndim] = {4, 5, 1, 8, 5, 3, 10};
     size_t start_[ndim] = {5, 4, 3, 8, 4, 5, 1};
     size_t stop_[ndim] = {8, 6, 5, 9, 7, 7, 3};
-    size_t pshape_dest_[ndim] = {2, 2, 1, 2, 2, 3, 4};
+    size_t pshape_dest_[ndim] = {2, 2, 1, 1, 2, 3, 4};
 
     double result[1024] = {5438451, 5438452, 5438461, 5438462, 5438551, 5438552, 5438561, 5438562,
                            5438651, 5438652, 5438661, 5438662, 5448451, 5448452, 5448461, 5448462,
@@ -184,7 +184,7 @@ LWTEST_FIXTURE(get_slice, ndim_8) {
     size_t pshape_[ndim] = {2, 3, 4, 2, 3, 2, 4, 10};
     size_t start_[ndim] = {3, 5, 2, 4, 5, 1, 6, 0};
     size_t stop_[ndim] = {6, 6, 4, 6, 7, 3, 7, 3};
-    size_t pshape_dest_[ndim] = {2, 1, 1, 3, 2, 2, 2, 2};
+    size_t pshape_dest_[ndim] = {2, 1, 1, 3, 2, 2, 1, 2};
 
     double result[1024] = {35245160, 35245161, 35245162, 35245260, 35245261, 35245262, 35246160,
                            35246161, 35246162, 35246260, 35246261, 35246262, 35255160, 35255161,

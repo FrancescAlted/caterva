@@ -18,7 +18,9 @@ void fill_buf(double *buf, size_t buf_size) {
 
 void assert_buf(double *exp, double *real, size_t size, double tol) {
     for (int i = 0; i < size; ++i) {
-        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(exp[i], real[i], tol);
+        double a = exp[i];
+        double b = real[i];
+        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(a, b, tol);
     }
 }
 
