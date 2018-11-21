@@ -14,9 +14,11 @@
 #define LWTEST_GET_CPU_TIME(t) \
     lwtest_get_time(t, CLOCK_PROCESS_CPUTIME_ID)
 
+
+
 int lwtest_get_time(double *t, clockid_t clk_id) {
     struct timespec ts;
-    int err = clock_gettime(CLOCK_REALTIME, &ts);
+    int err = clock_gettime(clk_id, &ts);
     if(err != 0) return -1;
     *t = ts.tv_sec*1e9 + ts.tv_nsec;
     return 0;

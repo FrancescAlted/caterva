@@ -37,15 +37,26 @@ struct lwtest {
 
 #define _LWTEST_MAGIC (0xdeadbccf)
 
-#ifdef __APPLE__
+#if defined(_MSC_VER)
+#pragma data_seg(push)
+#pragma data_seg(".ctest$u")
+#pragma data_seg(pop)
+#define LWTEST_IMPL_SECTION __declspec(allocate(".lwtest$u")) __declspec(align(1))
+#elif defined(__APPLE__)
 #define LWTEST_IMPL_SECTION __attribute__ ((used, section ("__DATA, .lwtest"), aligned(1)))
 #else
 #define LWTEST_IMPL_SECTION __attribute__ ((used, section (".lwtest"), aligned(1)))
 #endif
 
+//#ifdef __APPLE__
+//#define LWTEST_IMPL_SECTION __attribute__ ((used, section ("__DATA, .lwtest"), aligned(1)))
+//#else
+//#define LWTEST_IMPL_SECTION __attribute__ ((used, section (".lwtest"), aligned(1)))
+//#endif
+
 // Define struct
 #define _LWTEST_STRUCT(sname, tname, tskip, tdata, tsetup, tteardown) \
-    static struct lwtest _LWTEST_NAME(sname##_##tname) LWTEST_IMPL_SECTION = { \
+    static struct lwtest LWTEST_IMPL_SECTION _LWTEST_NAME(sname##_##tname) = { \
         .ssname=#sname, \
         .ttname=#tname, \
         .run = _LWTEST_NAME(sname##_##tname##_run), \
