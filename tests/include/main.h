@@ -158,7 +158,7 @@ int lwtest_main(int argc, const char *argv[]) {
                 //LWTEST_GET_CPU_TIME(&t_test_end);
 
                 //printf("%.2f s\n", (t_test_end - t_test_start) / 1e9);
-
+                printf("\n");
                 if (lwtest_errorsize != MSG_SIZE - 1) printf("%s", lwtest_errorbuffer);
             }
             idx++;
