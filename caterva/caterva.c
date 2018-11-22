@@ -517,7 +517,7 @@ int caterva_repart(caterva_array *dest, caterva_array *src) {
     caterva_dims start = caterva_new_dims(start_, dest->ndim);
     size_t stop_[CATERVA_MAXDIM];
     for (int i = 0; i < dest->ndim; ++i) {
-        stop_[i] = src->shape[CATERVA_MAXDIM - dest->ndim + i];
+        stop_[i] = src->shape[i];
     }
     caterva_dims stop = caterva_new_dims(stop_, dest->ndim);
     caterva_get_slice(dest, src, start, stop);

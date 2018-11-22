@@ -97,11 +97,6 @@ int lwtest_main(int argc, const char *argv[]) {
         filter = suite_filter;
     }
 
-    time_t c_time = time(NULL);
-    struct tm *tm = localtime(&c_time);
-    char s[64];
-    strftime(s, sizeof(s), "%c", tm);
-    printf("%s\n", s);
 
     //double t_start, t_end, t_test_start, t_test_end;
 
