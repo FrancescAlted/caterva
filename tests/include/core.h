@@ -48,12 +48,6 @@ struct lwtest {
 #define LWTEST_IMPL_SECTION __attribute__ ((used, section (".lwtest"), aligned(1)))
 #endif
 
-//#ifdef __APPLE__
-//#define LWTEST_IMPL_SECTION __attribute__ ((used, section ("__DATA, .lwtest"), aligned(1)))
-//#else
-//#define LWTEST_IMPL_SECTION __attribute__ ((used, section (".lwtest"), aligned(1)))
-//#endif
-
 // Define struct
 #define _LWTEST_STRUCT(sname, tname, tskip, tdata, tsetup, tteardown) \
     static struct lwtest LWTEST_IMPL_SECTION _LWTEST_NAME(sname##_##tname) = { \
