@@ -125,7 +125,7 @@ int caterva_free_array(caterva_array_t *carr) {
     return 0;
 }
 
-int _caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
+int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
 
     if (carr->ndim != shape.ndim) {
         printf("caterva array ndim and shape ndim are not equal\n");
@@ -164,7 +164,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t shape, void *src) 
         return -1;
     }
 
-    _caterva_update_shape(dest, shape);
+    caterva_update_shape(dest, shape);
 
     uint64_t d_shape[CATERVA_MAXDIM];
     uint64_t d_pshape[CATERVA_MAXDIM];
@@ -459,7 +459,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     }
     
     caterva_dims_t shape = caterva_new_dims(shape_, start.ndim);
-    _caterva_update_shape(dest, shape);
+    caterva_update_shape(dest, shape);
 
     uint64_t d_shape[CATERVA_MAXDIM];
     uint64_t d_pshape[CATERVA_MAXDIM];
@@ -549,7 +549,7 @@ int caterva_squeeze(caterva_array_t *src) {
 
     caterva_dims_t newshape = caterva_new_dims(newshape_, nones);
 
-    _caterva_update_shape(src, newshape);
+    caterva_update_shape(src, newshape);
 
     return 0;
 }
