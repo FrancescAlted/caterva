@@ -5,6 +5,7 @@
 
 #include <caterva.h>
 #include "caterva.h"
+#include "assert.h"
 
 caterva_ctx_t *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *), blosc2_cparams cparams, blosc2_dparams dparams) {
     caterva_ctx_t *ctx;
@@ -36,39 +37,41 @@ caterva_dims_t caterva_new_dims(uint64_t *dims, uint64_t ndim) {
 }
 
 // Serialize the partition params
-//FIXME: Review if that is correct
+int32_t serialize_attrs(caterva_pparams pparams, uint8_t **sattrs) {
+    int8_t ndim = (int8_t)pparams.ndim;
+    int32_t max_sattrs_size = 116;  // 4 + MAX_DIM * (1 + sizeof(uint64_t)) + MAX_DIM * (1 + sizeof(int32_t))
+    *sattrs = malloc((size_t)max_sattrs_size);
+    uint8_t *pattrs = *sattrs;
 
-uint8_t* serialize_attrs(caterva_dims_t dims_s) {
-    uint8_t ndim = (uint8_t)dims_s.ndim;
-    uint8_t* sattrs = malloc(4096);
-    uint8_t *pattrs = sattrs;
-
-    // Build a map with 3 entries (ndim, dims)
-    *pattrs++ = (0b1000 << 4) + 2;
+    // Build an array with 3 entries (ndim, shape, pshape)
+    *pattrs++ = 0x90 + 3;
 
     // ndim entry
-    *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("ndim");
-    memcpy(pattrs, "ndim", strlen("ndim"));
-    pattrs += strlen("ndim");
-    *pattrs++ = 0xcc;  // uint8
-    memcpy(pattrs, &ndim, sizeof(uint8_t));
-    pattrs += sizeof(uint8_t);
+    *pattrs++ = (uint8_t)ndim;  // positive fixnum (7-bit positive integer)
+    assert(pattrs - *sattrs < max_sattrs_size);
 
     // shape entry
-    *pattrs++ = (uint8_t)(0b101 << 5) + (uint8_t)strlen("dims");
-    memcpy(pattrs, "dims", strlen("dims"));
-    pattrs += strlen("dims");
-    *pattrs++ = (uint8_t)(0b1001 << 4) + (uint8_t)ndim;  // fix array with ndim elements
-    for (uint8_t i = 0; i < ndim; i++) {
+    *pattrs++ = (uint8_t)(0x90) + (uint8_t)ndim;  // fix array with ndim elements
+    for (int8_t i = 0; i < ndim; i++) {
         *pattrs++ = 0xcf;  // uint64
-        memcpy(pattrs, &(dims_s.dims[i]), sizeof(uint64_t));
+        memcpy(pattrs, &(pparams.shape[i]), sizeof(uint64_t));
         pattrs += sizeof(uint64_t);
     }
-    
-    uint64_t slen = pattrs - sattrs;
-    sattrs = realloc(sattrs, slen);  // get rid of the excess of bytes allocated
+    assert(pattrs - *sattrs < max_sattrs_size);
 
-    return sattrs;
+    // pshape entry
+    *pattrs++ = (uint8_t)(0x90) + (uint8_t)ndim;  // fix array with ndim elements
+    for (int8_t i = 0; i < ndim; i++) {
+        *pattrs++ = 0xd2;  // int32
+        memcpy(pattrs, &(pparams.pshape[i]), sizeof(int32_t));
+        pattrs += sizeof(int32_t);
+    }
+    assert(pattrs - *sattrs <= max_sattrs_size);
+
+    int32_t slen = (int32_t)(pattrs - *sattrs);
+    *sattrs = realloc(*sattrs, (size_t)slen);  // get rid of the excess of bytes allocated
+
+    return slen;
 }
 
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fp, caterva_dims_t pshape) {
@@ -87,12 +90,15 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fp, cater
             return NULL;
         }
         // Serialize the system attributes for caterva as a client
-        sattrs = serialize_attrs(pshape);
-        blosc2_frame_attrs *attrs = malloc(sizeof(blosc2_frame_attrs));
-        attrs->namespace = strdup("caterva");
-        attrs->sattrs = sattrs;
-        fp->attrs[fp->nclients] = attrs;
-        fp->nclients++;
+        int32_t sattrs_len = serialize_attrs(pparams, &sattrs);
+        if (sattrs_len < 0) {
+            fprintf(stderr, "error during serializing attrs for Caterva");
+            return NULL;
+        }
+        int retcode = blosc2_frame_add_namespace(fp, "caterva", sattrs, (uint32_t)sattrs_len);
+        if (retcode < 0) {
+            return NULL;
+        }
     }
 
     /* Create a schunk */

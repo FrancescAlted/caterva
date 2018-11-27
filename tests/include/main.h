@@ -128,7 +128,6 @@ int lwtest_main(int argc, const char *argv[]) {
                 num_skip++;
             } else {
 
-                //LWTEST_GET_CPU_TIME(&t_test_start);
                 int result = setjmp(lwtest_err);
                 if (result == 0) {
                     if (test->setup && *test->setup) (*test->setup)(test->data);
@@ -147,6 +146,7 @@ int lwtest_main(int argc, const char *argv[]) {
                 printf("\n");
                 if (lwtest_errorsize != MSG_SIZE - 1) printf("%s", lwtest_errorbuffer);
             }
+            printf("\n");
             idx++;
         }
     }
