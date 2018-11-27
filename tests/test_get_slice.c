@@ -5,7 +5,7 @@
 
 #include "test_common.h"
 
-void test_get_slice(caterva_ctx_t *ctx, uint64_t ndim, uint64_t *shape_, uint64_t *pshape_, uint64_t *start_, uint64_t *stop_, uint64_t *pshape_dest_, double *result) {
+void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, uint64_t *shape_, uint64_t *pshape_, uint64_t *start_, uint64_t *stop_, uint64_t *pshape_dest_, double *result) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
