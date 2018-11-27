@@ -29,32 +29,56 @@ void test_squeeze(caterva_ctx_t *ctx, uint64_t ndim, uint64_t *shape_, uint64_t 
     caterva_array_t *dest = caterva_empty_array(ctx, NULL, pshape_dest);
 
     caterva_get_slice(dest, src, start, stop);
-    
+
+    LWTEST_ASSERT_TRUE(src->ndim != dest->ndim);
+
     free(buf_src);
     caterva_free_array(src);
     caterva_free_array(dest);
 }
 
-LWTEST_DATA(reshape) {
+LWTEST_DATA(squeeze) {
     caterva_ctx_t *ctx;
 };
 
-LWTEST_SETUP(reshape) {
+LWTEST_SETUP(squeeze) {
     data->ctx = caterva_new_ctx(NULL, NULL, BLOSC_CPARAMS_DEFAULTS, BLOSC_DPARAMS_DEFAULTS);
     data->ctx->cparams.typesize = sizeof(double);
 }
 
-LWTEST_TEARDOWN(reshape) {
+LWTEST_TEARDOWN(squeeze) {
     caterva_free_ctx(data->ctx);
 }
 
-LWTEST_FIXTURE(reshape, ndim2) {
+LWTEST_FIXTURE(squeeze, ndim3) {
     const uint64_t ndim = 3;
     uint64_t shape_[] = {100, 100, 100};
     uint64_t pshape_[] = {10, 10, 10};
     uint64_t pshape_dest_[] = {21, 1, 12};
     uint64_t start_[] = {5, 20, 60};
     uint64_t stop_[] = {23, 21, 99};
+
+    test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
+}
+
+LWTEST_FIXTURE(squeeze, ndim5) {
+    const uint64_t ndim = 5;
+    uint64_t shape_[] = {22, 25, 31, 19, 31};
+    uint64_t pshape_[] = {7, 3, 5, 8, 2};
+    uint64_t pshape_dest_[] = {4, 11, 6, 1, 5};
+    uint64_t start_[] = {1, 12, 3, 12, 6};
+    uint64_t stop_[] = {16, 21, 19, 13, 21};
+
+    test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
+}
+
+LWTEST_FIXTURE(squeeze, ndim7) {
+    const uint64_t ndim = 7;
+    uint64_t shape_[] = {12, 15, 21, 19, 21, 11, 16};
+    uint64_t pshape_[] = {7, 3, 5, 5, 4, 8, 2};
+    uint64_t pshape_dest_[] = {1, 11, 3, 6, 1, 1, 5};
+    uint64_t start_[] = {10, 8, 3, 5, 1, 0, 6};
+    uint64_t stop_[] = {11, 15, 19, 11, 2, 1, 21};
 
     test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
 }
