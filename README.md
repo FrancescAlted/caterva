@@ -1,14 +1,26 @@
-# Caterva 
+# Caterva
 
-## Compile and test (bash in OSX)
+## Installation
 
 ```
-cd tests/
-gcc -O -o test_name.out test_name.c -lblosc
-./test_name.out
+mkdir build
+cd build
+```
+```
+cmake -DCMAKE_INSTALL_PREFIX='your_install_directory' ..
+```
+```
+cmake --build .
+ctest
+cmake --build . --target install
 ```
 
-## Compile and debug (VSCode in OSX)
+## Examples
 
-- Compile (⇧ + ⌘ + B)
-- Debug (fn + F5) 
+A simple example of caterva usage are described in the file `examples/simple.c`. To execute it:
+
+```
+cd examples/
+gcc -O -o simple.exe simple.c -lcaterva -lblosc
+./simple.exe
+```

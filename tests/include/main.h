@@ -11,7 +11,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #define MSG_SIZE 4096
 
@@ -78,16 +77,6 @@ static int suite_filter(struct lwtest *t) {
     return strncmp(suite_name, t->ssname, strlen(suite_name)) == 0;
 }
 
-#include <signal.h>
-
-static void sighandler(int signum) {
-    LWTEST_ERR("%d %s", signum, sys_siglist[signum]);
-    fflush(stdout);
-
-    signal(signum, SIG_DFL);
-    kill(getpid(), signum);
-}
-
 int lwtest_main(int argc, const char *argv[]) {
     static int total = 0;
     static int num_ok = 0;
@@ -95,10 +84,6 @@ int lwtest_main(int argc, const char *argv[]) {
     static int num_skip = 0;
     static int idx = 1;
     static lwtest_filter_func filter = suite_all;
-
-    signal(SIGSEGV, sighandler);
-    signal(SIGFPE, sighandler);
-    signal(SIGILL, sighandler);
 
     if (argc == 2) {
         suite_name = argv[1];
@@ -158,6 +143,7 @@ int lwtest_main(int argc, const char *argv[]) {
                     num_fail++;
                 }
 
+                printf("\n");
                 if (lwtest_errorsize != MSG_SIZE - 1) printf("%s", lwtest_errorbuffer);
             }
             printf("\n");
@@ -165,9 +151,7 @@ int lwtest_main(int argc, const char *argv[]) {
         }
     }
 
-
-    printf("RESULTS: %d tests (%d ok, %d failed, %d skipped)\n", total, num_ok,
-           num_fail, num_skip);
+    printf("RESULTS: %d tests (%d ok, %d failed, %d skipped)", total, num_ok, num_fail, num_skip);
 
     return num_fail;
 }

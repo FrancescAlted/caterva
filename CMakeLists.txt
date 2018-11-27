@@ -19,6 +19,7 @@ install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 enable_testing()
 
 add_subdirectory(tests)
+add_subdirectory(examples)
 
 
 

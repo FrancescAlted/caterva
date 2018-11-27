@@ -22,8 +22,10 @@
     lwtest_assert_almost_equal_float(exp, real, __FILE__, __LINE__)
 
 #define LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(exp, real, tol) \
-    lwtest_assert_almost_equal_double(exp, real,tol, __FILE__, __LINE__)
+    lwtest_assert_almost_equal_double(exp, real, tol, __FILE__, __LINE__)
 
+#define LWTEST_ASSERT_TRUE(exp) \
+    lwtest_assert_true(exp, __FILE__, __LINE__)
 
 void lwtest_assert_equal_int(int exp, int real, const char *caller, int line) {
 
@@ -59,5 +61,11 @@ void lwtest_assert_almost_equal_float(float exp, float real, double tol, const c
         LWTEST_ERR("%s:%d  expected %f, got %f", caller, line, exp, real);
     }
 }
+
+void lwtest_assert_true(int exp, const char *caller, int line) {
+        if(!exp) {
+            LWTEST_ERR("%s:%d  not TRUE", caller, line);
+        }
+    }
 
 #endif //LWTEST_ASSERT_H
