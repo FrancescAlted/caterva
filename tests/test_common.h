@@ -16,7 +16,7 @@ void fill_buf(double *buf, size_t buf_size) {
     }
 }
 
-void assert_buf(double *exp, double *real, size_t size, double tol) {
+void assert_buf(const double *exp, const double *real, size_t size, double tol) {
     for (int i = 0; i < size; ++i) {
         double a = exp[i];
         double b = real[i];

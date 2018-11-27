@@ -68,7 +68,6 @@ LWTEST_FIXTURE(get_slice, ndim_2) {
     test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
 }
 
-
 LWTEST_FIXTURE(get_slice, ndim_3) {
     uint64_t const ndim = 3;
     uint64_t shape_[] = {10, 10, 10};
