@@ -73,7 +73,6 @@ int32_t serialize_dims(int8_t ndim, uint64_t* shape, const uint64_t* pshape, uin
 
     return slen;
 }
-
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fp, caterva_dims_t pshape) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
