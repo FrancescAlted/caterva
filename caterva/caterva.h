@@ -49,6 +49,8 @@ caterva_dims_t caterva_new_dims(uint64_t *dims, int8_t ndim);
 
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t pshape);
 
+caterva_array_t *caterva_array_fromfile(caterva_ctx_t *ctx, char* filename);
+
 int caterva_free_ctx(caterva_ctx_t *ctx);
 
 int caterva_free_array(caterva_array_t *carr);
