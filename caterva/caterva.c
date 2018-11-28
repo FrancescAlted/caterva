@@ -148,10 +148,17 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
             fprintf(stderr, "error during serializing dims info for Caterva");
             return -1;
         }
-        // ... and store it in a namespace
-        int retcode = blosc2_frame_add_namespace(fp, "caterva", sdims, (uint32_t)sdims_len);
-        if (retcode < 0) {
-            return -1;
+        // ... and store it (or update it) in a namespace
+        if (blosc2_frame_has_namespace(fp, "caterva") < 0) {
+            int retcode = blosc2_frame_add_namespace(fp, "caterva", sdims, (uint32_t)sdims_len);
+            if (retcode < 0) {
+                return -1;
+            }
+        } else {
+            int retcode = blosc2_frame_update_namespace(fp, "caterva", sdims, (uint32_t)sdims_len);
+            if (retcode < 0) {
+                return -1;
+            }
         }
     }
 
