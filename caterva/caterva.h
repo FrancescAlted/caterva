@@ -57,6 +57,8 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape);
 
 int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t shape, void *src);
 
+int caterva_fill(caterva_array_t *dest, caterva_dims_t shape, void *value);
+
 int caterva_to_buffer(caterva_array_t *src, void *dest);
 
 int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t start, caterva_dims_t stop);

@@ -260,6 +260,35 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t shape, void *src) 
     return 0;
 }
 
+int caterva_fill(caterva_array_t *dest, caterva_dims_t shape, void *value) {
+
+    caterva_update_shape(dest, shape);
+
+    uint8_t *chunk = malloc(dest->csize * dest->sc->typesize);
+
+    for (uint64_t i = 0; i < dest->csize; ++i) {
+        if (dest->sc->typesize == 1) {
+            chunk[i] = *(uint8_t *) value;
+        } else if (dest->sc->typesize == 2) {
+            ((uint16_t *) chunk)[i] = *(uint16_t *) value;
+        } else if (dest->sc->typesize == 4) {
+            ((uint32_t *) chunk)[i] = *(uint32_t *) value;
+        } else {
+            ((uint64_t *) chunk)[i] = *(uint64_t *) value;
+        }
+    }
+
+    uint64_t nchunk = dest->esize / dest->csize;
+
+    for (int i = 0; i < nchunk; ++i) {
+        blosc2_schunk_append_buffer(dest->sc, chunk, dest->csize * dest->sc->typesize);
+    }
+
+    free(chunk);
+
+    return 0;
+}
+
 int caterva_to_buffer(caterva_array_t *src, void *dest) {
     int8_t *d_b = (int8_t *) dest;
 
