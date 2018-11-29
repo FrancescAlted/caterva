@@ -77,7 +77,7 @@ int32_t serialize_dims(int8_t ndim, uint64_t* shape, const uint64_t* pshape, uin
 
 // Serialize the partition params
 // TODO: decode big-endian ints to native endian
-int32_t deserialize_dims(uint8_t *sdims, uint32_t sdims_len, int8_t *ndim, uint64_t **shape, uint64_t **pshape) {
+int32_t deserialize_dims(uint8_t *sdims, uint32_t sdims_len, caterva_dims_t *shape, caterva_dims_t *pshape) {
     uint8_t *pdims = sdims;
 
     // Check that we have an array with 3 entries (ndim, shape, pshape)
@@ -86,37 +86,37 @@ int32_t deserialize_dims(uint8_t *sdims, uint32_t sdims_len, int8_t *ndim, uint6
     assert(pdims - sdims < sdims_len);
 
     // ndim entry
-    *ndim = pdims[0];  // positive fixnum (7-bit positive integer)
-    assert (*ndim < CATERVA_MAXDIM);
+    int8_t ndim = pdims[0];  // positive fixnum (7-bit positive integer)
+    assert (ndim < CATERVA_MAXDIM);
     pdims += 1;
     assert(pdims - sdims < sdims_len);
+    shape->ndim = ndim;
+    pshape->ndim = ndim;
 
     // shape entry
-    *shape = malloc(*ndim * sizeof(uint64_t));
     // Initialize to ones, as required by Caterva
-    for (int i = 0; i < CATERVA_MAXDIM; i++) *shape[i] = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; i++) shape->dims[i] = 1;
     assert(*pdims == (uint8_t)(0x90) + (uint8_t)ndim);  // fix array with ndim elements
     pdims += 1;
-    for (int8_t i = 0; i < *ndim; i++) {
+    for (int8_t i = 0; i < ndim; i++) {
         assert(*pdims == 0xcf);   // uint64
         pdims += 1;
-        memcpy(&(*shape[i]), pdims, sizeof(uint64_t));
+        memcpy(&(shape->dims[i]), pdims, sizeof(uint64_t));
         pdims += sizeof(uint64_t);
     }
     assert(pdims - sdims < sdims_len);
 
     // pshape entry
-    *pshape = malloc(*ndim * sizeof(uint64_t));
     // Initialize to ones, as required by Caterva
-    for (int i = 0; i < CATERVA_MAXDIM; i++) *pshape[i] = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; i++) pshape->dims[i] = 1;
     assert(*pdims == (uint8_t)(0x90) + (uint8_t)ndim);  // fix array with ndim elements
     pdims += 1;
-    for (int8_t i = 0; i < *ndim; i++) {
+    for (int8_t i = 0; i < ndim; i++) {
         assert(*pdims == 0xd2);  // int32
         pdims += 1;
-        int32_t pshape_i = (int32_t)*pshape[i];
+        int32_t pshape_i = (int32_t)pshape->dims[i];
         memcpy(&pshape_i, pdims, sizeof(int32_t));
-        *pshape[i] = (uint64_t)pshape_i;
+        pshape->dims[i] = (uint64_t)pshape_i;
         pdims += sizeof(int32_t);
     }
     assert(pdims - sdims <= sdims_len);
@@ -169,27 +169,27 @@ caterva_array_t *caterva_array_fromfile(caterva_ctx_t *ctx, char* filename) {
 
     // Deserialize the caterva namespace
     int8_t ndim;
-    uint64_t *shape;
-    uint64_t *pshape;
+    caterva_dims_t shape;
+    caterva_dims_t pshape;
     uint8_t *sdims;
     uint32_t sdims_len;
     blosc2_frame_get_namespace(frame, "caterva", &sdims, &sdims_len);
-    deserialize_dims(sdims, sdims_len, &ndim, &shape, &pshape);
+    deserialize_dims(sdims, sdims_len, &shape, &pshape);
     carr->size = 1;
     carr->csize = 1;
     carr->esize = 1;
-    carr->ndim = ndim;
+    carr->ndim = pshape.ndim;
 
     for (int i = 0; i < CATERVA_MAXDIM; i++) {
-        carr->shape[i] = shape[i];
-        carr->size *= shape[i];
-        carr->pshape[i] = pshape[i];
-        carr->csize *= pshape[i];
-        if (shape[i] % pshape[i] == 0) {
-            // The case for shape[i] == 1 and pshape[i] == 1 is handled here
-            carr->eshape[i] = shape[i];
+        carr->shape[i] = shape.dims[i];
+        carr->size *= shape.dims[i];
+        carr->pshape[i] = pshape.dims[i];
+        carr->csize *= pshape.dims[i];
+        if (shape.dims[i] % pshape.dims[i] == 0) {
+            // The case for shape.dims[i] == 1 and pshape.dims[i] == 1 is handled here
+            carr->eshape[i] = shape.dims[i];
         } else {
-            carr->eshape[i] = shape[i] + pshape[i] - shape[i] % pshape[i];
+            carr->eshape[i] = shape.dims[i] + pshape.dims[i] - shape.dims[i] % pshape.dims[i];
         }
         carr->size *= carr->shape[i];
         carr->esize *= carr->eshape[i];

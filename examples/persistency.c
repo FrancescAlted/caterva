@@ -12,12 +12,12 @@ int main(int argc, char **argv){
     ctx->cparams.typesize = sizeof(double);
 
     // Define the pshape for the first array
-    uint64_t ndim = 3;
+    int8_t ndim = 3;
     uint64_t pshape_[] = {3, 2, 4};
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
 
     // Create an on-disk frame
-    blosc2_frame* frame2 = &(blosc2_frame) {
+    blosc2_frame* frame = &(blosc2_frame) {
         .fname = "persistency.caterva",
     };
 
@@ -42,11 +42,11 @@ int main(int argc, char **argv){
     // Fill cat1 with the above buffer
     caterva_from_buffer(cat1, shape, buf1);
 
-    // Close cat1 and reopen the caterva frame persisted on-disk and operate with it
+    // Close cat1 and reopen the caterva frame persisted on-disk on cat3 and operate with it
     caterva_free_array(cat1);
-    cat1 = caterva_array_fromfile(ctx, "persistency.caterva");
+    caterva_array_t* cat3 = caterva_array_fromfile(ctx, "persistency.caterva");
 
-    // Apply a `get_slice` to cat1 and store it into cat2
+    // Apply a `get_slice` to cat3 and store it into cat2
     uint64_t start_[] = {3, 6, 4};
     caterva_dims_t start = caterva_new_dims(start_, ndim);
     uint64_t stop_[] = {4, 9, 8};
@@ -56,10 +56,10 @@ int main(int argc, char **argv){
     caterva_dims_t pshape2 = caterva_new_dims(pshape2_, ndim);
     caterva_array_t *cat2 = caterva_empty_array(ctx, NULL, pshape2);
 
-    caterva_get_slice(cat2, cat1, start, stop);
+    caterva_get_slice(cat2, cat3, start, stop);
 
     // Assert that the `squeeze` works well
-    if (cat1->ndim == cat2->ndim) {
+    if (cat3->ndim == cat2->ndim) {
         return -1;
     }
 
@@ -77,15 +77,15 @@ int main(int argc, char **argv){
     // Print results
     printf("The resulting hyperplane is:\n");
 
-    for (int i = 0; i < shape2.dims[0]; ++i) {
-        for (int j = 0; j < shape2.dims[1]; ++j) {
+    for (uint64_t i = 0; i < shape2.dims[0]; ++i) {
+        for (uint64_t j = 0; j < shape2.dims[1]; ++j) {
             printf("%6.f", buf2[i * cat2->shape[1] + j]);
         }
         printf("\n");
     }
 
-    caterva_free_array(cat1);
     caterva_free_array(cat2);
+    caterva_free_array(cat3);
     free(buf1);
     free(buf2);
     return 0;
