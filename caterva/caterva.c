@@ -37,9 +37,10 @@ caterva_dims_t caterva_new_dims(uint64_t *dims, int8_t ndim) {
 }
 
 // Serialize the partition params
+// TODO: use big-endian to encode ints
 int32_t serialize_dims(int8_t ndim, uint64_t* shape, const uint64_t* pshape, uint8_t **sdims) {
-    int32_t max_sdims_size = 116;  // 4 + MAX_DIM * (1 + sizeof(uint64_t)) + MAX_DIM * (1 + sizeof(int32_t))
-    *sdims = malloc((size_t)max_sdims_size);
+    int32_t max_sdims_len = 116;  // 4 + MAX_DIM * (1 + sizeof(uint64_t)) + MAX_DIM * (1 + sizeof(int32_t))
+    *sdims = malloc((size_t)max_sdims_len);
     uint8_t *pdims = *sdims;
 
     // Build an array with 3 entries (ndim, shape, pshape)
@@ -47,7 +48,7 @@ int32_t serialize_dims(int8_t ndim, uint64_t* shape, const uint64_t* pshape, uin
 
     // ndim entry
     *pdims++ = (uint8_t)ndim;  // positive fixnum (7-bit positive integer)
-    assert(pdims - *sdims < max_sdims_size);
+    assert(pdims - *sdims < max_sdims_len);
 
     // shape entry
     *pdims++ = (uint8_t)(0x90) + (uint8_t)ndim;  // fix array with ndim elements
@@ -56,23 +57,76 @@ int32_t serialize_dims(int8_t ndim, uint64_t* shape, const uint64_t* pshape, uin
         memcpy(pdims, &(shape[i]), sizeof(uint64_t));
         pdims += sizeof(uint64_t);
     }
-    assert(pdims - *sdims < max_sdims_size);
+    assert(pdims - *sdims < max_sdims_len);
 
     // pshape entry
     *pdims++ = (uint8_t)(0x90) + (uint8_t)ndim;  // fix array with ndim elements
     for (int8_t i = 0; i < ndim; i++) {
         *pdims++ = 0xd2;  // int32
         int32_t pshape_i = (int32_t)pshape[i];
-        memcpy(pdims, &(pshape_i), sizeof(int32_t));
-        pdims += sizeof(int32_t);  // TODO: adapt the pshape to int32
+        memcpy(pdims, &pshape_i, sizeof(int32_t));
+        pdims += sizeof(int32_t);
     }
-    assert(pdims - *sdims <= max_sdims_size);
+    assert(pdims - *sdims <= max_sdims_len);
 
     int32_t slen = (int32_t)(pdims - *sdims);
     *sdims = realloc(*sdims, (size_t)slen);  // get rid of the excess of bytes allocated
 
     return slen;
 }
+
+// Serialize the partition params
+// TODO: decode big-endian ints to native endian
+int32_t deserialize_dims(uint8_t *sdims, uint32_t sdims_len, caterva_dims_t *shape, caterva_dims_t *pshape) {
+    uint8_t *pdims = sdims;
+
+    // Check that we have an array with 3 entries (ndim, shape, pshape)
+    assert(*pdims == 0x90 + 3);
+    pdims += 1;
+    assert(pdims - sdims < sdims_len);
+
+    // ndim entry
+    int8_t ndim = pdims[0];  // positive fixnum (7-bit positive integer)
+    assert (ndim < CATERVA_MAXDIM);
+    pdims += 1;
+    assert(pdims - sdims < sdims_len);
+    shape->ndim = ndim;
+    pshape->ndim = ndim;
+
+    // shape entry
+    // Initialize to ones, as required by Caterva
+    for (int i = 0; i < CATERVA_MAXDIM; i++) shape->dims[i] = 1;
+    assert(*pdims == (uint8_t)(0x90) + (uint8_t)ndim);  // fix array with ndim elements
+    pdims += 1;
+    for (int8_t i = 0; i < ndim; i++) {
+        assert(*pdims == 0xcf);   // uint64
+        pdims += 1;
+        memcpy(&(shape->dims[i]), pdims, sizeof(uint64_t));
+        pdims += sizeof(uint64_t);
+    }
+    assert(pdims - sdims < sdims_len);
+
+    // pshape entry
+    // Initialize to ones, as required by Caterva
+    for (int i = 0; i < CATERVA_MAXDIM; i++) pshape->dims[i] = 1;
+    assert(*pdims == (uint8_t)(0x90) + (uint8_t)ndim);  // fix array with ndim elements
+    pdims += 1;
+    for (int8_t i = 0; i < ndim; i++) {
+        assert(*pdims == 0xd2);  // int32
+        pdims += 1;
+        int32_t pshape_i = (int32_t)pshape->dims[i];
+        memcpy(&pshape_i, pdims, sizeof(int32_t));
+        pshape->dims[i] = (uint64_t)pshape_i;
+        pdims += sizeof(int32_t);
+    }
+    assert(pdims - sdims <= sdims_len);
+
+    uint32_t slen = (uint32_t)(pdims - sdims);
+    assert(slen == sdims_len);
+
+    return 0;
+}
+
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fp, caterva_dims_t pshape) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
@@ -94,6 +148,51 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fp, cater
         carr->shape[i] = 1;
         carr->eshape[i] = 1;
         carr->csize *= carr->pshape[i];
+    }
+    return carr;
+}
+
+caterva_array_t *caterva_array_fromfile(caterva_ctx_t *ctx, char* filename) {
+    /* Create a caterva_array_t buffer */
+    caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
+
+    /* Copy context to caterva_array_t */
+    carr->ctx = (caterva_ctx_t *) ctx->alloc(sizeof(caterva_ctx_t));
+    memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
+
+    // Open the frame on-disk
+    blosc2_frame* frame = blosc2_frame_from_file(filename);
+
+    /* Create a schunk out of the frame */
+    blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
+    carr->sc = sc;
+
+    // Deserialize the caterva namespace
+    int8_t ndim;
+    caterva_dims_t shape;
+    caterva_dims_t pshape;
+    uint8_t *sdims;
+    uint32_t sdims_len;
+    blosc2_frame_get_namespace(frame, "caterva", &sdims, &sdims_len);
+    deserialize_dims(sdims, sdims_len, &shape, &pshape);
+    carr->size = 1;
+    carr->csize = 1;
+    carr->esize = 1;
+    carr->ndim = pshape.ndim;
+
+    for (int i = 0; i < CATERVA_MAXDIM; i++) {
+        carr->shape[i] = shape.dims[i];
+        carr->size *= shape.dims[i];
+        carr->pshape[i] = pshape.dims[i];
+        carr->csize *= pshape.dims[i];
+        if (shape.dims[i] % pshape.dims[i] == 0) {
+            // The case for shape.dims[i] == 1 and pshape.dims[i] == 1 is handled here
+            carr->eshape[i] = shape.dims[i];
+        } else {
+            carr->eshape[i] = shape.dims[i] + pshape.dims[i] - shape.dims[i] % pshape.dims[i];
+        }
+        carr->size *= carr->shape[i];
+        carr->esize *= carr->eshape[i];
     }
     return carr;
 }
