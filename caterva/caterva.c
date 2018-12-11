@@ -149,6 +149,27 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fp, cater
         carr->eshape[i] = 1;
         carr->csize *= carr->pshape[i];
     }
+
+    blosc2_frame *frame = sc->frame;  // the frame is copied with a new_schunk operation, so use it
+    if (frame != NULL) {
+        // Serialize the dimension info in the associated frame
+        if (frame->nnspaces >= BLOSC2_MAX_NAMESPACES) {
+            fprintf(stderr, "the number of namespaces for this frame has been exceeded\n");
+            return NULL;
+        }
+        uint8_t *sdims = NULL;
+        int32_t sdims_len = serialize_dims(carr->ndim, carr->shape, carr->pshape, &sdims);
+        if (sdims_len < 0) {
+            fprintf(stderr, "error during serializing dims info for Caterva");
+            return NULL;
+        }
+        // And store it in caterva namespace
+        int retcode = blosc2_frame_add_namespace(frame, "caterva", sdims, (uint32_t)sdims_len);
+        if (retcode < 0) {
+            return NULL;
+        }
+    }
+
     return carr;
 }
 
@@ -236,10 +257,6 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
 
     blosc2_frame* fp = carr->sc->frame;
     if (fp != NULL) {
-        if (fp->nnspaces >= BLOSC2_MAX_NAMESPACES) {
-            fprintf(stderr, "the number of namespaces for this frame has been exceeded\n");
-            return -1;
-        }
         uint8_t *sdims = NULL;
         // Serialize the dimension info ...
         int32_t sdims_len = serialize_dims(carr->ndim, carr->shape, carr->pshape, &sdims);
@@ -247,17 +264,10 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
             fprintf(stderr, "error during serializing dims info for Caterva");
             return -1;
         }
-        // ... and store it (or update it) in a namespace
-        if (blosc2_frame_has_namespace(fp, "caterva") < 0) {
-            int retcode = blosc2_frame_add_namespace(fp, "caterva", sdims, (uint32_t)sdims_len);
-            if (retcode < 0) {
-                return -1;
-            }
-        } else {
-            int retcode = blosc2_frame_update_namespace(fp, "caterva", sdims, (uint32_t)sdims_len);
-            if (retcode < 0) {
-                return -1;
-            }
+        // ... and update it in its namespace
+        int retcode = blosc2_frame_update_namespace(fp, "caterva", sdims, (uint32_t)sdims_len);
+        if (retcode < 0) {
+            return -1;
         }
     }
 
