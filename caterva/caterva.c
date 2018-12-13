@@ -130,7 +130,6 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t pshape) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
-
     carr->size = 1;
     carr->csize = 1;
     carr->esize = 1;
@@ -174,7 +173,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
     return carr;
 }
 
-caterva_array_t *caterva_array_fromfile(caterva_ctx_t *ctx, char* filename) {
+caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
 

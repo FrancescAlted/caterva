@@ -44,7 +44,7 @@ int main(int argc, char **argv){
 
     // Close cat1 and reopen the caterva frame persisted on-disk on cat3 and operate with it
     caterva_free_array(cat1);
-    caterva_array_t* cat3 = caterva_array_fromfile(ctx, "persistency.caterva");
+    caterva_array_t* cat3 = caterva_from_file(ctx, "persistency.caterva");
 
     // Apply a `get_slice` to cat3 and store it into cat2
     uint64_t start_[] = {3, 6, 4};
