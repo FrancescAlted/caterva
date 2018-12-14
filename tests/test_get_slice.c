@@ -29,6 +29,7 @@ void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, uint64_t *shape_, uint64_t 
     caterva_array_t *dest = caterva_empty_array(ctx, NULL, pshape_dest);
 
     caterva_get_slice(dest, src, start, stop);
+    caterva_squeeze(dest);
 
     double *buf_dest = (double *) malloc(dest->size * src->sc->typesize);
 

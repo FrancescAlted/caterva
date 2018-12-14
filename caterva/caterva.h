@@ -23,7 +23,7 @@ typedef struct {
 
 typedef struct {
     uint64_t dims[CATERVA_MAXDIM];  /* the shape of each chunk */
-    int8_t ndim;  /* data dimensions */
+    uint8_t ndim;  /* data dimensions */
 } caterva_dims_t;
 
 static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
@@ -38,14 +38,14 @@ typedef struct {
     uint64_t pshape[CATERVA_MAXDIM];  /* shape of each chunk */
     uint64_t eshape[CATERVA_MAXDIM];  /* shape of schunk */
     uint64_t size;  /* size of original data */
-    uint64_t csize;  /* size of each chunnk */
+    uint64_t psize;  /* size of each chunnk */
     uint64_t esize;  /* shape of schunk */
     uint8_t ndim;  /* data dimensions */
 } caterva_array_t;
 
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
-caterva_dims_t caterva_new_dims(uint64_t *dims, int8_t ndim);
+caterva_dims_t caterva_new_dims(uint64_t *dims, uint8_t ndim);
 
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t pshape);
 
