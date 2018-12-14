@@ -166,7 +166,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
     carr->ctx = (caterva_ctx_t *) ctx->alloc(sizeof(caterva_ctx_t));
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
 
-    /* Create a schunk */
+    /* Create a schunk (for a frame-disk-backed one, this implies serializing the header on-disk */
     blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
     carr->sc = sc;
 
@@ -231,6 +231,7 @@ int caterva_free_array(caterva_array_t *carr) {
     return 0;
 }
 
+
 int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
 
     if (carr->ndim != shape.ndim) {
@@ -255,8 +256,8 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
         carr->esize *= carr->eshape[i];
     }
 
-    blosc2_frame* fp = carr->sc->frame;
-    if (fp != NULL) {
+    blosc2_frame* frame = carr->sc->frame;
+    if (frame != NULL) {
         uint8_t *smeta = NULL;
         // Serialize the dimension info ...
         int32_t smeta_len = serialize_meta(carr->ndim, carr->shape, carr->pshape, &smeta);
@@ -265,7 +266,7 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
             return -1;
         }
         // ... and update it in its namespace
-        int retcode = blosc2_frame_update_namespace(fp, "caterva", smeta, (uint32_t)smeta_len);
+        int retcode = blosc2_frame_update_namespace(frame, "caterva", smeta, (uint32_t)smeta_len);
         if (retcode < 0) {
             return -1;
         }
