@@ -182,14 +182,13 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
 
     // Open the frame on-disk
-    blosc2_frame* frame = blosc2_frame_from_file(filename);
+    blosc2_frame *frame = blosc2_frame_from_file(filename);
 
     /* Create a schunk out of the frame */
-    blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
+    blosc2_schunk *sc = blosc2_schunk_from_frame(frame);
     carr->sc = sc;
 
     // Deserialize the caterva namespace
-    uint8_t ndim;
     caterva_dims_t shape;
     caterva_dims_t pshape;
     uint8_t *smeta;
