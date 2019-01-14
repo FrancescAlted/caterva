@@ -210,7 +210,6 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
         } else {
             carr->eshape[i] = shape.dims[i] + pshape.dims[i] - shape.dims[i] % pshape.dims[i];
         }
-        carr->size *= carr->shape[i];
         carr->esize *= carr->eshape[i];
     }
     return carr;
