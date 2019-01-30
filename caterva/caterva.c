@@ -607,7 +607,7 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t st
             }
         }
     }
-    if (src->ndim == 1) {
+    if (src->ndim > 1) {
         ctx->free(chunk);
     }
 
