@@ -509,8 +509,11 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t st
     /* Create chunk buffers */
     caterva_ctx_t *ctx = src->ctx;
     int typesize = src->sc->typesize;
-    uint8_t *chunk = (uint8_t *) ctx->alloc(src->psize * typesize);
 
+    uint8_t *chunk;
+    if (src->ndim > 1) {
+        chunk = (uint8_t *) ctx->alloc(src->psize * typesize);
+    }
     uint64_t i_start[8], i_stop[8];
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
         i_start[i] = start_[i] / s_pshape[i];
@@ -535,7 +538,15 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t st
                                         nchunk += ii[i] * inc;
                                         inc *= s_eshape[i] / s_pshape[i];
                                     }
-                                    blosc2_schunk_decompress_chunk(src->sc, nchunk, chunk, src->psize * typesize);
+                                    uint8_t *p_chunk = NULL;
+                                    bool needs_free = 0;
+
+                                    if (src->ndim == 1) {
+                                        blosc2_schunk_get_chunk(src->sc, nchunk, &p_chunk, &needs_free);
+                                    } else {
+                                        blosc2_schunk_decompress_chunk(src->sc, nchunk, chunk, src->psize * typesize);
+                                    }
+
                                     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
                                         if (ii[i] == (start_[i] / s_pshape[i])) {
                                             c_start[i] = start_[i] % s_pshape[i];
@@ -569,15 +580,24 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t st
                                                                         start_[i]) * buf_pointer_inc;
                                                                     buf_pointer_inc *= d_pshape_[i];
                                                                 }
-                                                                memcpy(&bdest[buf_pointer * typesize],
-                                                                       &chunk[chunk_pointer * typesize],
-                                                                       (c_stop[7] - c_start[7]) * typesize);
+
+                                                                //TODO: In the future it will be interesting to optimize the two-dimensional case as well
+
+                                                                if (src->ndim == 1) {
+                                                                    blosc_getitem(p_chunk, (int) chunk_pointer, (int) (c_stop[7] - c_start[7]), &bdest[buf_pointer * typesize]);
+                                                                } else {
+                                                                    memcpy(&bdest[buf_pointer * typesize], &chunk[chunk_pointer * typesize], (c_stop[7] - c_start[7]) * typesize);
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+                                    }
+
+                                    if (needs_free) {
+                                        free(p_chunk);
                                     }
                                 }
                             }
@@ -587,7 +607,9 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t st
             }
         }
     }
-    ctx->free(chunk);
+    if (src->ndim == 1) {
+        ctx->free(chunk);
+    }
 
     return 0;
 }
