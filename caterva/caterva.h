@@ -31,6 +31,12 @@ static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
     .ndim = 1
 };
 
+/* An *optional* cache for a single partition */
+typedef struct part_cache_s {
+    uint8_t *data;
+    int32_t nchunk;
+};
+
 typedef struct {
     caterva_ctx_t *ctx;  /* caterva context */
     blosc2_schunk *sc;
@@ -41,6 +47,7 @@ typedef struct {
     uint64_t psize;  /* size of each chunnk */
     uint64_t esize;  /* shape of schunk */
     uint8_t ndim;  /* data dimensions */
+    struct part_cache_s part_cache;
 } caterva_array_t;
 
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
