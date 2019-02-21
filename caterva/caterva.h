@@ -12,18 +12,34 @@
 
 #define CATERVA_MAXDIM 8
 
+/**
+ * @brief The parameters for creating a context for caterva containers.
+ *
+ * In parenthesis it is shown the default value used internally when a NULL value is passed to the
+ * constructor.
+ */
+
 typedef struct {
     void *(*alloc)(size_t);
-
+    //!< The allocation memory function used internally (malloc)
     void (*free)(void *);
-
+    //!< The free memory function used internally (free)
     blosc2_cparams cparams;
+    //!< The blosc compression params used
     blosc2_dparams dparams;
+    //!< The blosc decompression params used
 } caterva_ctx_t;
 
+/**
+ * @brief Represents a shape or a point of a caterva container.
+ *
+ */
+
 typedef struct {
-    uint64_t dims[CATERVA_MAXDIM];  /* the shape of each chunk */
-    uint8_t ndim;  /* data dimensions */
+    uint64_t dims[CATERVA_MAXDIM];
+    //!< The dimensions number
+    uint8_t ndim;
+    //!< The values of each dimension
 } caterva_dims_t;
 
 static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
