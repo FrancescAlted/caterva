@@ -3,6 +3,14 @@
  * Copyright (C) 2018  Aleix Alcacer
  */
 
+/** @file caterva.h
+ * @brief Caterva header file.
+ *
+ * This file contains Caterva public API and the structures needed to use it.
+ * @author Francesc Alted <francesc@blosc.org>
+ * @author Aleix Alcacer <aleixalcacer@gmail.com>
+ */
+
 #ifndef CATERVA_HEADER_FILE
 #define CATERVA_HEADER_FILE
 
@@ -18,7 +26,6 @@
  * In parenthesis it is shown the default value used internally when a NULL value is passed to the
  * constructor.
  */
-
 typedef struct {
     void *(*alloc)(size_t);
     //!< The allocation memory function used internally (malloc)
@@ -34,7 +41,6 @@ typedef struct {
  * @brief Represents a shape or a point of a caterva container.
  *
  */
-
 typedef struct {
     uint64_t dims[CATERVA_MAXDIM];
     //!< The dimensions number
@@ -42,15 +48,23 @@ typedef struct {
     //!< The values of each dimension
 } caterva_dims_t;
 
+/**
+ * @brief Default struct for a caterva shape
+ */
 static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
     .dims = {1, 1, 1, 1, 1, 1, 1, 1},
     .ndim = 1
 };
 
-/* An *optional* cache for a single partition */
+/**
+ * @brief An optional cache for a single partition
+ *
+ */
 typedef struct part_cache_s {
     uint8_t *data;
+    //!< The buffer where a Blosc chunk is decompressed
     int32_t nchunk;
+    //!< The ndex of the Blosc chunk stored in @p data
 };
 
 typedef struct {
