@@ -112,6 +112,7 @@ typedef struct {
  * @param dparams The decompression parameters used when data of a Caterva container is decompressed
 
  * @return A pointer to the new Caterva context. NULL is returned if this fails.
+ *
  */
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
