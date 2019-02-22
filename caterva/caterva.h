@@ -21,7 +21,7 @@
 #define CATERVA_MAXDIM 8
 
 /**
- * @brief The parameters for creating a context for caterva containers.
+ * @brief The parameters for creating a context for caterva arrays.
  *
  * In parenthesis it is shown the default value used internally when a NULL value is passed to the
  * constructor.
@@ -38,8 +38,7 @@ typedef struct {
 } caterva_ctx_t;
 
 /**
- * @brief Represents a shape or a point of a caterva container.
- *
+ * @brief Represents a shape or a point of a caterva array.
  */
 typedef struct {
     uint64_t dims[CATERVA_MAXDIM];
@@ -58,7 +57,6 @@ static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
 
 /**
  * @brief An optional cache for a single partition
- *
  */
 typedef struct part_cache_s {
     uint8_t *data;
@@ -68,14 +66,13 @@ typedef struct part_cache_s {
 };
 
 /**
- * @brief This struct is the standard container for Caterva.
+ * @brief This struct is the standard array for Caterva.
  *
- * This struct is basically a Blosc schunk container that supports the concept of dimensions. That
- * is, a Caterva container can store compressed multidimensional data.
+ * This struct is basically a Blosc schunk that supports the concept of dimensions. That is, a
+ * Caterva array can store compressed multidimensional data.
  *
- * Like Blosc, Caterva can store containers both in memory and on disk. So it supports persistent
- * containers.
- *
+ * Like Blosc, Caterva can store arrays both in memory and on disk. So it supports persistent
+ * arrays.
  */
 typedef struct {
     caterva_ctx_t *ctx;
@@ -107,25 +104,56 @@ typedef struct {
  *
  * @param free The free function to use internally. If it is NULL, free is used
  *
- * @param cparams The compression parameters used when a Caterva container is created
+ * @param cparams The compression parameters used when a Caterva array is created
  *
- * @param dparams The decompression parameters used when data of a Caterva container is decompressed
+ * @param dparams The decompression parameters used when data of a Caterva array is decompressed
 
- * @return A pointer to the new Caterva context. NULL is returned if this fails.
- *
+ * @return A pointer to the new Caterva context. NULL is returned if this fails
+
  */
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
+/**
+ * @brief Create a new Caterva dims.
+ *
+ * @param dims The size of each dimension. For now it can not be negative
+ *
+ * @param ndim The number of dimensions
+ *
+ * @return An error code. If it is negative, an error occurred.
+ */
 caterva_dims_t caterva_new_dims(uint64_t *dims, uint8_t ndim);
 
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t pshape);
 
 caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename);
 
+/**
+ * @brief Free the resources associated with a context.
+ *
+ * @param context The context to free.
+ *
+ * @return An error code. If it is negative, an error occurred.
+ */
 int caterva_free_ctx(caterva_ctx_t *ctx);
 
+/**
+ * @brief Release resources from a Caterva array.
+ *
+ * @param schunk The array to be freed.
+ *
+ * @return An error code. If it is negative, an error occurred.
+ */
 int caterva_free_array(caterva_array_t *carr);
 
+/**
+ *@brief Update the shape of a Caterva array. For example is useful when a Caterva array is filled
+ * with a buffer. It's only for internal uses.
+ *
+ * @param carr The Caterva array
+ * @param shape The new shape to update
+ * @return An error code. Of it is negative, an error ocurred.
+ */
 int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape);
 
 int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t shape, void *src);
