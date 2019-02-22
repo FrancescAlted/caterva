@@ -64,22 +64,55 @@ typedef struct part_cache_s {
     uint8_t *data;
     //!< The buffer where a Blosc chunk is decompressed
     int32_t nchunk;
-    //!< The ndex of the Blosc chunk stored in @p data
+    //!< The index of the Blosc chunk stored in @p data
 };
 
+/**
+ * @brief This struct is the standard container for Caterva.
+ *
+ * This struct is basically a Blosc schunk container that supports the concept of dimensions. That
+ * is, a Caterva container can store compressed multidimensional data.
+ *
+ * Like Blosc, Caterva can store containers both in memory and on disk. So it supports persistent
+ * containers.
+ *
+ */
 typedef struct {
-    caterva_ctx_t *ctx;  /* caterva context */
+    caterva_ctx_t *ctx;
+    //!< The aterva context
     blosc2_schunk *sc;
-    uint64_t shape[CATERVA_MAXDIM];  /* shape of original data */
-    uint64_t pshape[CATERVA_MAXDIM];  /* shape of each chunk */
-    uint64_t eshape[CATERVA_MAXDIM];  /* shape of schunk */
-    uint64_t size;  /* size of original data */
-    uint64_t psize;  /* size of each chunnk */
-    uint64_t esize;  /* shape of schunk */
-    uint8_t ndim;  /* data dimensions */
+    //!< The Blosc schunk associated
+    uint64_t shape[CATERVA_MAXDIM];
+    //!< The shape of original data
+    uint64_t pshape[CATERVA_MAXDIM];
+    //!< The shape of each partition
+    uint64_t eshape[CATERVA_MAXDIM];
+    //!< The shape of originial data padded with 0's
+    uint64_t size;
+    //<! The size of original data
+    uint64_t psize;
+    //!< The size of each partition
+    uint64_t esize;
+    //<! The size of the padded data shape
+    uint8_t ndim;
+    //!< The data dimensions
     struct part_cache_s part_cache;
+    //!< The part_cache struct, if exists
 } caterva_array_t;
 
+/**
+ * @brief Create a context for Caterva functions.
+ *
+ * @param all The allocation function to use internally. If it is NULL, malloc is used
+ *
+ * @param free The free function to use internally. If it is NULL, free is used
+ *
+ * @param cparams The compression parameters used when a Caterva container is created
+ *
+ * @param dparams The decompression parameters used when data of a Caterva container is decompressed
+
+ * @return A pointer to the new Caterva context. NULL is returned if this fails.
+ */
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
 caterva_dims_t caterva_new_dims(uint64_t *dims, uint8_t ndim);
