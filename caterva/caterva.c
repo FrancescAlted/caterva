@@ -148,8 +148,8 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
 
     if (frame != NULL) {
         // Serialize the dimension info in the associated frame
-        if (frame->nnspaces >= BLOSC2_MAX_NAMESPACES) {
-            fprintf(stderr, "the number of namespaces for this frame has been exceeded\n");
+        if (frame->nmetalayers >= BLOSC2_MAX_METALAYERS) {
+            fprintf(stderr, "the number of metalayers for this frame has been exceeded\n");
             return NULL;
         }
         uint8_t *smeta = NULL;
@@ -158,8 +158,8 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
             fprintf(stderr, "error during serializing dims info for Caterva");
             return NULL;
         }
-        // And store it in caterva namespace
-        int retcode = blosc2_frame_add_namespace(frame, "caterva", smeta, (uint32_t)smeta_len);
+        // And store it in caterva metalayer
+        int retcode = blosc2_frame_add_metalayer(frame, "caterva", smeta, (uint32_t)smeta_len);
         if (retcode < 0) {
             return NULL;
         }
@@ -191,12 +191,12 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     blosc2_schunk *sc = blosc2_schunk_from_frame(frame, false);  // do not create an sparse chunk
     carr->sc = sc;
 
-    // Deserialize the caterva namespace
+    // Deserialize the caterva metalayer
     caterva_dims_t shape;
     caterva_dims_t pshape;
     uint8_t *smeta;
     uint32_t smeta_len;
-    blosc2_frame_get_namespace(frame, "caterva", &smeta, &smeta_len);
+    blosc2_frame_get_metalayer(frame, "caterva", &smeta, &smeta_len);
     deserialize_meta(smeta, smeta_len, &shape, &pshape);
     carr->size = 1;
     carr->psize = 1;
@@ -271,8 +271,8 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape) {
             fprintf(stderr, "error during serializing dims info for Caterva");
             return -1;
         }
-        // ... and update it in its namespace
-        int retcode = blosc2_frame_update_namespace(frame, "caterva", smeta, (uint32_t)smeta_len);
+        // ... and update it in its metalayer
+        int retcode = blosc2_frame_update_metalayer(frame, "caterva", smeta, (uint32_t)smeta_len);
         if (retcode < 0) {
             return -1;
         }
