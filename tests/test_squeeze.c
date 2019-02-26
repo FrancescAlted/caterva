@@ -30,6 +30,8 @@ void test_squeeze(caterva_ctx_t *ctx, uint64_t ndim, uint64_t *shape_, uint64_t 
 
     caterva_get_slice(dest, src, start, stop);
 
+    caterva_squeeze(dest);
+
     LWTEST_ASSERT_TRUE(src->ndim != dest->ndim);
 
     free(buf_src);

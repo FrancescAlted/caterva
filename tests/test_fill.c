@@ -20,7 +20,7 @@ void test_fill(caterva_ctx_t *ctx, uint8_t ndim, uint64_t *shape_, uint64_t *psh
     caterva_to_buffer(src, bufdest);
 
     for (int i = 0; i < src->size; ++i) {
-        printf("%f\n", bufdest[i]);
+        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(bufdest[i], *((double *) value), 1e-10);
     }
 
     /* Free mallocs */
