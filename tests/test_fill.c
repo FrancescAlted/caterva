@@ -23,7 +23,7 @@ void test_fill(caterva_ctx_t *ctx, uint8_t ndim, uint64_t *shape_, uint64_t *psh
         LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(bufdest[i], *((double *) value), 1e-10);
     }
 
-    /* Free mallocs */
+    /* Free mallocs  */
     free(bufdest);
     caterva_free_array(src);
 }
