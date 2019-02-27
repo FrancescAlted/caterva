@@ -5,7 +5,7 @@
 
 #include <caterva.h>
 
-int main(int argc, char **argv){
+int main(){
 
     // Create a context
     caterva_ctx_t *ctx = caterva_new_ctx(NULL, NULL, BLOSC_CPARAMS_DEFAULTS, BLOSC_DPARAMS_DEFAULTS);
@@ -13,7 +13,7 @@ int main(int argc, char **argv){
 
     // Define the pshape for the first array
     int8_t ndim = 3;
-    uint64_t pshape_[] = {3, 2, 4};
+    int64_t pshape_[] = {3, 2, 4};
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
 
     // Create an on-disk frame
@@ -25,17 +25,17 @@ int main(int argc, char **argv){
     caterva_array_t *cat1 = caterva_empty_array(ctx, frame, pshape);
 
     // Define a buffer shape to fill cat1
-    uint64_t shape_[] = {10, 10, 10};
+    int64_t shape_[] = {10, 10, 10};
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 
     // Create a buffer to fill cat1 and empty it with an arange
-    uint64_t buf1size = 1;
+    int64_t buf1size = 1;
     for (int i = 0; i < shape.ndim; ++i) {
         buf1size *= shape.dims[i];
     }
     double *buf1 = (double *) malloc(buf1size * sizeof(double));
 
-    for (uint64_t k = 0; k < buf1size; ++k) {
+    for (int64_t k = 0; k < buf1size; ++k) {
         buf1[k] = (double) k;
     }
 
@@ -47,16 +47,17 @@ int main(int argc, char **argv){
     caterva_array_t* cat3 = caterva_from_file(ctx, "persistency.caterva");
 
     // Apply a `get_slice` to cat3 and store it into cat2
-    uint64_t start_[] = {3, 6, 4};
+    int64_t start_[] = {3, 6, 4};
     caterva_dims_t start = caterva_new_dims(start_, ndim);
-    uint64_t stop_[] = {4, 9, 8};
+    int64_t stop_[] = {4, 9, 8};
     caterva_dims_t stop = caterva_new_dims(stop_, ndim);
 
-    uint64_t pshape2_[]  = {1, 2, 3};
+    int64_t pshape2_[]  = {1, 2, 3};
     caterva_dims_t pshape2 = caterva_new_dims(pshape2_, ndim);
     caterva_array_t *cat2 = caterva_empty_array(ctx, NULL, pshape2);
 
     caterva_get_slice(cat2, cat3, start, stop);
+    caterva_squeeze(cat2);
 
     // Assert that the `squeeze` works well
     if (cat3->ndim == cat2->ndim) {
@@ -64,7 +65,7 @@ int main(int argc, char **argv){
     }
 
     // Create a buffer to store the cat2 elements
-    uint64_t buf2size = 1;
+    int64_t buf2size = 1;
     caterva_dims_t shape2 = caterva_get_shape(cat2);
     for (int j = 0; j < shape2.ndim; ++j) {
         buf2size *= shape2.dims[j];
@@ -77,8 +78,8 @@ int main(int argc, char **argv){
     // Print results
     printf("The resulting hyperplane is:\n");
 
-    for (uint64_t i = 0; i < shape2.dims[0]; ++i) {
-        for (uint64_t j = 0; j < shape2.dims[1]; ++j) {
+    for (int64_t i = 0; i < shape2.dims[0]; ++i) {
+        for (int64_t j = 0; j < shape2.dims[1]; ++j) {
             printf("%6.f", buf2[i * cat2->shape[1] + j]);
         }
         printf("\n");

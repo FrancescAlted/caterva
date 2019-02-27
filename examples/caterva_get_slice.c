@@ -5,22 +5,22 @@
 
 #include <caterva.h>
 
-int main(int argc, char **argv){
+int main(){
 
     // Create a context
     caterva_ctx_t *ctx = caterva_new_ctx(NULL, NULL, BLOSC_CPARAMS_DEFAULTS, BLOSC_DPARAMS_DEFAULTS);
     ctx->cparams.typesize = sizeof(double);
 
     // Define the pshape for the first array
-    uint64_t ndim = 3;
-    uint64_t pshape_[] = {3, 2, 4};
+    int8_t ndim = 3;
+    int64_t pshape_[] = {3, 2, 4};
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
 
     // Create the first array (empty)
     caterva_array_t *cat1 = caterva_empty_array(ctx, NULL, pshape);
 
     // Define a buffer shape to fill cat1
-    uint64_t shape_[] = {10, 10, 10};
+    int64_t shape_[] = {10, 10, 10};
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 
     // Create a buffer to fill cat1 and empty it with an arange
@@ -38,16 +38,17 @@ int main(int argc, char **argv){
     caterva_from_buffer(cat1, shape, buf1);
 
     // Apply a `get_slice` to cat1 and store it into cat2
-    uint64_t start_[] = {3, 6, 4};
+    int64_t start_[] = {3, 6, 4};
     caterva_dims_t start = caterva_new_dims(start_, ndim);
-    uint64_t stop_[] = {4, 9, 8};
+    int64_t stop_[] = {4, 9, 8};
     caterva_dims_t stop = caterva_new_dims(stop_, ndim);
 
-    uint64_t pshape2_[]  = {1, 2, 3};
+    int64_t pshape2_[]  = {1, 2, 3};
     caterva_dims_t pshape2 = caterva_new_dims(pshape2_, ndim);
     caterva_array_t *cat2 = caterva_empty_array(ctx, NULL, pshape2);
 
     caterva_get_slice(cat2, cat1, start, stop);
+    caterva_squeeze(cat2);
 
     // Assert that the `squeeze` works well
     if (cat1->ndim == cat2->ndim) {

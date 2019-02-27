@@ -22,8 +22,8 @@ typedef struct {
 } caterva_ctx_t;
 
 typedef struct {
-    uint64_t dims[CATERVA_MAXDIM];  /* the shape of each chunk */
-    uint8_t ndim;  /* data dimensions */
+    int64_t dims[CATERVA_MAXDIM];  /* the shape of each chunk */
+    int8_t ndim;  /* data dimensions */
 } caterva_dims_t;
 
 static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
@@ -32,7 +32,7 @@ static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
 };
 
 /* An *optional* cache for a single partition */
-typedef struct part_cache_s {
+struct part_cache_s {
     uint8_t *data;
     int32_t nchunk;
 };
@@ -40,19 +40,19 @@ typedef struct part_cache_s {
 typedef struct {
     caterva_ctx_t *ctx;  /* caterva context */
     blosc2_schunk *sc;
-    uint64_t shape[CATERVA_MAXDIM];  /* shape of original data */
-    uint64_t pshape[CATERVA_MAXDIM];  /* shape of each chunk */
-    uint64_t eshape[CATERVA_MAXDIM];  /* shape of schunk */
-    uint64_t size;  /* size of original data */
-    uint64_t psize;  /* size of each chunnk */
-    uint64_t esize;  /* shape of schunk */
-    uint8_t ndim;  /* data dimensions */
+    int64_t shape[CATERVA_MAXDIM];  /* shape of original data */
+    int64_t pshape[CATERVA_MAXDIM];  /* shape of each chunk */
+    int64_t eshape[CATERVA_MAXDIM];  /* shape of schunk */
+    int64_t size;  /* size of original data */
+    int64_t psize;  /* size of each chunnk */
+    int64_t esize;  /* shape of schunk */
+    int8_t ndim;  /* data dimensions */
     struct part_cache_s part_cache;
 } caterva_array_t;
 
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
-caterva_dims_t caterva_new_dims(uint64_t *dims, uint8_t ndim);
+caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
 
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t pshape);
 
@@ -82,7 +82,5 @@ int caterva_squeeze(caterva_array_t *src);
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
 caterva_dims_t caterva_get_pshape(caterva_array_t *src);
-
-int caterva_equal_data(caterva_array_t *a, caterva_array_t *b);
 
 #endif
