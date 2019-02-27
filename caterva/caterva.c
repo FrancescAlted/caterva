@@ -4,6 +4,7 @@
  */
 
 #include <caterva.h>
+#include <string.h>
 #include "caterva.h"
 #include "assert.h"
 
