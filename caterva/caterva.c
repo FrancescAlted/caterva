@@ -549,8 +549,8 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t st
                                     int nchunk = 0;
                                     int inc = 1;
                                     for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
-                                        nchunk += ii[i] * inc;
-                                        inc *= s_eshape[i] / s_pshape[i];
+                                        nchunk += (int)(ii[i] * inc);
+                                        inc *= (int)(s_eshape[i] / s_pshape[i]);
                                     }
 
                                     if ((src->part_cache.data == NULL) || (src->part_cache.nchunk != nchunk)) {
