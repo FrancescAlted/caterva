@@ -49,16 +49,16 @@ static void print_errormsg(const char *fmt, ...) {
 }
 
 static void msg_start(const char *title) {
-    print_errormsg("  %s: ", title);
+    print_errormsg("%s: ", title);
 }
 
 static void msg_end(void) {
-    print_errormsg("\n");
+    print_errormsg("");
 }
 
 void LWTEST_ERR(const char *fmt, ...) {
     va_list argp;
-    msg_start("ERR");
+    msg_start("\n  ERR");
 
     va_start(argp, fmt);
     vprint_errormsg(fmt, argp);
@@ -124,7 +124,7 @@ int lwtest_main(int argc, const char *argv[]) {
             }
             fflush(stdout);
             if (test->skip) {
-                printf("[SKIPPED]\n");
+                printf("[SKIPPED]");
                 num_skip++;
             } else {
 
@@ -136,14 +136,14 @@ int lwtest_main(int argc, const char *argv[]) {
                     else
                         test->run();
                     if (test->teardown && *test->teardown) (*test->teardown)(test->data);
-                    printf("[OK] ");
+                    printf("[OK]");
                     num_ok++;
                 } else {
-                    printf("[FAIL] ");
+                    printf("[FAIL]");
                     num_fail++;
                 }
 
-                printf("\n");
+                printf("");
                 if (lwtest_errorsize != MSG_SIZE - 1) printf("%s", lwtest_errorbuffer);
             }
             printf("\n");
