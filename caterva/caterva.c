@@ -128,52 +128,56 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
     return 0;
 }
 
-caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t pshape) {
+caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
     carr->size = 1;
     carr->psize = 1;
     carr->esize = 1;
-    carr->ndim = pshape.ndim;
+    carr->ndim = pshape->ndim;
     // The partition cache (empty initially)
     carr->part_cache.data = NULL;
     carr->part_cache.nchunk = -1;  // means no valid cache yet
 
+    if (pshape != NULL) {
+        carr->type = CATERVA_TYPE_BLOSC;
+        for (unsigned int i = 0; i < CATERVA_MAXDIM; i++) {
+            carr->pshape[i] = pshape->dims[i];
+            carr->shape[i] = 1;
+            carr->eshape[i] = 1;
+            carr->psize *= carr->pshape[i];
+        }
 
-    for (unsigned int i = 0; i < CATERVA_MAXDIM; i++) {
-        carr->pshape[i] = pshape.dims[i];
-        carr->shape[i] = 1;
-        carr->eshape[i] = 1;
-        carr->psize *= carr->pshape[i];
-    }
+        if (frame != NULL) {
+            // Serialize the dimension info in the associated frame
+            if (frame->nmetalayers >= BLOSC2_MAX_METALAYERS) {
+                fprintf(stderr, "the number of metalayers for this frame has been exceeded\n");
+                return NULL;
+            }
+            uint8_t *smeta = NULL;
+            int32_t smeta_len = serialize_meta(carr->ndim, carr->shape, carr->pshape, &smeta);
+            if (smeta_len < 0) {
+                fprintf(stderr, "error during serializing dims info for Caterva");
+                return NULL;
+            }
+            // And store it in caterva metalayer
+            int retcode = blosc2_frame_add_metalayer(frame, "caterva", smeta, (uint32_t)smeta_len);
+            if (retcode < 0) {
+                return NULL;
+            }
+            free(smeta);
+        } else {
+            carr->type = CATERVA_TYPE_PLAINBUFFER;
+        }
 
-    if (frame != NULL) {
-        // Serialize the dimension info in the associated frame
-        if (frame->nmetalayers >= BLOSC2_MAX_METALAYERS) {
-            fprintf(stderr, "the number of metalayers for this frame has been exceeded\n");
-            return NULL;
-        }
-        uint8_t *smeta = NULL;
-        int32_t smeta_len = serialize_meta(carr->ndim, carr->shape, carr->pshape, &smeta);
-        if (smeta_len < 0) {
-            fprintf(stderr, "error during serializing dims info for Caterva");
-            return NULL;
-        }
-        // And store it in caterva metalayer
-        int retcode = blosc2_frame_add_metalayer(frame, "caterva", smeta, (uint32_t)smeta_len);
-        if (retcode < 0) {
-            return NULL;
-        }
-        free(smeta);
+        /* Create a schunk (for a frame-disk-backed one, this implies serializing the header on-disk */
+        blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
+        carr->sc = sc;
     }
 
     /* Copy context to caterva_array_t */
     carr->ctx = (caterva_ctx_t *) ctx->alloc(sizeof(caterva_ctx_t));
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
-
-    /* Create a schunk (for a frame-disk-backed one, this implies serializing the header on-disk */
-    blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
-    carr->sc = sc;
 
     return carr;
 }

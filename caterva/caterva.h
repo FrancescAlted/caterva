@@ -12,6 +12,11 @@
 
 #define CATERVA_MAXDIM 8
 
+typedef enum {
+    CATERVA_TYPE_BLOSC,
+    CATERVA_TYPE_PLAINBUFFER,
+} caterva_type_t;
+
 typedef struct {
     void *(*alloc)(size_t);
 
@@ -39,7 +44,9 @@ struct part_cache_s {
 
 typedef struct {
     caterva_ctx_t *ctx;  /* caterva context */
+    caterva_type_t type;
     blosc2_schunk *sc;
+    uint8_t *buf;
     int64_t shape[CATERVA_MAXDIM];  /* shape of original data */
     int64_t pshape[CATERVA_MAXDIM];  /* shape of each chunk */
     int64_t eshape[CATERVA_MAXDIM];  /* shape of schunk */
@@ -54,7 +61,7 @@ caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc
 
 caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
 
-caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t pshape);
+caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t *pshape);
 
 caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename);
 
