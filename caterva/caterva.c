@@ -139,6 +139,9 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
     carr->part_cache.data = NULL;
     carr->part_cache.nchunk = -1;  // means no valid cache yet
 
+    carr->sc = NULL;
+    carr->buf = NULL;
+
     if (pshape != NULL) {
         carr->type = CATERVA_TYPE_BLOSC;
         for (unsigned int i = 0; i < CATERVA_MAXDIM; i++) {
@@ -235,7 +238,16 @@ int caterva_free_ctx(caterva_ctx_t *ctx) {
 }
 
 int caterva_free_array(caterva_array_t *carr) {
-    blosc2_free_schunk(carr->sc);
+    switch (carr->type) {
+        case CATERVA_TYPE_BLOSC:
+            blosc2_free_schunk(carr->sc);
+            break;
+        case CATERVA_TYPE_PLAINBUFFER:
+            if (carr->buf != NULL) {
+                carr->ctx->free(carr->buf);
+            }
+    }
+
     void (*aux_free)(void *) = carr->ctx->free;
     caterva_free_ctx(carr->ctx);
     aux_free(carr);
