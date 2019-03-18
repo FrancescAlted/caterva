@@ -12,7 +12,7 @@ void test_reshape(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *psh
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
     caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
 
-    caterva_array_t *src = caterva_empty_array(ctx, NULL, pshape);
+    caterva_array_t *src = caterva_empty_array(ctx, NULL, &pshape);
 
     size_t buf_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -24,7 +24,7 @@ void test_reshape(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *psh
 
     caterva_from_buffer(src, shape, buf_src);
 
-    caterva_array_t *dest = caterva_empty_array(ctx, NULL, pshape_dest);
+    caterva_array_t *dest = caterva_empty_array(ctx, NULL, &pshape_dest);
 
     caterva_repart(dest, src);
 

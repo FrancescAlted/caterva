@@ -10,7 +10,7 @@ void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *p
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
 
-    caterva_array_t *src = caterva_empty_array(ctx, NULL, pshape);
+    caterva_array_t *src = caterva_empty_array(ctx, NULL, &pshape);
 
     size_t buf_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {

@@ -10,7 +10,7 @@ void test_fill(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshap
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
 
-    caterva_array_t *src = caterva_empty_array(ctx, NULL, pshape);
+    caterva_array_t *src = caterva_empty_array(ctx, NULL, &pshape);
 
     /* Fill empty caterva_array_t with value */
     caterva_fill(src, shape, value);
