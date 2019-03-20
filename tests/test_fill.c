@@ -17,7 +17,7 @@ void test_fill(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshap
     }
 
     /* Fill empty caterva_array_t with value */
-    caterva_fill(src, shape, value);
+    caterva_fill(src, &shape, value);
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc((size_t)src->size * src->ctx->cparams.typesize);

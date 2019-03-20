@@ -69,18 +69,18 @@ int caterva_free_ctx(caterva_ctx_t *ctx);
 
 int caterva_free_array(caterva_array_t *carr);
 
-int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape);
+int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape);
 
-int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t shape, void *src);
+int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src);
 
-int caterva_fill(caterva_array_t *dest, caterva_dims_t shape, void *value);
+int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
 
 int caterva_to_buffer(caterva_array_t *src, void *dest);
 
-int caterva_get_slice_buffer( void *dest, caterva_array_t *src, caterva_dims_t start, caterva_dims_t stop,
-                             caterva_dims_t d_pshape);
+int caterva_get_slice_buffer( void *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop,
+                             caterva_dims_t *d_pshape);
 
-int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t start, caterva_dims_t stop);
+int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
 
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
 
@@ -88,6 +88,6 @@ int caterva_squeeze(caterva_array_t *src);
 
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
-caterva_dims_t caterva_get_pshape(caterva_array_t *src);
+caterva_dims_t caterva_get_pshape(caterva_array_t src);
 
 #endif

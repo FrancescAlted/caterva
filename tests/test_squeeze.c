@@ -24,11 +24,11 @@ void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *psh
     double *buf_src = (double *) malloc(buf_size * src->sc->typesize);
     fill_buf(buf_src, buf_size);
 
-    caterva_from_buffer(src, shape, buf_src);
+    caterva_from_buffer(src, &shape, buf_src);
 
     caterva_array_t *dest = caterva_empty_array(ctx, NULL, &pshape_dest);
 
-    caterva_get_slice(dest, src, start, stop);
+    caterva_get_slice(dest, src, &start, &stop);
 
     caterva_squeeze(dest);
 

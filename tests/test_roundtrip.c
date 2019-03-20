@@ -22,7 +22,7 @@ void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *p
     fill_buf(bufsrc, buf_size);
 
     /* Fill empty caterva_array_t with original data */
-    caterva_from_buffer(src, shape, bufsrc);
+    caterva_from_buffer(src, &shape, bufsrc);
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc(buf_size * sizeof(double));
