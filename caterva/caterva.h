@@ -88,6 +88,6 @@ int caterva_squeeze(caterva_array_t *src);
 
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
-caterva_dims_t caterva_get_pshape(caterva_array_t src);
+caterva_dims_t caterva_get_pshape(caterva_array_t *src);
 
 #endif
