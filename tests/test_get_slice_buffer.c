@@ -71,7 +71,11 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_2) {
     int64_t pshape_[] = {2, 3};
     int64_t start_[] = {5, 3};
     int64_t stop_[] = {9, 10};
-    int64_t pshape_dest_[] = {3, 3};
+    int64_t pshape_dest_[ndim];
+
+    for (int i = 0; i < ndim; ++i) {
+        pshape_dest_[i] = stop_[i] - start_[i];
+    }
 
     double result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
                            77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
@@ -106,7 +110,11 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_4) {
     int64_t pshape_[] = {3, 2, 3, 2};
     int64_t start_[] = {5, 3, 9, 2};
     int64_t stop_[] = {9, 6, 10, 7};
-    int64_t pshape_dest_[] = {2, 2, 1, 2};
+    int64_t pshape_dest_[ndim];
+
+    for (int i = 0; i < ndim; ++i) {
+        pshape_dest_[i] = stop_[i] - start_[i];
+    }
 
     double result[1024] = {5392, 5393, 5394, 5395, 5396, 5492, 5493, 5494, 5495, 5496, 5592, 5593,
                            5594, 5595, 5596, 6392, 6393, 6394, 6395, 6396, 6492, 6493, 6494, 6495,
@@ -139,7 +147,11 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_6) {
     int64_t pshape_[] = {6, 5, 3, 5, 4, 2};
     int64_t start_[] = {0, 4, 2, 4, 5, 1};
     int64_t stop_[] = {1, 7, 4, 6, 8, 3};
-    int64_t pshape_dest_[] = {1, 2, 2, 2, 3, 1};
+    int64_t pshape_dest_[ndim];
+
+    for (int i = 0; i < ndim; ++i) {
+        pshape_dest_[i] = stop_[i] - start_[i];
+    }
 
     double result[1024] = {42451, 42452, 42461, 42462, 42471, 42472, 42551, 42552, 42561, 42562,
                            42571, 42572, 43451, 43452, 43461, 43462, 43471, 43472, 43551, 43552,
@@ -187,7 +199,11 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_8) {
     int64_t pshape_[] = {2, 6, 4, 3, 5, 3, 2, 4};
     int64_t start_[] = {3, 5, 2, 4, 5, 1, 6, 0};
     int64_t stop_[] = {6, 6, 4, 6, 7, 3, 7, 3};
-    int64_t pshape_dest_[] = {2, 1, 2, 2, 2, 2, 1, 2};
+    int64_t pshape_dest_[ndim];
+
+    for (int i = 0; i < ndim; ++i) {
+        pshape_dest_[i] = stop_[i] - start_[i];
+    }
 
     double result[1024] = {35245160, 35245161, 35245162, 35245260, 35245261, 35245262, 35246160,
                            35246161, 35246162, 35246260, 35246261, 35246262, 35255160, 35255161,
