@@ -5,8 +5,8 @@
 
 #include "test_common.h"
 
-void test_reshape(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
-                  int64_t *pshape_dest_) {
+static void test_reshape(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
+                         int64_t *pshape_dest_) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 

@@ -5,7 +5,7 @@
 
 #include "test_common.h"
 
-void test_fill(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshape_, void *value) {
+static void test_fill(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshape_, void *value) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_array_t *src;
