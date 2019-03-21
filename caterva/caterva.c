@@ -141,7 +141,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
     carr->buf = NULL;
 
     if (pshape != NULL) {
-        carr->type = CATERVA_TYPE_BLOSC;
+        carr->storage = CATERVA_STORAGE_BLOSC;
         carr->ndim = pshape->ndim;
         for (unsigned int i = 0; i < CATERVA_MAXDIM; i++) {
             carr->pshape[i] = pshape->dims[i];
@@ -174,7 +174,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
         blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
         carr->sc = sc;
     } else {
-        carr->type = CATERVA_TYPE_PLAINBUFFER;
+        carr->storage = CATERVA_STORAGE_PLAINBUFFER;
     }
 
     /* Copy context to caterva_array_t */
@@ -237,11 +237,11 @@ int caterva_free_ctx(caterva_ctx_t *ctx) {
 }
 
 int caterva_free_array(caterva_array_t *carr) {
-    switch (carr->type) {
-        case CATERVA_TYPE_BLOSC:
+    switch (carr->storage) {
+        case CATERVA_STORAGE_BLOSC:
             blosc2_free_schunk(carr->sc);
             break;
-        case CATERVA_TYPE_PLAINBUFFER:
+        case CATERVA_STORAGE_PLAINBUFFER:
             if (carr->buf != NULL) {
                 carr->ctx->free(carr->buf);
             }
@@ -255,7 +255,7 @@ int caterva_free_array(caterva_array_t *carr) {
 
 
 int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
-    if (carr->type == CATERVA_TYPE_BLOSC) {
+    if (carr->storage == CATERVA_STORAGE_BLOSC) {
         if (carr->ndim != shape->ndim) {
             printf("caterva array ndim and shape ndim are not equal\n");
             return -1;
@@ -316,7 +316,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 
     caterva_update_shape(dest, shape);
 
-    if (dest->type == CATERVA_TYPE_BLOSC) {
+    if (dest->storage == CATERVA_STORAGE_BLOSC) {
 
         if (dest->sc->nbytes > 0) {
             printf("Caterva container must be empty!");
@@ -419,7 +419,7 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value) {
 
     caterva_update_shape(dest, shape);
 
-    if (dest->type == CATERVA_TYPE_BLOSC) {
+    if (dest->storage == CATERVA_STORAGE_BLOSC) {
         uint8_t *chunk = malloc((size_t) dest->psize * dest->sc->typesize);
 
         for (int64_t i = 0; i < dest->psize; ++i) {
@@ -467,7 +467,7 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value) {
 
 int caterva_to_buffer(caterva_array_t *src, void *dest) {
 
-    if (src->type == CATERVA_TYPE_BLOSC) {
+    if (src->storage == CATERVA_STORAGE_BLOSC) {
         int8_t *d_b = (int8_t *) dest;
 
         int64_t s_shape[CATERVA_MAXDIM];
@@ -566,7 +566,7 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
     int64_t s_eshape[CATERVA_MAXDIM];
     int8_t s_ndim = src->ndim;
 
-    if (src->type == CATERVA_TYPE_BLOSC) {
+    if (src->storage == CATERVA_STORAGE_BLOSC) {
         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
             start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start->dims[i];
             stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop->dims[i];
@@ -759,7 +759,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     caterva_dims_t shape = caterva_new_dims(shape_, start->ndim);
     caterva_update_shape(dest, &shape);
 
-    if (src->type == CATERVA_TYPE_BLOSC) {
+    if (src->storage == CATERVA_STORAGE_BLOSC) {
 
         uint8_t *chunk = ctx->alloc((size_t) dest->psize * typesize);
 
@@ -830,7 +830,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
 }
 
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
-    if (src->type == CATERVA_TYPE_BLOSC) {
+    if (src->storage == CATERVA_STORAGE_BLOSC) {
         int64_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
         caterva_dims_t start = caterva_new_dims(start_, dest->ndim);
         int64_t stop_[CATERVA_MAXDIM];
@@ -850,7 +850,7 @@ int caterva_squeeze(caterva_array_t *src) {
     int64_t newshape_[CATERVA_MAXDIM];
     int64_t newpshape_[CATERVA_MAXDIM];
 
-    if (src->type == CATERVA_TYPE_BLOSC) {
+    if (src->storage == CATERVA_STORAGE_BLOSC) {
 
         for (int i = 0; i < src->ndim; ++i) {
             if (src->shape[i] != 1) {
