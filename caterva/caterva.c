@@ -830,16 +830,19 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
 }
 
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
-    int64_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
-    caterva_dims_t start = caterva_new_dims(start_, dest->ndim);
-    int64_t stop_[CATERVA_MAXDIM];
-    for (int i = 0; i < dest->ndim; ++i) {
-        stop_[i] = src->shape[i];
+    if (src->type == CATERVA_TYPE_BLOSC) {
+        int64_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
+        caterva_dims_t start = caterva_new_dims(start_, dest->ndim);
+        int64_t stop_[CATERVA_MAXDIM];
+        for (int i = 0; i < dest->ndim; ++i) {
+            stop_[i] = src->shape[i];
+        }
+        caterva_dims_t stop = caterva_new_dims(stop_, dest->ndim);
+        caterva_get_slice(dest, src, &start, &stop);
+        return 0;
+    } else {
+        return -1;
     }
-    caterva_dims_t stop = caterva_new_dims(stop_, dest->ndim);
-    caterva_get_slice(dest, src, &start, &stop);
-    return 0;
-
 }
 
 int caterva_squeeze(caterva_array_t *src) {
@@ -847,19 +850,29 @@ int caterva_squeeze(caterva_array_t *src) {
     int64_t newshape_[CATERVA_MAXDIM];
     int64_t newpshape_[CATERVA_MAXDIM];
 
-    for (int i = 0; i < src->ndim; ++i) {
-        if (src->shape[i] != 1) {
-            newshape_[nones] = src->shape[i];
-            newpshape_[nones] = src->pshape[i];
-            nones += 1;
-        }
-    }
+    if (src->type == CATERVA_TYPE_BLOSC) {
 
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        if (i < nones){
-            src->pshape[i] = newpshape_[i];
-        } else {
-            src->pshape[i] = 1;
+        for (int i = 0; i < src->ndim; ++i) {
+            if (src->shape[i] != 1) {
+                newshape_[nones] = src->shape[i];
+                newpshape_[nones] = src->pshape[i];
+                nones += 1;
+            }
+        }
+
+        for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+            if (i < nones) {
+                src->pshape[i] = newpshape_[i];
+            } else {
+                src->pshape[i] = 1;
+            }
+        }
+    } else {
+        for (int i = 0; i < src->ndim; ++i) {
+            if (src->shape[i] != 1) {
+                newshape_[nones] = src->shape[i];
+                nones += 1;
+            }
         }
     }
     src->ndim = nones;

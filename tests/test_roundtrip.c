@@ -8,9 +8,14 @@
 void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
-    caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
 
-    caterva_array_t *src = caterva_empty_array(ctx, NULL, &pshape);
+    caterva_array_t *src;
+    if (pshape_ != NULL) {
+        caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
+        src = caterva_empty_array(ctx, NULL, &pshape);
+    } else {
+        src = caterva_empty_array(ctx, NULL, NULL);
+    }
 
     size_t buf_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -50,12 +55,11 @@ LWTEST_TEARDOWN(roundtrip) {
     caterva_free_ctx(data->ctx);
 }
 
-LWTEST_FIXTURE(roundtrip, 3_dim) {
+LWTEST_FIXTURE(roundtrip, 3_dim_plain) {
     const int8_t ndim = 3;
     int64_t shape_[] = {4, 3, 3};
-    int64_t pshape_[] = {2, 2, 2};
 
-    test_roundtrip(data->ctx, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, NULL);
 }
 
 LWTEST_FIXTURE(roundtrip, 3_dim_2) {
@@ -74,12 +78,11 @@ LWTEST_FIXTURE(roundtrip, 4_dim) {
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
-LWTEST_FIXTURE(roundtrip, 4_dim_2) {
+LWTEST_FIXTURE(roundtrip, 4_dim_2_plain) {
     const int8_t ndim = 4;
     int64_t shape_[] = {78, 85, 34, 56};
-    int64_t pshape_[] = {13, 32, 18, 12};
 
-    test_roundtrip(data->ctx, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, NULL);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_dim) {
@@ -90,12 +93,11 @@ LWTEST_FIXTURE(roundtrip, 5_dim) {
     test_roundtrip(data->ctx, ndim, shape_, pshape_);
 }
 
-LWTEST_FIXTURE(roundtrip, 5_dim_2) {
+LWTEST_FIXTURE(roundtrip, 5_dim_2_plain) {
     const int8_t ndim = 5;
     int64_t shape_[] = {35, 55, 24, 36, 12};
-    int64_t pshape_[] = {13, 32, 18, 12, 5};
 
-    test_roundtrip(data->ctx, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, NULL);
 }
 
 LWTEST_FIXTURE(roundtrip, 6_dim) {
@@ -109,9 +111,8 @@ LWTEST_FIXTURE(roundtrip, 6_dim) {
 LWTEST_FIXTURE(roundtrip, 7_dim) {
     const int8_t ndim = 7;
     int64_t shape_[] = {12, 15, 24, 16, 12, 8, 7};
-    int64_t pshape_[] = {5, 7, 9, 8, 5, 3, 7};
 
-    test_roundtrip(data->ctx, ndim, shape_, pshape_);
+    test_roundtrip(data->ctx, ndim, shape_, NULL);
 }
 
 LWTEST_FIXTURE(roundtrip, 8_dim) {
