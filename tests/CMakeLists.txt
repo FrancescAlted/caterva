@@ -3,9 +3,9 @@ file(GLOB SOURCES test_*.c)
 add_executable(tests main.c ${SOURCES})
 if (BLOSC_LIB)
     target_link_libraries(tests caterva blosc_static)
-else()
+else(BLOSC_LIB)
     target_link_libraries(tests caterva blosc)
-endif()
+endif(BLOSC_LIB)
 
 if(WIN32)
     # For a rational of this, see comments in https://github.com/bvdberg/ctest/pull/35
@@ -17,9 +17,9 @@ foreach (source ${SOURCES})
     add_executable(${target}  main.c ${target}.c)
     if (BLOSC_LIB)
         target_link_libraries(${target} caterva blosc_static)
-    else()
+    else(BLOSC_LIB)
         target_link_libraries(${target} caterva blosc)
-    endif()
+    endif(BLOSC_LIB)
 
     if(WIN32)
         # For a rational of this, see comments in https://github.com/bvdberg/ctest/pull/35
