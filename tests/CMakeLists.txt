@@ -1,7 +1,12 @@
 file(GLOB SOURCES test_*.c)
 
 add_executable(tests main.c ${SOURCES})
-target_link_libraries(tests caterva blosc)
+if (BLOSC_LIB)
+    target_link_libraries(tests caterva blosc_static)
+else()
+    target_link_libraries(tests caterva blosc)
+endif()
+
 if(WIN32)
     # For a rational of this, see comments in https://github.com/bvdberg/ctest/pull/35
     set_property(TARGET tests APPEND_STRING PROPERTY LINK_FLAGS " /INCREMENTAL:NO")
@@ -10,7 +15,12 @@ endif()
 foreach (source ${SOURCES})
     get_filename_component(target ${source} NAME_WE)
     add_executable(${target}  main.c ${target}.c)
-    target_link_libraries(${target} caterva blosc)
+    if (BLOSC_LIB)
+        target_link_libraries(${target} caterva blosc_static)
+    else()
+        target_link_libraries(${target} caterva blosc)
+    endif()
+
     if(WIN32)
         # For a rational of this, see comments in https://github.com/bvdberg/ctest/pull/35
         set_property(TARGET ${target} APPEND_STRING PROPERTY LINK_FLAGS " /INCREMENTAL:NO")
