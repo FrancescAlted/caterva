@@ -197,6 +197,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     /* ...and create a schunk out of it */
     blosc2_schunk *sc = blosc2_schunk_from_frame(frame, false);  // do not create an sparse chunk
     carr->sc = sc;
+    carr->storage = CATERVA_STORAGE_BLOSC;
 
     // Deserialize the caterva metalayer
     caterva_dims_t shape;
