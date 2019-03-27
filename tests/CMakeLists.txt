@@ -2,6 +2,7 @@ file(GLOB SOURCES test_*.c)
 
 add_executable(tests main.c ${SOURCES})
 if (BLOSC_LIB)
+    # Allow linking with Blosc from IronArray without the need to install it
     target_link_libraries(tests caterva blosc_static)
 else(BLOSC_LIB)
     target_link_libraries(tests caterva blosc)
