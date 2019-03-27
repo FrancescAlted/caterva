@@ -565,6 +565,8 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
     int64_t s_pshape[CATERVA_MAXDIM];
     int64_t s_eshape[CATERVA_MAXDIM];
     int8_t s_ndim = src->ndim;
+    int typesize = src->sc->typesize;
+
 
     if (src->storage == CATERVA_STORAGE_BLOSC) {
         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -574,6 +576,16 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
             s_eshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = src->eshape[i];
             s_pshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = src->pshape[i];
         }
+
+        // Acceleration path for the case where we are doing (1-dim) aligned chunk reads
+        if ((s_ndim == 1) && (src->pshape[0] == d_pshape->dims[0]) &&
+            (start->dims[0] % src->pshape[0] == 0) && (stop->dims[0] % src->pshape[0] == 0)) {
+            int nchunk = (int)(start->dims[0] / src->pshape[0]);
+            // In case of an aligned read, decompress directly in destination
+            blosc2_schunk_decompress_chunk(src->sc, nchunk, bdest, (size_t)src->psize * typesize);
+            return 0;
+        }
+
 
         for (int j = 0; j < CATERVA_MAXDIM - s_ndim; ++j) {
             start_[j] = 0;
