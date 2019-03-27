@@ -5,30 +5,39 @@
 
 #include "test_common.h"
 
-void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
-                  int64_t *pshape_dest_, int64_t *start_, int64_t *stop_) {
+static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
+                         int64_t *pshape_dest_, int64_t *start_, int64_t *stop_) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
-    caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-    caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
     caterva_dims_t start = caterva_new_dims(start_, ndim);
     caterva_dims_t stop = caterva_new_dims(stop_, ndim);
 
-    caterva_array_t *src = caterva_empty_array(ctx, NULL, pshape);
+    caterva_array_t *src;
+    if (pshape_ != NULL) {
+        caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
+        src = caterva_empty_array(ctx, NULL, &pshape);
+    } else {
+        src = caterva_empty_array(ctx, NULL, NULL);
+    }
 
     size_t buf_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
         buf_size *= (shape.dims[i]);
     }
 
-    double *buf_src = (double *) malloc(buf_size * src->sc->typesize);
+    double *buf_src = (double *) malloc(buf_size * src->ctx->cparams.typesize);
     fill_buf(buf_src, buf_size);
 
-    caterva_from_buffer(src, shape, buf_src);
+    caterva_from_buffer(src, &shape, buf_src);
 
-    caterva_array_t *dest = caterva_empty_array(ctx, NULL, pshape_dest);
-
-    caterva_get_slice(dest, src, start, stop);
+    caterva_array_t *dest;
+    if (pshape_dest_ != NULL) {
+        caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
+        dest = caterva_empty_array(ctx, NULL, &pshape_dest);
+    } else {
+        dest = caterva_empty_array(ctx, NULL, NULL);
+    }
+    caterva_get_slice(dest, src, &start, &stop);
 
     caterva_squeeze(dest);
 
@@ -63,24 +72,22 @@ LWTEST_FIXTURE(squeeze, ndim3) {
     test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
 }
 
-LWTEST_FIXTURE(squeeze, ndim5) {
+LWTEST_FIXTURE(squeeze, ndim5_plain) {
     const int8_t ndim = 5;
     int64_t shape_[] = {22, 25, 31, 19, 31};
-    int64_t pshape_[] = {7, 3, 5, 8, 2};
-    int64_t pshape_dest_[] = {4, 11, 6, 1, 5};
     int64_t start_[] = {1, 12, 3, 12, 6};
     int64_t stop_[] = {16, 21, 19, 13, 21};
 
-    test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
+    test_squeeze(data->ctx, ndim, shape_, NULL, NULL, start_, stop_);
 }
 
 LWTEST_FIXTURE(squeeze, ndim7) {
     const int8_t ndim = 7;
-    int64_t shape_[] = {12, 15, 21, 19, 21, 11, 16};
-    int64_t pshape_[] = {7, 3, 5, 5, 4, 8, 2};
-    int64_t pshape_dest_[] = {1, 11, 3, 6, 1, 1, 5};
-    int64_t start_[] = {10, 8, 3, 5, 1, 0, 6};
-    int64_t stop_[] = {11, 15, 19, 11, 2, 1, 21};
+    int64_t shape_[] = {6, 8, 12, 6, 7, 6, 9};
+    int64_t pshape_[] = {2, 3, 5, 2, 4, 3, 2};
+    int64_t pshape_dest_[] = {1, 3, 3, 2, 1, 1, 5};
+    int64_t start_[] = {5, 3, 3, 2, 1, 0, 4};
+    int64_t stop_[] = {6, 8, 10, 5, 2, 1, 9};
 
     test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
 }

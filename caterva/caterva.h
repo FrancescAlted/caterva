@@ -12,6 +12,11 @@
 
 #define CATERVA_MAXDIM 8
 
+typedef enum {
+    CATERVA_STORAGE_BLOSC,
+    CATERVA_STORAGE_PLAINBUFFER,
+} caterva_storage_t;
+
 typedef struct {
     void *(*alloc)(size_t);
 
@@ -39,7 +44,9 @@ struct part_cache_s {
 
 typedef struct {
     caterva_ctx_t *ctx;  /* caterva context */
+    caterva_storage_t storage;
     blosc2_schunk *sc;
+    uint8_t *buf;
     int64_t shape[CATERVA_MAXDIM];  /* shape of original data */
     int64_t pshape[CATERVA_MAXDIM];  /* shape of each chunk */
     int64_t eshape[CATERVA_MAXDIM];  /* shape of schunk */
@@ -54,7 +61,7 @@ caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc
 
 caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
 
-caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t pshape);
+caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t *pshape);
 
 caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename);
 
@@ -62,18 +69,18 @@ int caterva_free_ctx(caterva_ctx_t *ctx);
 
 int caterva_free_array(caterva_array_t *carr);
 
-int caterva_update_shape(caterva_array_t *carr, caterva_dims_t shape);
+int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape);
 
-int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t shape, void *src);
+int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src);
 
-int caterva_fill(caterva_array_t *dest, caterva_dims_t shape, void *value);
+int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
 
 int caterva_to_buffer(caterva_array_t *src, void *dest);
 
-int caterva_get_slice_buffer( void *dest, caterva_array_t *src, caterva_dims_t start, caterva_dims_t stop,
-                             caterva_dims_t d_pshape);
+int caterva_get_slice_buffer( void *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop,
+                             caterva_dims_t *d_pshape);
 
-int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t start, caterva_dims_t stop);
+int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
 
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
 
