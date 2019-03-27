@@ -742,7 +742,9 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     if (start->ndim != src->ndim) {
         return -1;
     }
-
+    if (src->storage != dest->storage) {
+        return -1;
+    }
 
     caterva_ctx_t *ctx = src->ctx;
     int typesize = ctx->cparams.typesize;
