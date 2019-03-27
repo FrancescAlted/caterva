@@ -22,7 +22,7 @@ int main(){
     };
 
     // Create the first array (empty)
-    caterva_array_t *cat1 = caterva_empty_array(ctx, frame, pshape);
+    caterva_array_t *cat1 = caterva_empty_array(ctx, frame, &pshape);
 
     // Define a buffer shape to fill cat1
     int64_t shape_[] = {10, 10, 10};
@@ -40,7 +40,7 @@ int main(){
     }
 
     // Fill cat1 with the above buffer
-    caterva_from_buffer(cat1, shape, buf1);
+    caterva_from_buffer(cat1, &shape, buf1);
 
     // Close cat1 and reopen the caterva frame persisted on-disk on cat3 and operate with it
     caterva_free_array(cat1);
@@ -54,9 +54,9 @@ int main(){
 
     int64_t pshape2_[]  = {1, 2, 3};
     caterva_dims_t pshape2 = caterva_new_dims(pshape2_, ndim);
-    caterva_array_t *cat2 = caterva_empty_array(ctx, NULL, pshape2);
+    caterva_array_t *cat2 = caterva_empty_array(ctx, NULL, &pshape2);
 
-    caterva_get_slice(cat2, cat3, start, stop);
+    caterva_get_slice(cat2, cat3, &start, &stop);
     caterva_squeeze(cat2);
 
     // Assert that the `squeeze` works well

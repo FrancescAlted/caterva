@@ -565,8 +565,6 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
     int64_t s_pshape[CATERVA_MAXDIM];
     int64_t s_eshape[CATERVA_MAXDIM];
     int8_t s_ndim = src->ndim;
-    int typesize = src->sc->typesize;
-
 
     if (src->storage == CATERVA_STORAGE_BLOSC) {
         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -582,7 +580,7 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
             (start->dims[0] % src->pshape[0] == 0) && (stop->dims[0] % src->pshape[0] == 0)) {
             int nchunk = (int)(start->dims[0] / src->pshape[0]);
             // In case of an aligned read, decompress directly in destination
-            blosc2_schunk_decompress_chunk(src->sc, nchunk, bdest, (size_t)src->psize * typesize);
+            blosc2_schunk_decompress_chunk(src->sc, nchunk, bdest, (size_t)src->psize * src->sc->typesize);
             return 0;
         }
 
