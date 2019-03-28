@@ -18,7 +18,9 @@ install(TARGETS caterva DESTINATION lib)
 
 install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 
-enable_testing()
 
-add_subdirectory(tests)
-add_subdirectory(examples)
+if (NOT CATERVA_SUBMODULE)
+    enable_testing()
+    add_subdirectory(tests)
+    add_subdirectory(examples)
+endif()
