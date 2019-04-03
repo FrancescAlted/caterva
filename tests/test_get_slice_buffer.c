@@ -71,7 +71,7 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_2) {
     int64_t pshape_[] = {2, 3};
     int64_t start_[] = {5, 3};
     int64_t stop_[] = {9, 10};
-    int64_t pshape_dest_[ndim];
+    int64_t pshape_dest_[] = {0, 0};
 
     for (int i = 0; i < ndim; ++i) {
         pshape_dest_[i] = stop_[i] - start_[i];
@@ -110,7 +110,7 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_4) {
     int64_t pshape_[] = {3, 2, 3, 2};
     int64_t start_[] = {5, 3, 9, 2};
     int64_t stop_[] = {9, 6, 10, 7};
-    int64_t pshape_dest_[ndim];
+    int64_t pshape_dest_[] = {0, 0, 0, 0};
 
     for (int i = 0; i < ndim; ++i) {
         pshape_dest_[i] = stop_[i] - start_[i];
@@ -147,7 +147,7 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_6) {
     int64_t pshape_[] = {6, 5, 3, 5, 4, 2};
     int64_t start_[] = {0, 4, 2, 4, 5, 1};
     int64_t stop_[] = {1, 7, 4, 6, 8, 3};
-    int64_t pshape_dest_[ndim];
+    int64_t pshape_dest_[] = {0, 0, 0, 0, 0, 0};
 
     for (int i = 0; i < ndim; ++i) {
         pshape_dest_[i] = stop_[i] - start_[i];
@@ -199,7 +199,7 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_8) {
     int64_t pshape_[] = {2, 6, 4, 3, 5, 3, 2, 4};
     int64_t start_[] = {3, 5, 2, 4, 5, 1, 6, 0};
     int64_t stop_[] = {6, 6, 4, 6, 7, 3, 7, 3};
-    int64_t pshape_dest_[ndim];
+    int64_t pshape_dest_[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
     for (int i = 0; i < ndim; ++i) {
         pshape_dest_[i] = stop_[i] - start_[i];
