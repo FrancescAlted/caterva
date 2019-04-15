@@ -40,9 +40,9 @@ static void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
 
     if (pshape_dest_ != NULL) {
         caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-        caterva_get_slice_buffer(dest_buf, src, &start, &stop, &pshape_dest, true);
+        caterva_get_slice_buffer(dest_buf, src, &start, &stop, &pshape_dest);
     } else {
-        caterva_get_slice_buffer(dest_buf, src, &start, &stop, NULL, true);
+        caterva_get_slice_buffer(dest_buf, src, &start, &stop, NULL);
     }
 
     assert_buf(dest_buf, result, (size_t)dest_size, 1e-14);
