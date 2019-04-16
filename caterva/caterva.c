@@ -749,7 +749,43 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
                 }
             }
         }
+
     }
+    return 0;
+}
+
+int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_dims_t *start,
+                                     caterva_dims_t *stop, caterva_dims_t *d_pshape) {
+
+    int64_t start_[CATERVA_MAXDIM];
+    int64_t stop_[CATERVA_MAXDIM];
+    int64_t d_pshape_[CATERVA_MAXDIM];
+    int8_t s_ndim = src->ndim;
+
+    caterva_dims_t shape = caterva_get_shape(src);
+    int64_t d_shape[CATERVA_MAXDIM];
+    int64_t s_shape[CATERVA_MAXDIM];
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start->dims[i];
+        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop->dims[i];
+        d_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = (stop->dims[i] - start->dims[i]);
+        s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape.dims[i];
+    }
+
+    for (int j = 0; j < CATERVA_MAXDIM - s_ndim; ++j) {
+        start_[j] = 0;
+        d_pshape_[(CATERVA_MAXDIM - s_ndim + j) % CATERVA_MAXDIM] = (stop_[j] - start_[j]);
+
+    }
+
+    int64_t chunk_pointer = 0;
+    int64_t chunk_pointer_inc = 1;
+    for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
+        chunk_pointer += start_[i] * chunk_pointer_inc;
+        chunk_pointer_inc *= s_shape[i];
+    }
+    *dest = &src->buf[chunk_pointer * src->ctx->cparams.typesize];
+    //printf("CA %p - %p\n", *dest, (void *) &src->buf[chunk_pointer * src->ctx->cparams.typesize]);
     return 0;
 }
 
@@ -762,9 +798,6 @@ int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *s
     uint8_t *bsrc = src;   // for allowing pointer arithmetic
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
-    int64_t d_pshape_[CATERVA_MAXDIM];
-    int64_t s_pshape[CATERVA_MAXDIM];
-    int64_t s_eshape[CATERVA_MAXDIM];
     int8_t s_ndim = dest->ndim;
 
     if (dest->storage == CATERVA_STORAGE_PLAINBUFFER) {
