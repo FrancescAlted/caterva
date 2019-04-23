@@ -40,9 +40,9 @@ typedef enum {
 
 
 /**
- * @brief The parameters for creating a context for caterva arrays.
+ * @brief A context for caterva containers.
  *
- * In parenthesis it is shown the default value used internally when a NULL value is passed to the
+ * In parenthesis it is shown the default value used internally when a \c NULL value is passed to the
  * constructor.
  */
 
@@ -59,7 +59,7 @@ typedef struct {
 
 
 /**
- * @brief Struct that represents dimensions in Caterva
+ * @brief A dimensions vector that can represent shapes or points
  */
 
 typedef struct {
@@ -71,7 +71,7 @@ typedef struct {
 
 
 /**
- * @brief Default Caterva dimensions
+ * @brief Default caterva dimensions vector
  */
 
 static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
@@ -103,10 +103,10 @@ typedef struct {
     caterva_ctx_t *ctx;
     //!< Caterva context
     caterva_storage_t storage;
-    //!< Storage type.
+    //!< Storage type
     blosc2_schunk *sc;
-    //!< Pointer to a Blosc superchunk.
-    //!< Only is used if \p storage equals to \p #CATERVA_STORAGE_BLOSC.
+    //!< Pointer to a Blosc superchunk
+    //!< Only is used if \p storage equals to \p #CATERVA_STORAGE_BLOSC
     uint8_t *buf;
     //!< Pointer to a plain buffer where data is stored.
     //!< Only is used if \p storage equals to \p #CATERVA_STORAGE_PLAINBUFFER.
@@ -132,21 +132,21 @@ typedef struct {
 /**
  * @brief Create a context for Caterva functions.
  *
- * @param all The allocation function to use internally. If it is NULL, malloc is used.
- * @param free The free function to use internally. If it is NULL, free is used.
- * @param cparams The compression parameters used when a Caterva array is created.
- * @param dparams The decompression parameters used when data of a Caterva array is decompressed.
+ * @param all The allocation function to use internally. If it is \c NULL, malloc is used.
+ * @param free The free function to use internally. If it is \c NULL, free is used.
+ * @param cparams The compression parameters used when a caterva container is created.
+ * @param dparams The decompression parameters used when data of a caterva container is decompressed.
  *
- * @return A pointer to the new Caterva context. NULL is returned if this fails.
+ * @return A pointer to the new caterva context. \p NULL is returned if this fails.
  */
 
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
 
 /**
- * @brief Free a Caterva context
+ * @brief Free a caterva context
  *
- * @param ctx A caterva context
+ * @param ctx Pointer to the context to be freed
  *
  * @return An error code
  */
@@ -204,7 +204,8 @@ int caterva_free_array(caterva_array_t *carr);
 /**
  * @brief Read a caterva container from disk
  *
- * @param ctx Pointer to the caterva context to be used
+ * @param ctx Pointer to the caterva context to be used. The context should be the same as the one used to create the array.
+
  * @param filename The filename of the caterva container in disk
  *
  * @return A pointer to the caterva container read from disk
