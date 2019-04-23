@@ -70,7 +70,7 @@ typedef struct {
 } caterva_dims_t;
 
 
-/**
+/*
  * @brief Default Caterva dimensions
  */
 
