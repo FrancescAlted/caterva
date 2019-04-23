@@ -74,10 +74,7 @@ typedef struct {
  * @brief Default Caterva dimensions
  */
 
-static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
-    .dims = {1, 1, 1, 1, 1, 1, 1, 1},
-    .ndim = 1
-};
+static const caterva_dims_t CATERVA_DIMS_DEFAULTS = { {1, 1, 1, 1, 1, 1, 1, 1}, 1};
 
 
 /**
