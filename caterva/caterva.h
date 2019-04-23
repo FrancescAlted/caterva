@@ -244,37 +244,96 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
 
 int caterva_to_buffer(caterva_array_t *src, void *dest);
 
-int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
-                             caterva_dims_t *stop, caterva_dims_t *d_pshape);
-
-int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_dims_t *start,
-                                     caterva_dims_t *stop, caterva_dims_t *d_pshape);
-
-int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *start,
-                             caterva_dims_t *stop);
 
 int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
 
+
+
+
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
+
+
+/**
+ * @brief Squeeze a caterva container
+ *
+ * This function remove single-dimensional entries from the shape of a caterva container.
+ *
+ * @param src Pointer to the container to be squeezed
+ *
+ * @return An error code
+ */
 
 int caterva_squeeze(caterva_array_t *src);
 
 
 /**
- * @brief Get the shape of a caterva array
+ * @brief Get a slice into a C buffer from a caterva container
  *
- * @param src A caterva array
- *
- * @return The shape of the caterva array
+ * @param dest Pointer to the buffer where data will be stored
+ * @param src Pointer to the container from which the slice will be extracted
+ * @param start The coordinates where the slice will begin
+ * @param stop The coordinates where the slice will end
+ * @param d_pshape ?
+ * @return An error code
  */
 
+int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
+                             caterva_dims_t *stop, caterva_dims_t *d_pshape);
+
+
+/**
+ * @brief Get a slice (without copy) into a C pointer from a caterva container
+ *
+ * With this function the data is not copied, thus allowing a higher speed.
+ *
+ * It can only be used if the container is based on a buffer. Also, the slice obtained should
+ * not be modified since it is a reference to the container data. If the slice is modified,
+ * the container will also be modified.
+ *
+ * @param dest Pointer to the C pointer where pointer data will be referenced
+ * @param src Pointer to the container from which the slice will be extracted
+ * @param start The coordinates where the slice will begin
+ * @param stop The coordinates where the slice will end
+ * @param d_pshape ?
+ *
+ * @return An error code
+ */
+
+int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_dims_t *start,
+                                     caterva_dims_t *stop, caterva_dims_t *d_pshape);
+
+
+/**
+ * @brief Set a slice into a caterva container from a C buffer
+ *
+ * It can only be used if the container is based on a buffer.
+ *
+ * @param dest Pointer to the caterva container where the partition will be set
+ * @param src Pointer to the buffer where the slice data is
+ * @param start The coordinates where the slice will begin
+ * @param stop The coordinates where the slice will end
+ *
+ * @return An error code
+ */
+
+int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *start,
+                             caterva_dims_t *stop);
+
+
+/**
+ * @brief Get the shape of a caterva array
+ *
+ * @param src pointer to the container from which the block shape will be obtained
+ *
+ * @return The block shape of the caterva array
+ */
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
 
 /**
  * @brief Get the block shape of a caterva array
  *
- * @param src A caterva array
+ * @param src pointer to the container from which the block shape will be obtained
  *
  * @return The block shape of the caterva array
  */
