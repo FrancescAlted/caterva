@@ -224,7 +224,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 /**
  * @brief Fill a caterva array with a value
  *
- * @param dest Pointer in the container that is filled with the \p value
+ * @param dest Pointer to the container that is filled
  * @param shape The shape of the container
  * @param value The value with which the container is going to be filled
  *
@@ -232,6 +232,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
  */
 
 int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
+
 
 /**
  * @brief Extract the data into a buffer from a caterva container
@@ -244,6 +245,7 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
 
 int caterva_to_buffer(caterva_array_t *src, void *dest);
 
+
 /**
  * @brief Get a slice into an empty caterva container from another caterva container
  *
@@ -255,6 +257,7 @@ int caterva_to_buffer(caterva_array_t *src, void *dest);
  */
 
 int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
+
 
 /**
  * @brief Change the block of a caterva container
