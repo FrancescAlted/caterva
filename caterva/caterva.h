@@ -155,12 +155,14 @@ int caterva_free_ctx(caterva_ctx_t *ctx);
 
 
 /**
- * @brief Create a Caterva dimension object
+ * @brief Create a caterva dimensions vector
+ *
+ * A #caterva_dims_t can be used to represent shapes or points of the container.
  *
  * @param dims The size of each dimension
  * @param ndim The number of dimensions
  *
- * @return A caterva dimension object
+ * @return The caterva dimensions vector created
  */
 
 caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
