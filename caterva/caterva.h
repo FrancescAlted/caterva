@@ -167,7 +167,10 @@ caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
 
 
 /**
- * @brief Create a caterva empty array.
+ * @brief Create a caterva empty container
+ *
+ * When a container is created, only the block shape, the storage type and the context are defined.
+ * It should be noted that the shape is defined when a container is filled and not when it is created.
  *
  * If \p pshape is \c NULL, the data container will be stored using a plain buffer.
  *
@@ -175,11 +178,11 @@ caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
  * In particular, if \p fr is \c NULL it will be stored in the memory and if it is not \c NULL
  * it will be stored on disk.
  *
- * @param ctx The context to be used
- * @param fr A frame to store data on disk.
- * @param pshape The pshape of each block.
+ * @param ctx Pointer to the caterva context to be used
+ * @param fr Pointer to the blosc frame used to store data on disk
+ * @param pshape The shape of each block
  *
- * @return A pointer to a caterva array
+ * @return A pointer to the empty caterva container created
  */
 
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t *pshape);
@@ -188,7 +191,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, cater
 /**
  * @brief Free a caterva container
  *
- * @param carr A caterva container
+ * @param carr Pointer to the container to be freed
  *
  * @return An error code
  */
@@ -197,23 +200,23 @@ int caterva_free_array(caterva_array_t *carr);
 
 
 /**
- * @brief Read a caterva array from disk.
+ * @brief Read a caterva container from disk
  *
- * @param ctx The caterva context
- * @param filename The filename of the caterva array in disk
+ * @param ctx Pointer to the caterva context to be used
+ * @param filename The filename of the caterva container in disk
  *
- * @return A pointer to a caterva array
+ * @return A pointer to the caterva container read from disk
  */
 
 caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename);
 
 
 /**
- * @brief Create a caterva array from a plain buffer data
+ * @brief Create a caterva container from the data obtained in a C buffer
  *
- * @param dest An empty caterva array
- * @param shape The data shape
- * @param src A pointer to data buffer
+ * @param dest Pointer to the container that will be created with the buffer data
+ * @param shape The shape of the buffer data
+ * @param src A pointer to the C buffer where data is stored
  *
  * @return An error code
  */
@@ -222,7 +225,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 
 
 /**
- * @brief Fill a caterva array with a value
+ * @brief Fill a caterva container with a value
  *
  * @param dest Pointer to the container that is filled
  * @param shape The shape of the container
@@ -235,7 +238,7 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
 
 
 /**
- * @brief Extract the data into a buffer from a caterva container
+ * @brief Extract the data into a C buffer from a caterva container
  *
  * @param src Pointer to the container from which the data will be obtained
  * @param dest Pointer to the buffer where data will be stored
