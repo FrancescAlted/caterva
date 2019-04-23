@@ -20,6 +20,7 @@ pygments_style = None
 html_static_path = [".static"]
 html_theme = 'sphinx_rtd_theme'
 html_logo = "logo-caterva.png"
+html_favicon = "favicon-caterva.png"
 html_show_sourcelink = False
 
 html_theme_options = {
