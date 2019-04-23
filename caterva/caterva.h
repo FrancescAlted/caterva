@@ -224,8 +224,8 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 /**
  * @brief Fill a caterva array with a value
  *
- * @param dest An empty caterva array
- * @param shape The data shape
+ * @param dest Pointer in the container that is filled with the \p value
+ * @param shape The shape of the container
  * @param value The value with which the container is going to be filled
  *
  * @return An error code
@@ -234,19 +234,39 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
 
 /**
- * @brief Extract the data from a container to a buffer
+ * @brief Extract the data into a buffer from a caterva container
  *
- * @param src The caterva array
- * @param dest The buffer where data will be stored
+ * @param src Pointer to the container from which the data will be obtained
+ * @param dest Pointer to the buffer where data will be stored
  *
  * @return An error code
  */
 
 int caterva_to_buffer(caterva_array_t *src, void *dest);
 
+/**
+ * @brief Get a slice into an empty caterva container from another caterva container
+ *
+ * @param dest Pointer to the empty container where the obtained slice will be stored
+ * @param src Pointer to the container from which the slice will be obtained
+ * @param start The coordinates where the slice will begin
+ * @param stop The coordinates where the slice will end
+ * @return
+ */
 
 int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
 
+/**
+ * @brief Change the block of a caterva container
+ *
+ * It can only be used if the container is based on a blosc superchunk since it is the only one
+ * that has the concept of block.
+ *
+ * @param dest Pointer to the empty container with the new block shape.
+ * @param src Pointer to the container to be reblocked.
+ *
+ * @return An error code
+ */
 
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
 
