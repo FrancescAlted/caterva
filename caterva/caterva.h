@@ -349,6 +349,19 @@ int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *s
 
 
 /**
+ * @brief Update the shape of a caterva container.
+ *
+ * This is used when data is added to the container to update the shape
+ *
+ * @param src Pointer to the container from which the shape will be updated
+ * @param shape The new shape of the container
+ *
+ * @return An error code
+ */
+
+int caterva_update_shape(caterva_array_t *src, caterva_dims_t *shape);
+
+/**
  * @brief Get the shape of a caterva array
  *
  * @param src pointer to the container from which the block shape will be obtained
