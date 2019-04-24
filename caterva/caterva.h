@@ -12,6 +12,8 @@
 
 #define CATERVA_MAXDIM 8
 
+#define CATERVA_UNUSED_PARAM(x) ((void)(x))
+
 typedef enum {
     CATERVA_STORAGE_BLOSC,
     CATERVA_STORAGE_PLAINBUFFER,

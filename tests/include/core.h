@@ -8,8 +8,10 @@
 
 #ifdef __GNUC__
 #define LWTEST_IMPL_FORMAT_PRINTF(a, b) __attribute__ ((format(printf, a, b)))
+#define LW_ATT_UNUSED __attribute__((unused))
 #else
 #define LWTEST_IMPL_FORMAT_PRINTF(a, b)
+#define LW_ATT_UNUSED
 #endif
 
 typedef void (*lwtest_setup_func)(void *);
