@@ -1,20 +1,25 @@
 /*
- * Copyright (C) 2018  Francesc Alted
- * Copyright (C) 2018  Aleix Alcacer
+ * Copyright (C) 2018 Francesc Alted, Aleix Alcacer.
+ * Copyright (C) 2019-present Blosc Development team <blosc@blosc.org>
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
  */
 
-#include <caterva.h>
+#include "caterva.h"
 #include <string.h>
 #include "caterva.h"
 #include "assert.h"
 
 caterva_ctx_t *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *), blosc2_cparams cparams, blosc2_dparams dparams) {
     caterva_ctx_t *ctx;
+    ctx = (caterva_ctx_t *) malloc(sizeof(caterva_ctx_t));
     if (c_alloc == NULL) {
-        ctx = (caterva_ctx_t *) malloc(sizeof(caterva_ctx_t));
         ctx->alloc = malloc;
     } else {
-        ctx = (caterva_ctx_t *) c_alloc(sizeof(caterva_ctx_t));
         ctx->alloc = c_alloc;
     }
     if (c_free == NULL) {
@@ -240,7 +245,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
 }
 
 int caterva_free_ctx(caterva_ctx_t *ctx) {
-    ctx->free(ctx);
+    free(ctx);
     return 0;
 }
 
@@ -262,7 +267,7 @@ int caterva_free_array(caterva_array_t *carr) {
 }
 
 
-int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
+int _caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
     if (carr->storage == CATERVA_STORAGE_BLOSC) {
         if (carr->ndim != shape->ndim) {
             printf("caterva array ndim and shape ndim are not equal\n");
@@ -324,7 +329,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 
     int8_t *s_b = (int8_t *) src;
 
-    caterva_update_shape(dest, shape);
+    _caterva_update_shape(dest, shape);
 
     if (dest->storage == CATERVA_STORAGE_BLOSC) {
 
@@ -427,7 +432,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 
 int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value) {
 
-    caterva_update_shape(dest, shape);
+    _caterva_update_shape(dest, shape);
 
     if (dest->storage == CATERVA_STORAGE_BLOSC) {
         uint8_t *chunk = malloc((size_t) dest->psize * dest->sc->typesize);
@@ -882,7 +887,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     }
 
     caterva_dims_t shape = caterva_new_dims(shape_, start->ndim);
-    caterva_update_shape(dest, &shape);
+    _caterva_update_shape(dest, &shape);
 
     if (src->storage == CATERVA_STORAGE_BLOSC) {
 
@@ -1004,7 +1009,7 @@ int caterva_squeeze(caterva_array_t *src) {
 
     caterva_dims_t newshape = caterva_new_dims(newshape_, nones);
 
-    caterva_update_shape(src, &newshape);
+    _caterva_update_shape(src, &newshape);
 
     return 0;
 }

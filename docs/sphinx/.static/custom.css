@@ -1,0 +1,28 @@
+.wy-side-nav-search, .wy-nav-top, .wy-nav-side {
+    background: rgb(0, 127, 136, 0.05);
+}
+
+.rst-content dl:not(.docutils) dt {
+    background: rgb(0, 127, 136, 0.05);
+    border-top-color: rgb(0, 127, 136);
+    color: rgb(0, 127, 136);
+}
+
+.reference.internal {
+    color: rgb(0, 127, 136);
+}
+
+.wy-menu-vertical a:hover {
+    background-color: rgb(0, 127, 136, 0.1);
+    cursor: pointer;
+}
+
+a {
+    color:  rgb(0, 127, 136);
+}
+
+a:hover {
+
+    color: rgb(0, 127, 136);
+
+}
