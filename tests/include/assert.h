@@ -27,6 +27,8 @@
 #define LWTEST_ASSERT_TRUE(exp) \
     lwtest_assert_true(exp, __FILE__, __LINE__)
 
+
+static void lwtest_assert_equal_int(int exp, int real, const char *caller, int line) LW_ATT_UNUSED;
 static void lwtest_assert_equal_int(int exp, int real, const char *caller, int line) {
 
     if (exp != real) {
@@ -34,18 +36,24 @@ static void lwtest_assert_equal_int(int exp, int real, const char *caller, int l
     }
 }
 
+static void lwtest_assert_equal_double(double exp, double real, const char *caller, int line)
+LW_ATT_UNUSED;
 static void lwtest_assert_equal_double(double exp, double real, const char *caller, int line) {
     if (exp != real) {
         LWTEST_ERR("%s:%d  expected %f, got %f", caller, line, exp, real);
     }
 }
 
+static void lwtest_assert_equal_float(float exp, float real, const char *caller, int line)
+LW_ATT_UNUSED;
 static void lwtest_assert_equal_float(float exp, float real, const char *caller, int line) {
     if (exp != real) {
         LWTEST_ERR("%s:%d  expected %f, got %f", caller, line, exp, real);
     }
 }
 
+static void lwtest_assert_almost_equal_double(double exp, double real, double tol, const char *caller,
+                                              int line) LW_ATT_UNUSED;
 static void lwtest_assert_almost_equal_double(double exp, double real, double tol, const char *caller,
                                        int line) {
     double err_rel = fabs((exp - real) / real);
@@ -55,6 +63,8 @@ static void lwtest_assert_almost_equal_double(double exp, double real, double to
 }
 
 static void lwtest_assert_almost_equal_float(float exp, float real, double tol, const char *caller,
+                                             int line) LW_ATT_UNUSED;
+static void lwtest_assert_almost_equal_float(float exp, float real, double tol, const char *caller,
                                        int line) {
     double err_rel = fabs((double)(exp - real) / real);
     if (err_rel > tol) {
@@ -62,6 +72,7 @@ static void lwtest_assert_almost_equal_float(float exp, float real, double tol, 
     }
 }
 
+static void lwtest_assert_true(int exp, const char *caller, int line) LW_ATT_UNUSED;
 static void lwtest_assert_true(int exp, const char *caller, int line) {
         if(!exp) {
             LWTEST_ERR("%s:%d  not TRUE", caller, line);

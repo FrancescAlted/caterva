@@ -762,6 +762,8 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
 int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_dims_t *start,
                                      caterva_dims_t *stop, caterva_dims_t *d_pshape) {
 
+    CATERVA_UNUSED_PARAM(d_pshape);
+
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
     int64_t d_pshape_[CATERVA_MAXDIM];

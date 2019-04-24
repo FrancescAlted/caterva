@@ -26,6 +26,7 @@
 
 #define CATERVA_MAXDIM 8
 
+#define CATERVA_UNUSED_PARAM(x) ((void)(x))
 
 /**
  * @brief Formats to store #caterva_array_t data.
