@@ -9,18 +9,17 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-#include <caterva.h>
+#include "caterva.h"
 #include <string.h>
 #include "caterva.h"
 #include "assert.h"
 
 caterva_ctx_t *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *), blosc2_cparams cparams, blosc2_dparams dparams) {
     caterva_ctx_t *ctx;
+    ctx = (caterva_ctx_t *) malloc(sizeof(caterva_ctx_t));
     if (c_alloc == NULL) {
-        ctx = (caterva_ctx_t *) malloc(sizeof(caterva_ctx_t));
         ctx->alloc = malloc;
     } else {
-        ctx = (caterva_ctx_t *) c_alloc(sizeof(caterva_ctx_t));
         ctx->alloc = c_alloc;
     }
     if (c_free == NULL) {
@@ -246,7 +245,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
 }
 
 int caterva_free_ctx(caterva_ctx_t *ctx) {
-    ctx->free(ctx);
+    free(ctx);
     return 0;
 }
 
@@ -762,6 +761,8 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
 
 int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_dims_t *start,
                                      caterva_dims_t *stop, caterva_dims_t *d_pshape) {
+
+    CATERVA_UNUSED_PARAM(d_pshape);
 
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
