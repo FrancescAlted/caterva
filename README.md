@@ -24,3 +24,7 @@ cd examples/
 gcc -O -o simple.exe simple.c -lcaterva -lblosc
 ./simple.exe
 ```
+
+## Python wrapper
+
+Check the [cat4py](https://github.com/Blosc/cat4py) for a Pythonic wrapper of Caterva.
