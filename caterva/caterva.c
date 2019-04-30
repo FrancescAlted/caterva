@@ -252,7 +252,9 @@ int caterva_free_ctx(caterva_ctx_t *ctx) {
 int caterva_free_array(caterva_array_t *carr) {
     switch (carr->storage) {
         case CATERVA_STORAGE_BLOSC:
-            blosc2_free_schunk(carr->sc);
+            if (carr->sc != NULL) {
+                blosc2_free_schunk(carr->sc);
+            }
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
             if (carr->buf != NULL) {
