@@ -381,4 +381,16 @@ caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
 caterva_dims_t caterva_get_pshape(caterva_array_t *src);
 
+/**
+ * @brief Make a copy of the container data.
+ *
+ * The copy is done into \p dest container
+ *
+ * @param dest Pointer to the container where data is copied
+ * @param src Pointer to the container from which data is copied
+ * @return
+ */
+int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
+
+
 #endif

@@ -1029,3 +1029,25 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src) {
     pshape.ndim = src->ndim;
     return pshape;
 }
+
+int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
+    caterva_dims_t shape = caterva_new_dims(src->shape, src->ndim);
+    if (src->storage == CATERVA_STORAGE_PLAINBUFFER) {
+        if (dest->storage == CATERVA_STORAGE_PLAINBUFFER) {
+            caterva_update_shape(dest, &shape);
+            dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
+            memcpy(dest->buf, src->buf, dest->size * dest->ctx->cparams.typesize);
+        } else {
+            caterva_from_buffer(dest, &shape, src->buf);
+        }
+    } else {
+        if (dest->storage == CATERVA_STORAGE_PLAINBUFFER) {
+            caterva_update_shape(dest, &shape);
+            dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
+            caterva_to_buffer(src, dest->buf);
+        } else {
+            caterva_repart(dest, src);
+        }
+    }
+    return 0;
+}
