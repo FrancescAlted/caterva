@@ -125,6 +125,8 @@ typedef struct {
     //!< Size of padded data.
     int8_t ndim;
     //!< Data dimensions.
+    bool empty;
+    //!< Indicate if an array is empty or is filled with data.
     struct part_cache_s part_cache;
     //!< A block cache.
 } caterva_array_t;

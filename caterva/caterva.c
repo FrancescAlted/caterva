@@ -185,6 +185,8 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
     carr->ctx = (caterva_ctx_t *) ctx->alloc(sizeof(caterva_ctx_t));
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
 
+    carr->empty = true;
+
     return carr;
 }
 
@@ -241,6 +243,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     carr->part_cache.data = NULL;
     carr->part_cache.nchunk = -1;  // means no valid cache yet
 
+    carr->empty = false;
     return carr;
 }
 
@@ -270,6 +273,7 @@ int caterva_free_array(caterva_array_t *carr) {
 
 
 int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
+    carr->empty = false;
     if (carr->storage == CATERVA_STORAGE_BLOSC) {
         if (carr->ndim != shape->ndim) {
             printf("caterva array ndim and shape ndim are not equal\n");
