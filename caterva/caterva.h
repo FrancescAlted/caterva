@@ -127,10 +127,6 @@ typedef struct {
     //!< Data dimensions.
     bool empty;
     //!< Indicate if an array is empty or is filled with data.
-    bool filled;
-    //!< Indicate if an array is filled completely or not.
-    int64_t nblocks;
-    //!< Number of blocks append to the array.
     struct part_cache_s part_cache;
     //!< A block cache.
 } caterva_array_t;
@@ -206,17 +202,6 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, cater
  */
 
 int caterva_free_array(caterva_array_t *carr);
-
-
-/**
- * Append a block to a caterva container
- * @param carr
- * @param part
- * @param partsize
- * @return
- */
-
-int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
 
 
 /**
