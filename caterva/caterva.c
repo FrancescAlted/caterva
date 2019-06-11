@@ -186,7 +186,8 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
 
     carr->empty = true;
-
+    carr->filled = false;
+    carr->nblocks = 0;
     return carr;
 }
 
@@ -329,8 +330,42 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
     return 0;
 }
 
-// Fill a caterva array from a C buffer
-// The caterva array must be empty at the begining
+int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
+    if (partsize != carr->psize) {
+        return -1;
+    }
+    if (carr->filled) {
+        return -1;
+    }
+
+    if (carr->storage == CATERVA_STORAGE_BLOSC) {
+        blosc2_schunk_append_buffer(carr->sc, part, partsize * carr->sc->typesize);
+    } else {
+        if (carr->nblocks == 0) {
+            carr->buf = malloc(carr->size * (size_t) carr->ctx->cparams.typesize);
+        }
+        int64_t start_[CATERVA_MAXDIM], stop_[CATERVA_MAXDIM];
+
+        for (int i = 0; i < carr->ndim; ++i) {
+            start_[i] = 0;
+            stop_[i] = start_[i] + carr->pshape[i];
+        }
+
+        caterva_dims_t start = caterva_new_dims(start_, carr->ndim);
+        caterva_dims_t stop = caterva_new_dims(stop_, carr->ndim);
+
+        caterva_set_slice_buffer(carr, part, &start, &stop);
+    }
+    carr->nblocks++;
+
+    if (carr->nblocks == carr->esize / carr->psize) {
+        carr->filled = true;
+    }
+
+    return 0;
+}
+
+
 int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src) {
 
     int8_t *s_b = (int8_t *) src;
