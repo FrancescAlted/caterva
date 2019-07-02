@@ -467,7 +467,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
         dest->buf = malloc(dest->size * (size_t) dest->ctx->cparams.typesize);
         memcpy(dest->buf, src, dest->size * (size_t) dest->ctx->cparams.typesize);
     }
-
+    dest->filled = true;
     return 0;
 }
 
