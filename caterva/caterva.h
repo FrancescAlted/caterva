@@ -385,6 +385,7 @@ int caterva_update_shape(caterva_array_t *src, caterva_dims_t *shape);
  *
  * @return The block shape of the caterva array
  */
+
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
 
@@ -407,6 +408,8 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src);
  * @param src Pointer to the container from which data is copied
  * @return
  */
+
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src);
+
 
 #endif
