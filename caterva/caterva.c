@@ -432,7 +432,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
         dest->buf = malloc(dest->size * (size_t) dest->ctx->cparams.typesize);
         memcpy(dest->buf, src, dest->size * (size_t) dest->ctx->cparams.typesize);
     }
-
+    dest->filled = true;
     return 0;
 }
 
@@ -876,9 +876,6 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     if (start->ndim != src->ndim) {
         return -1;
     }
-    if (src->storage != dest->storage) {
-        return -1;
-    }
 
     caterva_ctx_t *ctx = src->ctx;
     int typesize = ctx->cparams.typesize;
@@ -895,7 +892,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     caterva_dims_t shape = caterva_new_dims(shape_, start->ndim);
     caterva_update_shape(dest, &shape);
 
-    if (src->storage == CATERVA_STORAGE_BLOSC) {
+    if (dest->storage == CATERVA_STORAGE_BLOSC) {
 
         uint8_t *chunk = ctx->alloc((size_t) dest->psize * typesize);
 
@@ -960,7 +957,8 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
             size *= stop->dims[i] - start->dims[i];
         }
         dest->buf = malloc(size * typesize);
-        caterva_get_slice_buffer(dest->buf, src, start, stop, NULL);
+
+        caterva_get_slice_buffer(dest->buf, src, start, stop, &shape);
     }
     return 0;
 }
