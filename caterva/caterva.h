@@ -133,6 +133,7 @@ typedef struct {
     //!< Number of blocks append to the array.
     struct part_cache_s part_cache;
     //!< A block cache.
+
 } caterva_array_t;
 
 
