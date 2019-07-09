@@ -32,7 +32,7 @@ caterva_ctx_t *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *),
     return ctx;
 }
 
-caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim) {
+caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim) {
     caterva_dims_t dims_s = CATERVA_DIMS_DEFAULTS;
     for (int i = 0; i < ndim; ++i) {
         dims_s.dims[i] = dims[i];
@@ -43,7 +43,7 @@ caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim) {
 
 // Serialize the partition params
 // TODO: use big-endian to encode ints
-static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int64_t *pshape, uint8_t **smeta) {
+static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape, uint8_t **smeta) {
     int32_t max_smeta_len = 116;  // 4 + MAX_DIM * (1 + sizeof(int64_t)) + MAX_DIM * (1 + sizeof(int32_t))
     *smeta = malloc((size_t)max_smeta_len);
     uint8_t *pmeta = *smeta;
@@ -187,7 +187,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
 
     carr->empty = true;
     carr->filled = false;
-    carr->nblocks = 0;
+    carr->nparts = 0;
     return carr;
 }
 
@@ -341,7 +341,7 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
     if (carr->storage == CATERVA_STORAGE_BLOSC) {
         blosc2_schunk_append_buffer(carr->sc, part, partsize * carr->sc->typesize);
     } else {
-        if (carr->nblocks == 0) {
+        if (carr->nparts == 0) {
             carr->buf = malloc(carr->size * (size_t) carr->ctx->cparams.typesize);
         }
         int64_t start_[CATERVA_MAXDIM], stop_[CATERVA_MAXDIM];
@@ -356,9 +356,9 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
 
         caterva_set_slice_buffer(carr, part, &start, &stop);
     }
-    carr->nblocks++;
+    carr->nparts++;
 
-    if (carr->nblocks == carr->esize / carr->psize) {
+    if (carr->nparts == carr->esize / carr->psize) {
         carr->filled = true;
     }
 

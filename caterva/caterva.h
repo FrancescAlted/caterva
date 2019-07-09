@@ -113,14 +113,14 @@ typedef struct {
     //!< Only is used if \p storage equals to \p #CATERVA_STORAGE_PLAINBUFFER.
     int64_t shape[CATERVA_MAXDIM];
     //!< Shape of original data.
-    int64_t pshape[CATERVA_MAXDIM];
-    //!< Shape of each block.
+    int32_t pshape[CATERVA_MAXDIM];
+    //!< Shape of each partition.
     int64_t eshape[CATERVA_MAXDIM];
     //!< Shape of padded data.
     int64_t size;
     //!< Size of original data.
-    int64_t psize;
-    //!< Size of each block.
+    int32_t psize;
+    //!< Size of each partition.
     int64_t esize;
     //!< Size of padded data.
     int8_t ndim;
@@ -128,11 +128,11 @@ typedef struct {
     bool empty;
     //!< Indicate if an array is empty or is filled with data.
     bool filled;
-    //!< Indicate if an array is filled completely or not.
-    int64_t nblocks;
-    //!< Number of blocks append to the array.
+    //!< Indicate if an array is completely filled or not.
+    int64_t nparts;
+    //!< Number of partitions in the array.
     struct part_cache_s part_cache;
-    //!< A block cache.
+    //!< A partition cache.
 
 } caterva_array_t;
 
@@ -173,13 +173,13 @@ int caterva_free_ctx(caterva_ctx_t *ctx);
  * @return The caterva dimensions vector created
  */
 
-caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
+caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
 
 
 /**
  * @brief Create a caterva empty container
  *
- * When a container is created, only the block shape, the storage type and the context are defined.
+ * When a container is created, only the partition shape, the storage type and the context are defined.
  * It should be noted that the shape is defined when a container is filled and not when it is created.
  *
  * If \p pshape is \c NULL, the data container will be stored using a plain buffer.
@@ -190,7 +190,7 @@ caterva_dims_t caterva_new_dims(int64_t *dims, int8_t ndim);
  *
  * @param ctx Pointer to the caterva context to be used
  * @param fr Pointer to the blosc frame used to store data on disk
- * @param pshape The shape of each block
+ * @param pshape The shape of each partition
  *
  * @return A pointer to the empty caterva container created
  */
@@ -210,7 +210,7 @@ int caterva_free_array(caterva_array_t *carr);
 
 
 /**
- * Append a block to a caterva container
+ * Append a partition to a caterva container (until it is completely filled)
  * @param carr
  * @param part
  * @param partsize
@@ -285,13 +285,13 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
 
 
 /**
- * @brief Change the block of a caterva container
+ * @brief Repartition a caterva container
  *
  * It can only be used if the container is based on a blosc superchunk since it is the only one
- * that has the concept of block.
+ * that has the concept of partition.
  *
- * @param dest Pointer to the empty container with the new block shape.
- * @param src Pointer to the container to be reblocked.
+ * @param dest Pointer to the empty container with the new partition shape.
+ * @param src Pointer to the container to be repartitioned.
  *
  * @return An error code
  */
@@ -382,20 +382,20 @@ int caterva_update_shape(caterva_array_t *src, caterva_dims_t *shape);
 /**
  * @brief Get the shape of a caterva array
  *
- * @param src pointer to the container from which the block shape will be obtained
+ * @param src pointer to the container from which the partition shape will be obtained
  *
- * @return The block shape of the caterva array
+ * @return The partition shape of the caterva array
  */
 
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
 
 /**
- * @brief Get the block shape of a caterva array
+ * @brief Get the partition shape of a caterva array
  *
- * @param src pointer to the container from which the block shape will be obtained
+ * @param src pointer to the container from which the partition shape will be obtained
  *
- * @return The block shape of the caterva array
+ * @return The partition shape of the caterva array
  */
 
 caterva_dims_t caterva_get_pshape(caterva_array_t *src);
@@ -407,7 +407,8 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src);
  *
  * @param dest Pointer to the container where data is copied
  * @param src Pointer to the container from which data is copied
- * @return
+ *
+ * @return An error code.
  */
 
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src);
