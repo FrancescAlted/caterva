@@ -148,7 +148,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
         carr->storage = CATERVA_STORAGE_BLOSC;
         carr->ndim = pshape->ndim;
         for (unsigned int i = 0; i < CATERVA_MAXDIM; i++) {
-            carr->pshape[i] = pshape->dims[i];
+            carr->pshape[i] = (int32_t)(pshape->dims[i]);
             carr->shape[i] = 1;
             carr->eshape[i] = 1;
             carr->psize *= carr->pshape[i];
@@ -229,8 +229,8 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     for (int i = 0; i < CATERVA_MAXDIM; i++) {
         carr->shape[i] = shape.dims[i];
         carr->size *= shape.dims[i];
-        carr->pshape[i] = pshape.dims[i];
-        carr->psize *= pshape.dims[i];
+        carr->pshape[i] = (int32_t)(pshape.dims[i]);
+        carr->psize *= carr->pshape[i];
         if (shape.dims[i] % pshape.dims[i] == 0) {
             // The case for shape.dims[i] == 1 and pshape.dims[i] == 1 is handled here
             carr->eshape[i] = shape.dims[i];
@@ -320,7 +320,7 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
             carr->shape[i] = shape->dims[i];
             carr->eshape[i] = shape->dims[i];
-            carr->pshape[i] = shape->dims[i];
+            carr->pshape[i] = (int32_t)(shape->dims[i]);
             carr->size *= carr->shape[i];
             carr->esize *= carr->eshape[i];
             carr->psize *= carr->pshape[i];
@@ -1017,7 +1017,7 @@ int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
 int caterva_squeeze(caterva_array_t *src) {
     uint8_t nones = 0;
     int64_t newshape_[CATERVA_MAXDIM];
-    int64_t newpshape_[CATERVA_MAXDIM];
+    int32_t newpshape_[CATERVA_MAXDIM];
 
     if (src->storage == CATERVA_STORAGE_BLOSC) {
 
