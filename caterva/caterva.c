@@ -783,8 +783,7 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
                                         buf_pointer += (jj[i] - start_[i]) * buf_pointer_inc;
                                         buf_pointer_inc *= d_pshape_[i];
                                     }
-                                    //printf("d_pshape_: %llu\n", d_pshape_[6]);
-                                    //printf("chunk pointer: %llu, buf pointer: %llu\n", chunk_pointer, buf_pointer);
+
                                     memcpy(&bdest[buf_pointer * src->ctx->cparams.typesize],
                                            &src->buf[chunk_pointer * src->ctx->cparams.typesize],
                                            (stop_[7] - start_[7]) * src->ctx->cparams.typesize);
