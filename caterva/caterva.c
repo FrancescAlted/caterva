@@ -754,12 +754,11 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
             stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop->dims[i];
             d_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = (stop->dims[i] - start->dims[i]);
             s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape.dims[i];
+            d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = d_pshape->dims[i];
         }
 
         for (int j = 0; j < CATERVA_MAXDIM - s_ndim; ++j) {
             start_[j] = 0;
-            d_pshape_[(CATERVA_MAXDIM - s_ndim + j) % CATERVA_MAXDIM] = (stop_[j] - start_[j]);
-
         }
 
         int64_t jj[CATERVA_MAXDIM];
@@ -782,9 +781,10 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
                                     int64_t buf_pointer_inc = 1;
                                     for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
                                         buf_pointer += (jj[i] - start_[i]) * buf_pointer_inc;
-                                        buf_pointer_inc *= d_shape[i];
+                                        buf_pointer_inc *= d_pshape_[i];
                                     }
-
+                                    //printf("d_pshape_: %llu\n", d_pshape_[6]);
+                                    //printf("chunk pointer: %llu, buf pointer: %llu\n", chunk_pointer, buf_pointer);
                                     memcpy(&bdest[buf_pointer * src->ctx->cparams.typesize],
                                            &src->buf[chunk_pointer * src->ctx->cparams.typesize],
                                            (stop_[7] - start_[7]) * src->ctx->cparams.typesize);
