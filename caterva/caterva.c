@@ -803,7 +803,7 @@ int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_
     CATERVA_UNUSED_PARAM(d_pshape);
 
     int64_t start_[CATERVA_MAXDIM];
-    int64_t stop_[CATERVA_MAXDIM];  // TODO: the gcc compiler about this as unused ...
+    int64_t stop_[CATERVA_MAXDIM];  // TODO: the gcc compiler warns about this as unused ...
     int8_t s_ndim = src->ndim;
 
     caterva_dims_t shape = caterva_get_shape(src);
