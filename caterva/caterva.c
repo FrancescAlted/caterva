@@ -806,23 +806,18 @@ int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_
 
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
-    int64_t d_pshape_[CATERVA_MAXDIM];
     int8_t s_ndim = src->ndim;
 
     caterva_dims_t shape = caterva_get_shape(src);
-    int64_t d_shape[CATERVA_MAXDIM];
     int64_t s_shape[CATERVA_MAXDIM];
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
         start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start->dims[i];
         stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop->dims[i];
-        d_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = (stop->dims[i] - start->dims[i]);
         s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape.dims[i];
     }
 
     for (int j = 0; j < CATERVA_MAXDIM - s_ndim; ++j) {
         start_[j] = 0;
-        d_pshape_[(CATERVA_MAXDIM - s_ndim + j) % CATERVA_MAXDIM] = (stop_[j] - start_[j]);
-
     }
 
     int64_t chunk_pointer = 0;
