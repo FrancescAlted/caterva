@@ -747,12 +747,10 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
         }
     } else {
         caterva_dims_t shape = caterva_get_shape(src);
-        int64_t d_shape[CATERVA_MAXDIM];
         int64_t s_shape[CATERVA_MAXDIM];
         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
             start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start->dims[i];
             stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop->dims[i];
-            d_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = (stop->dims[i] - start->dims[i]);
             s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape.dims[i];
             d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = d_pshape->dims[i];
         }
@@ -805,7 +803,7 @@ int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_
     CATERVA_UNUSED_PARAM(d_pshape);
 
     int64_t start_[CATERVA_MAXDIM];
-    int64_t stop_[CATERVA_MAXDIM];
+    int64_t stop_[CATERVA_MAXDIM];  // TODO: the gcc compiler about this as unused ...
     int8_t s_ndim = src->ndim;
 
     caterva_dims_t shape = caterva_get_shape(src);
