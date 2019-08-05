@@ -518,6 +518,7 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value) {
             }
         }
     }
+    dest->filled = true;
     return 0;
 }
 
