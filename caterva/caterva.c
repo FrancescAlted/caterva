@@ -11,7 +11,6 @@
 
 #include "caterva.h"
 #include <string.h>
-#include "caterva.h"
 #include "assert.h"
 
 caterva_ctx_t *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *), blosc2_cparams cparams, blosc2_dparams dparams) {
@@ -207,9 +206,9 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     carr->storage = CATERVA_STORAGE_BLOSC;
 
     blosc2_dparams *dparams;
-    blosc2_get_dparams(carr->sc, &dparams);
+    blosc2_schunk_get_dparams(carr->sc, &dparams);
     blosc2_cparams *cparams;
-    blosc2_get_cparams(carr->sc, &cparams);
+    blosc2_schunk_get_cparams(carr->sc, &cparams);
 
     memcpy(&carr->ctx->dparams, dparams, sizeof(blosc2_dparams));
     memcpy(&carr->ctx->cparams, cparams, sizeof(blosc2_cparams));
@@ -490,7 +489,7 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value) {
             }
         }
 
-        int64_t nchunk = dest->esize / dest->psize;
+        int nchunk = (int)(dest->esize / dest->psize);
 
         for (int i = 0; i < nchunk; ++i) {
             blosc2_schunk_append_buffer(dest->sc, chunk, (size_t) dest->psize * dest->sc->typesize);
@@ -499,7 +498,7 @@ int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value) {
         free(chunk);
     } else {
         dest->buf = malloc(dest->size * (size_t) dest->ctx->cparams.typesize);
-        for (int i = 0; i < dest->size; ++i) {
+        for (int64_t i = 0; i < dest->size; ++i) {
             switch (dest->ctx->cparams.typesize) {
                 case 8:
                     ((uint64_t *) dest->buf)[i] = *(uint64_t *) value;
