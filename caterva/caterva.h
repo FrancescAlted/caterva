@@ -22,7 +22,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <blosc.h>
+#include <blosc2.h>
 
 #define CATERVA_MAXDIM 8
 
