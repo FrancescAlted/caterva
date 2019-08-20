@@ -53,7 +53,7 @@ static void msg_start(const char *title) {
 }
 
 static void msg_end(void) {
-    print_errormsg("");
+    print_errormsg(" ");
 }
 
 void LWTEST_ERR(const char *fmt, ...) {
@@ -143,7 +143,6 @@ int lwtest_main(int argc, const char *argv[]) {
                     num_fail++;
                 }
 
-                printf("");
                 if (lwtest_errorsize != MSG_SIZE - 1) printf("%s", lwtest_errorbuffer);
             }
             printf("\n");
