@@ -11,13 +11,43 @@ cmake_minimum_required(VERSION 2.8.10)
 
 project(caterva)
 
+option(SHARED_LIB "Create shared library" ON)
+option(STATIC_LIB "Create static library" OFF)
+
 set(CATERVA_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(CATERVA_SRC ${CMAKE_CURRENT_LIST_DIR}/caterva)
+
+if (SHARED_LIB)
+    set(CATERVA_LIB caterva_shared)
+elseif(STATIC_LIB)
+    set(CATERVA_LIB caterva_static)
+else()
+    error("No library is created")
+endif ()
+
 include_directories(${CATERVA_SRC})
 
-add_library(caterva STATIC ${CATERVA_SRC}/caterva.c)
+if (SHARED_LIB)
+    add_library(caterva_shared SHARED ${CATERVA_SRC}/caterva.c)
+    find_library(DEP_LIB blosc)
+    if(NOT DEP_LIB)
+        message(FATAL_ERROR "blosc library not found")
+    endif()
+    target_link_libraries(caterva_shared blosc)
+    set_target_properties(caterva_shared PROPERTIES OUTPUT_NAME caterva)
+    install(TARGETS caterva_shared DESTINATION lib)
+endif ()
 
-install(TARGETS caterva DESTINATION lib)
+if (STATIC_LIB)
+    add_library(caterva_static STATIC ${CATERVA_SRC}/caterva.c)
+    find_library(DEP_LIB blosc)
+    if(NOT DEP_LIB)
+        message(FATAL_ERROR "blosc library not found")
+    endif()
+    target_link_libraries(caterva_static blosc)
+    set_target_properties(caterva_static PROPERTIES OUTPUT_NAME caterva)
+    install(TARGETS caterva_static DESTINATION lib)
+endif()
 
 install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 
