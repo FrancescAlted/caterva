@@ -470,56 +470,6 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
     return 0;
 }
 
-int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value) {
-
-    caterva_update_shape(dest, shape);
-
-    if (dest->storage == CATERVA_STORAGE_BLOSC) {
-        uint8_t *chunk = malloc((size_t) dest->psize * dest->sc->typesize);
-
-        for (int64_t i = 0; i < dest->psize; ++i) {
-            if (dest->sc->typesize == 1) {
-                chunk[i] = *(uint8_t *) value;
-            } else if (dest->sc->typesize == 2) {
-                ((uint16_t *) chunk)[i] = *(uint16_t *) value;
-            } else if (dest->sc->typesize == 4) {
-                ((uint32_t *) chunk)[i] = *(uint32_t *) value;
-            } else {
-                ((int64_t *) chunk)[i] = *(int64_t *) value;
-            }
-        }
-
-        int nchunk = (int)(dest->esize / dest->psize);
-
-        for (int i = 0; i < nchunk; ++i) {
-            blosc2_schunk_append_buffer(dest->sc, chunk, (size_t) dest->psize * dest->sc->typesize);
-        }
-
-        free(chunk);
-    } else {
-        dest->buf = malloc(dest->size * (size_t) dest->ctx->cparams.typesize);
-        for (int64_t i = 0; i < dest->size; ++i) {
-            switch (dest->ctx->cparams.typesize) {
-                case 8:
-                    ((uint64_t *) dest->buf)[i] = *(uint64_t *) value;
-                    break;
-                case 4:
-                    ((uint32_t *) dest->buf)[i] = *(uint32_t *) value;
-                    break;
-                case 2:
-                    ((uint16_t *) dest->buf)[i] = *(uint16_t *) value;
-                    break;
-                case 1:
-                    ((uint8_t *) dest->buf)[i] = *(uint8_t *) value;
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    dest->filled = true;
-    return 0;
-}
 
 int caterva_to_buffer(caterva_array_t *src, void *dest) {
 
