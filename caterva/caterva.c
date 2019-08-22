@@ -1011,6 +1011,7 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src) {
     return pshape;
 }
 
+
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
     caterva_dims_t shape = caterva_new_dims(src->shape, src->ndim);
     if (src->storage == CATERVA_STORAGE_PLAINBUFFER) {
