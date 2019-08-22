@@ -247,19 +247,6 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
 
 
 /**
- * @brief Fill a caterva container with a value
- *
- * @param dest Pointer to the container that is filled
- * @param shape The shape of the container
- * @param value The value with which the container is going to be filled
- *
- * @return An error code
- */
-
-int caterva_fill(caterva_array_t *dest, caterva_dims_t *shape, void *value);
-
-
-/**
  * @brief Extract the data into a C buffer from a caterva container
  *
  * @param src Pointer to the container from which the data will be obtained
