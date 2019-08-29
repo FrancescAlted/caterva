@@ -14,7 +14,7 @@
 int main(){
 
     // Create a context
-    caterva_ctx_t *ctx = caterva_new_ctx(NULL, NULL, BLOSC_CPARAMS_DEFAULTS, BLOSC_DPARAMS_DEFAULTS);
+    caterva_ctx_t *ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     ctx->cparams.typesize = sizeof(double);
 
     // Define the pshape for the first array

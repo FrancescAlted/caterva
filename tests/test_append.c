@@ -32,7 +32,7 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
         for (int i = 0; i < src->psize; ++i) {
             buffer[i] = ind;
         }
-        res = caterva_append(src, buffer, src->psize);
+        res = caterva_append(src, buffer, src->psize * src->ctx->cparams.typesize);
         ind++;
     }
 
@@ -56,7 +56,7 @@ LWTEST_DATA(append) {
 };
 
 LWTEST_SETUP(append) {
-    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC_CPARAMS_DEFAULTS, BLOSC_DPARAMS_DEFAULTS);
+    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     data->ctx->cparams.typesize = sizeof(double);
 }
 

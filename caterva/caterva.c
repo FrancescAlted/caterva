@@ -153,9 +153,11 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
             carr->psize *= carr->pshape[i];
         }
 
+        blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
+        
         if (frame != NULL) {
             // Serialize the dimension info in the associated frame
-            if (frame->nmetalayers >= BLOSC2_MAX_METALAYERS) {
+            if (sc->nmetalayers >= BLOSC2_MAX_METALAYERS) {
                 fprintf(stderr, "the number of metalayers for this frame has been exceeded\n");
                 return NULL;
             }
@@ -166,7 +168,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
                 return NULL;
             }
             // And store it in caterva metalayer
-            int retcode = blosc2_frame_add_metalayer(frame, "caterva", smeta, (uint32_t)smeta_len);
+            int retcode = blosc2_add_metalayer(sc, "caterva", smeta, (uint32_t)smeta_len);
             if (retcode < 0) {
                 return NULL;
             }
@@ -174,7 +176,6 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
         }
 
         /* Create a schunk (for a frame-disk-backed one, this implies serializing the header on-disk */
-        blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
         carr->sc = sc;
     } else {
         carr->storage = CATERVA_STORAGE_PLAINBUFFER;
@@ -218,7 +219,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     caterva_dims_t pshape;
     uint8_t *smeta;
     uint32_t smeta_len;
-    blosc2_frame_get_metalayer(frame, "caterva", &smeta, &smeta_len);
+    blosc2_get_metalayer(sc, "caterva", &smeta, &smeta_len);
     deserialize_meta(smeta, smeta_len, &shape, &pshape);
     carr->size = 1;
     carr->psize = 1;
@@ -307,7 +308,7 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
                 return -1;
             }
             // ... and update it in its metalayer
-            int retcode = blosc2_frame_update_metalayer(frame, "caterva", smeta, (uint32_t) smeta_len);
+            int retcode = blosc2_update_metalayer(carr->sc, "caterva", smeta, (uint32_t) smeta_len);
             if (retcode < 0) {
                 return -1;
             }
