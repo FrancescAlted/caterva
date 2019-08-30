@@ -211,10 +211,14 @@ int caterva_free_array(caterva_array_t *carr);
 
 /**
  * Append a partition to a caterva container (until it is completely filled)
- * @param carr
- * @param part
- * @param partsize
- * @return
+ *
+ * @param carr Pointer to the container where data will be appended
+ *
+ * @param part A pointer to the buffer where data is stored
+ *
+ * @param partsize Size (in bytes) of the buffer
+ *
+ * @return An error code
  */
 
 int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
@@ -267,7 +271,7 @@ int caterva_to_buffer(caterva_array_t *src, void *dest);
  * @param src Pointer to the container from which the slice will be obtained
  * @param start The coordinates where the slice will begin
  * @param stop The coordinates where the slice will end
- * @return
+ * @return An error code
  */
 
 int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
@@ -308,7 +312,7 @@ int caterva_squeeze(caterva_array_t *src);
  * @param src Pointer to the container from which the slice will be extracted
  * @param start The coordinates where the slice will begin
  * @param stop The coordinates where the slice will end
- * @param d_pshape ?
+ * @param d_pshape The partition shape of the buffer
  * @return An error code
  */
 
@@ -329,7 +333,7 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
  * @param src Pointer to the container from which the slice will be extracted
  * @param start The coordinates where the slice will begin
  * @param stop The coordinates where the slice will end
- * @param d_pshape ?
+ * @param d_pshape The partition shape of the buffer
  *
  * @return An error code
  */
