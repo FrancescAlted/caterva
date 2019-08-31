@@ -31,7 +31,6 @@
 /**
  * @brief Formats to store #caterva_array_t data.
  */
-
 typedef enum {
     CATERVA_STORAGE_BLOSC,
     //!< Indicates that data is stored using a Blosc superchunk.
@@ -46,7 +45,6 @@ typedef enum {
  * In parenthesis it is shown the default value used internally when a \c NULL value is passed to the
  * constructor.
  */
-
 typedef struct {
     void *(*alloc)(size_t);
     //!< The allocation memory function used internally (malloc)
@@ -62,7 +60,6 @@ typedef struct {
 /**
  * @brief A dimensions vector that can represent shapes or points
  */
-
 typedef struct {
     int64_t dims[CATERVA_MAXDIM];
     //!< The size of each dimension
@@ -74,7 +71,6 @@ typedef struct {
 /**
  * @brief Default caterva dimensions vector
  */
-
 static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
     .dims = {1, 1, 1, 1, 1, 1, 1, 1},
     .ndim = 1
@@ -87,7 +83,6 @@ static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
  * When a block is needed, it is copied into this cache. In this way, if the same block is needed
  * again afterwards, it is not necessary to recover it because it is already in the cache.
  */
-
 struct part_cache_s {
     uint8_t *data;
     //!< Pointer to the block data.
@@ -99,7 +94,6 @@ struct part_cache_s {
 /**
  * @brief A multidimensional container that allows compressed data.
  */
-
 typedef struct {
     caterva_ctx_t *ctx;
     //!< Caterva context
@@ -147,7 +141,6 @@ typedef struct {
  *
  * @return A pointer to the new caterva context. \p NULL is returned if this fails.
  */
-
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
 
@@ -158,7 +151,6 @@ caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc
  *
  * @return An error code
  */
-
 int caterva_free_ctx(caterva_ctx_t *ctx);
 
 
@@ -172,7 +164,6 @@ int caterva_free_ctx(caterva_ctx_t *ctx);
  *
  * @return The caterva dimensions vector created
  */
-
 caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
 
 
@@ -194,7 +185,6 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
  *
  * @return A pointer to the empty caterva container created
  */
-
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t *pshape);
 
 
@@ -205,7 +195,6 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, cater
  *
  * @return An error code
  */
-
 int caterva_free_array(caterva_array_t *carr);
 
 
@@ -220,7 +209,6 @@ int caterva_free_array(caterva_array_t *carr);
  *
  * @return An error code
  */
-
 int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
 
 
@@ -233,7 +221,6 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
  *
  * @return A pointer to the caterva container read from disk
  */
-
 caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename);
 
 
@@ -246,7 +233,6 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename);
  *
  * @return An error code
  */
-
 int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src);
 
 
@@ -259,8 +245,6 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
  *
  * @return An error code
  */
-
-
 int caterva_to_buffer(caterva_array_t *src, void *dest);
 
 
@@ -273,7 +257,6 @@ int caterva_to_buffer(caterva_array_t *src, void *dest);
  * @param stop The coordinates where the slice will end
  * @return An error code
  */
-
 int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
 
 
@@ -288,7 +271,6 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
  *
  * @return An error code
  */
-
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
 
 
@@ -301,7 +283,6 @@ int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
  *
  * @return An error code
  */
-
 int caterva_squeeze(caterva_array_t *src);
 
 
@@ -315,7 +296,6 @@ int caterva_squeeze(caterva_array_t *src);
  * @param d_pshape The partition shape of the buffer
  * @return An error code
  */
-
 int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
                              caterva_dims_t *stop, caterva_dims_t *d_pshape);
 
@@ -337,7 +317,6 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
  *
  * @return An error code
  */
-
 int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_dims_t *start,
                                      caterva_dims_t *stop, caterva_dims_t *d_pshape);
 
@@ -354,7 +333,6 @@ int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_
  *
  * @return An error code
  */
-
 int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *start,
                              caterva_dims_t *stop);
 
@@ -369,8 +347,8 @@ int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *s
  *
  * @return An error code
  */
-
 int caterva_update_shape(caterva_array_t *src, caterva_dims_t *shape);
+
 
 /**
  * @brief Get the shape of a caterva array
@@ -379,7 +357,6 @@ int caterva_update_shape(caterva_array_t *src, caterva_dims_t *shape);
  *
  * @return The partition shape of the caterva array
  */
-
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
 
@@ -390,8 +367,8 @@ caterva_dims_t caterva_get_shape(caterva_array_t *src);
  *
  * @return The partition shape of the caterva array
  */
-
 caterva_dims_t caterva_get_pshape(caterva_array_t *src);
+
 
 /**
  * @brief Make a copy of the container data.
@@ -403,7 +380,6 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src);
  *
  * @return An error code.
  */
-
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src);
 
 
