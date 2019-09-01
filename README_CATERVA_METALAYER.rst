@@ -10,19 +10,19 @@ Caterva metalayer follows the msgpack format::
     |---|---|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|
       ^   ^   ^                     ^
       |   |   |                     |
-      |   |   |                     +--[msgpack] positive fixnum for the number of dimensions (up to 127)
+      |   |   |                     +--[msgpack] positive fixnum for the number of dimensions (nd, up to 127)
       |   |   +---[msgpack] fixarray with X=nd elements
-      |   +------[msgpack] positive fixnum for the number of dimensions (up to 127)
+      |   +------[msgpack] positive fixnum for the number of dimensions (nd, up to 127)
       +---[msgpack] fixarray with X=3 elements
 
 The shape section
 -----------------
 
-This section is meant to store the actual shape info::
+This section is meant to store the actual shape info.  There are as many fields as `nd` dimensions::
 
-    |---|~~8 bytes~~~|---|~~8 bytes~~~|~~~~~|---|~~8 bytes~~~|
+    |---|--8 bytes---|---|--8 bytes---|~~~~~|---|--8 bytes---|
     | cf| first_dim  | cf| second_dim | ... | cf| last_dim   |
-    |---|~~~~~~~~~~~~|---|~~~~~~~~~~~~|~~~~~|---|~~~~~~~~~~~~|
+    |---|------------|---|------------|~~~~~|---|------------|
       ^                ^                      ^
       |                |                      |
       |                |                      +--[msgpack] uint64
@@ -32,14 +32,13 @@ This section is meant to store the actual shape info::
 The partshape section
 ---------------------
 
-This section is meant to store the actual partition shape info::
+This section is meant to store the actual partition shape info.  There are as many fields as `nd` dimensions::
 
-    |---|~~~~~~~~~~~~|---|~~~~~~~~~~~~|~~~~~|---|~~~~~~~~~~~~|
+    |---|--4 bytes---|---|--4 bytes---|~~~~~|---|--4 bytes---|
     | d2| first_dim  | d2| second_dim | ... | d2| last_dim   |
-    |---|~~~~~~~~~~~~|---|~~~~~~~~~~~~|~~~~~|---|~~~~~~~~~~~~|
+    |---|------------|---|------------|~~~~~|---|------------|
       ^                ^                      ^
       |                |                      |
       |                |                      +--[msgpack] int32
       |                +------[msgpack] int32
       +---[msgpack] int32
-
