@@ -40,7 +40,6 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim) {
     return dims_s;
 }
 
-// Serialize the partition params
 // TODO: use big-endian to encode ints
 static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape, uint8_t **smeta) {
     int32_t max_smeta_len = 116;  // 4 + MAX_DIM * (1 + sizeof(int64_t)) + MAX_DIM * (1 + sizeof(int32_t))
@@ -79,7 +78,6 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     return slen;
 }
 
-// Serialize the partition params
 // TODO: decode big-endian ints to native endian
 static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims_t *shape, caterva_dims_t *pshape) {
     uint8_t *pmeta = smeta;
@@ -154,7 +152,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
         }
 
         blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
-        
+
         if (frame != NULL) {
             // Serialize the dimension info in the associated frame
             if (sc->nmetalayers >= BLOSC2_MAX_METALAYERS) {

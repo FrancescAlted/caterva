@@ -127,7 +127,6 @@ typedef struct {
     //!< Number of partitions in the array.
     struct part_cache_s part_cache;
     //!< A partition cache.
-
 } caterva_array_t;
 
 
