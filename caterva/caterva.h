@@ -24,9 +24,16 @@
 #include <stdlib.h>
 #include <blosc2.h>
 
+/* Version numbers */
+#define CATERVA_VERSION_MAJOR    0    /* for major interface/format changes  */
+#define CATERVA_VERSION_MINOR    1    /* for minor interface/format changes  */
+#define CATERVA_VERSION_RELEASE  1    /* for tweaks, bug-fixes, or development */
+
+#define CATERVA_VERSION_STRING   "0.1.1"  /* string version.  Sync with above! */
+#define CATERVA_VERSION_DATE     "2019-09-02"    /* date version */
+
 #define CATERVA_MAXDIM 8
 
-#define CATERVA_UNUSED_PARAM(x) ((void)(x))
 
 /**
  * @brief Formats to store #caterva_array_t data.
@@ -34,7 +41,7 @@
 typedef enum {
     CATERVA_STORAGE_BLOSC,
     //!< Indicates that data is stored using a Blosc superchunk.
-        CATERVA_STORAGE_PLAINBUFFER,
+    CATERVA_STORAGE_PLAINBUFFER,
     //!< Indicates that data is stored using a plain buffer.
 } caterva_storage_t;
 
