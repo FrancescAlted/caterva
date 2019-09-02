@@ -99,9 +99,7 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
     for (int8_t i = 0; i < ndim; i++) {
         *pmeta++ = 0xd3;  // int64
-        int64_t dim;
-        swap_store(&dim, shape + i, sizeof(int64_t));
-        memcpy(pmeta, &dim, sizeof(int64_t));
+        swap_store(pmeta, shape + i, sizeof(int64_t));
         pmeta += sizeof(int64_t);
     }
     assert(pmeta - *smeta < max_smeta_len);
@@ -110,9 +108,7 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
     for (int8_t i = 0; i < ndim; i++) {
         *pmeta++ = 0xd2;  // int32
-        int32_t pdim;
-        swap_store(&pdim, shape + i, sizeof(int32_t));
-        memcpy(pmeta, &pdim, sizeof(int32_t));
+        swap_store(pmeta, pshape + i, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - *smeta <= max_smeta_len);
@@ -147,9 +143,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
     for (int8_t i = 0; i < ndim; i++) {
         assert(*pmeta == 0xd3);   // int64
         pmeta += 1;
-        int64_t dim;
-        swap_store(&dim, pmeta, sizeof(int64_t));
-        shape->dims[i] = dim;
+        swap_store(shape->dims + i, pmeta, sizeof(int64_t));
         pmeta += sizeof(int64_t);
     }
     assert(pmeta - smeta < smeta_len);
@@ -162,9 +156,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
     for (int8_t i = 0; i < ndim; i++) {
         assert(*pmeta == 0xd2);  // int32
         pmeta += 1;
-        int32_t pdim;
-        swap_store(&pdim, pmeta, sizeof(int32_t));
-        pshape->dims[i] = (int64_t)pdim;
+        swap_store(pshape->dims + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - smeta <= smeta_len);
