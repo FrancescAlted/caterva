@@ -21,13 +21,13 @@ The shape section
 This section is meant to store the actual shape info.  There are as many fields as `nd` dimensions::
 
     |---|--8 bytes---|---|--8 bytes---|~~~~~|---|--8 bytes---|
-    | cf| first_dim  | cf| second_dim | ... | cf| last_dim   |
+    | d3| first_dim  | d3| second_dim | ... | d3| last_dim   |
     |---|------------|---|------------|~~~~~|---|------------|
       ^                ^                      ^
       |                |                      |
-      |                |                      +--[msgpack] uint64
-      |                +------[msgpack] uint64
-      +---[msgpack] uint64
+      |                |                      +--[msgpack] int64
+      |                +------[msgpack] int64
+      +---[msgpack] int64
 
 The partshape section
 ---------------------
