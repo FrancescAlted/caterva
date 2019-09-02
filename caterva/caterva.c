@@ -15,7 +15,7 @@
 
 
 // big <-> little-endian and store it in a memory position.  Sizes supported: 1, 2, 4, 8 bytes.
-void swap_store(void *dest, const void *pa, int size) {
+static void swap_store(void *dest, const void *pa, int size) {
   uint8_t* pa_ = (uint8_t*)pa;
   uint8_t* pa2_ = malloc((size_t)size);
   int i = 1;                    /* for big/little endian detection */
