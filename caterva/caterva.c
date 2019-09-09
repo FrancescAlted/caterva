@@ -86,12 +86,18 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim) {
 }
 
 static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape, uint8_t **smeta) {
-    int32_t max_smeta_len = 116;  // 4 + MAX_DIM * (1 + sizeof(int64_t)) + MAX_DIM * (1 + sizeof(int32_t))
+    // Allocate the maximum amount possible for Caterva metalayer
+    int32_t max_smeta_len = 1 + 1 + 1 + (1 + CATERVA_MAXDIM * (1 + sizeof(int64_t))) + \
+        (1 + CATERVA_MAXDIM * (1 + sizeof(int32_t))) + (1 + CATERVA_MAXDIM * (1 + sizeof(int32_t)));
     *smeta = malloc((size_t)max_smeta_len);
     uint8_t *pmeta = *smeta;
 
-    // Build an array with 3 entries (ndim, shape, pshape)
-    *pmeta++ = 0x90 + 3;
+    // Build an array with 5 entries (version, ndim, shape, pshape, bshape)
+    *pmeta++ = 0x90 + 5;
+
+    // version entry
+    *pmeta++ = CATERVA_METALAYER_VERSION;  // positive fixnum (7-bit positive integer)
+    assert(pmeta - *smeta < max_smeta_len);
 
     // ndim entry
     *pmeta++ = (uint8_t)ndim;  // positive fixnum (7-bit positive integer)
@@ -115,6 +121,16 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     }
     assert(pmeta - *smeta <= max_smeta_len);
 
+    // bshape entry
+    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
+    for (int8_t i = 0; i < ndim; i++) {
+        *pmeta++ = 0xd2;  // int32
+        // TODO: uncomment the line below when support for multidimensional bshapes would be ready
+        // swap_store(pmeta, bshape + i, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+    assert(pmeta - *smeta <= max_smeta_len);
+
     int32_t slen = (int32_t)(pmeta - *smeta);
     *smeta = realloc(*smeta, (size_t)slen);  // get rid of the excess of bytes allocated
 
@@ -124,8 +140,14 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
 static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims_t *shape, caterva_dims_t *pshape) {
     uint8_t *pmeta = smeta;
 
-    // Check that we have an array with 3 entries (ndim, shape, pshape)
-    assert(*pmeta == 0x90 + 3);
+    // Check that we have an array with 5 entries (version, ndim, shape, pshape, bshape)
+    assert(*pmeta == 0x90 + 5);
+    pmeta += 1;
+    assert(pmeta - smeta < smeta_len);
+
+    // version entry
+    int8_t version = pmeta[0];  // positive fixnum (7-bit positive integer)
+    assert (version <= CATERVA_METALAYER_VERSION);
     pmeta += 1;
     assert(pmeta - smeta < smeta_len);
 
@@ -159,6 +181,19 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
         assert(*pmeta == 0xd2);  // int32
         pmeta += 1;
         swap_store(pshape->dims + i, pmeta, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+    assert(pmeta - smeta <= smeta_len);
+
+    // bshape entry
+    // Initialize to ones, as required by Caterva
+    // for (int i = 0; i < CATERVA_MAXDIM; i++) bshape->dims[i] = 1;
+    assert(*pmeta == (uint8_t)(0x90) + ndim);  // fix array with ndim elements
+    pmeta += 1;
+    for (int8_t i = 0; i < ndim; i++) {
+        assert(*pmeta == 0xd2);  // int32
+        pmeta += 1;
+        // swap_store(bshape->dims + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - smeta <= smeta_len);
