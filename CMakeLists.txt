@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.8.10)
 project(caterva)
 
 option(SHARED_LIB "Create shared library" ON)
-option(STATIC_LIB "Create static library" OFF)
+option(STATIC_LIB "Create static library" ON)
 
 set(CATERVA_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(CATERVA_SRC ${CMAKE_CURRENT_LIST_DIR}/caterva)
