@@ -478,7 +478,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
             for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
                 desp[i] = ci % (aux[i]) / (aux[i + 1]) * d_pshape[i];
             }
-            /* Calculate if pad with 0 are needed in this chunk */
+            /* Calculate if padding with 0s is needed for this chunk */
             for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {
                 if (desp[i] + d_pshape[i] > d_shape[i]) {
                     r[i] = d_shape[i] - desp[i];
