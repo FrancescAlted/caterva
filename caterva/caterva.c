@@ -317,6 +317,13 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     carr->part_cache.nchunk = -1;  // means no valid cache yet
 
     carr->empty = false;
+
+    if (carr->sc->nchunks == carr->esize / carr->psize) {
+        carr->filled = true;
+    } else {
+        carr->filled = false;
+    }
+
     return carr;
 }
 
