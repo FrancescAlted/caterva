@@ -86,9 +86,9 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim) {
 }
 
 static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape, uint8_t **smeta) {
-    // Allocate the maximum amount possible for Caterva metalayer
-    int32_t max_smeta_len = 1 + 1 + 1 + (1 + CATERVA_MAXDIM * (1 + sizeof(int64_t))) + \
-        (1 + CATERVA_MAXDIM * (1 + sizeof(int32_t))) + (1 + CATERVA_MAXDIM * (1 + sizeof(int32_t)));
+    // Allocate space for Caterva metalayer
+    int32_t max_smeta_len = 1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) + \
+        (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t)));
     *smeta = malloc((size_t)max_smeta_len);
     uint8_t *pmeta = *smeta;
 
@@ -132,7 +132,6 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     assert(pmeta - *smeta <= max_smeta_len);
 
     int32_t slen = (int32_t)(pmeta - *smeta);
-    *smeta = realloc(*smeta, (size_t)slen);  // get rid of the excess of bytes allocated
 
     return slen;
 }
