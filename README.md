@@ -1,5 +1,10 @@
 # Caterva
 
+## What it is
+
+Caterva is both a C library and a format layer on top of Blosc2.  Here are the slides for a gentle [introductory talk to Caterva at EuroPython2019](http://blosc.org/docs/Caterva-Blosc2-SciPy2019.pdf).
+
+
 ## Installation
 
 ```
@@ -27,4 +32,4 @@ gcc -O -o simple.exe simple.c -lcaterva -lblosc
 
 ## Python wrapper
 
-Check the [cat4py](https://github.com/Blosc/cat4py) for a Pythonic wrapper of Caterva.
+Check the [cat4py](https://github.com/Blosc/cat4py) project for a Pythonic wrapper of Caterva.

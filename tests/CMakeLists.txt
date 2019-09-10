@@ -11,10 +11,10 @@ file(GLOB SOURCES test_*.c)
 
 add_executable(caterva_tests main.c ${SOURCES})
 if (BLOSC_LIB)
-    # Allow linking with Blosc2 from thrid-party libs without the need to install it
-    target_link_libraries(caterva_tests caterva blosc2_static)
+    # Allow linking with Blosc from IronArray without the need to install it
+    target_link_libraries(caterva_tests ${CATERVA_LIB} blosc2_static)
 else(BLOSC_LIB)
-    target_link_libraries(caterva_tests caterva blosc2)
+    target_link_libraries(caterva_tests ${CATERVA_LIB} blosc2)
 endif(BLOSC_LIB)
 
 if(WIN32)
@@ -27,9 +27,9 @@ foreach (source ${SOURCES})
     set(target caterva_${target_name})
     add_executable(${target}  main.c ${target_name}.c)
     if (BLOSC_LIB)
-        target_link_libraries(${target} caterva blosc2_static)
+        target_link_libraries(${target} ${CATERVA_LIB} blosc2_static)
     else(BLOSC_LIB)
-        target_link_libraries(${target} caterva blosc2)
+        target_link_libraries(${target} ${CATERVA_LIB} blosc2)
     endif(BLOSC_LIB)
 
     if(WIN32)

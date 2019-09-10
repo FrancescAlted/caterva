@@ -13,6 +13,51 @@
 #include <string.h>
 #include "assert.h"
 
+#define CATERVA_UNUSED_PARAM(x) ((void)(x))
+
+
+// big <-> little-endian and store it in a memory position.  Sizes supported: 1, 2, 4, 8 bytes.
+static void swap_store(void *dest, const void *pa, int size) {
+  uint8_t* pa_ = (uint8_t*)pa;
+  uint8_t* pa2_ = malloc((size_t)size);
+  int i = 1;                    /* for big/little endian detection */
+  char* p = (char*)&i;
+
+  if (p[0] == 1) {
+    /* little endian */
+    switch (size) {
+      case 8:
+        pa2_[0] = pa_[7];
+        pa2_[1] = pa_[6];
+        pa2_[2] = pa_[5];
+        pa2_[3] = pa_[4];
+        pa2_[4] = pa_[3];
+        pa2_[5] = pa_[2];
+        pa2_[6] = pa_[1];
+        pa2_[7] = pa_[0];
+        break;
+      case 4:
+        pa2_[0] = pa_[3];
+        pa2_[1] = pa_[2];
+        pa2_[2] = pa_[1];
+        pa2_[3] = pa_[0];
+        break;
+      case 2:
+        pa2_[0] = pa_[1];
+        pa2_[1] = pa_[0];
+        break;
+      case 1:
+        pa2_[0] = pa_[1];
+        break;
+      default:
+        fprintf(stderr, "Unhandled size: %d\n", size);
+    }
+  }
+  memcpy(dest, pa2_, size);
+  free(pa2_);
+}
+
+
 caterva_ctx_t *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *), blosc2_cparams cparams, blosc2_dparams dparams) {
     caterva_ctx_t *ctx;
     ctx = (caterva_ctx_t *) malloc(sizeof(caterva_ctx_t));
@@ -40,15 +85,19 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim) {
     return dims_s;
 }
 
-// Serialize the partition params
-// TODO: use big-endian to encode ints
 static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape, uint8_t **smeta) {
-    int32_t max_smeta_len = 116;  // 4 + MAX_DIM * (1 + sizeof(int64_t)) + MAX_DIM * (1 + sizeof(int32_t))
+    // Allocate space for Caterva metalayer
+    int32_t max_smeta_len = 1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) + \
+        (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t)));
     *smeta = malloc((size_t)max_smeta_len);
     uint8_t *pmeta = *smeta;
 
-    // Build an array with 3 entries (ndim, shape, pshape)
-    *pmeta++ = 0x90 + 3;
+    // Build an array with 5 entries (version, ndim, shape, pshape, bshape)
+    *pmeta++ = 0x90 + 5;
+
+    // version entry
+    *pmeta++ = CATERVA_METALAYER_VERSION;  // positive fixnum (7-bit positive integer)
+    assert(pmeta - *smeta < max_smeta_len);
 
     // ndim entry
     *pmeta++ = (uint8_t)ndim;  // positive fixnum (7-bit positive integer)
@@ -57,8 +106,8 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     // shape entry
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
     for (int8_t i = 0; i < ndim; i++) {
-        *pmeta++ = 0xcf;  // uint64
-        memcpy(pmeta, &(shape[i]), sizeof(int64_t));
+        *pmeta++ = 0xd3;  // int64
+        swap_store(pmeta, shape + i, sizeof(int64_t));
         pmeta += sizeof(int64_t);
     }
     assert(pmeta - *smeta < max_smeta_len);
@@ -67,25 +116,37 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
     for (int8_t i = 0; i < ndim; i++) {
         *pmeta++ = 0xd2;  // int32
-        int32_t pshape_i = (int32_t)pshape[i];
-        memcpy(pmeta, &pshape_i, sizeof(int32_t));
+        swap_store(pmeta, pshape + i, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+    assert(pmeta - *smeta <= max_smeta_len);
+
+    // bshape entry
+    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
+    for (int8_t i = 0; i < ndim; i++) {
+        *pmeta++ = 0xd2;  // int32
+        // TODO: uncomment the line below when support for multidimensional bshapes would be ready
+        // swap_store(pmeta, bshape + i, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - *smeta <= max_smeta_len);
 
     int32_t slen = (int32_t)(pmeta - *smeta);
-    *smeta = realloc(*smeta, (size_t)slen);  // get rid of the excess of bytes allocated
 
     return slen;
 }
 
-// Serialize the partition params
-// TODO: decode big-endian ints to native endian
 static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims_t *shape, caterva_dims_t *pshape) {
     uint8_t *pmeta = smeta;
 
-    // Check that we have an array with 3 entries (ndim, shape, pshape)
-    assert(*pmeta == 0x90 + 3);
+    // Check that we have an array with 5 entries (version, ndim, shape, pshape, bshape)
+    assert(*pmeta == 0x90 + 5);
+    pmeta += 1;
+    assert(pmeta - smeta < smeta_len);
+
+    // version entry
+    int8_t version = pmeta[0];  // positive fixnum (7-bit positive integer)
+    assert (version <= CATERVA_METALAYER_VERSION);
     pmeta += 1;
     assert(pmeta - smeta < smeta_len);
 
@@ -103,9 +164,9 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
     assert(*pmeta == (uint8_t)(0x90) + ndim);  // fix array with ndim elements
     pmeta += 1;
     for (int8_t i = 0; i < ndim; i++) {
-        assert(*pmeta == 0xcf);   // uint64
+        assert(*pmeta == 0xd3);   // int64
         pmeta += 1;
-        memcpy(&(shape->dims[i]), pmeta, sizeof(int64_t));
+        swap_store(shape->dims + i, pmeta, sizeof(int64_t));
         pmeta += sizeof(int64_t);
     }
     assert(pmeta - smeta < smeta_len);
@@ -118,9 +179,20 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
     for (int8_t i = 0; i < ndim; i++) {
         assert(*pmeta == 0xd2);  // int32
         pmeta += 1;
-        int32_t pshape_i = (int32_t)pshape->dims[i];
-        memcpy(&pshape_i, pmeta, sizeof(int32_t));
-        pshape->dims[i] = (int64_t)pshape_i;
+        swap_store(pshape->dims + i, pmeta, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+    assert(pmeta - smeta <= smeta_len);
+
+    // bshape entry
+    // Initialize to ones, as required by Caterva
+    // for (int i = 0; i < CATERVA_MAXDIM; i++) bshape->dims[i] = 1;
+    assert(*pmeta == (uint8_t)(0x90) + ndim);  // fix array with ndim elements
+    pmeta += 1;
+    for (int8_t i = 0; i < ndim; i++) {
+        assert(*pmeta == 0xd2);  // int32
+        pmeta += 1;
+        // swap_store(bshape->dims + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - smeta <= smeta_len);
@@ -153,9 +225,11 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
             carr->psize *= carr->pshape[i];
         }
 
+        blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
+
         if (frame != NULL) {
             // Serialize the dimension info in the associated frame
-            if (frame->nmetalayers >= BLOSC2_MAX_METALAYERS) {
+            if (sc->nmetalayers >= BLOSC2_MAX_METALAYERS) {
                 fprintf(stderr, "the number of metalayers for this frame has been exceeded\n");
                 return NULL;
             }
@@ -166,7 +240,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
                 return NULL;
             }
             // And store it in caterva metalayer
-            int retcode = blosc2_frame_add_metalayer(frame, "caterva", smeta, (uint32_t)smeta_len);
+            int retcode = blosc2_add_metalayer(sc, "caterva", smeta, (uint32_t)smeta_len);
             if (retcode < 0) {
                 return NULL;
             }
@@ -174,7 +248,6 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
         }
 
         /* Create a schunk (for a frame-disk-backed one, this implies serializing the header on-disk */
-        blosc2_schunk *sc = blosc2_new_schunk(ctx->cparams, ctx->dparams, frame);
         carr->sc = sc;
     } else {
         carr->storage = CATERVA_STORAGE_PLAINBUFFER;
@@ -218,7 +291,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     caterva_dims_t pshape;
     uint8_t *smeta;
     uint32_t smeta_len;
-    blosc2_frame_get_metalayer(frame, "caterva", &smeta, &smeta_len);
+    blosc2_get_metalayer(sc, "caterva", &smeta, &smeta_len);
     deserialize_meta(smeta, smeta_len, &shape, &pshape);
     carr->size = 1;
     carr->psize = 1;
@@ -307,7 +380,7 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
                 return -1;
             }
             // ... and update it in its metalayer
-            int retcode = blosc2_frame_update_metalayer(frame, "caterva", smeta, (uint32_t) smeta_len);
+            int retcode = blosc2_update_metalayer(carr->sc, "caterva", smeta, (uint32_t) smeta_len);
             if (retcode < 0) {
                 return -1;
             }
@@ -753,7 +826,7 @@ int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_
     CATERVA_UNUSED_PARAM(d_pshape);
 
     int64_t start_[CATERVA_MAXDIM];
-    int64_t stop_[CATERVA_MAXDIM];  // TODO: the gcc compiler warns about this as unused ...
+    int64_t stop_[CATERVA_MAXDIM];
     int8_t s_ndim = src->ndim;
 
     caterva_dims_t shape = caterva_get_shape(src);
@@ -1010,6 +1083,7 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src) {
     pshape.ndim = src->ndim;
     return pshape;
 }
+
 
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
     caterva_dims_t shape = caterva_new_dims(src->shape, src->ndim);
