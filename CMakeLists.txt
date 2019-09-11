@@ -40,7 +40,6 @@ include_directories(${CATERVA_SRC})
 
 if (SHARED_LIB)
     add_library(caterva_shared SHARED ${CATERVA_SRC}/caterva.c)
-
     target_link_libraries(caterva_shared ${BLOSC_LIB})
     set_target_properties(caterva_shared PROPERTIES OUTPUT_NAME caterva)
     install(TARGETS caterva_shared DESTINATION lib)
@@ -48,9 +47,7 @@ endif ()
 
 if (STATIC_LIB)
     add_library(caterva_static STATIC ${CATERVA_SRC}/caterva.c)
-
     target_link_libraries(caterva_static ${BLOSC_LIB})
-
     set_target_properties(caterva_static PROPERTIES OUTPUT_NAME caterva)
     install(TARGETS caterva_static DESTINATION lib)
 endif()
