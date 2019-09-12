@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <blosc2.h>
 
+
 /* Version numbers */
 #define CATERVA_VERSION_MAJOR    0    /* for major interface/format changes  */
 #define CATERVA_VERSION_MINOR    2    /* for minor interface/format changes  */
@@ -212,9 +213,7 @@ int caterva_free_array(caterva_array_t *carr);
  * Append a partition to a caterva container (until it is completely filled)
  *
  * @param carr Pointer to the container where data will be appended
- *
  * @param part A pointer to the buffer where data is stored
- *
  * @param partsize Size (in bytes) of the buffer
  *
  * @return An error code
@@ -225,13 +224,15 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
 /**
  * @brief Read a caterva container from disk
  *
- * @param ctx Pointer to the caterva context to be used. The context should be the same as the one used to create the array.
-
+ * @param ctx Pointer to the caterva context to be used.
+ *   The context should be the same as the one used to create the array.
  * @param filename The filename of the caterva container in disk
+ * @param copy If true, a new, sparse in-memory super-chunk is created.
+ *   Else, a frame-backed one is created (i.e. no copies are made).
  *
  * @return A pointer to the caterva container read from disk
  */
-caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename);
+caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, bool copy);
 
 
 /**
@@ -264,6 +265,7 @@ int caterva_to_buffer(caterva_array_t *src, void *dest);
  * @param src Pointer to the container from which the slice will be obtained
  * @param start The coordinates where the slice will begin
  * @param stop The coordinates where the slice will end
+ *
  * @return An error code
  */
 int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
@@ -387,7 +389,7 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src);
  * @param dest Pointer to the container where data is copied
  * @param src Pointer to the container from which data is copied
  *
- * @return An error code.
+ * @return An error code
  */
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src);
 

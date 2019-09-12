@@ -263,7 +263,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
 }
 
 
-caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
+caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, bool copy) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
 
@@ -274,7 +274,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename) {
     // Open the frame on-disk...
     blosc2_frame *frame = blosc2_frame_from_file(filename);
     /* ...and create a schunk out of it */
-    blosc2_schunk *sc = blosc2_schunk_from_frame(frame, false);  // do not create an sparse chunk
+    blosc2_schunk *sc = blosc2_schunk_from_frame(frame, copy);
     carr->sc = sc;
     carr->storage = CATERVA_STORAGE_BLOSC;
 

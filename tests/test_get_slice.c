@@ -12,16 +12,21 @@
 #include "test_common.h"
 
 static void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
-                           int64_t *start_, int64_t *stop_, int64_t *pshape_dest_, double *result) {
+                           int64_t *start_, int64_t *stop_, int64_t *pshape_dest_,
+                           bool persist, bool copy, double *result) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_dims_t start = caterva_new_dims(start_, ndim);
     caterva_dims_t stop = caterva_new_dims(stop_, ndim);
 
     caterva_array_t *src;
+    blosc2_frame* frame = NULL;
     if (pshape_ != NULL) {
+        if (persist) {
+            frame = &(blosc2_frame) {.fname = "persistency.caterva"};
+        }
         caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_empty_array(ctx, NULL, &pshape);
+        src = caterva_empty_array(ctx, frame, &pshape);
     } else {
         src = caterva_empty_array(ctx, NULL, NULL);
     }
@@ -32,7 +37,7 @@ static void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
     }
 
     double *buf_src = (double *) malloc((size_t)buf_size * src->ctx->cparams.typesize);
-    for (int i = 0; i < buf_size; ++i) {
+    for (int64_t i = 0; i < buf_size; ++i) {
         buf_src[i] = (double) i;
     }
     caterva_from_buffer(src, &shape, buf_src);
@@ -45,11 +50,17 @@ static void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
         dest = caterva_empty_array(ctx, NULL, NULL);
     }
 
+    if (pshape_ != NULL) {
+        if (persist) {
+            // Close src and reopen the caterva frame persisted on-disk
+            caterva_free_array(src);
+            src = caterva_from_file(ctx, "persistency.caterva", copy);
+        }
+    }
+
     caterva_get_slice(dest, src, &start, &stop);
     caterva_squeeze(dest);
-
     double *buf_dest = (double *) malloc((size_t)dest->size * src->ctx->cparams.typesize);
-
     caterva_to_buffer(dest, buf_dest);
 
     assert_buf(buf_dest, result, (size_t)dest->size, 1e-14);
@@ -81,7 +92,7 @@ LWTEST_FIXTURE(get_slice, ndim_2_plain) {
     double result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
                            77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
 
-    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, result);
+    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, false, false, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_3) {
@@ -91,6 +102,8 @@ LWTEST_FIXTURE(get_slice, ndim_3) {
     int64_t start_[] = {3, 0, 3};
     int64_t stop_[] = {6, 7, 10};
     int64_t pshape_dest_[] = {2, 4, 3};
+    bool persist = true;
+    bool copy = false;
 
     double result[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
                            323, 324, 325, 326, 327, 328, 329, 333, 334, 335, 336, 337, 338, 339,
@@ -105,7 +118,7 @@ LWTEST_FIXTURE(get_slice, ndim_3) {
                            563, 564, 565, 566, 567, 568, 569};
 
 
-    test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
+    test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, persist, copy, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_4_plain) {
@@ -120,7 +133,7 @@ LWTEST_FIXTURE(get_slice, ndim_4_plain) {
                            7493, 7494, 7495, 7496, 7592, 7593, 7594, 7595, 7596, 8392, 8393, 8394,
                            8395, 8396, 8492, 8493, 8494, 8495, 8496, 8592, 8593, 8594, 8595, 8596};
 
-    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, result);
+    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, false, false, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_5) {
@@ -130,6 +143,8 @@ LWTEST_FIXTURE(get_slice, ndim_5) {
     int64_t start_[] = {6, 0, 5, 5, 7};
     int64_t stop_[] = {8, 9, 6, 6, 10};
     int64_t pshape_dest_[] = {3, 5, 1, 1, 5};
+    bool persist = true;
+    bool copy = true;
 
     double result[1024] = {60557, 60558, 60559, 61557, 61558, 61559, 62557, 62558, 62559, 63557,
                            63558, 63559, 64557, 64558, 64559, 65557, 65558, 65559, 66557, 66558,
@@ -138,7 +153,7 @@ LWTEST_FIXTURE(get_slice, ndim_5) {
                            74558, 74559, 75557, 75558, 75559, 76557, 76558, 76559, 77557, 77558,
                            77559, 78557, 78558, 78559};
 
-    test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
+    test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, persist, copy, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_6_plain) {
@@ -156,7 +171,7 @@ LWTEST_FIXTURE(get_slice, ndim_6_plain) {
                            63451, 63452, 63461, 63462, 63471, 63472, 63551, 63552, 63561, 63562,
                            63571, 63572};
 
-    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, result);
+    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, false, false, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_7) {
@@ -166,6 +181,8 @@ LWTEST_FIXTURE(get_slice, ndim_7) {
     int64_t start_[] = {5, 4, 3, 8, 4, 5, 1};
     int64_t stop_[] = {8, 6, 5, 9, 7, 7, 3};
     int64_t pshape_dest_[] = {2, 2, 1, 1, 2, 3, 4};
+    bool persist = true;
+    bool copy = false;
 
     double result[1024] = {5438451, 5438452, 5438461, 5438462, 5438551, 5438552, 5438561, 5438562,
                            5438651, 5438652, 5438661, 5438662, 5448451, 5448452, 5448461, 5448462,
@@ -186,7 +203,7 @@ LWTEST_FIXTURE(get_slice, ndim_7) {
                            7538651, 7538652, 7538661, 7538662, 7548451, 7548452, 7548461, 7548462,
                            7548551, 7548552, 7548561, 7548562, 7548651, 7548652, 7548661, 7548662};
 
-    test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, result);
+    test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, persist, copy, result);
 }
 
 LWTEST_FIXTURE(get_slice, ndim_8_plain) {
@@ -217,5 +234,5 @@ LWTEST_FIXTURE(get_slice, ndim_8_plain) {
                            55355161, 55355162, 55355260, 55355261, 55355262, 55356160, 55356161,
                            55356162, 55356260, 55356261, 55356262};
 
-    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, result);
+    test_get_slice(data->ctx, ndim, shape_, NULL, start_, stop_, NULL, false, false, result);
 }
