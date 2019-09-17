@@ -2,18 +2,18 @@
 Releasing Caterva
 =================
 
-:Author: Francesc Alted, Aleix Alcacer
-:Contact: francesc@blosc.org, aleix@blosc.org
+:Author: The Blosc Development Team
+:Contact: blosc@blosc.org
 :Date: 2019-09-17
 
 
 Preliminaries
 -------------
 
-- Make sure that ``RELEASE_NOTES.rst`` and ``ANNOUNCE.rst`` are up to
+- Make sure that ``RELEASE_NOTES.md`` and ``ANNOUNCE.md`` are up to
   date with the latest news in the release.
 
-- Check that *VERSION* symbols in blosc/blosc.h contains the correct info.
+- Check that *VERSION* symbols in caterva/caterva.h contains the correct info.
 
 - Commit the changes with::
 
@@ -48,7 +48,7 @@ Tagging
 Announcing
 ----------
 
-- Send an announcement to the blosc list. Use the ``ANNOUNCE.rst`` file as skeleton
+- Send an announcement to the blosc list. Use the ``ANNOUNCE.md`` file as skeleton
   (possibly as the definitive version).
 
 
@@ -58,8 +58,8 @@ Post-release actions
 - Edit *VERSION* symbols in caterva/caterva.h in master to increment the
   version to the next minor one (i.e. X.Y.Z --> X.Y.(Z+1).dev).
 
-- Create new headers for adding new features in ``RELEASE_NOTES.rst``
-  and empty the release-specific information in ``ANNOUNCE.rst`` and
+- Create new headers for adding new features in ``RELEASE_NOTES.md``
+  and empty the release-specific information in ``ANNOUNCE.md`` and
   add this place-holder instead:
 
   #XXX version-specific blurb XXX#

@@ -30,8 +30,8 @@
 #define CATERVA_VERSION_MINOR    2    /* for minor interface/format changes  */
 #define CATERVA_VERSION_RELEASE  1    /* for tweaks, bug-fixes, or development */
 
-#define CATERVA_VERSION_STRING   "0.2.1-dev"  /* string version.  Sync with above! */
-#define CATERVA_VERSION_DATE     "2019-09-09"    /* date version */
+#define CATERVA_VERSION_STRING   "0.2.1"  /* string version.  Sync with above! */
+#define CATERVA_VERSION_DATE     "2019-09-17"    /* date version */
 
 /* The version for metalayer format; starts from 0 and it must not exceed 127 */
 #define CATERVA_METALAYER_VERSION 0
