@@ -1,4 +1,8 @@
-# Release notes for Caterva 0.2.1
+# Release notes for Caterva 0.2.2
+
+## Changes from 0.2.1 to 0.2.2
+
+XXX version-specific blurb XXX
 
 ## Changes from 0.2.0 to 0.2.1
 

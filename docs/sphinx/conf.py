@@ -10,6 +10,7 @@ repo = git.Repo('./../..')
 tags = sorted(repo.tags, key=lambda t: t.commit.committed_datetime)
 latest_tag = str(tags[-1])[1:]
 release = latest_tag
+version = latest_tag
 
 extensions = ["sphinx.ext.mathjax", "breathe"]
 
