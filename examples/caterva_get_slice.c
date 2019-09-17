@@ -12,30 +12,28 @@
 #include <caterva.h>
 
 int main(){
-
     // Create a context
     caterva_ctx_t *ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     ctx->cparams.typesize = sizeof(double);
 
-    // Define the pshape for the first array
+    // Define the partition shape for the first array
     int8_t ndim = 3;
     int64_t pshape_[] = {3, 2, 4};
     caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
 
-    // Create the first array (empty)
+    // Create the first (empty) array
     caterva_array_t *cat1 = caterva_empty_array(ctx, NULL, &pshape);
 
     // Define a buffer shape to fill cat1
     int64_t shape_[] = {10, 10, 10};
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 
-    // Create a buffer to fill cat1 and empty it with an arange
+    // Create a buffer to fill cat1
     uint64_t buf1size = 1;
     for (int i = 0; i < shape.ndim; ++i) {
         buf1size *= shape.dims[i];
     }
     double *buf1 = (double *) malloc(buf1size * sizeof(double));
-
     for (uint64_t k = 0; k < buf1size; ++k) {
         buf1[k] = (double) k;
     }
@@ -56,7 +54,7 @@ int main(){
     caterva_get_slice(cat2, cat1, &start, &stop);
     caterva_squeeze(cat2);
 
-    // Assert that the `squeeze` works well
+    // Check that the `squeeze` works well
     if (cat1->ndim == cat2->ndim) {
         return -1;
     }
@@ -75,8 +73,8 @@ int main(){
     // Print results
     printf("The resulting hyperplane is:\n");
 
-    for (int i = 0; i < shape2.dims[0]; ++i) {
-        for (int j = 0; j < shape2.dims[1]; ++j) {
+    for (int64_t i = 0; i < shape2.dims[0]; ++i) {
+        for (int64_t j = 0; j < shape2.dims[1]; ++j) {
             printf("%6.f", buf2[i * cat2->shape[1] + j]);
         }
         printf("\n");

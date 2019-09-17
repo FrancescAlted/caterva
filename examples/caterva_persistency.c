@@ -27,14 +27,14 @@ int main(){
         .fname = "persistency.caterva",
     };
 
-    // Create the first array (empty)
+    // Create the first (empty) array
     caterva_array_t *cat1 = caterva_empty_array(ctx, frame, &pshape);
 
     // Define a buffer shape to fill cat1
     int64_t shape_[] = {10, 10, 10};
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 
-    // Create a buffer to fill cat1 and empty it with an arange
+    // Create a buffer to fill cat1
     int64_t buf1size = 1;
     for (int i = 0; i < shape.ndim; ++i) {
         buf1size *= shape.dims[i];
