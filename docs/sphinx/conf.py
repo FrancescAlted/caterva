@@ -5,6 +5,12 @@ subprocess.call('cd ../doxygen && doxygen Doxyfile && cd ../sphinx', shell=True)
 project = 'Caterva'
 copyright = '2019, Blosc Developers'
 
+import git
+repo = git.Repo('./../..')
+tags = sorted(repo.tags, key=lambda t: t.commit.committed_datetime)
+latest_tag = str(tags[-1])[1:]
+release = latest_tag
+
 extensions = ["sphinx.ext.mathjax", "breathe"]
 
 source_suffix = '.rst'
