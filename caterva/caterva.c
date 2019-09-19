@@ -154,7 +154,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
 
     // ndim entry
     int8_t ndim = pmeta[0];  // positive fixnum (7-bit positive integer)
-    assert (ndim < CATERVA_MAXDIM);
+    assert (ndim <= CATERVA_MAXDIM);
     pmeta += 1;
     assert(pmeta - smeta < smeta_len);
     shape->ndim = ndim;
@@ -263,7 +263,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
 }
 
 
-caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, bool copy) {
+caterva_array_t *caterva_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, bool copy) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
 
@@ -271,9 +271,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, boo
     carr->ctx = (caterva_ctx_t *) ctx->alloc(sizeof(caterva_ctx_t));
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
 
-    // Open the frame on-disk...
-    blosc2_frame *frame = blosc2_frame_from_file(filename);
-    /* ...and create a schunk out of it */
+    /* Create a schunk out of the frame */
     blosc2_schunk *sc = blosc2_schunk_from_frame(frame, copy);
     carr->sc = sc;
     carr->storage = CATERVA_STORAGE_BLOSC;
@@ -322,6 +320,32 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, boo
     }
 
     return carr;
+}
+
+
+caterva_array_t *caterva_from_sframe(caterva_ctx_t *ctx, uint8_t *sframe, int64_t len, bool copy) {
+    // Generate a real frame first
+    blosc2_frame *frame = blosc2_frame_from_sframe(sframe, len, copy);
+    // ...and create a caterva array out of it
+    caterva_array_t *array = caterva_from_frame(ctx, frame, copy);
+    if (copy) {
+        // We don't need the frame anymore
+        blosc2_free_frame(frame);
+    }
+    return array;
+}
+
+
+caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, bool copy) {
+    // Open the frame on-disk...
+    blosc2_frame *frame = blosc2_frame_from_file(filename);
+    // ...and create a caterva array out of it
+    caterva_array_t *array = caterva_from_frame(ctx, frame, copy);
+    if (copy) {
+        // We don't need the frame anymore
+        blosc2_free_frame(frame);
+    }
+    return array;
 }
 
 
@@ -374,15 +398,21 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
             carr->esize *= carr->eshape[i];
         }
 
-        if (carr->sc->frame != NULL) {
-            uint8_t *smeta = NULL;
-            // Serialize the dimension info ...
-            int32_t smeta_len = serialize_meta(carr->ndim, carr->shape, carr->pshape, &smeta);
-            if (smeta_len < 0) {
-                fprintf(stderr, "error during serializing dims info for Caterva");
+        uint8_t *smeta = NULL;
+        // Serialize the dimension info ...
+        int32_t smeta_len = serialize_meta(carr->ndim, carr->shape, carr->pshape, &smeta);
+        if (smeta_len < 0) {
+            fprintf(stderr, "error during serializing dims info for Caterva");
+            return -1;
+        }
+        // ... and update it in its metalayer
+        if (blosc2_has_metalayer(carr->sc, "caterva") < 0) {
+            int retcode = blosc2_add_metalayer(carr->sc, "caterva", smeta, (uint32_t) smeta_len);
+            if (retcode < 0) {
                 return -1;
             }
-            // ... and update it in its metalayer
+        }
+        else {
             int retcode = blosc2_update_metalayer(carr->sc, "caterva", smeta, (uint32_t) smeta_len);
             if (retcode < 0) {
                 return -1;

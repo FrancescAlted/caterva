@@ -222,15 +222,43 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
 
 
 /**
+ * @brief Create a caterva container from a frame
+ *
+ * @param ctx Pointer to the caterva context to be used.
+ *   The context should be the same as the one used to create the array.
+ * @param frame The frame for the caterva container.
+ * @param copy If true, a new, sparse in-memory super-chunk is created.
+ *   Else, a frame-backed one is created (i.e. no copies are made).
+ *
+ * @return A pointer to the new caterva container
+ */
+caterva_array_t *caterva_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, bool copy);
+
+
+/**
+ * @brief Create a caterva container from a serialized frame
+ *
+ * @param ctx Pointer to the caterva context to be used.
+ *   The context should be the same as the one used to create the array.
+ * @param sframe The serialized frame for the caterva container.
+ * @param copy If true, a new, sparse in-memory super-chunk is created.
+ *   Else, a frame-backed one is created (i.e. no copies are made).
+ *
+ * @return A pointer to the new caterva container
+ */
+caterva_array_t *caterva_from_sframe(caterva_ctx_t *ctx, uint8_t *sframe, int64_t len, bool copy);
+
+
+/**
  * @brief Read a caterva container from disk
  *
  * @param ctx Pointer to the caterva context to be used.
  *   The context should be the same as the one used to create the array.
- * @param filename The filename of the caterva container in disk
+ * @param filename The filename of the caterva container on disk.
  * @param copy If true, a new, sparse in-memory super-chunk is created.
  *   Else, a frame-backed one is created (i.e. no copies are made).
  *
- * @return A pointer to the caterva container read from disk
+ * @return A pointer to the new caterva container
  */
 caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, bool copy);
 
