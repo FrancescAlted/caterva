@@ -10,6 +10,10 @@ Releasing Caterva
 Preliminaries
 -------------
 
+- Make sure that you are in `master` branch::
+
+    $ git checkout master
+
 - Make sure that ``RELEASE_NOTES.md`` and ``ANNOUNCE.md`` are up to
   date with the latest news in the release.
 
@@ -39,6 +43,7 @@ Tagging
 
 - Push the tag to the github repo::
 
+    $ git push
     $ git push --tags
 
 - Add the release notes for this tag in the releases tab of github project at:
