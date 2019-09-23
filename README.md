@@ -2,7 +2,7 @@
 
 ## What it is
 
-Caterva is both a C library and a format layer on top of Blosc2.  Here are the slides for a gentle [introductory talk to Caterva at EuroPython2019](http://blosc.org/docs/Caterva-Blosc2-SciPy2019.pdf).
+Caterva is both a C library and a format layer on top of Blosc2.  Here are slides of a gentle [introductory talk to Caterva](http://blosc.org/docs/Caterva-HDF5-Workshop.pdf).
 
 
 ## Installation
