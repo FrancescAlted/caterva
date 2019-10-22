@@ -997,6 +997,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
         dest->buf = malloc(size * typesize);
         caterva_get_slice_buffer(dest->buf, src, start, stop, &shape);
     }
+    dest->filled = true;
     return 0;
 }
 
@@ -1074,6 +1075,7 @@ int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
             caterva_update_shape(dest, &shape);
             dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
             memcpy(dest->buf, src->buf, dest->size * dest->ctx->cparams.typesize);
+            dest->filled = true;
         } else {
             caterva_from_buffer(dest, &shape, src->buf);
         }
@@ -1082,6 +1084,7 @@ int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
             caterva_update_shape(dest, &shape);
             dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
             caterva_to_buffer(src, dest->buf);
+            dest->filled = true;
         } else {
             caterva_repart(dest, src);
         }
