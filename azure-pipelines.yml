@@ -14,13 +14,14 @@ jobs:
         cd build/
         cmake ..
         cmake --build .
-        cmake --build . --target install
       displayName: 'Install dependencies'
       
     - bash: |
         mkdir build/
-        cmake ..
+        cmake .. -DBLOSC_LIB=$BLOSC_LIB
         cmake --build .
+      displayName: 'Build caterva'
 
     - bash: |
         .tests
+      displayName: 'Tests'
