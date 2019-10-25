@@ -17,11 +17,13 @@ jobs:
       displayName: 'Install dependencies'
       
     - bash: |
-        mkdir build/
+        mkdir build
+        cd build/
         cmake .. -DBLOSC_LIB=$BLOSC_LIB
         cmake --build .
       displayName: 'Build caterva'
 
     - bash: |
-        .tests
+        cd build/tests/
+        .cateva_tests
       displayName: 'Tests'
