@@ -15,6 +15,5 @@ jobs:
         cmake ..
         cmake --build .
         cmake --build . install
-        cd ../..
       displayName: 'Install dependencies'
       
