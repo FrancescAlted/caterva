@@ -10,7 +10,7 @@ jobs:
     - task: CacheBeta@0
         inputs:
           key: cblosc2 | $(Agent.OS)
-          path: .cache/c-blosc2/
+          path: .cache/cblosc2/
         displayName: 'Cache c-blosc2'
 
     - bash: |
