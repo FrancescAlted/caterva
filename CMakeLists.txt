@@ -27,6 +27,7 @@ if (NOT BLOSC_LIB)
     endif()
 endif ()
 
+message(STATUS "BLOSC_LIB: ${BLOSC_LIB}")
 
 if (SHARED_LIB)
     set(CATERVA_LIB caterva_shared)
