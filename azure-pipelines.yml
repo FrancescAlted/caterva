@@ -1,0 +1,23 @@
+trigger:
+- master
+
+trigger:
+- master
+
+jobs:
+- job: 'Linux'
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  steps:
+    - bash: |
+        git clone git@github.com:Blosc/c-blosc2.git
+        cd c-blosc2/
+        mkdir build
+        cd build/
+        cmake ..
+        cmake --build .
+        cmake --build . install
+        cd ../..
+      displayName: 'Install dependencies'
+      
