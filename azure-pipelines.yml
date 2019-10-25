@@ -15,6 +15,7 @@ jobs:
 
     - bash: |
         git clone https://github.com/Blosc/c-blosc2.git
+        pwd
         cd c-blosc2/
         mkdir build
         cd build/
