@@ -19,7 +19,7 @@ jobs:
     - bash: |
         mkdir build
         cd build/
-        cmake -DBLOSC_LIB=$BLOSC_LIB ..
+        cmake -DBLOSC_LIB=${BLOSC_LIB} ..
         cmake --build .
       displayName: 'Build caterva'
 
