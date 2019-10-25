@@ -23,6 +23,7 @@ jobs:
       displayName: 'Install dependencies'
       
     - bash: |
+        ls -l ${BLOSC_INCLUDE}
         mkdir build
         cd build/
         cmake -DBLOSC_LIB=${BLOSC_LIB} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
