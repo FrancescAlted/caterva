@@ -7,12 +7,6 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   steps:
-    - task: CacheBeta@0
-        inputs:
-          key: cblosc2 | $(Agent.OS) | cblosc2.lock
-          path: c-blosc2/
-        displayName: 'Cache c-blosc2'
-
     - bash: |
         git clone https://github.com/Blosc/c-blosc2.git
         cd c-blosc2/

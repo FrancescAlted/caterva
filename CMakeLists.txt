@@ -40,7 +40,7 @@ endif ()
 
 include_directories(${CATERVA_SRC})
 if (BLOSC_INCLUDE)
-    include(${BLOSC_INCLUDE})
+    include_directories(${BLOSC_INCLUDE})
 endif()
 
 if (SHARED_LIB)
