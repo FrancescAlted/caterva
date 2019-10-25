@@ -28,6 +28,7 @@ if (NOT BLOSC_LIB)
 endif ()
 
 message(STATUS "BLOSC_LIB: ${BLOSC_LIB}")
+message(STATUS "BLOSC_INCLUDE: ${BLOSC_INCLUDE}")
 
 if (SHARED_LIB)
     set(CATERVA_LIB caterva_shared)
@@ -38,6 +39,9 @@ else()
 endif ()
 
 include_directories(${CATERVA_SRC})
+if (BLOSC_INCLUDE)
+    include(${BLOSC_INCLUDE})
+endif()
 
 if (SHARED_LIB)
     add_library(caterva_shared SHARED ${CATERVA_SRC}/caterva.c)
