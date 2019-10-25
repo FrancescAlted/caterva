@@ -28,7 +28,6 @@ if (NOT BLOSC_LIB)
 endif ()
 
 message(STATUS "BLOSC_LIB: ${BLOSC_LIB}")
-message(STATUS "BLOSC_INCLUDE: ${BLOSC_INCLUDE}")
 
 if (SHARED_LIB)
     set(CATERVA_LIB caterva_shared)
@@ -41,6 +40,7 @@ endif ()
 include_directories(${CATERVA_SRC})
 if (BLOSC_INCLUDE)
     include_directories(${BLOSC_INCLUDE})
+    message(STATUS "BLOSC_INCLUDE: ${BLOSC_INCLUDE}")
 endif()
 
 if (SHARED_LIB)
