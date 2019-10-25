@@ -21,8 +21,6 @@ jobs:
         mkdir build/
         cmake ..
         cmake --build .
-      displayname: 'Build caterva'
 
     - bash: |
         .tests
-      displayname: 'Tests'
