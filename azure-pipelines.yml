@@ -1,9 +1,6 @@
 trigger:
 - master
 
-trigger:
-- master
-
 jobs:
 - job: 'Linux'
   pool:
