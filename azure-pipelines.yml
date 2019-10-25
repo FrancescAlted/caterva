@@ -8,10 +8,10 @@ jobs:
 
   steps:
     - task: CacheBeta@0
-        inputs:
-          key: cblosc2 | $(Agent.OS)
-          path: .cache/cblosc2/
-        displayName: 'Cache c-blosc2'
+      inputs:
+        key: cblosc2 | $(Agent.OS)
+        path: .cache/cblosc2/
+      displayName: 'Cache c-blosc2'
 
     - bash: |
         git clone https://github.com/Blosc/c-blosc2.git
