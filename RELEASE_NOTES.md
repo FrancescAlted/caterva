@@ -2,7 +2,7 @@
 
 ## Changes from 0.2.1 to 0.2.2
 
-XXX version-specific blurb XXX
+* Add a `caterva_from_sframe()` function. 
 
 ## Changes from 0.2.0 to 0.2.1
 

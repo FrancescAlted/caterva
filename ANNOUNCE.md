@@ -3,9 +3,8 @@
 
 ## What is new?
 
-In this release, both static and dynamic libraries are created by default now. If you want to
-disable the creation of one of them, just set the cmake options `SHARED_LIB=OFF` or
-`STATIC_LIB=OFF`. Also, a new `copy` parameter has been added to `caterva_from_file()`.
+In this release, a caterva container can be created from a serialized frame using 
+`caterva_from_sframe()` function.
 
 For more info, please see the release notes in:
 
