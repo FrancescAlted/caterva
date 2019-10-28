@@ -65,8 +65,7 @@ Post-release actions
 - Edit *VERSION* symbols in caterva/caterva.h in master to increment the
   version to the next minor one (i.e. X.Y.Z --> X.Y.(Z+1)-dev).
 
-- Create new headers for adding new features in ``RELEASE_NOTES.md``
-  and empty the release-specific information in ``ANNOUNCE.md`` and
+- Create new headers for adding new features in ``RELEASE_NOTES.md`` and
   add this place-holder instead:
 
   XXX version-specific blurb XXX

@@ -3,7 +3,8 @@
 
 ## What is new?
 
-  XXX version-specific blurb XXX
+In this release, a caterva container can be created from a serialized frame using 
+`caterva_from_sframe()` function.
 
 For more info, please see the release notes in:
 
