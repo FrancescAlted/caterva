@@ -1,5 +1,7 @@
 # Caterva
 
+[![Build Status](https://dev.azure.com/blosc/caterva/_apis/build/status/caterva?branchName=master)](https://dev.azure.com/blosc/caterva/_build/latest?definitionId=3&branchName=master)
+
 ## What it is
 
 Caterva is both a C library and a format layer on top of Blosc2.  Here are slides of a gentle [introductory talk to Caterva](http://blosc.org/docs/Caterva-HDF5-Workshop.pdf).
