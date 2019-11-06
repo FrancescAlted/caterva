@@ -24,7 +24,7 @@ if (NOT BLOSC_LIB)
         message(FATAL_ERROR "blosc library not found")
     else()
         message(STATUS "Blosc2 library found!")
-        set(BLOSC_LIB DEP_LIB)
+        set(BLOSC_LIB ${DEP_LIB})
     endif()
 endif()
 
