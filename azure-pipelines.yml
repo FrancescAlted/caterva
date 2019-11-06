@@ -7,13 +7,13 @@ jobs:
     vmImage: 'ubuntu-latest'
 
   variables:
-    CBLOSC2_CACHE_FOLDER: c-blosc2/
+    CBLOSC2_CACHE_FOLDER: $(Pipeline.Workspace)/.c-blosc2/
 
   steps:
     - task: CacheBeta@0
       inputs:
         key: cblosc2 | $(Agent.OS)
-        path: ${CBLOSC2_CACHE_FOLDER}
+        path: $(CBLOSC2_CACHE_FOLDER)
       displayName: 'Cache c-blosc2'
 
     - bash: |
