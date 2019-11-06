@@ -6,11 +6,14 @@ jobs:
   pool:
     vmImage: 'ubuntu-latest'
 
+  variables:
+    CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/
+
   steps:
     - task: CacheBeta@0
       inputs:
         key: cblosc2 | $(Agent.OS)
-        path: .cache/cblosc2/
+        path: $(CBLOSC2_CACHE_FOLDER)
       displayName: 'Cache c-blosc2'
 
     - bash: |
@@ -24,7 +27,6 @@ jobs:
       displayName: 'Install dependencies'
       
     - bash: |
-        ls -l ${BLOSC_INCLUDE}
         mkdir build
         cd build/
         cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
@@ -33,5 +35,5 @@ jobs:
 
     - bash: |
         cd build/tests/
-        .cateva_tests
+        ./caterva_tests
       displayName: 'Tests'

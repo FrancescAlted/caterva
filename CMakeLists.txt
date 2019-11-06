@@ -19,12 +19,12 @@ set(CATERVA_SRC ${CMAKE_CURRENT_LIST_DIR}/caterva)
 
 
 if (NOT BLOSC_LIB)
-    find_library(DEP_LIB blosc2 PATHS BLOSC_DIR)
+    find_library(DEP_LIB blosc2 PATHS ${BLOSC_DIR})
     if (NOT DEP_LIB)
         message(FATAL_ERROR "blosc library not found")
     else()
         message(STATUS "Blosc2 library found!")
-        set(BLOSC_LIB blosc2)
+        set(BLOSC_LIB ${DEP_LIB})
     endif()
 endif()
 
