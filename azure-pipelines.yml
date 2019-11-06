@@ -38,5 +38,5 @@ jobs:
     - bash: |
         cd build/tests/
         ls -l
-        ./cateva_tests
+        ./caterva_tests
       displayName: 'Tests'
