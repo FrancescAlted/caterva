@@ -12,7 +12,7 @@ jobs:
   steps:
     - task: CacheBeta@0
       inputs:
-        key: cblosc2 | $(Agent.OS) | cblosc2.lock
+        key: cblosc2 | $(Agent.OS)
         path: ${CBLOSC2_CACHE_FOLDER}
       displayName: 'Cache c-blosc2'
 
