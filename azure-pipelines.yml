@@ -27,16 +27,13 @@ jobs:
       displayName: 'Install dependencies'
       
     - bash: |
-        ls -l ${BLOSC_INCLUDE}
         mkdir build
         cd build/
-        ls -l ${BLOSC_DIR}
         cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
         cmake --build .
       displayName: 'Build caterva'
 
     - bash: |
         cd build/tests/
-        ls -l
         ./caterva_tests
       displayName: 'Tests'
