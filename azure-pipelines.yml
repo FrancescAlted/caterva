@@ -108,4 +108,4 @@ steps:
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
-    dislapyName: 'Publish Tests'
+    displayName: 'Publish Tests'
