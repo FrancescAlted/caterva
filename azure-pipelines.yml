@@ -106,5 +106,5 @@ steps:
 
   - task: PublishTestResults@2
     inputs:
-    testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
-    testResultsFiles: 'build/tests.xml'
+      testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+      testResultsFiles: 'build/tests.xml'
