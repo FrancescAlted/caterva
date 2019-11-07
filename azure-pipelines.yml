@@ -2,7 +2,7 @@ trigger:
 - master
 
 variables:
-  CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/
+  CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/build/
 
 strategy:
   matrix:
@@ -30,21 +30,24 @@ pool:
   vmImage: $(imageName)
 
 steps:
+  - bash: |
+      git clone https://github.com/Blosc/c-blosc2.git
+      cd c-blosc2/
+      git rev-parse --verify HEAD > ../blosc.commit
+
   - task: CacheBeta@0
     inputs:
-      key: cblosc2 | $(Agent.OS)
+      key: cblosc2 | $(Agent.OS) | blosc.commit
       path: $(CBLOSC2_CACHE_FOLDER)
     displayName: 'Cache c-blosc2'
 
   - bash: |
-      git clone https://github.com/Blosc/c-blosc2.git
-      pwd
       cd c-blosc2/
       mkdir build
       cd build/
-      cmake ..
+      cmake -DDEACTIVATE_AVX2=ON ..
       cmake --build .
-    displayName: 'Install dependencies'
+    displayName: 'Build c-blosc2'
 
   - bash: |
       mkdir build
