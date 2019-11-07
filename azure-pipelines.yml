@@ -100,11 +100,11 @@ steps:
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       echo $PATH
       cd build/
-      ctest -C ${BUILD_CONFIGURATION} -T tests.xml
+      ctest -C ${BUILD_CONFIGURATION} -T Test
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
-      testResultsFiles: 'build/tests.xml'
+      testResultsFiles: 'build/Test.xml'
