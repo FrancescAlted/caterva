@@ -54,7 +54,7 @@ steps:
       cd build
       cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
       cmake --build .
-    condition: neq( variables['Agent.OS'], 'Windows_NT' )
+    condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build c-blosc2'
 
   - bash: |
@@ -63,7 +63,7 @@ steps:
       cd build/
       cmake -G "NMake Makefiles" cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
       cmake --build .
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
+    condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build c-blosc2'
 
   - bash: |
