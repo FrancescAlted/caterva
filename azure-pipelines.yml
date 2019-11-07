@@ -49,12 +49,21 @@ steps:
     displayName: 'Cache c-blosc2'
 
   - bash: |
+      cd-blosc2/
+      mkdir build
+      cd build
+      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
+      cmake --build .
+    condition: neq( variables['Agent.OS'], 'Windows_NT' )
+    displayName: 'Build c-blosc2'
+
+  - bash: |
       cd c-blosc2/
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
+      cmake -G "NMake Makefiles" cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
       cmake --build .
-    condition: ne(variables.CACHE_RESTORED, 'true')
+    condition: neq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build c-blosc2'
 
   - bash: |
