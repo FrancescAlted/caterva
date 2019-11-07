@@ -85,14 +85,14 @@ steps:
     displayName: 'Build caterva'
 
   - bash: |
-      cd build/tests/
-      ./caterva_tests
+      cd build/
+      ctest
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
-      cd build/tests/$(BUILD_CONFIGURATION)
-      ./caterva_tests.exe
+      cd build/
+      ctest
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
