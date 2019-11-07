@@ -206,7 +206,7 @@ LWTEST_FIXTURE(get_slice, ndim_7) {
     test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, persist, copy, result);
 }
 
-LWTEST_FIXTURE(get_slice, ndim_8_plain) {
+LWTEST_FIXTURE_SKIP(get_slice, ndim_8_plain) {
     const int8_t ndim = 8;
     int64_t shape_[] = {10, 10, 10, 10, 10, 10, 10, 10};
     int64_t start_[] = {3, 5, 2, 4, 5, 1, 6, 0};
