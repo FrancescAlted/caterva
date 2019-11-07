@@ -40,6 +40,10 @@ else()
 endif ()
 
 include_directories(${CATERVA_SRC})
+if (BLOSC_INCLUDE)
+    include_directories(${BLOSC_INCLUDE})
+    message(STATUS "BLOSC_INCLUDE: ${BLOSC_INCLUDE}")
+endif()
 
 if (SHARED_LIB)
     add_library(caterva_shared SHARED ${CATERVA_SRC}/caterva.c)
