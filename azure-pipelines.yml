@@ -82,7 +82,7 @@ steps:
       cd build/
       cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config $(BUILD_CONFIGURATION)
-      ctest
+      ctest -C $(BUILD_CONFIGURATION)
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
 
