@@ -64,7 +64,7 @@ steps:
       mkdir build
       cd build/
       cmake -DDEACTIVATE_AVX2=ON ..
-      cmake --build . --config $(BUILD_CONFIGURATION)
+      cmake --build . --config ${BUILD_CONFIGURATION}
       ctest
     condition: and(eq( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
     displayName: 'Build c-blosc2'
@@ -72,6 +72,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
+      ls -l $(BLOSC_DIR)
       cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) ..
       cmake --build .
       ctest
@@ -82,9 +83,9 @@ steps:
       mkdir build
       cd build/
       ls -l ${BLOSC_DIR}
-      cmake -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) ..
-      cmake --build . --config $(BUILD_CONFIGURATION)
-      ctest -C $(BUILD_CONFIGURATION)
+      cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
+      cmake --build . --config ${BUILD_CONFIGURATION}
+      ctest -C ${BUILD_CONFIGURATION}
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
 
