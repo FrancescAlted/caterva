@@ -39,7 +39,7 @@ steps:
   - bash: |
       echo "HOLA"
       echo $PATH
-      export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build/
+      set PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build/
       echo $PATH
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
