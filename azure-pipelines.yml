@@ -25,7 +25,7 @@ strategy:
     windows-debug:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: Debug
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
     windows-release:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: RelWithDebInfo
