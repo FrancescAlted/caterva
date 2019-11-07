@@ -92,7 +92,7 @@ steps:
 
   - bash: |
       cd build/
-      ctest -T tests.xml
+      ctest -T Test
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
