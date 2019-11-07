@@ -109,4 +109,4 @@ steps:
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
-      testResultsFiles: 'build/Test.xml'
+      testResultsFiles: 'build/Testing/*/Test.xml'
