@@ -9,21 +9,27 @@ strategy:
     linux-debug:
       imageName: 'ubuntu-16.04'
       BUILD_CONFIGURATION: Debug
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     linux-release:
       imageName: 'ubuntu-16.04'
       BUILD_CONFIGURATION: RelWithDebInfo
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-debug:
       imageName: 'macos-10.13'
       BUILD_CONFIGURATION: Debug
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-release:
       imageName: 'macos-10.13'
       BUILD_CONFIGURATION: RelWithDebInfo
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     windows-debug:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: Debug
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     windows-release:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: RelWithDebInfo
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
 
 
 pool:
@@ -37,16 +43,18 @@ steps:
 
   - task: CacheBeta@0
     inputs:
-      key: cblosc2 | $(Agent.OS) | blosc.commit
+      key: cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
       path: $(CBLOSC2_CACHE_FOLDER)
+      cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
 
   - bash: |
       cd c-blosc2/
       mkdir build
       cd build/
-      cmake -DDEACTIVATE_AVX2=ON ..
+      cmake -DBUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
       cmake --build .
+    condition: ne(variables.CACHE_RESTORED, 'true')
     displayName: 'Build c-blosc2'
 
   - bash: |
