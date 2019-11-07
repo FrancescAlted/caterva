@@ -82,6 +82,7 @@ steps:
       cd build/
       cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config $(BUILD_CONFIGURATION)
+      export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       ctest -C $(BUILD_CONFIGURATION)
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
@@ -93,7 +94,6 @@ steps:
     displayName: 'Tests'
 
   - bash: |
-      export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
 
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
