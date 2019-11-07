@@ -81,7 +81,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      ls -l $(BLOSC_DIR)
+      ls -l ${BLOSC_DIR}
       cmake -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) ..
       cmake --build . --config $(BUILD_CONFIGURATION)
       ctest -C $(BUILD_CONFIGURATION)
