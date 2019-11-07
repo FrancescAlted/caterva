@@ -89,7 +89,6 @@ steps:
     displayName: 'Tests'
 
   - bash: |
-      ls -l build/$(BUILD_CONFIGURATION)
       export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/tests/$(BUILD_CONFIGURATION)
       ./caterva_tests.exe
