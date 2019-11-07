@@ -43,7 +43,7 @@ steps:
 
   - task: CacheBeta@0
     inputs:
-      key: v3 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
+      key: v4 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
       path: $(CBLOSC2_CACHE_FOLDER)
       cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
@@ -63,6 +63,7 @@ steps:
       cd build/
       cmake -DCMAKE_BUILD_TYPE= -DDEACTIVATE_AVX2=ON ..
       cmake --build . --config $(BUILD_CONFIGURATION)
+      ctest
     condition: and(eq( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
     displayName: 'Build c-blosc2'
 
