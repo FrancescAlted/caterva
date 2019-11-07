@@ -84,13 +84,13 @@ steps:
 
   - bash: |
       cd build/tests/
-      ./caterva_tests
+      ctest
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/tests/$(BUILD_CONFIGURATION)
-      ./caterva_tests.exe
+      ctest
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
