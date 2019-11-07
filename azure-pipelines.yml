@@ -93,8 +93,8 @@ steps:
     displayName: 'Build caterva'
 
   - bash: |
-      cd build/tests
-      ./caterva_tests
+      cd build/
+      ctest
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
