@@ -88,12 +88,12 @@ steps:
 
   - bash: |
       cd build/
-      ctest -C ${BUILD_CONFIGURATION} -VV
+      ctest
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       cd build/
-      ctest
+      ctest -C ${BUILD_CONFIGURATION} -VV
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
