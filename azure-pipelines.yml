@@ -49,7 +49,7 @@ steps:
     displayName: 'Cache c-blosc2'
 
   - bash: |
-      cd-blosc2/
+      cd c-blosc2/
       mkdir build
       cd build/
       cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
