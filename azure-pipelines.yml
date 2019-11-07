@@ -61,8 +61,8 @@ steps:
       cd c-blosc2/
       mkdir build
       cd build/
-      cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
-      cmake --build .
+      cmake -DCMAKE_BUILD_TYPE= -DDEACTIVATE_AVX2=ON ..
+      cmake --build . --config $(BUILD_CONFIGURATION)
     condition: and(eq( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
     displayName: 'Build c-blosc2'
 
