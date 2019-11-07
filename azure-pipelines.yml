@@ -37,6 +37,7 @@ pool:
 
 steps:
   - bash: |
+      echo "HOLA"
       echo $PATH
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
