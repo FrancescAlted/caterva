@@ -99,7 +99,7 @@ steps:
     displayName: 'Tests'
 
   - bash: |
-      cd build/
-      ctest -C ${BUILD_CONFIGURATION} -VV
+      cd build/tests/${BUILD_CONFIGURATION}
+      ./caterva_tests.exe
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
