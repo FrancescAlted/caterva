@@ -99,6 +99,7 @@ steps:
     displayName: 'Tests'
 
   - bash: |
+      export PATH=$PATH:${BLOSC_DIR}:${Build.SourcesDirectory}/build/${BUILD_CONFIGURATION}
       cd build/tests/${BUILD_CONFIGURATION}
       ./caterva_tests.exe
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
