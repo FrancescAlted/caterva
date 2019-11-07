@@ -91,6 +91,5 @@ steps:
   - bash: |
       export LD_LIBRARY_PATH=${BLOSC_DIR}/$(BUILD_CONFIGURATION)
       cd build/tests/$(BUILD_CONFIGURATION)
-      ./caterva_tests.exe
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
