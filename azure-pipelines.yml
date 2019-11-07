@@ -80,9 +80,9 @@ steps:
   - bash: |
       mkdir build
       cd build/
+      export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config $(BUILD_CONFIGURATION)
-      export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       ctest -C $(BUILD_CONFIGURATION)
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
