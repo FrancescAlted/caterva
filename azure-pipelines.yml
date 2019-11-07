@@ -54,6 +54,7 @@ steps:
       cd build/
       cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
       cmake --build .
+      ctest
     condition: and(ne( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
     displayName: 'Build c-blosc2'
 
