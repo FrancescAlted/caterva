@@ -43,8 +43,8 @@ steps:
 
   - bash: |
       echo "HOLA"
-      $PATH echo $PATH
-      echo
+      echo $PATH
+
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
@@ -93,8 +93,8 @@ steps:
     displayName: 'Build caterva'
 
   - bash: |
-      cd build/
-      ctest
+      cd build/tests
+      ./caterva_tests
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
