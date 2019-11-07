@@ -25,11 +25,11 @@ strategy:
     windows-debug:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: Debug
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/$(BUILD_CONFIGURATION)
     windows-release:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: RelWithDebInfo
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/$(BUILD_CONFIGURATION)
 
 
 pool:
@@ -90,7 +90,7 @@ steps:
 
   - bash: |
       ls -l build/$(BUILD_CONFIGURATION)
-      export PATH=${BLOSC_DIR}/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build/caterva/$(BUILD_CONFIGURATION)
+      export PATH=${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/tests/$(BUILD_CONFIGURATION)
       ./caterva_tests.exe
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
