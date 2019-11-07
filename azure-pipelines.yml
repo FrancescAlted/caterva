@@ -71,7 +71,7 @@ steps:
       cd build/
       cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build .
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
+    condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
 
   - bash: |
@@ -79,7 +79,7 @@ steps:
       cd build/
       cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config $(BUILD_CONFIGURATION)
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
+    condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
 
   - bash: |
@@ -91,5 +91,5 @@ steps:
   - bash: |
       cd build/tests/$(BUILD_CONFIGURATION)
       ./caterva_tests.exe
-      condition: eq( variables['Agent.OS'], 'Windows_NT' )
+    condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
