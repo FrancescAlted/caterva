@@ -85,7 +85,7 @@ steps:
       ls -l ${BLOSC_DIR}
       cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config ${BUILD_CONFIGURATION}
-      ctest -C ${BUILD_CONFIGURATION}
+      ctest -C ${BUILD_CONFIGURATION} -VV
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
 
