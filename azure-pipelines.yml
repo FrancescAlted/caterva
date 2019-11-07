@@ -37,7 +37,10 @@ pool:
 
 steps:
   - powershell: |
+      $env:path
       $env:Path += ";$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)"
+      $env:path
+
   - bash: |
       echo "HOLA"
       $PATH echo $PATH
