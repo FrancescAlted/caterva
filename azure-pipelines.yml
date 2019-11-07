@@ -36,10 +36,9 @@ pool:
   vmImage: $(imageName)
 
 steps:
-  - powershell: |
-      $env:Path
-      $env:Path += ";$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION);$(Build.SourcesDirectory)/build"
-      $env:Path
+  - bash: |
+      export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build"
+      echo $PATH
 
   - bash: |
       echo "HOLA"
