@@ -43,7 +43,7 @@ steps:
 
   - task: CacheBeta@0
     inputs:
-      key: cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
+      key: v2 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
       path: $(CBLOSC2_CACHE_FOLDER)
       cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
@@ -67,6 +67,6 @@ steps:
 
   - bash: |
       cd build/tests/
-      ls -lR
+      ls -lR ..
       ./caterva_tests
     displayName: 'Tests'
