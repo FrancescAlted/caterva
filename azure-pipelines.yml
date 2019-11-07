@@ -92,7 +92,7 @@ steps:
 
   - bash: |
       cd build/
-      ctest
+      ctest -T tests.xml
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
@@ -100,6 +100,11 @@ steps:
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       echo $PATH
       cd build/
-      ctest -C ${BUILD_CONFIGURATION}
+      ctest -C ${BUILD_CONFIGURATION} -T tests.xml
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
+
+  - task: PublishTestResults@2
+    inputs:
+    testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+    testResultsFiles: 'build/tests.xml'
