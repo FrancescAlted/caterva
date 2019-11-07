@@ -101,7 +101,7 @@ steps:
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       echo $PATH
-      cd build/tests/${BUILD_CONFIGURATION}
-      ./caterva_tests.exe
+      cd build/
+      ctest -C ${BUILD_CONFIGURATION}
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
