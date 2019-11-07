@@ -67,5 +67,6 @@ steps:
 
   - bash: |
       cd build/tests/
+      ls -lR
       ./caterva_tests
     displayName: 'Tests'
