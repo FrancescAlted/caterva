@@ -1,39 +1,59 @@
 trigger:
 - master
 
-jobs:
-- job: 'Linux'
-  pool:
-    vmImage: 'ubuntu-latest'
+variables:
+  CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/
 
-  variables:
-    CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/
+strategy:
+  matrix:
+    linux-debug:
+      imageName: 'ubuntu-16.04'
+      BUILD_CONFIGURATION: Debug
+    linux-release:
+      imageName: 'ubuntu-16.04'
+      BUILD_CONFIGURATION: RelWithDebInfo
+    mac-debug:
+      imageName: 'macos-10.13'
+      BUILD_CONFIGURATION: Debug
+    mac-release:
+      imageName: 'macos-10.13'
+      BUILD_CONFIGURATION: RelWithDebInfo
+    windows-debug:
+      imageName: 'vs2017-win2016'
+      BUILD_CONFIGURATION: Debug
+    windows-release:
+      imageName: 'vs2017-win2016'
+      BUILD_CONFIGURATION: RelWithDebInfo
 
-  steps:
-    - task: CacheBeta@0
-      inputs:
-        key: cblosc2 | $(Agent.OS)
-        path: $(CBLOSC2_CACHE_FOLDER)
-      displayName: 'Cache c-blosc2'
 
-    - bash: |
-        git clone https://github.com/Blosc/c-blosc2.git
-        pwd
-        cd c-blosc2/
-        mkdir build
-        cd build/
-        cmake ..
-        cmake --build .
-      displayName: 'Install dependencies'
-      
-    - bash: |
-        mkdir build
-        cd build/
-        cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
-        cmake --build .
-      displayName: 'Build caterva'
+pool:
+  vmImage: $(imageName)
 
-    - bash: |
-        cd build/tests/
-        ./caterva_tests
-      displayName: 'Tests'
+steps:
+  - task: CacheBeta@0
+    inputs:
+      key: cblosc2 | $(Agent.OS)
+      path: $(CBLOSC2_CACHE_FOLDER)
+    displayName: 'Cache c-blosc2'
+
+  - bash: |
+      git clone https://github.com/Blosc/c-blosc2.git
+      pwd
+      cd c-blosc2/
+      mkdir build
+      cd build/
+      cmake ..
+      cmake --build .
+    displayName: 'Install dependencies'
+
+  - bash: |
+      mkdir build
+      cd build/
+      cmake -DBUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
+      cmake --build .
+    displayName: 'Build caterva'
+
+  - bash: |
+      cd build/tests/
+      ./caterva_tests
+    displayName: 'Tests'
