@@ -104,6 +104,8 @@ steps:
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
+  - bash: |
+      ls -lR
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
