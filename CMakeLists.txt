@@ -17,7 +17,7 @@ option(STATIC_LIB "Create static library" ON)
 set(CATERVA_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(CATERVA_SRC ${CMAKE_CURRENT_LIST_DIR}/caterva)
 
-message("BLOSC_LIB = ${BLOSC_DIR})
+message("BLOSC_LIB = ${BLOSC_DIR}")
 
 if (NOT BLOSC_LIB)
     find_library(DEP_LIB blosc2 PATHS ${BLOSC_DIR})
