@@ -37,7 +37,7 @@ pool:
 
 steps:
   - bash: |
-      export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build"
+      export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
       echo $PATH
 
   - bash: |
