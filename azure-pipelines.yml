@@ -86,3 +86,15 @@ steps:
       ctest -C $(BUILD_CONFIGURATION)
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
+
+  - bash: |
+      cd build/
+      ctest
+    condition: ne( variables['Agent.OS'], 'Windows_NT' )
+    displayName: 'Tests'
+
+  - bash: |
+      cd build/
+      ctest
+    condition: eq( variables['Agent.OS'], 'Windows_NT' )
+    displayName: 'Tests'
