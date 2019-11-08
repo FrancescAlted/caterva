@@ -30,9 +30,10 @@ defining layers with different specs: data types, geo-spatial...
 
 Caterva is created by specifying a metalayer on top of a Blosc2 container for storing
 multidimensional information. This metalayer can be modified so that the shapes can be updated
-(e.g. an array can grow or shrink).
+(e.g. an array can grow or shrink). (See more about the Caterva metalayer format in
+[CATERVA_METALAYER](CATERVA_NETALAYER.md).
 
-Caterva’s main feature is to be able to extract all kind of slices out of high dimensional
+Caterva’s main feature is to be able to extract all kind of slices out of high dimesional
 datasets, efficiently. Resulting slices can be either Caterva containers or regular plain buffers.
 
 
