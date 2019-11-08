@@ -1,4 +1,4 @@
-# Caterva MetaLayer
+# Caterva metalayer
 
 Caterva is storing persistently its information about shapes and partition shapes as an additional layer in the Blosc2 frame format.
 
