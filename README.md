@@ -2,6 +2,7 @@
 
 [![Build Status](https://dev.azure.com/blosc/caterva/_apis/build/status/caterva?branchName=master)](https://dev.azure.com/blosc/caterva/_build/latest?definitionId=3&branchName=master)
 
+
 ## What it is
 
 Caterva is an open source C library that allows to store large multidimensional, chunked,
@@ -26,12 +27,13 @@ A aditional feature thet introduces Blosc2 is the concept of metalayers. They ar
 for informing about the kind of data that is stored on a Blosc2 container. They are handy for
 defining layers with different specs: data types, geo-spatial... 
 
-Caterva is created specifying a metalayer on top of a Blosc2 container for storing multidimensional
-information. This metalayer can be modified so that the shapes can be updated (e.g. an
-array can grow or shrink).
+Caterva is created by specifying a metalayer on top of a Blosc2 container for storing
+multidimensional information. This metalayer can be modified so that the shapes can be updated
+(e.g. an array can grow or shrink).
 
 Caterva’s main feature is to be able to extract all kind of slices out of high dimensional
 datasets, efficiently. Resulting slices can be either Caterva containers or regular plain buffers.
+
 
 ## Building Caterva with CMake
 
@@ -47,13 +49,12 @@ typical CMake build. In order to install Caterva, you need to have the library c
     cd build/
     ```
 
-2. Now run CMake configuration and optionally specify the Blosc (e.g. '/usr' or '/usr/local'):
-    
+2. Now run CMake configuration and, if necessary, specify the directory where the Blosc build is
+and the directory where the Blosc headers are:
    ```
-    cmake -DCMAKE_INSTALL_PREFIX='your_install_directory' ..
+    cmake -DBLOSC_DIR='blosc_build_dir' -DBLOSC_INCLUDE='blosc_headers_dir' ..
     ```
-
-    It 
+ 
 3. Build and test Caterva:
 
     ```
@@ -61,11 +62,11 @@ typical CMake build. In order to install Caterva, you need to have the library c
    ctest
    ```
    
-4. If is desired, install Caterva:
+4. If desired, install Caterva:
     ```
     cmake --build . --target install
     ```
-
+   
 
 ## APIs
 
