@@ -1,6 +1,7 @@
 # Caterva
 
 [![Build Status](https://dev.azure.com/blosc/caterva/_apis/build/status/caterva?branchName=master)](https://dev.azure.com/blosc/caterva/_build/latest?definitionId=3&branchName=master)
+[![Documentation Status](https://readthedocs.org/projects/caterva/badge/?version=latest)](https://caterva.readthedocs.io/en/latest/?badge=latest)
 
 
 ## What it is
