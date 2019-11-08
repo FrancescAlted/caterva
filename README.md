@@ -69,6 +69,6 @@ and the directory where the Blosc headers are:
     ```
    
 
-## APIs
+## Wrappers
 
 - [cat4py](https://github.com/Blosc/cat4py): a Pythonic wrapper of Caterva.
