@@ -2,6 +2,10 @@
     background: rgb(0, 127, 136, 0.05);
 }
 
+.wy-nav-content {
+    max-width: 80%;
+}
+
 .rst-content dl:not(.docutils) dt {
     background: rgb(0, 127, 136, 0.05);
     border-top-color: rgb(0, 127, 136);

@@ -34,8 +34,8 @@ html_theme_options = {
     "logo_only": True,
 }
 
-breathe_projects = { "include": "../doxygen/xml/" }
-breathe_default_project = "include"
+breathe_projects = { "caterva": "../doxygen/xml/" }
+breathe_default_project = "caterva"
 
 def setup(app):
     app.add_css_file('custom.css')
