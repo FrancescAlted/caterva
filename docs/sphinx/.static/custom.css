@@ -1,13 +1,15 @@
 .wy-side-nav-search, .wy-nav-top, .wy-nav-side {
-    background: rgb(0, 127, 136, 0.05);
+    background: rgba(0, 127, 136, 0.05);
 }
 
+/*
 .wy-nav-content {
     max-width: 80%;
 }
+*/
 
 .rst-content dl:not(.docutils) dt {
-    background: rgb(0, 127, 136, 0.05);
+    background: rgba(0, 127, 136, 0.05);
     border-top-color: rgb(0, 127, 136);
     color: rgb(0, 127, 136);
 }
@@ -17,7 +19,7 @@
 }
 
 .wy-menu-vertical a:hover {
-    background-color: rgb(0, 127, 136, 0.1);
+    background-color: rgba(0, 127, 136, 0.1);
     cursor: pointer;
 }
 

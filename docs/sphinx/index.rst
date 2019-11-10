@@ -40,9 +40,10 @@ Caterva’s main feature is to be able to extract all kind of slices out of high
 datasets, efficiently. Resulting slices can be either Caterva containers or regular plain buffers.
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents
+..  toctree::
+    :maxdepth: 2
+    :caption: Contents
 
-   installation
-   api
+    installation
+    api
+    wrappers
