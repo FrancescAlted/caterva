@@ -46,7 +46,7 @@ typical CMake build. In order to install Caterva, you need to have the library c
 1. Create the build directory inside the sources and move into it:
   
     ```
-    cd c-blosc2-sources
+    cd caterva-sources
     mkdir build/
     cd build/
     ```
