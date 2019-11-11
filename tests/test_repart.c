@@ -76,9 +76,9 @@ LWTEST_FIXTURE(repart, ndim2_plain) {
 
 LWTEST_FIXTURE(repart, ndim2) {
     const int8_t ndim = 2;
-    int64_t shape_[] = {8563, 8234};
-    int64_t pshape_[] = {356, 353};
-    int64_t pshape_dest_[] = {1033, 1033};
+    int64_t shape_[] = {563, 234};
+    int64_t pshape_[] = {56, 53};
+    int64_t pshape_dest_[] = {133, 103};
 
     test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
 }
