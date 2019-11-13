@@ -125,12 +125,15 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
 
     // bshape entry
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
+    int32_t *bshape = malloc(CATERVA_MAXDIM * sizeof(int32_t));
     for (int8_t i = 0; i < ndim; i++) {
         *pmeta++ = 0xd2;  // int32
-        // TODO: uncomment the line below when support for multidimensional bshapes would be ready
-        // swap_store(pmeta, bshape + i, sizeof(int32_t));
+        bshape[i] = 0;  // FIXME: update when support for multidimensional bshapes would be ready
+        // NOTE: we need to initialize the header so as to avoid false negatives in valgrind
+        swap_store(pmeta, bshape + i, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
+    free(bshape);
     assert(pmeta - *smeta <= max_smeta_len);
     int32_t slen = (int32_t)(pmeta - *smeta);
 
