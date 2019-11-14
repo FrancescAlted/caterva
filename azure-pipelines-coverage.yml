@@ -50,9 +50,16 @@ steps:
   - bash: |
       cd build/
       ctest -T Test
-      ctest -D ExperimentalCoverage
     displayName: 'Tests'
 
+
+  - bash: |
+      pip install gcovr
+      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
+      mv caterva/caterva.c.gcno caterva/caterva.gcno
+      mv caterva/caterva.c.gcda caterva/caterva.gcda
+      mkdir htmlcov/
+      gcovr -r caterva/ --html --html-details -o htmlcov/index.html
 
   - task: PublishTestResults@2
     inputs:
@@ -64,4 +71,4 @@ steps:
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/Testing/**/Coverage.xml'
-      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/htmlcov'
