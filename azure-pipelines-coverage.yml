@@ -43,7 +43,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE..
+      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE ..
       cmake --build .
     displayName: 'Build caterva'
 
