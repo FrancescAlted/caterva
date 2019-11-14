@@ -61,7 +61,7 @@ steps:
     displayName: 'Publish Tests'
 
   - task: PublishCodeCoverageResults@1
-      inputs:
-        codeCoverageTool: Cobertura
-        summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/Testing/**/Coverage.xml'
-        reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/Testing/**/Coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
