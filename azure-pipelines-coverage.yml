@@ -60,7 +60,7 @@ steps:
       mv caterva/caterva.c.gcda caterva/caterva.gcda
       mkdir htmlcov/
 
-  -bash: |
+  - bash: |
       gcovr -r caterva/ --html --html-details -o htmlcov/index.html
 
   - task: PublishTestResults@2
