@@ -43,12 +43,10 @@ steps:
       if [ "$AGENT_OS" == "Darwin" ]
         then
           echo "##vso[task.prependpath]$CONDA/bin"
-          echo "##vso[task.prependpath]$CONDA/envs/catervaEnv/bin"
       fi
       if [ "$AGENT_OS" == "Windows_NT" ]
         then
           echo "##vso[task.prependpath]$CONDA/Scripts"
-          echo "##vso[task.prependpath]$CONDA/envs/catervaEnv/Scripts"
       fi
     displayName: Add conda to PATH
 
