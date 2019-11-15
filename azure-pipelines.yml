@@ -47,7 +47,7 @@ steps:
   - bash: |
       echo "##vso[task.prependpath]$CONDA/bin"
       conda install -y -c conda-forge gcovr
-    condition: variables['Agent.OS'], 'Linux')
+    condition: eq(variables['Agent.OS'], 'Linux')
     displayName: 'Coverage dependencies'
   - task: CacheBeta@0
     inputs:
