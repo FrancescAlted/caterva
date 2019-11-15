@@ -40,17 +40,6 @@ steps:
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
 
   - bash: |
-      if [ "$AGENT_OS" == "Darwin" ]
-        then
-          echo "##vso[task.prependpath]$CONDA/bin"
-      fi
-      if [ "$AGENT_OS" == "Windows_NT" ]
-        then
-          echo "##vso[task.prependpath]$CONDA/Scripts"
-      fi
-    displayName: Add conda to PATH
-
-  - bash: |
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
@@ -83,7 +72,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE ..
+      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) ..
       cmake --build .
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
@@ -91,7 +80,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} -DDO_COVERAGE=TRUE ..
+      cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config ${BUILD_CONFIGURATION}
       ls -lR
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
@@ -100,45 +89,18 @@ steps:
   - bash: |
       cd build/
       ctest -T Test
-      ctest -D ExperimentalCoverage
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
-      echo $PATH
       cd build/
       ctest -C ${BUILD_CONFIGURATION} -T Test
-      ctest -C ${BUILD_CONFIGURATION} -D ExperimentalCoverage
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
-
-  - bash: |
-      if [ "$AGENT_OS" == "Darwin" ]
-        then
-          sudo chown -R $USER $CONDA
-        fi
-    displayName: Take ownership of conda installation
-
-  - bash: |
-      conda install -y -c conda-forge gcovr
-
-      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
-      mv caterva/caterva.c.gcno caterva/caterva.gcno
-      mv caterva/caterva.c.gcda caterva/caterva.gcda
-      mkdir htmlcov/
-      ls -l caterva/
-
-  - bash: |
-      gcovr -v -r caterva/ --xml -o coverage.xml
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
-
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: Cobertura
-      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
