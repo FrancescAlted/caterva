@@ -114,7 +114,9 @@ steps:
     displayName: 'Tests'
 
   - bash: |
-      conda install -y -c conda-forge gcovr
+      conda create --yes --quiet --name catervaEnv
+      source activate catervaEnv
+      conda install -y--name catervaEnv -c conda-forge gcovr
 
       mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
       mv caterva/caterva.c.gcno caterva/caterva.gcno
