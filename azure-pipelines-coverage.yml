@@ -19,6 +19,17 @@ steps:
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
 
   - bash: |
+      if [ "$AGENT_OS" == "Darwin" ]
+        then
+          echo "##vso[task.prependpath]$CONDA/bin"
+      fi
+      if [ "$AGENT_OS" == "Windows_NT" ]
+        then
+          echo "##vso[task.prependpath]$CONDA/Scripts"
+      fi
+    displayName: Add conda to PATH
+
+  - bash: |
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
