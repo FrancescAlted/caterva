@@ -40,13 +40,14 @@ steps:
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
 
   - bash: |
-      echo "##vso[task.prependpath]$CONDA/bin"
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
-    displayName: Add conda to PATH
-
-  - bash: |
-      echo "##vso[task.prependpath]$CONDA/scripts"
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
+      if [ "$AGENT_OS" == "Darwin" ]
+        then
+          echo "##vso[task.prependpath]$CONDA/bin"
+      fi
+      if [ "$AGENT_OS" == "Windows_NT" ]
+        then
+          echo "##vso[task.prependpath]$CONDA/Scripts"
+      fi
     displayName: Add conda to PATH
 
   - bash: |
