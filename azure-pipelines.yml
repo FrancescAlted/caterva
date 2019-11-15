@@ -44,6 +44,11 @@ steps:
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
 
+  - bash: |
+      echo "##vso[task.prependpath]$CONDA/bin"
+      conda install -y -c conda-forge gcovr
+    condition: and(eq($(imagename), 'ubuntu-16.04'), eq($(build_configuration), 'Debug'))
+    displayName: 'Coverage dependencies'
   - task: CacheBeta@0
     inputs:
       key: v3 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
