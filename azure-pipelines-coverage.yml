@@ -67,7 +67,8 @@ steps:
       ls -l caterva/
 
   - bash: |
-      gcovr -r caterva/ --html --html-details -o htmlcov/index.html
+      gcovr -v -r caterva/ --html --html-details -o htmlcov/coverage.html
+      cat htmlcov/coverage.html
 
   - task: PublishTestResults@2
     inputs:
@@ -79,4 +80,4 @@ steps:
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/Testing/**/Coverage.xml'
-      reportDirectory: '$(System.DefaultWorkingDirectory)/htmlcov'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/htmlcov/*'
