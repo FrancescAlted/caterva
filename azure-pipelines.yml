@@ -83,7 +83,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) ..
+      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE ..
       cmake --build .
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
@@ -91,7 +91,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
+      cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} -DDO_COVERAGE=TRUE ..
       cmake --build . --config ${BUILD_CONFIGURATION}
       ls -lR
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
