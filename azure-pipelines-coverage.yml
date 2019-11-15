@@ -19,7 +19,7 @@ steps:
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
 
   - bash: |
-      echo "##vso[task.prependpath]${CONDA}/bin"
+      echo "##vso[task.prependpath]$CONDA/bin"
     displayName: Add conda to PATH
 
   - bash: |
@@ -59,13 +59,14 @@ steps:
 
   - bash: |
       conda install -y -c conda-forge gcovr
+      ls -l $CONDA/bin
       mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
       mv caterva/caterva.c.gcno caterva/caterva.gcno
       mv caterva/caterva.c.gcda caterva/caterva.gcda
       mkdir htmlcov/
 
   - bash: |
-      /usr/share/miniconda/bin/gcovr -r caterva/ --html --html-details -o htmlcov/index.html
+      gcovr -r caterva/ --html --html-details -o htmlcov/index.html
 
   - task: PublishTestResults@2
     inputs:
