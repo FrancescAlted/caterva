@@ -42,10 +42,12 @@ steps:
   - bash: |
       if [ "$AGENT_OS" == "Darwin" ]
         then
+          echo "##vso[task.prependpath]$CONDA/bin"
           echo "##vso[task.prependpath]$CONDA/envs/catervaEnv/bin"
       fi
       if [ "$AGENT_OS" == "Windows_NT" ]
         then
+          echo "##vso[task.prependpath]$CONDA/Scripts"
           echo "##vso[task.prependpath]$CONDA/envs/catervaEnv/Scripts"
       fi
     displayName: Add conda to PATH
@@ -121,9 +123,7 @@ steps:
     displayName: Take ownership of conda installation
 
   - bash: |
-      conda create --yes --quiet --name catervaEnv
-      source activate catervaEnv
-      conda install -y --name catervaEnv -c conda-forge gcovr
+      conda install -y -c conda-forge gcovr
 
       mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
       mv caterva/caterva.c.gcno caterva/caterva.gcno
