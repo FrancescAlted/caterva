@@ -70,6 +70,7 @@ steps:
       gcovr -v -r caterva/ --html --html-details -o htmlcov/index.html
       cat htmlcov/coverage.html
       ls -l $(System.DefaultWorkingDirectory)/htmlcov
+      cp $(System.DefaultWorkingDirectory)/build/Testing/**/Coverage.xml htmlcov/
 
   - task: PublishTestResults@2
     inputs:
