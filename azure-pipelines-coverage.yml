@@ -19,14 +19,7 @@ steps:
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
 
   - bash: |
-      if [ "$AGENT_OS" == "Darwin" ]
-        then
-          echo "##vso[task.prependpath]$CONDA/bin"
-      fi
-      if [ "$AGENT_OS" == "Windows_NT" ]
-        then
-          echo "##vso[task.prependpath]$CONDA/Scripts"
-      fi
+      echo "##vso[task.prependpath]${CONDA}/bin"
     displayName: Add conda to PATH
 
   - bash: |
@@ -72,7 +65,7 @@ steps:
       mkdir htmlcov/
 
   - bash: |
-      gcovr -r caterva/ --html --html-details -o htmlcov/index.html
+      /usr/share/miniconda/bin/gcovr -r caterva/ --html --html-details -o htmlcov/index.html
 
   - task: PublishTestResults@2
     inputs:
