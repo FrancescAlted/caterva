@@ -47,7 +47,7 @@ steps:
   - bash: |
       echo "##vso[task.prependpath]$CONDA/bin"
       conda install -y -c conda-forge gcovr
-    condition: and(variables['imagename'], 'ubuntu-16.04'), eq($(BUILD_CONFIGURATION), 'Debug'))
+    condition: and(variables['imagename'], 'ubuntu-16.04'), eq($variables['BUILD_CONFIGURATION'], 'Debug'))
     displayName: 'Coverage dependencies'
   - task: CacheBeta@0
     inputs:
