@@ -112,6 +112,9 @@ steps:
     displayName: 'Publish Tests'
 
   - bash: |
+      cd build/
+      ctest -D ExperimentalCoverage
+      cd ..
       mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
       mv caterva/caterva.c.gcno caterva/caterva.gcno
       mv caterva/caterva.c.gcda caterva/caterva.gcda
@@ -123,3 +126,5 @@ steps:
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+    condition: eq(variables['Agent.OS'], 'Linux')
+    displayName: 'Publish coverage'
