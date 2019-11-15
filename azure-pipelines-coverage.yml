@@ -54,6 +54,7 @@ steps:
   - bash: |
       cd build/
       ctest -T Test
+      ctest -D ExperimentalCoverage
     displayName: 'Tests'
 
 
