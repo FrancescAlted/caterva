@@ -42,11 +42,11 @@ steps:
   - bash: |
       if [ "$AGENT_OS" == "Darwin" ]
         then
-          echo "##vso[task.prependpath]$CONDA/bin"
+          echo "##vso[task.prependpath]$CONDA/envs/catervaEnv/bin"
       fi
       if [ "$AGENT_OS" == "Windows_NT" ]
         then
-          echo "##vso[task.prependpath]$CONDA/Scripts"
+          echo "##vso[task.prependpath]$CONDA/envs/catervaEnv/Scripts"
       fi
     displayName: Add conda to PATH
 
@@ -112,6 +112,13 @@ steps:
       ctest -C ${BUILD_CONFIGURATION} -D ExperimentalCoverage
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
+
+  - bash: |
+      if [ "$AGENT_OS" == "Darwin" ]
+        then
+          sudo chown -R $USER $CONDA
+        fi
+    displayName: Take ownership of conda installation
 
   - bash: |
       conda create --yes --quiet --name catervaEnv
