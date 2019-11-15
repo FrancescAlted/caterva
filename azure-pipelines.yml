@@ -49,6 +49,7 @@ steps:
       conda install -y -c conda-forge gcovr
     condition: eq(variables['Agent.OS'], 'Linux')
     displayName: 'Coverage dependencies'
+
   - task: CacheBeta@0
     inputs:
       key: v3 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
@@ -109,3 +110,16 @@ steps:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
+
+  - bash: |
+      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
+      mv caterva/caterva.c.gcno caterva/caterva.gcno
+      mv caterva/caterva.c.gcda caterva/caterva.gcda
+      gcovr -v -r caterva/ --xml -o coverage.xml
+    condition: eq(variables['Agent.OS'], 'Linux')
+    displayName: 'Create coverage'
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
