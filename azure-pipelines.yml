@@ -47,7 +47,7 @@ steps:
   - bash: |
       echo "##vso[task.prependpath]$CONDA/bin"
       conda install -y -c conda-forge gcovr
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'Debug'))
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
     displayName: 'Coverage dependencies'
 
   - task: CacheBeta@0
@@ -119,12 +119,12 @@ steps:
       mv caterva/caterva.c.gcno caterva/caterva.gcno
       mv caterva/caterva.c.gcda caterva/caterva.gcda
       gcovr -v -r caterva/ --xml -o coverage.xml
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'Debug'))
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
     displayName: 'Create coverage'
 
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'Debug'))
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
     displayName: 'Publish coverage'
