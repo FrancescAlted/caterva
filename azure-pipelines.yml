@@ -47,7 +47,7 @@ steps:
   - bash: |
       echo "##vso[task.prependpath]$CONDA/bin"
       conda install -y -c conda-forge gcovr
-    condition: eq(variables['Agent.OS'], 'Linux')
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'Debug'))
     displayName: 'Coverage dependencies'
 
   - task: CacheBeta@0
@@ -126,5 +126,5 @@ steps:
     inputs:
       codeCoverageTool: Cobertura
       summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
-    condition: eq(variables['Agent.OS'], 'Linux')
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'Debug'))
     displayName: 'Publish coverage'
