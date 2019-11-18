@@ -38,15 +38,17 @@ pool:
 steps:
   - bash: |
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
-      echo $PATH
 
   - bash: |
-      echo "HOLA"
-      echo $PATH
-
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
+
+  - bash: |
+      echo "##vso[task.prependpath]$CONDA/bin"
+      conda install -y -c conda-forge gcovr
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
+    displayName: 'Coverage dependencies'
 
   - task: CacheBeta@0
     inputs:
@@ -76,7 +78,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) ..
+      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE ..
       cmake --build .
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
@@ -98,7 +100,6 @@ steps:
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
-      echo $PATH
       cd build/
       ctest -C ${BUILD_CONFIGURATION} -T Test
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
@@ -109,3 +110,21 @@ steps:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
+
+  - bash: |
+      cd build/
+      ctest -D ExperimentalCoverage
+      cd ..
+      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
+      mv caterva/caterva.c.gcno caterva/caterva.gcno
+      mv caterva/caterva.c.gcda caterva/caterva.gcda
+      gcovr -v -r caterva/ --xml -o coverage.xml
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
+    displayName: 'Create coverage'
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
+    displayName: 'Publish coverage'

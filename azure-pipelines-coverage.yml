@@ -19,6 +19,10 @@ steps:
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
 
   - bash: |
+      echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+
+  - bash: |
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
@@ -43,7 +47,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE..
+      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE ..
       cmake --build .
     displayName: 'Build caterva'
 
@@ -54,6 +58,18 @@ steps:
     displayName: 'Tests'
 
 
+  - bash: |
+      conda install -y -c conda-forge gcovr
+
+      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
+      mv caterva/caterva.c.gcno caterva/caterva.gcno
+      mv caterva/caterva.c.gcda caterva/caterva.gcda
+      mkdir htmlcov/
+      ls -l caterva/
+
+  - bash: |
+      gcovr -v -r caterva/ --xml -o coverage.xml
+
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
@@ -61,7 +77,6 @@ steps:
     displayName: 'Publish Tests'
 
   - task: PublishCodeCoverageResults@1
-      inputs:
-        codeCoverageTool: Cobertura
-        summaryFileLocation: '$(System.DefaultWorkingDirectory)/build/Testing/**/Coverage.xml'
-        reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
