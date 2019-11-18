@@ -119,7 +119,7 @@ steps:
       mv caterva/caterva.c.gcno caterva/caterva.gcno
       mv caterva/caterva.c.gcda caterva/caterva.gcda
       gcovr -v -r caterva/ --xml -o coverage.xml
-    condition: eq(variables['Agent.OS'], 'Linux')
+    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'Debug'))
     displayName: 'Create coverage'
 
   - task: PublishCodeCoverageResults@1
