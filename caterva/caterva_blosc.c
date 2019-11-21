@@ -211,20 +211,11 @@ int caterva_blosc_free_array(caterva_array_t *carr) {
     if (carr->sc != NULL) {
         blosc2_free_schunk(carr->sc);
     }
-    void (*aux_free)(void *) = carr->ctx->free;
-    caterva_free_ctx(carr->ctx);
-    aux_free(carr);
     return 0;
 }
 
 
 int caterva_blosc_append(caterva_array_t *carr, void *part, int64_t partsize) {
     blosc2_schunk_append_buffer(carr->sc, part, partsize);
-
-    carr->nparts++;
-    if (carr->nparts == carr->esize / carr->psize) {
-        carr->filled = true;
-    }
-
     return 0;
 }

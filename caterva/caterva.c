@@ -236,6 +236,9 @@ int caterva_free_array(caterva_array_t *carr) {
             caterva_plainbuffer_free_array(carr);
             break;
     }
+    void (*aux_free)(void *) = carr->ctx->free;
+    caterva_free_ctx(carr->ctx);
+    aux_free(carr);
     return 0;
 }
 
@@ -317,6 +320,11 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
         case CATERVA_STORAGE_PLAINBUFFER:
             caterva_plainbuffer_append(carr, part, partsize);
             break;
+    }
+
+    carr->nparts++;
+    if (carr->nparts == carr->esize / carr->psize) {
+        carr->filled = true;
     }
 
     return 0;

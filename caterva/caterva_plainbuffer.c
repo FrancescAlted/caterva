@@ -18,17 +18,15 @@ int caterva_plainbuffer_free_array(caterva_array_t *carr) {
     if (carr->buf != NULL) {
         carr->ctx->free(carr->buf);
     }
-    void (*aux_free)(void *) = carr->ctx->free;
-    caterva_free_ctx(carr->ctx);
-    aux_free(carr);
     return 0;
 }
 
 
 int caterva_plainbuffer_append(caterva_array_t *carr, void *part, int64_t partsize) {
-
     if (carr->nparts == 0) {
         carr->buf = malloc(carr->size * (size_t) carr->ctx->cparams.typesize);
+    } else {
+        carr->nparts = 0;
     }
     int64_t start_[CATERVA_MAXDIM], stop_[CATERVA_MAXDIM];
     for (int i = 0; i < carr->ndim; ++i) {
@@ -38,11 +36,6 @@ int caterva_plainbuffer_append(caterva_array_t *carr, void *part, int64_t partsi
     caterva_dims_t start = caterva_new_dims(start_, carr->ndim);
     caterva_dims_t stop = caterva_new_dims(stop_, carr->ndim);
     caterva_set_slice_buffer(carr, part, &start, &stop);
-
-    carr->nparts++;
-    if (carr->nparts == carr->esize / carr->psize) {
-        carr->filled = true;
-    }
 
     return 0;
 }
