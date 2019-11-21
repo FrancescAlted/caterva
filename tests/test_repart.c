@@ -16,12 +16,13 @@ static void test_reshape(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 
+    blosc2_frame *frame1 = blosc2_new_frame(NULL);
     caterva_array_t *src;
     if (pshape_ != NULL) {
         caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_empty_array(ctx, NULL, &pshape);
+        src = caterva_empty_array(ctx, frame1, &pshape);
     } else {
-        src = caterva_empty_array(ctx, NULL, NULL);
+        src = caterva_empty_array(ctx, frame1, NULL);
     }
     size_t buf_size = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -33,10 +34,11 @@ static void test_reshape(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64
 
     caterva_from_buffer(src, &shape, buf_src);
 
+    blosc2_frame *frame2 = blosc2_new_frame(NULL);
     caterva_array_t *dest;
     if (pshape_dest_ != NULL) {
         caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-        dest = caterva_empty_array(ctx, NULL, &pshape_dest);
+        dest = caterva_empty_array(ctx, frame2, &pshape_dest);
     } else {
         dest = caterva_empty_array(ctx, NULL, NULL);
     }
@@ -80,7 +82,7 @@ LWTEST_FIXTURE(repart, ndim2) {
     int64_t pshape_[] = {56, 53};
     int64_t pshape_dest_[] = {133, 103};
 
-    test_reshape(data->ctx, ndim, shape_, pshape_, pshape_dest_);
+    test_reshape(data->ctx, ndim, shape_, pshape_, NULL);
 }
 
 LWTEST_FIXTURE(repart, ndim6) {

@@ -1008,6 +1008,9 @@ int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
     if (src->storage != CATERVA_STORAGE_BLOSC) {
         return -1;
     }
+    if (dest->storage != CATERVA_STORAGE_BLOSC) {
+        return -1;
+    }
     int64_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
     caterva_dims_t start = caterva_new_dims(start_, dest->ndim);
     int64_t stop_[CATERVA_MAXDIM];

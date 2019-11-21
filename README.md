@@ -1,6 +1,7 @@
 # Caterva
 
 [![Build Status](https://dev.azure.com/blosc/caterva/_apis/build/status/caterva?branchName=master)](https://dev.azure.com/blosc/caterva/_build/latest?definitionId=3&branchName=master)
+![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/Blosc/Caterva/3)
 
 ## What it is
 
