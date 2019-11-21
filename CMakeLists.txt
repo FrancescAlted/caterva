@@ -44,8 +44,10 @@ endif()
 
 include(CTest)
 
+file(GLOB SRC_FILES ${CATERVA_SRC}/*.c)
+
 if (SHARED_LIB)
-    add_library(caterva_shared SHARED ${CATERVA_SRC}/caterva.c)
+    add_library(caterva_shared SHARED ${SRC_FILES})
     if (DO_COVERAGE)
         target_compile_options(caterva_shared PRIVATE -fprofile-arcs -ftest-coverage)
         target_link_libraries(caterva_shared ${BLOSC_LIB} -fprofile-arcs)
@@ -57,7 +59,7 @@ if (SHARED_LIB)
 endif ()
 
 if (STATIC_LIB)
-    add_library(caterva_static STATIC ${CATERVA_SRC}/caterva.c)
+    add_library(caterva_static STATIC ${SRC_FILES})
     if (DO_COVERAGE)
         target_compile_options(caterva_static PRIVATE -fprofile-arcs -ftest-coverage)
         target_link_libraries(caterva_static ${BLOSC_LIB} -fprofile-arcs)
