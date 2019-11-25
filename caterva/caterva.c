@@ -11,7 +11,7 @@
 
 #include "caterva.h"
 #include <string.h>
-#include "assert.h"
+#include <assert.h>
 #include "caterva_blosc.h"
 #include "caterva_plainbuffer.h"
 
@@ -447,6 +447,20 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     return 0;
 }
 
+
+int caterva_squeeze(caterva_array_t *src) {
+    switch (src->storage) {
+        case CATERVA_STORAGE_BLOSC:
+            caterva_blosc_squeeze(src);
+            break;
+        case CATERVA_STORAGE_PLAINBUFFER:
+            caterva_plainbuffer_squeeze(src);
+            break;
+    }
+    return 0;
+}
+
+
 int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
     if (src->storage != CATERVA_STORAGE_BLOSC) {
         return -1;
@@ -454,6 +468,8 @@ int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
     if (dest->storage != CATERVA_STORAGE_BLOSC) {
         return -1;
     }
+
+
     int64_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
     caterva_dims_t start = caterva_new_dims(start_, dest->ndim);
     int64_t stop_[CATERVA_MAXDIM];
@@ -462,41 +478,6 @@ int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
     }
     caterva_dims_t stop = caterva_new_dims(stop_, dest->ndim);
     caterva_get_slice(dest, src, &start, &stop);
-    return 0;
-}
-
-int caterva_squeeze(caterva_array_t *src) {
-    uint8_t nones = 0;
-    int64_t newshape_[CATERVA_MAXDIM];
-    int32_t newpshape_[CATERVA_MAXDIM];
-
-    if (src->storage == CATERVA_STORAGE_BLOSC) {
-        for (int i = 0; i < src->ndim; ++i) {
-            if (src->shape[i] != 1) {
-                newshape_[nones] = src->shape[i];
-                newpshape_[nones] = src->pshape[i];
-                nones += 1;
-            }
-        }
-        for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-            if (i < nones) {
-                src->pshape[i] = newpshape_[i];
-            } else {
-                src->pshape[i] = 1;
-            }
-        }
-    } else {
-        for (int i = 0; i < src->ndim; ++i) {
-            if (src->shape[i] != 1) {
-                newshape_[nones] = src->shape[i];
-                nones += 1;
-            }
-        }
-    }
-    src->ndim = nones;
-    caterva_dims_t newshape = caterva_new_dims(newshape_, nones);
-    caterva_update_shape(src, &newshape);
-
     return 0;
 }
 

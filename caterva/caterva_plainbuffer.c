@@ -180,3 +180,20 @@ int caterva_plainbuffer_get_slice(caterva_array_t *dest, caterva_array_t *src,
     dest->filled = true;
     return 0;
 }
+
+
+int caterva_plainbuffer_squeeze(caterva_array_t *src) {
+    uint8_t nones = 0;
+    int64_t newshape_[CATERVA_MAXDIM];
+    for (int i = 0; i < src->ndim; ++i) {
+        if (src->shape[i] != 1) {
+            newshape_[nones] = src->shape[i];
+            nones += 1;
+        }
+    }
+    src->ndim = nones;
+    caterva_dims_t newshape = caterva_new_dims(newshape_, nones);
+    caterva_update_shape(src, &newshape);
+
+    return 0;
+}

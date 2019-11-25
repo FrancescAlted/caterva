@@ -579,3 +579,30 @@ int caterva_blosc_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva
 
     return 0;
 }
+
+int caterva_blosc_squeeze(caterva_array_t *src) {
+    uint8_t nones = 0;
+    int64_t newshape_[CATERVA_MAXDIM];
+    int32_t newpshape_[CATERVA_MAXDIM];
+
+    for (int i = 0; i < src->ndim; ++i) {
+        if (src->shape[i] != 1) {
+            newshape_[nones] = src->shape[i];
+            newpshape_[nones] = src->pshape[i];
+            nones += 1;
+        }
+    }
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        if (i < nones) {
+            src->pshape[i] = newpshape_[i];
+        } else {
+            src->pshape[i] = 1;
+        }
+    }
+
+    src->ndim = nones;
+    caterva_dims_t newshape = caterva_new_dims(newshape_, nones);
+    caterva_update_shape(src, &newshape);
+
+    return 0;
+}

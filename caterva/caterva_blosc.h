@@ -33,4 +33,6 @@ int caterva_blosc_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dim
 int caterva_blosc_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start,
                             caterva_dims_t *stop);
 
+int caterva_blosc_squeeze(caterva_array_t *src);
+
 #endif //CATERVA_CATERVA_BLOSC_H
