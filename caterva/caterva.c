@@ -504,9 +504,13 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
             carr->shape[i] = shape->dims[i];
             carr->eshape[i] = shape->dims[i];
             carr->pshape[i] = (int32_t)(shape->dims[i]);
+            carr->epshape[i] = shape->dims[i];
+            carr->spshape[i] = (int32_t)(shape->dims[i]);
             carr->size *= carr->shape[i];
             carr->esize *= carr->eshape[i];
             carr->psize *= carr->pshape[i];
+            carr->epsize *= carr->eshape[i];
+            carr->spsize *= carr->pshape[i];
         }
     }
 
@@ -516,24 +520,24 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
 
 int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterva_ctx_t *ctx){
     const int8_t *src_b = (int8_t *) src;
-    int64_t d_shape[CATERVA_MAXDIM]; int64_t d_eshape[CATERVA_MAXDIM]; int32_t d_pshape[CATERVA_MAXDIM];
-    int64_t d_epshape[CATERVA_MAXDIM]; int32_t d_spshape[CATERVA_MAXDIM];
+    // int64_t d_shape[CATERVA_MAXDIM]; int64_t d_eshape[CATERVA_MAXDIM];
+    int32_t d_pshape[CATERVA_MAXDIM]; int64_t d_epshape[CATERVA_MAXDIM]; int32_t d_spshape[CATERVA_MAXDIM];
     int8_t d_ndim = carr->ndim;
 
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {      // variables locales desplazadas
-        d_shape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->shape[i];
-        d_eshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->eshape[i];
+        // d_shape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->shape[i];
+        // d_eshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->eshape[i];
         d_pshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->pshape[i];
         d_epshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->epshape[i];
         d_spshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->spshape[i];
     }
 
     /* Calculate the constants out of the for  */
-    int64_t aux[CATERVA_MAXDIM];            // en aux[0] metemos el num de particiones total del conjunto
-    aux[7] = d_eshape[7] / d_pshape[7];     // numero de particiones en la dim 7
-    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
-        aux[i] = d_eshape[i] / d_pshape[i] * aux[i + 1];    // num particiones de la dim i *
-    }                                             // num particiones de las siguientes dims
+    // int64_t aux[CATERVA_MAXDIM];            // en aux[0] metemos el num de particiones total del conjunto
+    // aux[7] = d_eshape[7] / d_pshape[7];     // numero de particiones en la dim 7
+    // for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
+        // aux[i] = d_eshape[i] / d_pshape[i] * aux[i + 1];    // num particiones de la dim i *
+    // }                                             // num particiones de las siguientes dims
 
     int64_t aux2[CATERVA_MAXDIM];            // en aux2[0] metemos el num de subparticiones total del chunk
     aux2[7] = d_epshape[7] / d_spshape[7];     // numero de subparticiones del chunk en la dim 7
@@ -542,20 +546,21 @@ int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterv
     }                                             // num subparticiones de las siguientes dims
 
     /* Fill each chunk buffer */
-    int64_t desp[CATERVA_MAXDIM];
-    int32_t actual_psize[CATERVA_MAXDIM];
-    for (int64_t ci = 0; ci < carr->esize / carr->psize; ci++) {    // ci va de 0 al numero de chunks del conjunto
+    /*int64_t desp[CATERVA_MAXDIM];
+    int32_t actual_psize[CATERVA_MAXDIM];*/
+    /* for (int64_t ci = 0; ci < carr->esize / carr->psize; ci++) {    // ci va de 0 al numero de chunks del conjunto
         memset(chunk, 0, carr->psize *
                          carr->ctx->cparams.typesize);           //  desde la pos de mem chunk hasta chunk + psize guardamos 0s
         /* Calculate the coord. of the chunk first element */
-        desp[7] = ci % (d_eshape[7] / d_pshape[7]) *
+        /* desp[7] = ci % (d_eshape[7] / d_pshape[7]) *
                   d_pshape[7];   // coord del 1r elemento de la particion del chunk ci en dim7
         for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
             desp[i] = ci % (aux[i]) / (aux[i + 1]) *
                       d_pshape[i];   // coord del 1r elem de la particion del chunk ci en la dim i
         }
+        */
         /* Calculate if padding with 0s is needed for this chunk */
-        for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {     // para cada dim
+        /*for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {     // para cada dim
             if (desp[i] + d_pshape[i] >
                 d_shape[i]) {      // si la 1a pos del chunk siguiente a ci se pasa del tam de la dim (ultimo chunk)
                 actual_psize[i] = d_shape[i] -
@@ -563,59 +568,54 @@ int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterv
             } else {                                    // si ci no es el ultimo chunk
                 actual_psize[i] = d_pshape[i];          // no cambiamos el psize
             }
-        }
+        }*/
 
         /* Fill each subpartition buffer */
-        int64_t orig[CATERVA_MAXDIM];
-        int32_t actual_spsize[CATERVA_MAXDIM];
-        for (int64_t sci = 0;
-             sci < carr->epsize / carr->spsize; sci++) {    // sci va de 0 al numero de subchunks del chunk
-            /*Calculate the coord. of the subpartition first element */
-            orig[7] = desp[7] + sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
-            for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
-                orig[i] = desp[i] + sci % (aux2[i]) / (aux2[i + 1]) *
-                                    d_spshape[i];   // coord del 1r elem de la subparticion sci en la dim i
+    int64_t orig[CATERVA_MAXDIM];
+    int32_t actual_spsize[CATERVA_MAXDIM];
+    for (int64_t sci = 0; sci < carr->epsize / carr->spsize; sci++) {    // sci va de 0 al numero de subchunks del chunk
+            // memset(chunk, 0, carr->psize *carr->ctx->cparams.typesize);           //  desde la pos de mem chunk hasta chunk + psize guardamos 0s
+        /*Calculate the coord. of the subpartition first element */
+        orig[7] = sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
+        for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
+            orig[i] = sci % (aux2[i]) / (aux2[i + 1]) * d_spshape[i];   // coord del 1r elem de la subparticion sci en la dim i
+        }
+        /* Calculate if padding with 0s is needed for this subchunk */
+        for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {     // para cada dim
+            if (orig[i] + d_spshape[i] > actual_spsize[i]) {      // si la 1a pos del subchunk siguiente a sci se pasa del tam del chunk (ultimo subchunk)
+                actual_spsize[i] = actual_spsize[i] - orig[i];    // el nuevo spsize es la distancia entre la 1a pos de la subpart y el final del chunk
+            } else {                                    // si sci no es el ultimo subchunk
+                actual_spsize[i] = d_spshape[i];          // no cambiamos el spsize
             }
-            /* Calculate if padding with 0s is needed for this subchunk */
-            for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {     // para cada dim
-                if (orig[i] + d_spshape[i] >
-                    actual_psize[i]) {      // si la 1a pos del subchunk siguiente a sci se pasa del tam del chunk (ultimo subchunk)
-                    actual_spsize[i] = actual_psize[i] -
-                                       orig[i];    // el nuevo spsize es la distancia entre la 1a pos de la subpart y el final del chunk
-                } else {                                    // si sci no es el ultimo subchunk
-                    actual_spsize[i] = d_spshape[i];          // no cambiamos el spsize
-                }
-            }
-            int32_t seq_copylen = actual_spsize[7] *
-                                  carr->ctx->cparams.typesize;     // tamaño de la subparticion en la dim plano X (cuanto copiar desde el
-            /* Copy each line of data from src to chunk */                                   // inicio de una linea hacia la drerecha)
-            int64_t ii[CATERVA_MAXDIM];     // dentro del subchunk sci, ii[i] recorre sus filas en la dimension i
-            for (ii[6] = 0; ii[6] < actual_spsize[6]; ii[6]++) {
-                for (ii[5] = 0; ii[5] < actual_spsize[5]; ii[5]++) {
-                    for (ii[4] = 0; ii[4] < actual_spsize[4]; ii[4]++) {
-                        for (ii[3] = 0; ii[3] < actual_spsize[3]; ii[3]++) {
-                            for (ii[2] = 0; ii[2] < actual_spsize[2]; ii[2]++) {
-                                for (ii[1] = 0; ii[1] < actual_spsize[1]; ii[1]++) {
-                                    for (ii[0] = 0; ii[0] < actual_spsize[0]; ii[0]++) {
-                                        int64_t d_a = d_spshape[7];      // en d_a metemos el tam subpart en la dim 7
-                                        int64_t d_coord_f = 0;          // aqui meteremos lo que se le suma a chunk para llegar al 1r elem vacio
-                                        for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {     // para cada dim
-                                            d_coord_f += ii[i] *
-                                                         d_a;   // le sumamos el num de fila en sci en dim i * tam subpart
-                                            d_a *= d_spshape[i];         // le multiplicamos el tam subpart en la dim i
-                                        }
-                                        int64_t s_coord_f = orig[7];    // aqui meteremos lo que se le suma a src para llegar al 1r elem de la fila
-                                        int64_t s_a = d_shape[7];       // tamaño de la dim 7
-                                        for (int i = CATERVA_MAXDIM - 2;
-                                             i >= 0; i--) {     // a s_coord_f le sumamos la pos en
-                                            s_coord_f += (orig[i] + ii[i]) *
-                                                         s_a;   // el chunk i * num elem de las siguientes dim
-                                            s_a *= d_shape[i];          // le multiplicamos el tam de la dim i
-                                        }
-                                        memcpy(chunk + d_coord_f * carr->ctx->cparams.typesize,
-                                               src_b + s_coord_f * carr->ctx->cparams.typesize,
-                                               seq_copylen);    // copia una fila de src_b en chunk
+        }
+        int32_t seq_copylen = actual_spsize[7] * carr->ctx->cparams.typesize;     // tamaño de la subparticion en la dim plano X (cuanto copiar desde el
+        /* Copy each line of data from src to chunk */                                   // inicio de una linea hacia la drerecha)
+        int64_t ii[CATERVA_MAXDIM];     // dentro del subchunk sci, ii[i] recorre sus filas en la dimension i
+        for (ii[6] = 0; ii[6] < actual_spsize[6]; ii[6]++) {
+            for (ii[5] = 0; ii[5] < actual_spsize[5]; ii[5]++) {
+                for (ii[4] = 0; ii[4] < actual_spsize[4]; ii[4]++) {
+                    for (ii[3] = 0; ii[3] < actual_spsize[3]; ii[3]++) {
+                        for (ii[2] = 0; ii[2] < actual_spsize[2]; ii[2]++) {
+                            for (ii[1] = 0; ii[1] < actual_spsize[1]; ii[1]++) {
+                                for (ii[0] = 0; ii[0] < actual_spsize[0]; ii[0]++) {
+                                    int64_t d_a = d_spshape[7];      // en d_a metemos el tam subpart en la dim 7
+                                    int64_t d_coord_f = sci * carr->spsize;          // aqui meteremos lo que se le suma a chunk para llegar al 1r elem vacio
+                                    for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {     // para cada dim
+                                        d_coord_f += ii[i] * d_a;   // le sumamos el num de fila en sci en dim i * tam subpart
+                                        d_a *= d_spshape[i];         // le multiplicamos el tam subpart en la dim i
                                     }
+
+                                    int64_t s_coord_f = orig[7];    // aqui meteremos lo que se le suma a src para llegar al 1r elem de la fila
+                                    int64_t s_a = d_pshape[7];       // tamaño de la dim 7
+                                    for (int i = CATERVA_MAXDIM - 2;
+                                        i >= 0; i--) {     // a s_coord_f le sumamos la pos en
+                                        s_coord_f += (orig[i] + ii[i]) *
+                                                     s_a;   // el chunk i * num elem de las siguientes dim
+                                        s_a *= d_pshape[i];          // le multiplicamos el tam del chunk en la dim i
+                                    }
+                                    memcpy(chunk + d_coord_f * carr->ctx->cparams.typesize,
+                                           src_b + s_coord_f * carr->ctx->cparams.typesize,
+                                           seq_copylen);    // copia una fila de src_b en chunk
                                 }
                             }
                         }
@@ -623,10 +623,11 @@ int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterv
                 }
             }
         }
-        ctx->free(chunk);
     }
-
+    ctx->free(chunk);
 }
+
+
 
 
 int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
@@ -670,12 +671,12 @@ int caterva_append_2(caterva_array_t *carr, void *part, int64_t partsize) {
     }
 
     caterva_ctx_t *ctx = carr->ctx;
-    int32_t typesize = carr->sc->typesize;
-    int8_t *rep = ctx->alloc((size_t) carr->psize * typesize);
+    int32_t typesize = carr->ctx->cparams.typesize;
+    int8_t *rep = ctx->alloc((size_t) carr->epsize * typesize);
     caterva_repart_chunk(rep, part, carr, ctx);
 
     if (carr->storage == CATERVA_STORAGE_BLOSC) {
-        blosc2_schunk_append_buffer(carr->sc, part, partsize);
+        blosc2_schunk_append_buffer(carr->sc, rep, partsize);
     } else {                                                    // NOOOOOOOOOOOOOOOOOOO
         if (carr->nparts == 0) {        // matriz vacia
             carr->buf = malloc(carr->size * (size_t) carr->ctx->cparams.typesize);      // reservamos el espacio que toca
