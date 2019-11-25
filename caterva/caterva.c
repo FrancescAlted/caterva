@@ -469,7 +469,6 @@ int caterva_repart(caterva_array_t *dest, caterva_array_t *src) {
         return -1;
     }
 
-
     int64_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
     caterva_dims_t start = caterva_new_dims(start_, dest->ndim);
     int64_t stop_[CATERVA_MAXDIM];
@@ -499,25 +498,14 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src) {
 
 
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
-    caterva_dims_t shape = caterva_new_dims(src->shape, src->ndim);
-    if (src->storage == CATERVA_STORAGE_PLAINBUFFER) {
-        if (dest->storage == CATERVA_STORAGE_PLAINBUFFER) {
-            caterva_update_shape(dest, &shape);
-            dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
-            memcpy(dest->buf, src->buf, dest->size * dest->ctx->cparams.typesize);
-            dest->filled = true;
-        } else {
-            caterva_from_buffer(dest, &shape, src->buf);
-        }
-    } else {
-        if (dest->storage == CATERVA_STORAGE_PLAINBUFFER) {
-            caterva_update_shape(dest, &shape);
-            dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
-            caterva_to_buffer(src, dest->buf);
-            dest->filled = true;
-        } else {
-            caterva_repart(dest, src);
-        }
+
+    switch (dest->storage) {
+        case CATERVA_STORAGE_BLOSC:
+            caterva_blosc_copy(dest, src);
+            break;
+        case CATERVA_STORAGE_PLAINBUFFER:
+            caterva_plainbuffer_copy(dest, src);
+            break;
     }
     return 0;
 }

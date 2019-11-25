@@ -35,4 +35,6 @@ int caterva_blosc_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva
 
 int caterva_blosc_squeeze(caterva_array_t *src);
 
+int caterva_blosc_copy(caterva_array_t *dest, caterva_array_t *src);
+
 #endif //CATERVA_CATERVA_BLOSC_H

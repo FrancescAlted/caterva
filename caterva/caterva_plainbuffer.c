@@ -197,3 +197,15 @@ int caterva_plainbuffer_squeeze(caterva_array_t *src) {
 
     return 0;
 }
+
+
+int caterva_plainbuffer_copy(caterva_array_t *dest, caterva_array_t *src) {
+    caterva_dims_t shape = caterva_new_dims(src->shape, src->ndim);
+
+    caterva_update_shape(dest, &shape);
+    dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
+    caterva_to_buffer(src, dest->buf);
+    dest->filled = true;
+
+    return 0;
+}

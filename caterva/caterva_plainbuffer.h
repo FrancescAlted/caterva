@@ -26,5 +26,6 @@ int caterva_plainbuffer_get_slice(caterva_array_t *dest, caterva_array_t *src,
 
 int caterva_plainbuffer_squeeze(caterva_array_t *src);
 
+int caterva_plainbuffer_copy(caterva_array_t *dest, caterva_array_t *src);
 
 #endif //CATERVA_CATERVA_PLAINBUFFER_H
