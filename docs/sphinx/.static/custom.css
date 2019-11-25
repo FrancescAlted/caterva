@@ -2,6 +2,10 @@
     background: rgba(0, 127, 136, 0.05);
 }
 
+.wy-nav-top {
+    background: rgba(0, 127, 136, 0.8);
+}
+
 /*
 .wy-nav-content {
     max-width: 80%;

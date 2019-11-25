@@ -25,10 +25,10 @@ to a maximum.
 Being able to store in an in-memory data container does not mean that data cannot be persisted.
 It is critical to find a way to store and retrieve data efficiently. Also, it is important to
 adopt open formats for reducing the maintenance burden and facilitate its adoption more quickly.
-Blosc2 brings such an efficient and open format for persistency. This open format is used to create
+Blosc2 brings such an efficient and open format for `persistency <https://github.com/Blosc/c-blosc2/blob/master/README_FRAME_FORMAT.rst>`__. This open format is used to create
 persistent Caterva containers.
 
-A aditional feature thet introduces Blosc2 is the concept of metalayers. They are small metadata
+An aditional feature that introduces Blosc2 is the concept of metalayers. They are small metadata
 for informing about the kind of data that is stored on a Blosc2 container. They are handy for
 defining layers with different specs: data types, geo-spatial...
 
@@ -36,7 +36,7 @@ Caterva is created by specifying a metalayer on top of a Blosc2 container for st
 multidimensional information. This metalayer can be modified so that the shapes can be updated
 (e.g. an array can grow or shrink).
 
-Caterva’s main feature is to be able to extract all kind of slices out of high dimesional
+Caterva’s main feature is to be able to extract all kind of slices out of high dimensional
 datasets, efficiently. Resulting slices can be either Caterva containers or regular plain buffers.
 
 

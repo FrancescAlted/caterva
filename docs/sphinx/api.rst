@@ -46,6 +46,8 @@ Creation functions
 
 ..  doxygenfunction:: caterva_from_buffer
 
+..  doxygenfunction:: caterva_copy
+
 ..  doxygenfunction:: caterva_free_array
 
 
