@@ -13,6 +13,8 @@
 #ifndef CATERVA_CATERVA_BLOSC_H
 #define CATERVA_CATERVA_BLOSC_H
 
+caterva_array_t *caterva_blosc_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape);
+
 caterva_array_t *caterva_blosc_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, bool copy);
 
 caterva_array_t *caterva_blosc_from_sframe(caterva_ctx_t *ctx, uint8_t *sframe, int64_t len, bool copy);
@@ -36,5 +38,7 @@ int caterva_blosc_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva
 int caterva_blosc_squeeze(caterva_array_t *src);
 
 int caterva_blosc_copy(caterva_array_t *dest, caterva_array_t *src);
+
+int caterva_blosc_update_shape(caterva_array_t *carr, caterva_dims_t *shape);
 
 #endif //CATERVA_CATERVA_BLOSC_H

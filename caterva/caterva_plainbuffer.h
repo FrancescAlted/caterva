@@ -7,6 +7,8 @@
 #define CATERVA_CATERVA_PLAINBUFFER_H
 
 
+caterva_array_t *caterva_plainbuffer_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape);
+
 int caterva_plainbuffer_free_array(caterva_array_t *carr);
 
 int caterva_plainbuffer_append(caterva_array_t *carr, void *part, int64_t partsize);
@@ -27,5 +29,7 @@ int caterva_plainbuffer_get_slice(caterva_array_t *dest, caterva_array_t *src,
 int caterva_plainbuffer_squeeze(caterva_array_t *src);
 
 int caterva_plainbuffer_copy(caterva_array_t *dest, caterva_array_t *src);
+
+int caterva_plainbuffer_update_shape(caterva_array_t *carr, caterva_dims_t *shape);
 
 #endif //CATERVA_CATERVA_PLAINBUFFER_H

@@ -209,3 +209,37 @@ int caterva_plainbuffer_copy(caterva_array_t *dest, caterva_array_t *src) {
 
     return 0;
 }
+
+
+int caterva_plainbuffer_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
+    carr->ndim = shape->ndim;
+    carr->size = 1;
+    carr->esize = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        carr->shape[i] = shape->dims[i];
+        carr->eshape[i] = shape->dims[i];
+        carr->pshape[i] = (int32_t)(shape->dims[i]);
+        carr->size *= carr->shape[i];
+        carr->esize *= carr->eshape[i];
+        carr->psize *= carr->pshape[i];
+    }
+
+    return 0;
+}
+
+caterva_array_t *caterva_plainbuffer_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape) {
+    /* Create a caterva_array_t buffer */
+    caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
+    carr->size = 1;
+    carr->psize = 1;
+    carr->esize = 1;
+    // The partition cache (empty initially)
+    carr->part_cache.data = NULL;
+    carr->part_cache.nchunk = -1;  // means no valid cache yet
+    carr->sc = NULL;
+    carr->buf = NULL;
+
+    carr->storage = CATERVA_STORAGE_PLAINBUFFER;
+
+    return carr;
+}
