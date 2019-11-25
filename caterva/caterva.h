@@ -123,12 +123,20 @@ typedef struct {
     //!< Shape of each partition.
     int64_t eshape[CATERVA_MAXDIM];
     //!< Shape of padded data.
+    int32_t spshape[CATERVA_MAXDIM];    // int32 ??????????????
+    //!< Shape of each subpartition.
+    int64_t epshape[CATERVA_MAXDIM];    // int64 ?????????????
+    //!< Shape of padded partition.
     int64_t size;
     //!< Size of original data.
     int32_t psize;
     //!< Size of each partition.
     int64_t esize;
     //!< Size of padded data.
+    int32_t spsize;                 // int32 ??????????
+    //!< Size of each subpartition.
+    int64_t epsize;                 // int64 ?????????
+    //!< Size of padded partition.
     int8_t ndim;
     //!< Data dimensions.
     bool empty;
@@ -198,6 +206,8 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
  */
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t *pshape);
 
+caterva_array_t *caterva_empty_array_2(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t *pshape, caterva_dims_t *spshape);
+
 
 /**
  * @brief Free a caterva container
@@ -210,6 +220,19 @@ int caterva_free_array(caterva_array_t *carr);
 
 
 /**
+ * @brief Reorders a buffer in order to be able to append subpartitions
+ *
+ * @param chunk Pointer to the buffer where data will be stored
+ * @param src A pointer to the buffer where data is stored
+ * @param carr Pointer to the container where useful parameters are stored
+ * @param ctx Pointer to the caterva context to be used
+ *
+ * @return An error code
+ */
+int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterva_ctx_t *ctx);
+
+
+/**
  * Append a partition to a caterva container (until it is completely filled)
  *
  * @param carr Pointer to the container where data will be appended
@@ -219,6 +242,8 @@ int caterva_free_array(caterva_array_t *carr);
  * @return An error code
  */
 int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
+
+int caterva_append_2(caterva_array_t *carr, void *part, int64_t partsize);
 
 
 /**
