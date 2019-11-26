@@ -52,20 +52,21 @@ typedef enum {
 
 
 /**
- * @brief A context for caterva containers.
+ * @brief Context for Caterva containers that specifies the functions used to manage memory and
+ * the compression/decompression parameters used in Blosc.
  *
  * In parenthesis it is shown the default value used internally when a \c NULL value is passed to the
  * constructor.
  */
 typedef struct {
     void *(*alloc)(size_t);
-    //!< The allocation memory function used internally (malloc)
+    //!< The allocation memory function used internally.
     void (*free)(void *);
-    //!< The free memory function used internally (free)
+    //!< The free memory function used internally.
     blosc2_cparams cparams;
-    //!< The blosc compression params used
+    //!< The compression parameters used in Blosc.
     blosc2_dparams dparams;
-    //!< The blosc decompression params used
+    //!< The decompression parameters used in Blosc.
 } caterva_ctx_t;
 
 
@@ -145,12 +146,12 @@ typedef struct {
 /**
  * @brief Create a context for Caterva functions.
  *
- * @param all The allocation function to use internally. If it is \c NULL, malloc is used.
- * @param free The free function to use internally. If it is \c NULL, free is used.
+ * @param all The allocation function to use internally. Default: \c malloc.
+ * @param free The free function to use internally. IDefault: \c free.
  * @param cparams The compression parameters used when a caterva container is created.
  * @param dparams The decompression parameters used when data of a caterva container is decompressed.
  *
- * @return A pointer to the new caterva context. \p NULL is returned if this fails.
+ * @return Pointer to a new Caterva context. \p NULL is returned if this fails.
  */
 caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
 
@@ -158,9 +159,9 @@ caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc
 /**
  * @brief Free a caterva context
  *
- * @param ctx Pointer to the context to be freed
+ * @param ctx Pointer to the context to be freed.
  *
- * @return An error code
+ * @return An error code.
  */
 int caterva_free_ctx(caterva_ctx_t *ctx);
 
