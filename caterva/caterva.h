@@ -300,20 +300,6 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
 
 
 /**
- * @brief Repartition a caterva container
- *
- * It can only be used if the container is based on a blosc superchunk since it is the only one
- * that has the concept of partition.
- *
- * @param dest Pointer to the empty container with the new partition shape.
- * @param src Pointer to the container to be repartitioned.
- *
- * @return An error code
- */
-int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
-
-
-/**
  * @brief Squeeze a caterva container
  *
  * This function remove single-dimensional entries from the shape of a caterva container.
