@@ -5,20 +5,28 @@ This section contains the Caterva public API and the structures needed to use it
 to be backward compatible with both the C-Blosc1 API and format.
 
 
-Utility variables
-+++++++++++++++++
+Global constants
+++++++++++++++++
 
 ..  doxygendefine:: CATERVA_MAXDIM
 ..  doxygendefine:: CATERVA_METALAYER_VERSION
 
-Utility structs
-+++++++++++++++
+
+Shapes and dimensions
++++++++++++++++++++++
 
 ..  doxygenstruct:: caterva_dims_t
     :members:
 
-Context functions
-+++++++++++++++++
+.. doxygenfunction:: caterva_new_dims
+
+.. doxygenfunction:: caterva_get_shape
+
+.. doxygenfunction:: caterva_get_pshape
+
+
+Context
++++++++
 
 ..  doxygenstruct:: caterva_ctx_t
     :members:
@@ -28,8 +36,8 @@ Context functions
 ..  doxygenfunction:: caterva_free_ctx
 
 
-Creation functions
-++++++++++++++++++
+Creation
+++++++++
 
 ..  doxygenstruct:: caterva_array_t
     :members:
@@ -61,3 +69,4 @@ Slicing
 .. doxygenfunction:: caterva_set_slice_buffer
 
 .. doxygenfunction:: caterva_squeeze
+

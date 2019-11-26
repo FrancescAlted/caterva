@@ -1,14 +1,17 @@
 Caterva: a simple multidimensional container for compressed data
 ================================================================
 
-.. image:: https://dev.azure.com/blosc/caterva/_apis/build/status/caterva?branchName=master
-   :target: https://dev.azure.com/blosc/caterva/_build/latest?definitionId=3&branchName=master
-   :alt: Build Status
+..  image:: https://dev.azure.com/blosc/caterva/_apis/build/status/caterva?branchName=master
+    :target: https://dev.azure.com/blosc/caterva/_build/latest?definitionId=3&branchName=master
+    :alt: Build Status
 
-.. image:: https://readthedocs.org/projects/caterva/badge/?version=latest
-   :target: https://caterva.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
+..  image:: https://readthedocs.org/projects/caterva/badge/?version=latest
+    :target: https://caterva.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
+..  image:: https://img.shields.io/azure-devops/coverage/Blosc/Caterva/3
+    :target: https://dev.azure.com/blosc/caterva/_build/latest?definitionId=5&branchName=master
+    :alt: Coverage Status
 
 Caterva is an open source C library that allows to store large multidimensional, chunked,
 compressed datasets. Data can be stored either in-memory or on-disk, but the API to handle both
