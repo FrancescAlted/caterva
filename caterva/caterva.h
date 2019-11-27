@@ -49,7 +49,7 @@
 #define DEBUG_PRINT(...) do{ fprintf( stderr, "%s\n", __VA_ARGS__ ); } while( 0 )
 #endif
 
-#define CATERVA_ASSERT_RC(rc, msg) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(msg); goto fail; }} while( 0 )
+#define CATERVA_ERROR(rc, msg) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(msg); goto fail; }} while( 0 )
 
 /* The version for metalayer format; starts from 0 and it must not exceed 127 */
 #define CATERVA_METALAYER_VERSION 0
