@@ -525,19 +525,10 @@ int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterv
     int8_t d_ndim = carr->ndim;
 
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {      // variables locales desplazadas
-        // d_shape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->shape[i];
-        // d_eshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->eshape[i];
         d_pshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->pshape[i];
         d_epshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->epshape[i];
         d_spshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = carr->spshape[i];
     }
-
-    /* Calculate the constants out of the for  */
-    // int64_t aux[CATERVA_MAXDIM];            // en aux[0] metemos el num de particiones total del conjunto
-    // aux[7] = d_eshape[7] / d_pshape[7];     // numero de particiones en la dim 7
-    // for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
-        // aux[i] = d_eshape[i] / d_pshape[i] * aux[i + 1];    // num particiones de la dim i *
-    // }                                             // num particiones de las siguientes dims
 
     int64_t aux2[CATERVA_MAXDIM];            // en aux2[0] metemos el num de subparticiones total del chunk
     aux2[7] = d_epshape[7] / d_spshape[7];     // numero de subparticiones del chunk en la dim 7
@@ -545,45 +536,19 @@ int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterv
         aux2[i] = d_epshape[i] / d_spshape[i] * aux2[i + 1];    // num subparticiones de la dim i *
     }                                             // num subparticiones de las siguientes dims
 
-    /* Fill each chunk buffer */
-    /*int64_t desp[CATERVA_MAXDIM];
-    int32_t actual_psize[CATERVA_MAXDIM];*/
-    /* for (int64_t ci = 0; ci < carr->esize / carr->psize; ci++) {    // ci va de 0 al numero de chunks del conjunto
-        memset(chunk, 0, carr->psize *
-                         carr->ctx->cparams.typesize);           //  desde la pos de mem chunk hasta chunk + psize guardamos 0s
-        /* Calculate the coord. of the chunk first element */
-        /* desp[7] = ci % (d_eshape[7] / d_pshape[7]) *
-                  d_pshape[7];   // coord del 1r elemento de la particion del chunk ci en dim7
-        for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
-            desp[i] = ci % (aux[i]) / (aux[i + 1]) *
-                      d_pshape[i];   // coord del 1r elem de la particion del chunk ci en la dim i
-        }
-        */
-        /* Calculate if padding with 0s is needed for this chunk */
-        /*for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {     // para cada dim
-            if (desp[i] + d_pshape[i] >
-                d_shape[i]) {      // si la 1a pos del chunk siguiente a ci se pasa del tam de la dim (ultimo chunk)
-                actual_psize[i] = d_shape[i] -
-                                  desp[i];    // el nuevo psize es la distancia entre la 1a pos de la part y el final de la dim
-            } else {                                    // si ci no es el ultimo chunk
-                actual_psize[i] = d_pshape[i];          // no cambiamos el psize
-            }
-        }*/
-
         /* Fill each subpartition buffer */
     int64_t orig[CATERVA_MAXDIM];
     int32_t actual_spsize[CATERVA_MAXDIM];
     for (int64_t sci = 0; sci < carr->epsize / carr->spsize; sci++) {    // sci va de 0 al numero de subchunks del chunk
-            // memset(chunk, 0, carr->psize *carr->ctx->cparams.typesize);           //  desde la pos de mem chunk hasta chunk + psize guardamos 0s
         /*Calculate the coord. of the subpartition first element */
         orig[7] = sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
         for (int i = CATERVA_MAXDIM - 2; i >= 0; i--) {
             orig[i] = sci % (aux2[i]) / (aux2[i + 1]) * d_spshape[i];   // coord del 1r elem de la subparticion sci en la dim i
         }
         /* Calculate if padding with 0s is needed for this subchunk */
-        for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {     // para cada dim
-            if (orig[i] + d_spshape[i] > actual_spsize[i]) {      // si la 1a pos del subchunk siguiente a sci se pasa del tam del chunk (ultimo subchunk)
-                actual_spsize[i] = actual_spsize[i] - orig[i];    // el nuevo spsize es la distancia entre la 1a pos de la subpart y el final del chunk
+        for (int i = CATERVA_MAXDIM - 1; i >= 0; i--) {  // ------------------- OJO AQUI QUE SE PUEDE LIAR ----------------------
+            if (orig[i] + d_spshape[i] > d_spshape[i]) {      // si la 1a pos del subchunk siguiente a sci se pasa del tam del chunk (ultimo subchunk)
+                actual_spsize[i] = d_pshape[i] - orig[i];    // el nuevo spsize es la distancia entre la 1a pos de la subpart y el final del chunk
             } else {                                    // si sci no es el ultimo subchunk
                 actual_spsize[i] = d_spshape[i];          // no cambiamos el spsize
             }
@@ -624,7 +589,6 @@ int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterv
             }
         }
     }
-    ctx->free(chunk);
 }
 
 

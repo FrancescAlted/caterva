@@ -71,19 +71,13 @@ LWTEST_FIXTURE(append, 2_dim_plain) {
     test_append(data->ctx, ndim, shape_, NULL);
 }
 
+
 LWTEST_FIXTURE(append, 3_dim) {
     const uint8_t ndim = 3;
     int64_t shape_[] = {4, 3, 3};
     int64_t pshape_[] = {2, 2, 2};
 
     test_append(data->ctx, ndim, shape_, pshape_);
-}
-
-LWTEST_FIXTURE(append, 4_dim_plain) {
-    const uint8_t ndim = 4;
-    int64_t shape_[] = {4, 3, 5, 4};
-
-    test_append(data->ctx, ndim, shape_, NULL);
 }
 
 LWTEST_FIXTURE(append, 5_dim) {
