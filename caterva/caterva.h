@@ -33,8 +33,27 @@
 #define CATERVA_VERSION_STRING   "0.2.3-dev"  /* string version.  Sync with above! */
 #define CATERVA_VERSION_DATE     "2019-10-28"    /* date version */
 
+
+/* Errors */
+#define CATERVA_SUCCEED 0
+#define CATERVA_ERR_INVALID_ARGUMENT 1
+#define CATERVA_ERR_BLOSC_FAILED 2
+#define CATERVA_ERR_CONTAINER_FILLED 3
+#define CATERVA_ERR_ALLOC_FAILED 4
+#define CATERVA_ERR_INVALID_STORAGE 4
+
+
+#ifdef NDEBUG
+#define DEBUG_PRINT(...) do{ } while ( 0 )
+#else
+#define DEBUG_PRINT(...) do{ fprintf( stderr, "%s\n", __VA_ARGS__ ); } while( 0 )
+#endif
+
+#define CATERVA_ASSERT_RC(rc, msg) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(msg); goto fail; }} while( 0 )
+
 /* The version for metalayer format; starts from 0 and it must not exceed 127 */
 #define CATERVA_METALAYER_VERSION 0
+
 
 /* The maximum number of dimensions for Caterva arrays */
 #define CATERVA_MAXDIM 8
