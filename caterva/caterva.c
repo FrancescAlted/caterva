@@ -339,16 +339,18 @@ int caterva_squeeze(caterva_array_t *src) {
 
 
 int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
-
+    int rc = CATERVA_SUCCEED;
     switch (dest->storage) {
         case CATERVA_STORAGE_BLOSC:
-            caterva_blosc_copy(dest, src);
+            rc = caterva_blosc_copy(dest, src);
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            caterva_plainbuffer_copy(dest, src);
+            rc = caterva_plainbuffer_copy(dest, src);
             break;
     }
-    return 0;
+    CATERVA_ERROR(rc, "Error copying a caterva container");
+    fail:
+        return rc;
 }
 
 
