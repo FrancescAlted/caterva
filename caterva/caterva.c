@@ -33,7 +33,6 @@ int caterva_new_ctx(caterva_params_t *params, caterva_ctx_t **ctx) {
     }
     blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
     dparams.nthreads = params->nthreads;
-
     if (params->alloc == NULL) {
         params->alloc = malloc;
     }
@@ -41,16 +40,14 @@ int caterva_new_ctx(caterva_params_t *params, caterva_ctx_t **ctx) {
         params->free = free;
     }
     *ctx = (caterva_ctx_t *) params->alloc(sizeof(caterva_ctx_t));
-    if ((*ctx) == NULL) {
-        DEBUG_PRINT("Error allocating caterva context");
-        return CATERVA_ERR_ALLOC_FAILED;
-    }
+    CATERVA_ERROR_IF_NULL(*ctx);
+
     (*ctx)->cparams = cparams;
     (*ctx)->dparams = dparams;
     (*ctx)->alloc = params->alloc;
     (*ctx)->free = params->free;
-    fail:
-        return CATERVA_SUCCEED;
+
+    return CATERVA_SUCCEED;
 }
 
 
@@ -58,7 +55,7 @@ int caterva_free_ctx(caterva_ctx_t *ctx) {
     if (ctx != NULL) {
         ctx->free(ctx);
     }
-    return 0;
+    return CATERVA_SUCCEED;
 }
 
 
@@ -179,7 +176,7 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
             rc = caterva_plainbuffer_update_shape(carr, shape);
             break;
     }
-    CATERVA_ERROR(rc, "Error updating shape");
+    CATERVA_ERROR(rc);
 
     fail:
         return rc;
@@ -205,7 +202,7 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
             rc = caterva_plainbuffer_append(carr, part, partsize);
             break;
     }
-    CATERVA_ERROR(rc, "Error appending data to a caterva container");
+    CATERVA_ERROR(rc);
 
     carr->nparts++;
     if (carr->nparts == carr->esize / carr->psize) {
@@ -218,7 +215,7 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
 
 int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, const void *src) {
     int rc = caterva_update_shape(dest, shape);
-    CATERVA_ERROR(rc, "Error updating shape");
+    CATERVA_ERROR(rc);
 
     switch (dest->storage) {
         case CATERVA_STORAGE_BLOSC:
@@ -228,7 +225,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, const void
             rc = caterva_plainbuffer_from_buffer(dest, shape, src);
             break;
     }
-    CATERVA_ERROR(rc, "Error creating a caterva array from a buffer");
+    CATERVA_ERROR(rc);
 
     fail:
         return rc;
@@ -245,7 +242,7 @@ int caterva_to_buffer(caterva_array_t *src, void *dest) {
             rc = caterva_plainbuffer_to_buffer(src, dest);
             break;
     }
-    CATERVA_ERROR(rc, "Error converting a caterva container to a buffer");
+    CATERVA_ERROR(rc);
     fail:
         return rc;
 }
@@ -262,7 +259,7 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
             rc = caterva_plainbuffer_get_slice_buffer(dest, src, start, stop, d_pshape);
             break;
     }
-    CATERVA_ERROR(rc, "Error getting a slice buffer from a caterva container");
+    CATERVA_ERROR(rc);
     fail:
         return rc;
 }
@@ -309,8 +306,7 @@ int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *s
             rc = caterva_plainbuffer_set_slice_buffer(dest, src, start, stop);
             break;
     }
-    CATERVA_ERROR(rc, "Error setting a slice buffer into a caterva container");
-    fail:
+    CATERVA_ERROR(rc);
         return rc;
 }
 
@@ -337,7 +333,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
     }
     caterva_dims_t shape = caterva_new_dims(shape_, start->ndim);
     rc  = caterva_update_shape(dest, &shape);
-    CATERVA_ERROR(rc, "Error updating shape");
+    CATERVA_ERROR(rc);
 
     switch (dest->storage) {
         case CATERVA_STORAGE_BLOSC:
@@ -347,7 +343,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
             rc = caterva_plainbuffer_get_slice(dest, src, start, stop);
             break;
     }
-    CATERVA_ERROR(rc, "Error getting a slice from a caterva container");
+    CATERVA_ERROR(rc);
     fail:
         return rc;
 }
@@ -363,7 +359,7 @@ int caterva_squeeze(caterva_array_t *src) {
             rc = caterva_plainbuffer_squeeze(src);
             break;
     }
-    CATERVA_ERROR(rc, "Error squeezing a caterva container");
+    CATERVA_ERROR(rc);
     fail:
         return rc;
 }
@@ -379,8 +375,7 @@ int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
             rc = caterva_plainbuffer_copy(dest, src);
             break;
     }
-    CATERVA_ERROR(rc, "Error copying a caterva container");
-    fail:
+    CATERVA_ERROR(rc);
         return rc;
 }
 

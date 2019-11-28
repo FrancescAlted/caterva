@@ -12,10 +12,15 @@ Global constants
 ..  doxygendefine:: CATERVA_METALAYER_VERSION
 
 
-Shapes and dimensions
-+++++++++++++++++++++
+Shapes, partitions and coordinates
+++++++++++++++++++++++++++++++++++
 
-..  doxygenstruct:: caterva_dims_t
+..  doxygenstruct:: caterva_dims_s
+    :members:
+
+..  doxygenstruct:: caterva_shape_t
+
+..  doxygenstruct:: caterva_pshape_t
     :members:
 
 .. doxygenfunction:: caterva_new_dims
