@@ -47,7 +47,7 @@ static void swap_store(void *dest, const void *pa, int size) {
                 pa2_[0] = pa_[0];
                 break;
             default:
-                fprintf(stderr, "Unhandled size: %d\n", size);
+                DEBUG_PRINT("Unhandled size");
         }
     }
     memcpy(dest, pa2_, size);
@@ -178,7 +178,9 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
 caterva_array_t *caterva_blosc_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, bool copy) {
     /* Create a caterva_array_t buffer */
     caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
-
+    if (carr == NULL) {
+        return NULL;
+    }
     /* Copy context to caterva_array_t */
     carr->ctx = (caterva_ctx_t *) ctx->alloc(sizeof(caterva_ctx_t));
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));

@@ -71,6 +71,48 @@ typedef enum {
 
 
 /**
+ * @brief Parameters for create a Caterva context
+ */
+typedef struct caterva_params_s{
+    uint8_t compcode;
+    //!< The compressor codec.
+    uint8_t clevel;
+    //!< The compression level (5).
+    bool use_dict;
+    //!< Use dicts or not when compressing (only for ZSTD).
+    int32_t typesize;
+    //!< The type size (8).
+    int16_t nthreads;
+    //!< The number of threads to use internally (1).
+    int32_t blocksize;
+    //!< The requested size of the compressed blocks (0; meaning automatic).
+    uint8_t filters[BLOSC2_MAX_FILTERS];
+    //!< The (sequence of) filters.
+    uint8_t filters_meta[BLOSC2_MAX_FILTERS];
+    //!< The metadata for filters.
+    void *(*alloc)(size_t);
+    //!< The allocation memory function used internally.
+    void (*free)(void *);
+    //!< The free memory function used internally.
+} caterva_params_t;
+
+/**
+ * @brief Default caterva parameters
+ */
+static const caterva_params_t CATERVA_PARAMS_DEFAULTS = {
+    .compcode = BLOSC_BLOSCLZ,
+    .clevel = 5,
+    .use_dict = false,
+    .typesize = 8,
+    .nthreads = 1,
+    .blocksize = 0,
+    .filters = {0, 0, 0, 0, BLOSC_SHUFFLE},
+    .filters_meta = {0, 0, 0, 0, 0},
+    .alloc = malloc,
+    .free = free
+};
+
+/**
  * @brief Context for Caterva containers that specifies the functions used to manage memory and
  * the compression/decompression parameters used in Blosc.
  *
@@ -165,14 +207,12 @@ typedef struct {
 /**
  * @brief Create a context for Caterva functions.
  *
- * @param all The allocation function to use internally. Default: \c malloc.
- * @param free The free function to use internally. IDefault: \c free.
- * @param cparams The compression parameters used when a caterva container is created.
- * @param dparams The decompression parameters used when data of a caterva container is decompressed.
+ * @param params The parameters used for create the context.
+ * @param ctx Pointer where the context is created.
  *
- * @return Pointer to a new Caterva context. \p NULL is returned if this fails.
+ * @return An error code.
  */
-caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
+int caterva_new_ctx(caterva_params_t *params, caterva_ctx_t **ctx);
 
 
 /**

@@ -59,7 +59,8 @@ LWTEST_DATA(get_slice_buffer) {
 };
 
 LWTEST_SETUP(get_slice_buffer) {
-    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
+    caterva_params_t params = CATERVA_PARAMS_DEFAULTS;
+    caterva_new_ctx(&params, &data->ctx);
     data->ctx->cparams.typesize = sizeof(double);
 }
 

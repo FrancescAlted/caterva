@@ -19,32 +19,44 @@
 #define CATERVA_UNUSED_PARAM(x) ((void)(x))
 
 
-caterva_ctx_t *caterva_new_ctx(void *(*c_alloc)(size_t), void (*c_free)(void *), blosc2_cparams cparams, blosc2_dparams dparams) {
-    caterva_ctx_t *ctx;
-    ctx = (caterva_ctx_t *) malloc(sizeof(caterva_ctx_t));
-    if (ctx == NULL) {
-        fprintf(stderr, "Error allocating caterva context");
-        return NULL;
+int caterva_new_ctx(caterva_params_t *params, caterva_ctx_t **ctx) {
+    blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+    cparams.compcode = params->compcode;
+    cparams.clevel = params->clevel;
+    cparams.use_dict = params->use_dict;
+    cparams.typesize = params->typesize;
+    cparams.nthreads = params->nthreads;
+    cparams.blocksize = params->blocksize;
+    for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
+        cparams.filters[i] = params->filters[i];
+        cparams.filters_meta[i] = params->filters_meta[i];
     }
-    if (c_alloc == NULL) {
-        ctx->alloc = malloc;
-    } else {
-        ctx->alloc = c_alloc;
+    blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
+    dparams.nthreads = params->nthreads;
+
+    if (params->alloc == NULL) {
+        params->alloc = malloc;
     }
-    if (c_free == NULL) {
-        ctx->free = free;
-    } else {
-        ctx->free = c_free;
+    if (params->free == NULL) {
+        params->free = free;
     }
-    ctx->cparams = cparams;
-    ctx->dparams = dparams;
-    return ctx;
+    *ctx = (caterva_ctx_t *) params->alloc(sizeof(caterva_ctx_t));
+    if ((*ctx) == NULL) {
+        DEBUG_PRINT("Error allocating caterva context");
+        return CATERVA_ERR_ALLOC_FAILED;
+    }
+    (*ctx)->cparams = cparams;
+    (*ctx)->dparams = dparams;
+    (*ctx)->alloc = params->alloc;
+    (*ctx)->free = params->free;
+    fail:
+        return CATERVA_SUCCEED;
 }
 
 
 int caterva_free_ctx(caterva_ctx_t *ctx) {
     if (ctx != NULL) {
-        free(ctx);
+        ctx->free(ctx);
     }
     return 0;
 }
@@ -62,7 +74,7 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim) {
 
 caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape) {
     if (ctx == NULL) {
-        fprintf(stderr, "Caterva context can not be NULL\n");
+        DEBUG_PRINT("Context can not be NULL");
         return NULL;
     }
     caterva_array_t *carr;
@@ -72,13 +84,13 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
         carr = caterva_plainbuffer_empty_array(ctx, frame, pshape);
     }
     if (carr == NULL) {
-        fprintf(stderr, "Error creating an empty caterva array\n");
-        return NULL;
+        DEBUG_PRINT("Error creating an empty caterva array\n");
+        goto fail;
     }
     /* Copy context to caterva_array_t */
     carr->ctx = (caterva_ctx_t *) ctx->alloc(sizeof(caterva_ctx_t));
     if (carr->ctx == NULL) {
-        fprintf(stderr, "Error allocating caterva context\n");
+        DEBUG_PRINT("Error allocating caterva context");
     }
     memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_ctx_t));
 
@@ -86,37 +98,57 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, ca
     carr->filled = false;
     carr->nparts = 0;
 
-    return carr;
+    fail:
+        return carr;
 }
 
 
 caterva_array_t *caterva_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, bool copy) {
-    caterva_array_t *carr = caterva_blosc_from_frame(ctx, frame, copy);
-    if (carr == NULL) {
-        fprintf(stderr, "Error creating a caterva container from a frame\n");
+    if (ctx == NULL) {
+        DEBUG_PRINT("Context can not be NULL");
         return NULL;
     }
-    return carr;
+    if (frame == NULL) {
+        DEBUG_PRINT("Frame can not be NULL");
+        return NULL;
+    }
+    caterva_array_t *carr = caterva_blosc_from_frame(ctx, frame, copy);
+    if (carr == NULL) {
+        DEBUG_PRINT("Error creating a caterva container from a frame");
+        goto fail;
+    }
+    fail:
+        return carr;
 }
 
 
 caterva_array_t *caterva_from_sframe(caterva_ctx_t *ctx, uint8_t *sframe, int64_t len, bool copy) {
-    caterva_array_t *carr = caterva_blosc_from_sframe(ctx, sframe, len, copy);
-    if (carr == NULL) {
-        fprintf(stderr, "Error creating a caterva container from a serialized frame\n");
+    if (ctx == NULL) {
+        DEBUG_PRINT("Caterva context can not be NULL");
         return NULL;
     }
-    return carr;
+    if (sframe == NULL) {
+        DEBUG_PRINT("Sframe context can not be NULL");
+        return NULL;
+    }
+    caterva_array_t *carr = caterva_blosc_from_sframe(ctx, sframe, len, copy);
+    if (carr == NULL) {
+        DEBUG_PRINT("Error creating a caterva container from a serialized frame");
+        goto fail;
+    }
+    fail:
+        return carr;
 }
 
 
 caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, bool copy) {
     caterva_array_t *carr = caterva_blosc_from_file(ctx, filename, copy);
     if (carr == NULL) {
-        fprintf(stderr, "Error creating a caterva container from a file\n");
-        return NULL;
+        DEBUG_PRINT("Error creating a caterva container from a file");
+        goto fail;
     }
-    return carr;
+    fail:
+        return carr;
 }
 
 
@@ -147,7 +179,6 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
             rc = caterva_plainbuffer_update_shape(carr, shape);
             break;
     }
-
     CATERVA_ERROR(rc, "Error updating shape");
 
     fail:
