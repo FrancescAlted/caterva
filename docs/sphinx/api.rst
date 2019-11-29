@@ -11,25 +11,6 @@ Global constants
 ..  doxygendefine:: CATERVA_MAXDIM
 ..  doxygendefine:: CATERVA_METALAYER_VERSION
 
-
-Shapes, partitions and coordinates
-++++++++++++++++++++++++++++++++++
-
-..  doxygenstruct:: caterva_dims_s
-    :members:
-
-..  doxygenstruct:: caterva_shape_t
-
-..  doxygenstruct:: caterva_pshape_t
-    :members:
-
-.. doxygenfunction:: caterva_new_dims
-
-.. doxygenfunction:: caterva_get_shape
-
-.. doxygenfunction:: caterva_get_pshape
-
-
 Context
 +++++++
 
@@ -41,8 +22,38 @@ Context
 ..  doxygenfunction:: caterva_free_ctx
 
 
+Container properties
+++++++++++++++++++++
+
+Shape
+:::::
+..  doxygenstruct:: caterva_shape_t
+    :members:
+
+.. doxygenfunction:: caterva_new_shape
+
+Chunking
+::::::::
+
+..  doxygenstruct:: caterva_chunking_t
+    :members:
+
+.. doxygenfunction:: caterva_new_chunking_properties
+
+Storage
+:::::::
+
+..  doxygenstruct:: caterva_storage_t
+    :members:
+
+..  doxygenfunction:: caterva_new_storage_properties
+
+
 Creation
 ++++++++
+
+..  doxygenstruct:: caterva_storage_t
+    :members:
 
 ..  doxygenstruct:: caterva_array_t
     :members:
@@ -66,6 +77,8 @@ Creation
 
 Slicing
 +++++++
+..  doxygenstruct:: caterva_slice_t
+    :members:
 
 .. doxygenfunction:: caterva_get_slice
 
