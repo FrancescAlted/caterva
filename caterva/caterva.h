@@ -39,32 +39,21 @@
 #define CATERVA_ERR_INVALID_ARGUMENT 1
 #define CATERVA_ERR_BLOSC_FAILED 2
 #define CATERVA_ERR_CONTAINER_FILLED 3
+#define CATERVA_ERR_ALLOC_FAILED 4
 #define CATERVA_ERR_INVALID_STORAGE 4
-#define CATERVA_ERR_NULL_POINTER 5
 
 
 #ifdef NDEBUG
 #define DEBUG_PRINT(...) do{ } while ( 0 )
 #else
-#define DEBUG_PRINT(...) do{ fprintf( stderr, "ERORR: %s (%s:%d)\n", __VA_ARGS__, __FILE__, __LINE__ ); } while( 0 )
+#define DEBUG_PRINT(...) do{ fprintf( stderr, "%s\n", __VA_ARGS__ ); } while( 0 )
 #endif
 
-#define CATERVA_ERROR(rc) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(print_error(rc)); return rc; }} while( 0 )
-#define CATERVA_ERROR_IF_NULL(pointer) do {if (pointer == NULL) {DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); return CATERVA_ERR_NULL_POINTER; }} while( 0 )
+#define CATERVA_ERROR(rc, msg) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(msg); goto fail; }} while( 0 )
 
 /* The version for metalayer format; starts from 0 and it must not exceed 127 */
 #define CATERVA_METALAYER_VERSION 0
 
-static char *print_error(int rc) {
-    switch (rc) {
-        case CATERVA_ERR_INVALID_ARGUMENT: return "Invalid argument";
-        case CATERVA_ERR_BLOSC_FAILED: return "Blosc failed";
-        case CATERVA_ERR_CONTAINER_FILLED: return "Container is already filled";
-        case CATERVA_ERR_INVALID_STORAGE: return "Container storage is invalid";
-        case CATERVA_ERR_NULL_POINTER: return "Pointer is NULL";
-        default: return "Unknown error";
-    }
-}
 
 /* The maximum number of dimensions for Caterva arrays */
 #define CATERVA_MAXDIM 8
@@ -119,14 +108,16 @@ static const caterva_params_t CATERVA_PARAMS_DEFAULTS = {
     .blocksize = 0,
     .filters = {0, 0, 0, 0, BLOSC_SHUFFLE},
     .filters_meta = {0, 0, 0, 0, 0},
-    .alloc = NULL,
-    .free = NULL
+    .alloc = malloc,
+    .free = free
 };
 
 /**
- * @brief Context for caterva containers that specifies the functions used to manage memory and
+ * @brief Context for Caterva containers that specifies the functions used to manage memory and
  * the compression/decompression parameters used in Blosc.
  *
+ * In parenthesis it is shown the default value used internally when a \c NULL value is passed to the
+ * constructor.
  */
 typedef struct {
     void *(*alloc)(size_t);
@@ -145,57 +136,10 @@ typedef struct {
  */
 typedef struct {
     int64_t dims[CATERVA_MAXDIM];
-    //!< The size of each dimension.
+    //!< The size of each dimension
     int8_t ndim;
-    //!< The number of dimensions.
+    //!< The number of dimensions
 } caterva_dims_t;
-
-
-/**
- * @brief Shape for caterva containers.
- */
-typedef struct {
-    int64_t shape[CATERVA_MAXDIM];
-    //!< The container shape.
-    int8_t ndim;
-    //!< The number of dimensions.
-} caterva_shape_t;
-
-
-/**
- * @brief Partition shapes for caterva containers.
- */
-typedef struct {
-    int64_t chunkshape[CATERVA_MAXDIM];
-    //!< The container shape.
-    int64_t blockshape[CATERVA_MAXDIM];
-    //!< The container shape.
-    int8_t ndim;
-    //!< The number of dimensions.
-} caterva_partitions_t;
-
-
-/**
- * @brief Slice paramters for caterva containers.
- */
-typedef struct {
-    int64_t start[CATERVA_MAXDIM];
-    //!< The start index.
-    int64_t stop[CATERVA_MAXDIM];
-    //!< The stop index.
-    int8_t step[CATERVA_MAXDIM];
-    //!< The step vector.
-} caterva_slice_t;
-
-
-/**
- * @brief Default caterva partitions
- */
-static const caterva_partitions_t CATERVA_PARTITIONS_DEFAULTS = {
-    .chunkshape = {0, 0, 0, 0, 0, 0, 0, 0},
-    .blockshape = {0, 0, 0, 0, 0, 0, 0, 0},
-    .ndim = 0
-};
 
 
 /**
