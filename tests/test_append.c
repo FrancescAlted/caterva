@@ -27,12 +27,12 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
     /* Fill empty caterva_array_t with blocks */
     double *buffer = (double *) malloc(src->psize * src->ctx->cparams.typesize);
     int ind = 0;
-    int res = 0;
-    while (res == 0) {
+
+    while (!src->filled) {
         for (int i = 0; i < src->psize; ++i) {
             buffer[i] = ind;
         }
-        res = caterva_append(src, buffer, src->psize * src->ctx->cparams.typesize);
+        caterva_append(src, buffer, src->psize * src->ctx->cparams.typesize);
         ind++;
     }
 

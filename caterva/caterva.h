@@ -39,8 +39,8 @@
 #define CATERVA_ERR_INVALID_ARGUMENT 1
 #define CATERVA_ERR_BLOSC_FAILED 2
 #define CATERVA_ERR_CONTAINER_FILLED 3
-#define CATERVA_ERR_ALLOC_FAILED 4
 #define CATERVA_ERR_INVALID_STORAGE 4
+#define CATERVA_ERR_NULL_POINTER 5
 
 
 #ifdef NDEBUG
@@ -49,7 +49,17 @@
 #define DEBUG_PRINT(...) do{ fprintf( stderr, "%s\n", __VA_ARGS__ ); } while( 0 )
 #endif
 
-#define CATERVA_ERROR(rc, msg) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(msg); goto fail; }} while( 0 )
+#define CATERVA_ERROR(rc) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(print_error(rc)); return rc; }} while( 0 )
+#define CATERVA_ERROR_NULL(pointer) do { if (pointer == NULL) { DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); return CATERVA_ERR_NULL_POINTER; }} while( 0 )
+
+
+static char *print_error(int rc) {
+    switch (rc) {
+        case CATERVA_ERR_INVALID_STORAGE: return "Invalid storage";
+        case CATERVA_ERR_NULL_POINTER: return "Pointer is null";
+        default: return "Unknown error";
+    }
+}
 
 /* The version for metalayer format; starts from 0 and it must not exceed 127 */
 #define CATERVA_METALAYER_VERSION 0
