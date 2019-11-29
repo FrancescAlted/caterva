@@ -386,7 +386,7 @@ caterva_dims_t caterva_get_shape(caterva_array_t *src){
 }
 
 
-caterva_dims_t caterva_get_partitions(caterva_array_t *src) {
+caterva_dims_t caterva_get_pshape(caterva_array_t *src) {
     caterva_dims_t pshape;
     for (int i = 0; i < src->ndim; ++i) {
         pshape.dims[i] = src->pshape[i];

@@ -78,7 +78,7 @@ typedef enum {
     //!< Indicates that data is stored using a Blosc superchunk.
     CATERVA_STORAGE_PLAINBUFFER,
     //!< Indicates that data is stored using a plain buffer.
-} caterva_storage_layer_t;
+} caterva_storage_t;
 
 
 /**
@@ -163,31 +163,20 @@ typedef struct {
 
 
 /**
- * @brief Chunking properties for caterva containers.
+ * @brief Partition shapes for caterva containers.
  */
 typedef struct {
     int64_t chunkshape[CATERVA_MAXDIM];
-    //!< The shape of each container chunk.
+    //!< The container shape.
     int64_t blockshape[CATERVA_MAXDIM];
-    //!< The shape of each chunk block.
+    //!< The container shape.
     int8_t ndim;
     //!< The number of dimensions.
-} caterva_chunking_t;
+} caterva_partitions_t;
 
 
 /**
- * @brief Storage properties for caterva containers.
- */
-typedef struct {
-    char* filename;
-    //!< Name of the file where the container is stored.
-    bool frame;
-    //!< Flag that indicates if the container is created using a frame or not (only with Blosc).
-} caterva_storage_t;
-
-
-/**
- * @brief Slice parameters for caterva containers.
+ * @brief Slice paramters for caterva containers.
  */
 typedef struct {
     int64_t start[CATERVA_MAXDIM];
@@ -202,7 +191,7 @@ typedef struct {
 /**
  * @brief Default caterva partitions
  */
-static const caterva_chunking_t CATERVA_PARTITIONS_DEFAULTS = {
+static const caterva_partitions_t CATERVA_PARTITIONS_DEFAULTS = {
     .chunkshape = {0, 0, 0, 0, 0, 0, 0, 0},
     .blockshape = {0, 0, 0, 0, 0, 0, 0, 0},
     .ndim = 0
@@ -238,7 +227,7 @@ struct part_cache_s {
 typedef struct {
     caterva_ctx_t *ctx;
     //!< Caterva context
-    caterva_storage_layer_t storage;
+    caterva_storage_t storage;
     //!< Storage type
     blosc2_schunk *sc;
     //!< Pointer to a Blosc superchunk
@@ -303,43 +292,6 @@ int caterva_free_ctx(caterva_ctx_t *ctx);
  * @return The caterva dimensions vector created
  */
 caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
-
-/**
- * @brief Create a caterva shape for a container
- *
- * @param dims The size of each dimension.
- * @param ndim The number of dimensions.
- * @param shape Pointer where the shape struct is created.
- *
- * @return An error code.
- */
-int caterva_new_shape(const int64_t *dims, int8_t ndim, caterva_shape_t *shape);
-
-
-/**
- * @brief Create the chunking properties for a container.
- *
- * @param chunkshape The chunk shape desired. If 0's, the chunk shape will be calculated automatically
- * when is passed to a caterva container.
- * @param ndim The block shape desired. If 0's, the chunk shape will be calculated automatically
- * when is passed to a caterva container.
- * @param chunking Pointer where the chunking properties struct is created.
- *
- * @return An error code.
- */
-int caterva_new_chunking_properties(const int64_t *chunkshape, const int64_t *blockshape, int8_t ndim, caterva_chunking_t *chunking);
-
-
-/**
- * @brief Create the storage properties for a container
- *
- * @param filename Name of the file where the container is stored.
- * @param frame Flag that indicates if the container is created using a frame or not (only with Blosc).
- * @param storage Pointer where the storage properties struct is created.
- *
- * @return An error code.
- */
-int caterva_new_storage_properties(const char* filename, bool frame, caterva_storage_t *storage);
 
 
 /**
@@ -549,7 +501,6 @@ int caterva_update_shape(caterva_array_t *src, caterva_dims_t *shape);
 caterva_dims_t caterva_get_shape(caterva_array_t *src);
 
 
-
 /**
  * @brief Get the partition shape of a caterva array
  *
@@ -557,7 +508,7 @@ caterva_dims_t caterva_get_shape(caterva_array_t *src);
  *
  * @return The partition shape of the caterva array
  */
-caterva_dims_t caterva_get_partitions(caterva_array_t *src);
+caterva_dims_t caterva_get_pshape(caterva_array_t *src);
 
 
 /**
