@@ -46,7 +46,7 @@
 #ifdef NDEBUG
 #define DEBUG_PRINT(...) do{ } while ( 0 )
 #else
-#define DEBUG_PRINT(...) do{ fprintf( stderr, "%s\n", __VA_ARGS__ ); } while( 0 )
+#define DEBUG_PRINT(...) do{ fprintf( stderr, "ERROR: %s (%s:%d)\n", __VA_ARGS__, __FILE__, __LINE__ ); } while( 0 )
 #endif
 
 #define CATERVA_ERROR(rc) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(print_error(rc)); return rc; }} while( 0 )
@@ -57,6 +57,7 @@ static char *print_error(int rc) {
     switch (rc) {
         case CATERVA_ERR_INVALID_STORAGE: return "Invalid storage";
         case CATERVA_ERR_NULL_POINTER: return "Pointer is null";
+        case CATERVA_ERR_BLOSC_FAILED: return "Blosc failed";
         default: return "Unknown error";
     }
 }

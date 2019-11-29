@@ -95,6 +95,10 @@ caterva_array_t *caterva_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, boo
         DEBUG_PRINT("Context is null");
         return NULL;
     }
+    if (frame == NULL) {
+        DEBUG_PRINT("Frame is null");
+        return NULL;
+    }
     caterva_array_t *carr = caterva_blosc_from_frame(ctx, frame, copy);
     if (carr == NULL) {
         DEBUG_PRINT("Error creating a caterva container from a frame");
