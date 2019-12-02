@@ -33,7 +33,7 @@ static void test_copy(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t 
     fill_buf(bsrc, buf_size);
 
     /* Fill empty caterva_array_t with original data */
-    caterva_from_buffer(src, &shape, bsrc);
+    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, bsrc));
 
    caterva_array_t *dest;
     if (pshape2_ != NULL) {
@@ -43,17 +43,18 @@ static void test_copy(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t 
         dest = caterva_empty_array(ctx, NULL, NULL);
     }
 
-    caterva_copy(dest, src);
-
+    CATERVA_TEST_ERROR(caterva_copy(dest, src));
     double *bdest = (double *) malloc(buf_size * sizeof(double));
-    caterva_to_buffer(dest, bdest);
+
+    CATERVA_TEST_ERROR(caterva_to_buffer(dest, bdest));
+
     assert_buf(bsrc, bdest, (size_t) dest->size, 1e-14);
 
     /* Free mallocs */
     free(bsrc);
     free(bdest);
-    caterva_free_array(src);
-    caterva_free_array(dest);
+    CATERVA_TEST_ERROR(caterva_free_array(src));
+    CATERVA_TEST_ERROR(caterva_free_array(dest));
 }
 
 LWTEST_DATA(copy) {

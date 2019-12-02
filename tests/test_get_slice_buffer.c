@@ -35,7 +35,7 @@ static void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
     for (int i = 0; i < buf_size; ++i) {
         buf_src[i] = (double) i;
     }
-    caterva_from_buffer(src, &shape, buf_src);
+    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, buf_src));
 
     uint64_t dest_size = 1;
     for (int i = 0; i < stop.ndim; ++i) {
@@ -45,13 +45,12 @@ static void test_get_slice(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
     double *dest_buf = (double *) malloc((size_t)dest_size * src->ctx->cparams.typesize);
 
     caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-    caterva_get_slice_buffer(dest_buf, src, &start, &stop, &pshape_dest);
+    CATERVA_TEST_ERROR(caterva_get_slice_buffer(dest_buf, src, &start, &stop, &pshape_dest));
 
     assert_buf(dest_buf, result, (size_t)dest_size, 1e-14);
     free(buf_src);
     free(dest_buf);
-    caterva_free_array(src);
-
+    CATERVA_TEST_ERROR(caterva_free_array(src));
 }
 
 LWTEST_DATA(get_slice_buffer) {
