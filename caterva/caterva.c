@@ -212,7 +212,7 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize) {
 }
 
 
-int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, const void *src) {
+int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src) {
     CATERVA_ERROR_NULL(dest);
     CATERVA_ERROR_NULL(shape);
     CATERVA_ERROR_NULL(src);

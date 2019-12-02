@@ -303,7 +303,7 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, boo
  *
  * @return An error code
  */
-int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, const void *src);
+int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src);
 
 
 /**
