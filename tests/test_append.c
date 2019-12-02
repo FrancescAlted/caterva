@@ -22,17 +22,17 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
         src = caterva_empty_array(ctx, NULL, NULL);
     }
 
-    caterva_update_shape(src, &shape);
+    CATERVA_TEST_ERROR(caterva_update_shape(src, &shape));
 
     /* Fill empty caterva_array_t with blocks */
     double *buffer = (double *) malloc(src->psize * src->ctx->cparams.typesize);
     int ind = 0;
-    int res = 0;
-    while (res == 0) {
+
+    while (!src->filled) {
         for (int i = 0; i < src->psize; ++i) {
             buffer[i] = ind;
         }
-        res = caterva_append(src, buffer, src->psize * src->ctx->cparams.typesize);
+        CATERVA_TEST_ERROR(caterva_append(src, buffer, src->psize * src->ctx->cparams.typesize));
         ind++;
     }
 
@@ -40,15 +40,12 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc((size_t)src->size * src->ctx->cparams.typesize);
-    caterva_to_buffer(src, bufdest);
+    CATERVA_TEST_ERROR(caterva_to_buffer(src, bufdest));
 
-    for (int i = 0; i < src->size; ++i) {
-        // Miss this
-    }
 
     /* Free mallocs  */
     free(bufdest);
-    caterva_free_array(src);
+    CATERVA_TEST_ERROR(caterva_free_array(src));
 }
 
 LWTEST_DATA(append) {

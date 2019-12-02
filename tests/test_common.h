@@ -16,6 +16,8 @@
 #include "include/core.h"
 #include "include/assert.h"
 
+#define CATERVA_TEST_ERROR(rc) do{if (rc != CATERVA_SUCCEED) {LWTEST_ERR("%s:%d  Caterva error", __FILE__, __LINE__);}} while(0)
+
 static void fill_buf(double *buf, size_t buf_size) LW_ATT_UNUSED;
 static void fill_buf(double *buf, size_t buf_size) {
     for (size_t i = 0; i < buf_size; ++i) {

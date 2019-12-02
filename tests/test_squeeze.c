@@ -34,7 +34,7 @@ static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64
     double *buf_src = (double *) malloc(buf_size * src->ctx->cparams.typesize);
     fill_buf(buf_src, buf_size);
 
-    caterva_from_buffer(src, &shape, buf_src);
+    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, buf_src));
 
     caterva_array_t *dest;
     if (pshape_dest_ != NULL) {
@@ -43,15 +43,15 @@ static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64
     } else {
         dest = caterva_empty_array(ctx, NULL, NULL);
     }
-    caterva_get_slice(dest, src, &start, &stop);
+    CATERVA_TEST_ERROR(caterva_get_slice(dest, src, &start, &stop));
 
-    caterva_squeeze(dest);
+    CATERVA_TEST_ERROR(caterva_squeeze(dest));
 
     LWTEST_ASSERT_TRUE(src->ndim != dest->ndim);
 
     free(buf_src);
-    caterva_free_array(src);
-    caterva_free_array(dest);
+    CATERVA_TEST_ERROR(caterva_free_array(src));
+    CATERVA_TEST_ERROR(caterva_free_array(dest));
 }
 
 LWTEST_DATA(squeeze) {

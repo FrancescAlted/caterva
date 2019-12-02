@@ -33,11 +33,11 @@ static void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
     fill_buf(bufsrc, buf_size);
 
     /* Fill empty caterva_array_t with original data */
-    caterva_from_buffer(src, &shape, bufsrc);
+    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, bufsrc));
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc(buf_size * sizeof(double));
-    caterva_to_buffer(src, bufdest);
+    CATERVA_TEST_ERROR(caterva_to_buffer(src, bufdest));
 
     /* Testing */
     assert_buf(bufsrc, bufdest, buf_size, 1e-15);
@@ -45,7 +45,7 @@ static void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
     /* Free mallocs */
     free(bufsrc);
     free(bufdest);
-    caterva_free_array(src);
+    CATERVA_TEST_ERROR(caterva_free_array(src));
 }
 
 static void test_roundtrip_sframe(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_) {
@@ -70,20 +70,20 @@ static void test_roundtrip_sframe(caterva_ctx_t *ctx, int8_t ndim, int64_t *shap
     fill_buf(bufsrc, buf_size);
 
     /* Fill empty caterva_array_t with original data */
-    caterva_from_buffer(src, &shape, bufsrc);
+    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, bufsrc));
 
     // Serialize and deserialize caterva source container
     if (pshape_ != NULL) {
         int64_t len = src->sc->frame->len;
         uint8_t *sframe = malloc(len);
         memcpy(sframe, src->sc->frame->sdata, frame->len);
-        caterva_free_array(src);
+        CATERVA_TEST_ERROR(caterva_free_array(src));
         src = caterva_from_sframe(ctx, sframe, len, false);
     }
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc(buf_size * sizeof(double));
-    caterva_to_buffer(src, bufdest);
+    CATERVA_TEST_ERROR(caterva_to_buffer(src, bufdest));
 
     /* Testing */
     assert_buf(bufsrc, bufdest, buf_size, 1e-15);
@@ -91,7 +91,7 @@ static void test_roundtrip_sframe(caterva_ctx_t *ctx, int8_t ndim, int64_t *shap
     /* Free mallocs */
     free(bufsrc);
     free(bufdest);
-    caterva_free_array(src);
+    CATERVA_TEST_ERROR(caterva_free_array(src));
 }
 
 LWTEST_DATA(roundtrip) {
