@@ -11,8 +11,7 @@
 
 #include "test_common.h"
 
-
-static void test_repart_chunk(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshape_, int64_t *spshape_) {
+static void test_repart_chunk(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshape_, int64_t *spshape_, double result[]) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_array_t *carr;
@@ -34,14 +33,15 @@ static void test_repart_chunk(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_,
     for (int i = 0; i < carr->psize; ++i) {
         buffer_src[i] =  (double) i;
     }
-    int res = caterva_repart_chunk((int8_t *) buffer_dest, buffer_src, carr, ctx);
-    printf("%d", res);
+    int res = caterva_repart_chunk((int8_t *) buffer_dest, size_dest, buffer_src, size_src, carr, carr->ctx);
+    if (res != 0) {
+        printf("Error code : %d\n", res);
+    }
     for (int i = 0; i < carr->psize; ++i) {
-        printf("%f->", buffer_src[i]);
-        printf("%f,", buffer_dest[i]);
+    //    printf("%f,", buffer_dest[i]);
     }
 
-
+    assert_buf(buffer_dest, result, (size_t)carr->epsize, 1e-8);   // tam epsize*typesize????????????????
     free(buffer_src);
     free(buffer_dest);
     caterva_free_array(carr);
@@ -59,46 +59,83 @@ LWTEST_SETUP(repart_chunk) {
 LWTEST_TEARDOWN(repart_chunk) {
     caterva_free_ctx(data->ctx);
 }
-/*
+
+
 LWTEST_FIXTURE(repart_chunk, 2_dim) {
     const uint8_t ndim = 2;
-
     // sin padding (todo bonito)
     int64_t shape_[] = {8, 16};
     int64_t pshape_[] = {4, 8};
     int64_t spshape_[] = {2, 4};
-    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_);
+    double result[1024] = {0, 1, 2, 3, 8, 9, 10, 11, 4, 5, 6, 7, 12, 13,
+        14, 15, 16, 17, 18, 19, 24, 25, 26, 27, 20, 21, 22, 23, 28, 29, 30, 31};
+    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_, result);
+}
 
+LWTEST_FIXTURE(repart_chunk, 2_dim_pad) {
+    const uint8_t ndim = 2;
     //con padding
     int64_t shape__[] = {8, 16};
     int64_t pshape__[] = {4, 8};
     int64_t spshape__[] = {2, 3};
-    test_repart_chunk(data->ctx, ndim, shape__, pshape__, spshape__);
+    double result[1024] = {0, 1, 2, 8, 9, 10, 3, 4, 5, 11, 12, 13, 6, 7, 0, 14, 15, 0,
+                           16, 17, 18, 24, 25, 26, 19, 20, 21, 27, 28, 29, 22, 23, 0, 30, 31, 0};
+    test_repart_chunk(data->ctx, ndim, shape__, pshape__, spshape__, result);
 }
-*/
+
+
 LWTEST_FIXTURE(repart_chunk, 3_dim) {
     const uint8_t ndim = 3;
+    // sin padding
     int64_t shape_[] = {4, 3, 2};
     int64_t pshape_[] = {2, 2, 2};
     int64_t spshape_[] = {1, 2, 1};
-
-
-    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_);
+    double result[1024] = {0, 2, 1, 3, 4, 6, 5, 7};
+    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_, result);
 }
-/*
 
-LWTEST_FIXTURE(repart_chunk, 4_dim_plain) {
+LWTEST_FIXTURE(repart_chunk, 3_dim_pad) {
+    const uint8_t ndim = 3;
+    // con padding
+    int64_t shape_[] = {4, 3, 2};
+    int64_t pshape_[] = {2, 3, 2};
+    int64_t spshape_[] = {1, 2, 1};
+    double result[1024] = {0, 2, 1, 3, 4, 0, 5, 0, 6, 8, 7, 9, 10, 0, 11, 0};
+    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_, result);
+}
+
+
+LWTEST_FIXTURE(repart_chunk, 4_dim) {
     const uint8_t ndim = 4;
+    // sin padding
     int64_t shape_[] = {4, 3, 5, 4};
-
-    test_repart_chunk(data->ctx, ndim, shape_, NULL, NULL);
+    int64_t pshape_[] = {2, 2, 2, 2};
+    int64_t spshape_[] = {1, 2, 1, 1};
+    double result[1024] = {0, 4, 1, 5, 2, 6, 3, 7, 8, 12, 9, 13, 10, 14, 11, 15};
+    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_, result);
 }
 
-LWTEST_FIXTURE(repart_chunk, 5_dim) {
+LWTEST_FIXTURE(repart_chunk, 4_dim_pad) {
+    const uint8_t ndim = 4;
+    // con padding
+    int64_t shape_[] = {4, 3, 2, 6};
+    int64_t pshape_[] = {2, 3, 2, 2};
+    int64_t spshape_[] = {1, 2, 1, 1};
+    double result[1024] = {0, 4, 1, 5, 2, 6, 3, 7, 8, 0, 9, 0, 10, 0, 11, 0,
+                           12, 16, 13, 17, 14, 18, 15, 19, 20, 0, 21, 0, 22, 0, 23, 0};
+    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_, result);
+}
+
+
+LWTEST_FIXTURE(repart_chunk, 5_dim_plain) {
     const uint8_t ndim = 5;
     int64_t shape_[] = {14, 23, 12, 11, 8};
-    int64_t pshape_[] = {5, 12, 5, 3, 4};
-    int64_t spshape_[] = {2, 4, 2, 1, 2};
-    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_);
+    int64_t pshape_[] = {2, 2, 2, 2, 2};
+    int64_t spshape_[] = {1, 1, 1, 1, 1};
+    double result[1024];
+    for(double i = 0.0; i < 32; i++){
+        result[(int) i] = i;
+    }
+    test_repart_chunk(data->ctx, ndim, shape_, pshape_, spshape_, result);
 }
-*/
+

@@ -518,9 +518,17 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
 }
 
 
-int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterva_ctx_t *ctx){
+int caterva_repart_chunk(int8_t *chunk, int size_chunk, void *src, int size_src, caterva_array_t *carr, caterva_ctx_t *ctx){
+    if(ctx != carr->ctx) {
+        return -1;
+    }
+    if (size_chunk != carr->epsize * carr->ctx->cparams.typesize) {
+        return -2;
+    }
+
     const int8_t *src_b = (int8_t *) src;
     // int64_t d_shape[CATERVA_MAXDIM]; int64_t d_eshape[CATERVA_MAXDIM];
+    memset(chunk, 0, size_chunk);
     int32_t d_pshape[CATERVA_MAXDIM]; int64_t d_epshape[CATERVA_MAXDIM]; int32_t d_spshape[CATERVA_MAXDIM];
     int8_t d_ndim = carr->ndim;
 
@@ -589,6 +597,7 @@ int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterv
             }
         }
     }
+    return 0;
 }
 
 
@@ -636,8 +645,9 @@ int caterva_append_2(caterva_array_t *carr, void *part, int64_t partsize) {
 
     caterva_ctx_t *ctx = carr->ctx;
     int32_t typesize = carr->ctx->cparams.typesize;
-    int8_t *rep = ctx->alloc((size_t) carr->epsize * typesize);
-    caterva_repart_chunk(rep, part, carr, ctx);
+    int size_rep = (size_t) carr->epsize * typesize;
+    int8_t *rep = ctx->alloc(size_rep);
+    caterva_repart_chunk(rep, size_rep, part, partsize, carr, ctx);
 
     if (carr->storage == CATERVA_STORAGE_BLOSC) {
         blosc2_schunk_append_buffer(carr->sc, rep, partsize);

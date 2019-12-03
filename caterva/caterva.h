@@ -229,7 +229,7 @@ int caterva_free_array(caterva_array_t *carr);
  *
  * @return An error code
  */
-int caterva_repart_chunk(int8_t *chunk, void *src, caterva_array_t *carr, caterva_ctx_t *ctx);
+int caterva_repart_chunk(int8_t *chunk, int size_chunk, void *src, int size_src, caterva_array_t *carr, caterva_ctx_t *ctx);
 
 
 /**

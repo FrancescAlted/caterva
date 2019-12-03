@@ -40,7 +40,7 @@ static void lwtest_assert_equal_double(double exp, double real, const char *call
 LW_ATT_UNUSED;
 static void lwtest_assert_equal_double(double exp, double real, const char *caller, int line) {
     if (exp != real) {
-        LWTEST_ERR("%s:%d  expected %f, got %f", caller, line, exp, real);
+        LWTEST_ERR("%s:%d  expected %.16f, got %.16f", caller, line, exp, real);
     }
 }
 
