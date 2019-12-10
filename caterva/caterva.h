@@ -272,6 +272,7 @@ caterva_array_t *caterva_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, boo
  * @param ctx Pointer to the caterva context to be used.
  *   The context should be the same as the one used to create the array.
  * @param sframe The serialized frame for the caterva container.
+ * @param len The length (in bytes) of tge serialized frame.
  * @param copy If true, a new, sparse in-memory super-chunk is created.
  *   Else, a frame-backed one is created (i.e. no copies are made).
  *
