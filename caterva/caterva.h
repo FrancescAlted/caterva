@@ -201,6 +201,7 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
  * @param ctx Pointer to the caterva context to be used
  * @param fr Pointer to the blosc frame used to store data on disk
  * @param pshape The shape of each partition
+ * @param spshape The shape of each subpartition
  *
  * @return A pointer to the empty caterva container created
  */
@@ -223,7 +224,9 @@ int caterva_free_array(caterva_array_t *carr);
  * @brief Reorders a buffer in order to be able to append subpartitions
  *
  * @param chunk Pointer to the buffer where data will be stored
+ * @param size_chunk Size of the destination buffer
  * @param src A pointer to the buffer where data is stored
+ * @param size_src Size of the source buffer
  * @param carr Pointer to the container where useful parameters are stored
  * @param ctx Pointer to the caterva context to be used
  *
@@ -299,6 +302,8 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, boo
  */
 int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, const void *src);
 
+int caterva_from_buffer_2(caterva_array_t *dest, caterva_dims_t *shape, const void *src);
+
 
 /**
  * @brief Extract the data into a C buffer from a caterva container
@@ -361,6 +366,18 @@ int caterva_squeeze(caterva_array_t *src);
  * @return An error code
  */
 int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
+                             caterva_dims_t *stop, caterva_dims_t *d_pshape);
+/**
+ * @brief Get a slice into a C buffer from a caterva container (with subpartitions)
+ *
+ * @param dest Pointer to the buffer where data will be stored
+ * @param src Pointer to the container from which the slice will be extracted
+ * @param start The coordinates where the slice will begin
+ * @param stop The coordinates where the slice will end
+ * @param d_pshape The partition shape of the buffer
+ * @return An error code
+ */
+int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t *start,
                              caterva_dims_t *stop, caterva_dims_t *d_pshape);
 
 
