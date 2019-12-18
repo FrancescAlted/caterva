@@ -1228,9 +1228,9 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
 
                                         if ((src->part_cache.data == NULL) || (src->part_cache.nchunk != nchunk)) {
                                             blosc2_schunk_get_chunk(src->sc, nchunk, &chunk, &needs_free);
-                                            for (int i = 0; i < src->psize; i++){
+                                           /* for (int i = 0; i < src->psize; i++){
                                                 printf("Chunk: pos %d, value %f, \n", i, ((double*) chunk)[i]);
-                                            }
+                                            }*/
                                         }
                                         if (src->part_cache.data != NULL) {
                                             src->part_cache.nchunk = nchunk;
@@ -1260,10 +1260,16 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
                                                                         /* Decompress subpartition jj */
                                                                         int s_start = 0;
                                                                         int sinc = 1;
-                                                                        for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
+                                                                        /*for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
                                                                             s_start += (int) (jj[i] * s_spshape[i] * sinc);
                                                                             sinc *= (int) s_epshape[i];                      // EPSHAPE ???
+                                                                        }*/
+                                                                        int nspart = 0;
+                                                                        for (int i = CATERVA_MAXDIM - 1; i >= 0; --i) {
+                                                                            nspart += (int) (jj[i] * sinc);
+                                                                            sinc *= (int) (s_epshape[i] / s_spshape[i]);
                                                                         }
+                                                                        s_start = nspart * src->spsize;
                                                                         blosc_getitem(chunk, s_start, src->spsize, spart);
                                                                         for( int i = 0; i< src->spsize; i++){
                                                                             printf("Spart: pos %d, value %f, \n", i, ((double*) spart)[i]);
@@ -1356,6 +1362,7 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
         /*if (local_cache) {
             ctx->free(chunk);
         }*/
+        ctx->free(spart);
         if(needs_free){
             ctx->free(chunk);
         }
