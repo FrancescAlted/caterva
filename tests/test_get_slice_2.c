@@ -74,20 +74,20 @@ static void test_get_slice_2(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, i
     caterva_free_array(dest);
 }
 
-LWTEST_DATA(get_slice) {
+LWTEST_DATA(get_slice_2) {
     caterva_ctx_t *ctx;
 };
 
-LWTEST_SETUP(get_slice) {
+LWTEST_SETUP(get_slice_2) {
     data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     data->ctx->cparams.typesize = sizeof(double);
 }
 
-LWTEST_TEARDOWN(get_slice) {
+LWTEST_TEARDOWN(get_slice_2) {
     caterva_free_ctx(data->ctx);
 }
 /*
-LWTEST_FIXTURE(get_slice, ndim_2_plain) {
+LWTEST_FIXTURE(get_slice_2, ndim_2_plain) {
     const int8_t ndim = 2;
     int64_t shape_[] = {10, 10};
     int64_t start_[] = {5, 3};
@@ -100,7 +100,7 @@ LWTEST_FIXTURE(get_slice, ndim_2_plain) {
 }
 */
 /*
-LWTEST_FIXTURE(get_slice, ndim_2) {
+LWTEST_FIXTURE(get_slice_2, ndim_2) {
     const int8_t ndim = 2;
     int64_t shape_[] = {10, 10};
     int64_t pshape_[] = {2, 3};
@@ -114,7 +114,7 @@ LWTEST_FIXTURE(get_slice, ndim_2) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, NULL, NULL, false, false, result);
 }
 
-LWTEST_FIXTURE(get_slice, ndim_2_2) {
+LWTEST_FIXTURE(get_slice_2, ndim_2_2) {
     const int8_t ndim = 2;
     int64_t shape_[] = {5, 6};
     int64_t pshape_[] = {3, 3};
@@ -128,7 +128,7 @@ LWTEST_FIXTURE(get_slice, ndim_2_2) {
 }
  */
 /*
-LWTEST_FIXTURE(get_slice, ndim_3_no_sp) {
+LWTEST_FIXTURE(get_slice_2, ndim_3_no_sp) {
     const int8_t ndim = 3;
     int64_t shape_[] = {10, 10, 10};
     int64_t pshape_[] = {3, 5, 2};
@@ -157,7 +157,7 @@ LWTEST_FIXTURE(get_slice, ndim_3_no_sp) {
 }
 */
 /*
-LWTEST_FIXTURE(get_slice, ndim_3) {
+LWTEST_FIXTURE(get_slice_2, ndim_3) {
     const int8_t ndim = 3;
     int64_t shape_[] = {5, 6, 3};
     int64_t pshape_[] = {3, 3, 3};
@@ -173,7 +173,7 @@ LWTEST_FIXTURE(get_slice, ndim_3) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, NULL, NULL, persist, copy, result);
 }
 */
-LWTEST_FIXTURE(get_slice, ndim_3_2) {
+LWTEST_FIXTURE(get_slice_2, ndim_3_2) {
     const int8_t ndim = 3;
     int64_t shape_[] = {5, 6, 3};
     int64_t pshape_[] = {3, 3, 3};
@@ -191,7 +191,7 @@ LWTEST_FIXTURE(get_slice, ndim_3_2) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, persist, copy, result);
 }
 /*
-LWTEST_FIXTURE(get_slice, ndim_4_plain) {
+LWTEST_FIXTURE(get_slice_2, ndim_4_plain) {
     const int8_t ndim = 4;
     int64_t shape_[] = {10, 10, 10, 10};
     int64_t start_[] = {5, 3, 9, 2};
@@ -206,7 +206,7 @@ LWTEST_FIXTURE(get_slice, ndim_4_plain) {
     test_get_slice_2(data->ctx, ndim, shape_, NULL, NULL, start_, stop_, NULL, NULL, false, false, result);
 }
 
-LWTEST_FIXTURE(get_slice, ndim_5_no_sp) {
+LWTEST_FIXTURE(get_slice_2, ndim_5_no_sp) {
     const int8_t ndim = 5;
     int64_t shape_[] = {10, 10, 10, 10, 10};
     int64_t pshape_[] = {3, 5, 2, 4, 5};
@@ -228,7 +228,7 @@ LWTEST_FIXTURE(get_slice, ndim_5_no_sp) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, persist, copy, result);
 }
 
-LWTEST_FIXTURE(get_slice, ndim_6_plain) {
+LWTEST_FIXTURE(get_slice_2, ndim_6_plain) {
     const int8_t ndim = 6;
     int64_t shape_[] = {10, 10, 10, 10, 10, 10};
     int64_t start_[] = {0, 4, 2, 4, 5, 1};
@@ -246,7 +246,7 @@ LWTEST_FIXTURE(get_slice, ndim_6_plain) {
     test_get_slice_2(data->ctx, ndim, shape_, NULL, NULL, start_, stop_, NULL, NULL, false, false, result);
 }
 
-LWTEST_FIXTURE(get_slice, ndim_7_no_sp) {
+LWTEST_FIXTURE(get_slice_2, ndim_7_no_sp) {
     const int8_t ndim = 7;
     int64_t shape_[] = {4, 5, 3, 4, 4, 5, 2};
     int64_t pshape_[] = {3, 4, 2, 2, 2, 3, 1};
@@ -264,7 +264,7 @@ LWTEST_FIXTURE(get_slice, ndim_7_no_sp) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, persist, copy, result);
 }
 
-LWTEST_FIXTURE(get_slice, ndim_8_plain) {
+LWTEST_FIXTURE(get_slice_2, ndim_8_plain) {
     const int8_t ndim = 8;
     int64_t shape_[] = {5, 3, 4, 5, 4, 3, 2, 3};
     int64_t start_[] = {3, 2, 2, 2, 2, 1, 1, 1};

@@ -236,6 +236,21 @@ int caterva_repart_chunk(int8_t *chunk, int size_chunk, void *src, int size_src,
 
 
 /**
+ * @brief It works inversely to caterva_repart_chunk, reordering a reparted chunk in order to get the original one
+ *
+ * @param chunk Pointer to the buffer where data will be stored
+ * @param size_chunk Size of the destination buffer
+ * @param rchunk Pointer to the buffer where data is stored
+ * @param size_rchunk Size of the reparted chunk buffer
+ * @param carr Pointer to the container where useful parameters are stored
+ * @param ctx Pointer to the caterva context to be used
+ *
+ * @return An error code
+ */
+int caterva_derepart_chunk(int8_t *chunk, int size_chunk, int8_t *rchunk, int size_rchunk, caterva_array_t *carr, caterva_ctx_t *ctx);
+
+
+/**
  * Append a partition to a caterva container (until it is completely filled)
  *
  * @param carr Pointer to the container where data will be appended
@@ -314,6 +329,8 @@ int caterva_from_buffer_2(caterva_array_t *dest, caterva_dims_t *shape, const vo
  * @return An error code
  */
 int caterva_to_buffer(caterva_array_t *src, void *dest);
+
+int caterva_to_buffer_2(caterva_array_t *src, void *dest);
 
 
 /**
