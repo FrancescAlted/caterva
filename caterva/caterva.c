@@ -1379,7 +1379,7 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
                                             blosc2_schunk_get_chunk(src->sc, nchunk, &chunk, &needs_free);
                                             printf("\n Chunk %d \n", nchunk);
                                             for (int i = 0; i < src->psize; ++i) {
-                                                printf("%f,", chunk[i]);
+                                                printf("%f,", (double) chunk[i]);
                                             }
                                         }
                                         if (src->part_cache.data != NULL) {
@@ -1419,7 +1419,7 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
                                                                         blosc_getitem(chunk, s_start, src->spsize, spart);
                                                                         printf("\n     Spart %d :  ", nspart);
                                                                         for (int i = 0; i < src->spsize; ++i) {
-                                                                            printf("%f,", spart[i]);
+                                                                            printf("%hhu,", spart[i]);
                                                                         }
                                                                         /* memcpy */
                                                                         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -1472,7 +1472,7 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
                                                                                                                             start_[i]) * buf_pointer_inc;
                                                                                                             buf_pointer_inc *= d_pshape_[i];
                                                                                                         }
-                                                                                                        printf("\n Copiamos %d elementos de la dir %d de spart a la dir %d de bufdest", sp_stop[7] - sp_start[7], sp_pointer, buf_pointer);
+                                                                                                        printf("\n Copiamos %ld elementos de la dir %ld de spart a la dir %ld de bufdest", sp_stop[7] - sp_start[7], sp_pointer, buf_pointer);
                                                                                                         memcpy(&bdest[buf_pointer * typesize],
                                                                                                                &spart[sp_pointer * typesize],
                                                                                                                (sp_stop[7] - sp_start[7]) * typesize);
