@@ -121,6 +121,22 @@ LWTEST_FIXTURE(get_slice, ndim_3) {
     test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, persist, copy, result);
 }
 
+LWTEST_FIXTURE(get_slice, ndim_3_2) {
+    const int8_t ndim = 3;
+    int64_t shape_[] = {5, 6, 3};
+    int64_t pshape_[] = {3, 3, 3};
+    int64_t start_[] = {2, 1, 0};
+    int64_t stop_[] = {4, 4, 2};
+    int64_t pshape_dest_[] = {2, 3, 2};     // epshape ??????????????????????????????
+    bool persist = true;
+    bool copy = false;
+
+    double result[1024] = {39, 40, 42, 43, 45, 46, 57, 58, 60, 61, 63, 64, 0, 0, 0, 0, 0, 0};
+
+
+    test_get_slice(data->ctx, ndim, shape_, pshape_, start_, stop_, pshape_dest_, persist, copy, result);
+}
+
 LWTEST_FIXTURE(get_slice, ndim_4_plain) {
     const int8_t ndim = 4;
     int64_t shape_[] = {10, 10, 10, 10};
