@@ -1347,7 +1347,7 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
 
         uint8_t *chunk;
         uint8_t *spart;
-        spart = (uint8_t *) ctx->alloc((size_t) src->spsize * typesize);
+        spart = ctx->alloc((size_t) src->spsize * typesize);
         int64_t i_start[CATERVA_MAXDIM], i_stop[CATERVA_MAXDIM];
         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
             i_start[i] = start_[i] / s_pshape[i];
@@ -1378,9 +1378,6 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
                                         if ((src->part_cache.data == NULL) || (src->part_cache.nchunk != nchunk)) {
                                             blosc2_schunk_get_chunk(src->sc, nchunk, &chunk, &needs_free);
                                             printf("\n Chunk %d \n", nchunk);
-                                            for (int i = 0; i < src->psize; ++i) {
-                                                printf("%f,", (double) chunk[i]);
-                                            }
                                         }
                                         if (src->part_cache.data != NULL) {
                                             src->part_cache.nchunk = nchunk;
@@ -1419,7 +1416,7 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
                                                                         blosc_getitem(chunk, s_start, src->spsize, spart);
                                                                         printf("\n     Spart %d :  ", nspart);
                                                                         for (int i = 0; i < src->spsize; ++i) {
-                                                                            printf("%hhu,", spart[i]);
+                                                                            printf("%f,", ((double *) spart)[i]);
                                                                         }
                                                                         /* memcpy */
                                                                         for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -1444,6 +1441,7 @@ int caterva_get_slice_buffer_2(void *dest, caterva_array_t *src, caterva_dims_t 
                                                                                                 for (kk[6] = sp_start[6]; kk[6] < sp_stop[6]; ++kk[6]) {
                                                                                                     // check we are not in an empty line (padding)
                                                                                                     bool empty_line = false;
+
                                                                                                     for (int i = 0; i < 7; i++) {
                                                                                                         if ((jj[i] * s_spshape[i] + kk[i]) >= s_pshape[i]) {
                                                                                                             empty_line = true;

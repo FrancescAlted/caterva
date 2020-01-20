@@ -66,7 +66,7 @@ static void test_get_slice_2(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, i
     caterva_squeeze(dest);
     double *buf_dest = (double *) malloc((size_t)dest->size * src->ctx->cparams.typesize);
     caterva_to_buffer_2(dest, buf_dest);
-    printf("\n \n buf_dest \n", NULL);
+    printf("\n \n buf_dest \n");
     for (int i = 0; i < dest->size; ++i) {
         printf("%f,", buf_dest[i]);
     }
