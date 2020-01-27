@@ -123,20 +123,24 @@ typedef struct {
     //!< Shape of each partition.
     int64_t eshape[CATERVA_MAXDIM];
     //!< Shape of padded data.
-    int32_t spshape[CATERVA_MAXDIM];    // int32 ??????????????
+    int32_t spshape[CATERVA_MAXDIM];
     //!< Shape of each subpartition.
-    int64_t epshape[CATERVA_MAXDIM];    // int64 ?????????????
+    int64_t epshape[CATERVA_MAXDIM];
     //!< Shape of padded partition.
+    int32_t next_pshape[CATERVA_MAXDIM];
+    //!< Shape of next partition to be appened.
     int64_t size;
     //!< Size of original data.
     int32_t psize;
     //!< Size of each partition.
     int64_t esize;
     //!< Size of padded data.
-    int32_t spsize;                 // int32 ??????????
+    int32_t spsize;
     //!< Size of each subpartition.
-    int64_t epsize;                 // int64 ?????????
+    int64_t epsize;
     //!< Size of padded partition.
+    int64_t next_size;
+    //!< Size of next partiton to be appened.
     int8_t ndim;
     //!< Data dimensions.
     bool empty;

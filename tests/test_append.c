@@ -26,14 +26,21 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
 
     /* Fill empty caterva_array_t with blocks */
     double *buffer = (double *) malloc(src->psize * src->ctx->cparams.typesize);
-    int ind = 0;
+    double *result = (double *) malloc(src->size * src->ctx->cparams.typesize);
+    double ind = 0;
     int res = 0;
-    while (res == 0) {
+    while ((res == 0) && (!src->filled)) {
         for (int i = 0; i < src->psize; ++i) {
             buffer[i] = ind;
+            result[(int) ind] = ind;
+            ind++;
         }
+//        printf("\n buffer \n");
+//        for (int i = 0; i < src->psize; ++i) {
+//            printf("%f,", buffer[i]);
+//        }
+//        printf("\n");
         res = caterva_append(src, buffer, src->psize * src->ctx->cparams.typesize);
-        ind++;
     }
 
     free(buffer);
@@ -41,13 +48,15 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc((size_t)src->size * src->ctx->cparams.typesize);
     caterva_to_buffer(src, bufdest);
-
-    for (int i = 0; i < src->size; ++i) {
-        // Miss this
-    }
+//    printf("\n bufdest \n");
+//    for (int i = 0; i < src->size; ++i) {
+//        printf("%f,", bufdest[i]);
+//    }
+    assert_buf(bufdest, result, (size_t)src->size, 1e-14);
 
     /* Free mallocs  */
     free(bufdest);
+    free(result);
     caterva_free_array(src);
 }
 
@@ -64,14 +73,15 @@ LWTEST_TEARDOWN(append) {
     caterva_free_ctx(data->ctx);
 }
 
-LWTEST_FIXTURE(append, 2_dim_plain) {
+LWTEST_FIXTURE(append, 2_dim_no_pad) {
     const uint8_t ndim = 2;
-    int64_t shape_[] = {4, 3};
+    int64_t shape_[] = {4, 4};
+    int64_t pshape_[] = {1, 2};
 
-    test_append(data->ctx, ndim, shape_, NULL);
+    test_append(data->ctx, ndim, shape_, pshape_);
 }
 
-
+/*
 LWTEST_FIXTURE(append, 3_dim) {
     const uint8_t ndim = 3;
     int64_t shape_[] = {4, 3, 3};
@@ -86,3 +96,4 @@ LWTEST_FIXTURE(append, 5_dim) {
     int64_t pshape_[] = {5, 12, 5, 3, 4};
     test_append(data->ctx, ndim, shape_, pshape_);
 }
+*/

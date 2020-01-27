@@ -27,28 +27,36 @@ static void test_append_2(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int
 
     /* Fill empty caterva_array_t with blocks */
     double *buffer = (double *) malloc(src->psize * src->ctx->cparams.typesize);
-    int ind = 0;
+    double *result = (double *) malloc(src->size * src->ctx->cparams.typesize);
+    double ind = 0;
     int res = 0;
-    while (res == 0) {
+    while ((res == 0) && (! src->filled)) {
         for (int i = 0; i < src->psize; ++i) {
             buffer[i] = ind;
+            result[(int) ind] = ind;
+            ind++;
+        }
+        printf("\n buffer \n");
+        for (int i = 0; i < src->psize; ++i) {
+            printf("%f,", buffer[i]);
         }
         res = caterva_append_2(src, buffer, src->psize * src->ctx->cparams.typesize);
-        ind++;
     }
-
     free(buffer);
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc((size_t)src->size * src->ctx->cparams.typesize);
-    caterva_to_buffer(src, bufdest);
+    caterva_to_buffer_2(src, bufdest);
 
+    printf("\n bufdest \n");
     for (int i = 0; i < src->size; ++i) {
-        // Miss this
+        printf("%f,", bufdest[i]);
     }
+    assert_buf(bufdest, result, (size_t)src->size, 1e-14);
 
     /* Free mallocs  */
     free(bufdest);
+    free(buffer);
     caterva_free_array(src);
 }
 
@@ -65,13 +73,14 @@ LWTEST_TEARDOWN(append_2) {
     caterva_free_ctx(data->ctx);
 }
 
-LWTEST_FIXTURE(append_2, 2_dim_plain) {
+LWTEST_FIXTURE(append_2, 2_dim) {
     const uint8_t ndim = 2;
-    int64_t shape_[] = {4, 3};
-
-    test_append_2(data->ctx, ndim, shape_, NULL, NULL);
+    int64_t shape_[] = {10, 10};
+    int64_t pshape_[] = {3, 3};
+    int64_t spshape_[] = {2, 2};
+    test_append_2(data->ctx, ndim, shape_, pshape_, spshape_);
 }
-
+/*
 LWTEST_FIXTURE(append_2, 3_dim) {
     const uint8_t ndim = 3;
     int64_t shape_[] = {4, 3, 3};
@@ -93,5 +102,7 @@ LWTEST_FIXTURE(append_2, 5_dim) {
     int64_t shape_[] = {14, 23, 12, 11, 8};
     int64_t pshape_[] = {5, 12, 5, 3, 4};
     int64_t spshape_[] = {2, 4, 2, 1, 2};
+
     test_append_2(data->ctx, ndim, shape_, pshape_, spshape_);
 }
+*/
