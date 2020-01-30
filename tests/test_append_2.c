@@ -31,16 +31,16 @@ static void test_append_2(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int
     double ind = 0;
     int res = 0;
     while ((res == 0) && (! src->filled)) {
-        for (int i = 0; i < src->psize; ++i) {
+        for (int i = 0; i < src->next_size; ++i) {
             buffer[i] = ind;
             result[(int) ind] = ind;
             ind++;
         }
         printf("\n buffer \n");
-        for (int i = 0; i < src->psize; ++i) {
+        for (int i = 0; i < src->next_size; ++i) {
             printf("%f,", buffer[i]);
         }
-        res = caterva_append_2(src, buffer, src->psize * src->ctx->cparams.typesize);
+        res = caterva_append_2(src, buffer, src->next_size * src->ctx->cparams.typesize);
     }
     free(buffer);
 
