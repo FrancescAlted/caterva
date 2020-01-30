@@ -755,7 +755,7 @@ int caterva_append_2(caterva_array_t *carr, void *part, int64_t partsize) {
                                     memcpy(chunk + ind_dest * carr->ctx->cparams.typesize,
                                            part + ind_src * carr->ctx->cparams.typesize,
                                            seq_copylen);
-                                    ind_src += seq_copylen;
+                                    ind_src += next_pshape[7];
                                     ind_dest += c_pshape[7];
                                 }
                             }
@@ -763,6 +763,10 @@ int caterva_append_2(caterva_array_t *carr, void *part, int64_t partsize) {
                     }
                 }
             }
+        }
+        printf("\n padded_chunk \n");
+        for (int i = 0; i < carr->psize; ++i) {
+            printf("%f,", ((double *) chunk)[i]);
         }
         caterva_repart_chunk(rep, size_rep, chunk, size_chunk, carr, ctx);
     } else {
