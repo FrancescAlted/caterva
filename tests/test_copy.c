@@ -11,16 +11,16 @@
 
 #include "test_common.h"
 
-static void test_copy(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_, int64_t *pshape2_) {
+static void test_copy(caterva_context_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_, int64_t *pshape2_) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 
     caterva_array_t *src;
     if (pshape_ != NULL) {
         caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_empty_array(ctx, NULL, &pshape);
+        src = caterva_array_empty(ctx, NULL, &pshape);
     } else {
-        src = caterva_empty_array(ctx, NULL, NULL);
+        src = caterva_array_empty(ctx, NULL, NULL);
     }
 
     size_t buf_size = 1;
@@ -33,20 +33,20 @@ static void test_copy(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t 
     fill_buf(bsrc, buf_size);
 
     /* Fill empty caterva_array_t with original data */
-    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, bsrc));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(src, &shape, bsrc));
 
    caterva_array_t *dest;
     if (pshape2_ != NULL) {
         caterva_dims_t pshape2 = caterva_new_dims(pshape2_, ndim);
-        dest = caterva_empty_array(ctx, NULL, &pshape2);
+        dest = caterva_array_empty(ctx, NULL, &pshape2);
     } else {
-        dest = caterva_empty_array(ctx, NULL, NULL);
+        dest = caterva_array_empty(ctx, NULL, NULL);
     }
 
     CATERVA_TEST_ERROR(caterva_copy(dest, src));
     double *bdest = (double *) malloc(buf_size * sizeof(double));
 
-    CATERVA_TEST_ERROR(caterva_to_buffer(dest, bdest));
+    CATERVA_TEST_ERROR(caterva_array_to_buffer(dest, bdest));
 
     assert_buf(bsrc, bdest, (size_t) dest->size, 1e-14);
 
@@ -58,16 +58,16 @@ static void test_copy(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t 
 }
 
 LWTEST_DATA(copy) {
-    caterva_ctx_t *ctx;
+    caterva_context_t *ctx;
 };
 
 LWTEST_SETUP(copy) {
-    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
+    data->ctx = caterva_context_new(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     data->ctx->cparams.typesize = sizeof(double);
 }
 
 LWTEST_TEARDOWN(copy) {
-    caterva_free_ctx(data->ctx);
+    caterva_context_free(data->ctx);
 }
 
 LWTEST_FIXTURE(copy, 2d_blosc_blosc) {

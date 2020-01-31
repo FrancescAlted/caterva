@@ -11,28 +11,28 @@
 
 #include "test_common.h"
 
-static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshape_) {
+static void test_append(caterva_context_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshape_) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_array_t *src;
     if (pshape_ != NULL) {
         caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_empty_array(ctx, NULL, &pshape);
+        src = caterva_array_empty(ctx, NULL, &pshape);
     } else {
-        src = caterva_empty_array(ctx, NULL, NULL);
+        src = caterva_array_empty(ctx, NULL, NULL);
     }
 
     CATERVA_TEST_ERROR(caterva_update_shape(src, &shape));
 
     /* Fill empty caterva_array_t with blocks */
-    double *buffer = (double *) malloc(src->psize * src->ctx->cparams.typesize);
+    double *buffer = (double *) malloc(src->chunksize * src->ctx->cparams.typesize);
     int ind = 0;
 
     while (!src->filled) {
-        for (int i = 0; i < src->psize; ++i) {
+        for (int i = 0; i < src->chunksize; ++i) {
             buffer[i] = ind;
         }
-        CATERVA_TEST_ERROR(caterva_append(src, buffer, src->psize * src->ctx->cparams.typesize));
+        CATERVA_TEST_ERROR(caterva_array_append(src, buffer, src->chunksize * src->ctx->cparams.typesize));
         ind++;
     }
 
@@ -40,7 +40,7 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc((size_t)src->size * src->ctx->cparams.typesize);
-    CATERVA_TEST_ERROR(caterva_to_buffer(src, bufdest));
+    CATERVA_TEST_ERROR(caterva_array_to_buffer(src, bufdest));
 
 
     /* Free mallocs  */
@@ -49,16 +49,16 @@ static void test_append(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int64
 }
 
 LWTEST_DATA(append) {
-    caterva_ctx_t *ctx;
+    caterva_context_t *ctx;
 };
 
 LWTEST_SETUP(append) {
-    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
+    data->ctx = caterva_context_new(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     data->ctx->cparams.typesize = sizeof(double);
 }
 
 LWTEST_TEARDOWN(append) {
-    caterva_free_ctx(data->ctx);
+    caterva_context_free(data->ctx);
 }
 
 LWTEST_FIXTURE(append, 2_dim_plain) {

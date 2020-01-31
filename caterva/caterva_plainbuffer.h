@@ -7,7 +7,7 @@
 #define CATERVA_CATERVA_PLAINBUFFER_H
 
 
-caterva_array_t *caterva_plainbuffer_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape);
+caterva_array_t *caterva_plainbuffer_empty_array(caterva_context_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape);
 
 int caterva_plainbuffer_free_array(caterva_array_t *carr);
 

@@ -11,16 +11,16 @@
 
 #include "test_common.h"
 
-static void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_) {
+static void test_roundtrip(caterva_context_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
 
     caterva_array_t *src;
     if (pshape_ != NULL) {
         caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_empty_array(ctx, NULL, &pshape);
+        src = caterva_array_empty(ctx, NULL, &pshape);
     } else {
-        src = caterva_empty_array(ctx, NULL, NULL);
+        src = caterva_array_empty(ctx, NULL, NULL);
     }
 
     size_t buf_size = 1;
@@ -33,11 +33,11 @@ static void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
     fill_buf(bufsrc, buf_size);
 
     /* Fill empty caterva_array_t with original data */
-    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, bufsrc));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(src, &shape, bufsrc));
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc(buf_size * sizeof(double));
-    CATERVA_TEST_ERROR(caterva_to_buffer(src, bufdest));
+    CATERVA_TEST_ERROR(caterva_array_to_buffer(src, bufdest));
 
     /* Testing */
     assert_buf(bufsrc, bufdest, buf_size, 1e-15);
@@ -48,16 +48,16 @@ static void test_roundtrip(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int
     CATERVA_TEST_ERROR(caterva_free_array(src));
 }
 
-static void test_roundtrip_sframe(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_) {
+static void test_roundtrip_sframe(caterva_context_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_) {
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
     caterva_array_t *src;
     blosc2_frame* frame = NULL;
     if (pshape_ != NULL) {
         caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
         frame = blosc2_new_frame(NULL);
-        src = caterva_empty_array(ctx, frame, &pshape);
+        src = caterva_array_empty(ctx, frame, &pshape);
     } else {
-        src = caterva_empty_array(ctx, NULL, NULL);
+        src = caterva_array_empty(ctx, NULL, NULL);
     }
 
     size_t buf_size = 1;
@@ -70,7 +70,7 @@ static void test_roundtrip_sframe(caterva_ctx_t *ctx, int8_t ndim, int64_t *shap
     fill_buf(bufsrc, buf_size);
 
     /* Fill empty caterva_array_t with original data */
-    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, bufsrc));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(src, &shape, bufsrc));
 
     // Serialize and deserialize caterva source container
     if (pshape_ != NULL) {
@@ -78,12 +78,12 @@ static void test_roundtrip_sframe(caterva_ctx_t *ctx, int8_t ndim, int64_t *shap
         uint8_t *sframe = malloc(len);
         memcpy(sframe, src->sc->frame->sdata, frame->len);
         CATERVA_TEST_ERROR(caterva_free_array(src));
-        src = caterva_from_sframe(ctx, sframe, len, false);
+        src = caterva_array_from_sframe(ctx, sframe, len, false);
     }
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc(buf_size * sizeof(double));
-    CATERVA_TEST_ERROR(caterva_to_buffer(src, bufdest));
+    CATERVA_TEST_ERROR(caterva_array_to_buffer(src, bufdest));
 
     /* Testing */
     assert_buf(bufsrc, bufdest, buf_size, 1e-15);
@@ -95,16 +95,16 @@ static void test_roundtrip_sframe(caterva_ctx_t *ctx, int8_t ndim, int64_t *shap
 }
 
 LWTEST_DATA(roundtrip) {
-    caterva_ctx_t *ctx;
+    caterva_context_t *ctx;
 };
 
 LWTEST_SETUP(roundtrip) {
-    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
+    data->ctx = caterva_context_new(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     data->ctx->cparams.typesize = sizeof(double);
 }
 
 LWTEST_TEARDOWN(roundtrip) {
-    caterva_free_ctx(data->ctx);
+    caterva_context_free(data->ctx);
 }
 
 LWTEST_FIXTURE(roundtrip, 3_dim_plain) {

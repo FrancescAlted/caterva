@@ -71,53 +71,66 @@ static char *print_error(int rc) {
 
 
 /**
- * @brief Formats to store #caterva_array_t data.
+ * @brief Configuration parameters used to create a Caterva context.
  */
-typedef enum {
-    CATERVA_STORAGE_BLOSC,
-    //!< Indicates that data is stored using a Blosc superchunk.
-    CATERVA_STORAGE_PLAINBUFFER,
-    //!< Indicates that data is stored using a plain buffer.
-} caterva_storage_t;
+
+typedef struct caterva_config_s {
+    void *(*alloc)(size_t);
+    //!< The allocation memory function used internally.
+    void (*free)(void *);
+    //!< The free memory function used internally.
+    int compcodec;
+    //!< Defines the codec used in compression.
+    int complevel;
+    //!< Determines the compression level used in compression.
+    int usedict;
+    //!< Indicates whether a dict is used to compress data or not.
+    int nthreads;
+    //!< Determines the maximum number of threads that can be used by Caterva.
+    uint8_t filters[BLOSC2_MAX_FILTERS];
+    //!< Defines the filters used in compression.
+    uint8_t filtersmeta[BLOSC2_MAX_FILTERS];
+    //!< Indicates the meta filters used.
+    blosc2_prefilter_fn prefilter;
+    //!< Defines the function that is applied to the data before compressing it.
+    blosc2_prefilter_params *pparams;
+    //!< Indicates the parameters of the prefilter function.
+} caterva_config_t;
+
+
+static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {
+    .alloc = malloc,
+    .free = free,
+    .compcodec = BLOSC_ZSTD,
+    .complevel = 5,
+    .usedict = 0,
+    .nthreads = 1,
+    .filters = {0, 0, 0, 0, 0, BLOSC_SHUFFLE},
+    .filtersmeta = {0, 0, 0, 0, 0, 0},
+    .prefilter = NULL,
+    .pparams = NULL
+};
 
 
 /**
  * @brief Context for Caterva containers that specifies the functions used to manage memory and
  * the compression/decompression parameters used in Blosc.
- *
- * In parenthesis it is shown the default value used internally when a \c NULL value is passed to the
- * constructor.
  */
-typedef struct {
-    void *(*alloc)(size_t);
-    //!< The allocation memory function used internally.
-    void (*free)(void *);
-    //!< The free memory function used internally.
-    blosc2_cparams cparams;
-    //!< The compression parameters used in Blosc.
-    blosc2_dparams dparams;
-    //!< The decompression parameters used in Blosc.
-} caterva_ctx_t;
+typedef struct caterva_context_s {
+    caterva_config_t *cfg;
+    //!< The configuration paramters.
+} caterva_context_t;
 
 
 /**
- * @brief A dimensions vector that can represent shapes or points
+ * @brief Formats to store #caterva_array_t data.
  */
-typedef struct {
-    int64_t dims[CATERVA_MAXDIM];
-    //!< The size of each dimension
-    int8_t ndim;
-    //!< The number of dimensions
-} caterva_dims_t;
-
-
-/**
- * @brief Default caterva dimensions vector
- */
-static const caterva_dims_t CATERVA_DIMS_DEFAULTS = {
-    .dims = {1, 1, 1, 1, 1, 1, 1, 1},
-    .ndim = 1
-};
+typedef enum caterva_storage_backend_e {
+    CATERVA_STORAGE_BLOSC,
+    //!< Indicates that data is stored using a Blosc superchunk.
+    CATERVA_STORAGE_PLAINBUFFER,
+    //!< Indicates that data is stored using a plain buffer.
+} caterva_storage_backend_t;
 
 
 /**
@@ -134,13 +147,42 @@ struct part_cache_s {
 };
 
 
+typedef struct caterva_storage_properties_blosc_s {
+    int64_t chunkshape[CATERVA_MAXDIM];
+    int64_t blockshape[CATERVA_MAXDIM];
+    bool enforceframe;
+    char* filename;
+} caterva_storage_properties_blosc_t;
+
+
+typedef struct caterva_storage_properties_plainbuffer_s {
+} caterva_storage_properties_plainbuffer_t;
+
+
+typedef union caterva_storage_properties_u {
+    caterva_storage_properties_blosc_t blosc;
+    caterva_storage_properties_plainbuffer_t plainbuffer;
+} caterva_storage_properties_t;
+
+
+typedef struct caterva_storage_s {
+    caterva_storage_backend_t backend;
+    caterva_storage_properties_t properties;
+} caterva_storage_t;
+
+
+typedef struct caterva_shape_s {
+    uint64_t shape[CATERVA_MAXDIM];
+    uint8_t ndim;
+    uint8_t itemsize;
+} caterva_params_t;
+
+
 /**
  * @brief A multidimensional container that allows compressed data.
  */
 typedef struct {
-    caterva_ctx_t *ctx;
-    //!< Caterva context
-    caterva_storage_t storage;
+    caterva_storage_backend_t storage;
     //!< Storage type
     blosc2_schunk *sc;
     //!< Pointer to a Blosc superchunk
@@ -150,18 +192,20 @@ typedef struct {
     //!< Only is used if \p storage equals to \p #CATERVA_STORAGE_PLAINBUFFER.
     int64_t shape[CATERVA_MAXDIM];
     //!< Shape of original data.
-    int32_t pshape[CATERVA_MAXDIM];
+    int32_t chunkshape[CATERVA_MAXDIM];
     //!< Shape of each partition.
-    int64_t eshape[CATERVA_MAXDIM];
+    int64_t extendedshape[CATERVA_MAXDIM];
     //!< Shape of padded data.
     int64_t size;
     //!< Size of original data.
-    int32_t psize;
+    int32_t chunksize;
     //!< Size of each partition.
-    int64_t esize;
+    int64_t extendedesize;
     //!< Size of padded data.
     int8_t ndim;
     //!< Data dimensions.
+    int8_t itemsize;
+    //!< Size of each item.
     bool empty;
     //!< Indicate if an array is empty or is filled with data.
     bool filled;
@@ -176,14 +220,12 @@ typedef struct {
 /**
  * @brief Create a context for Caterva functions.
  *
- * @param all The allocation function to use internally. Default: \c malloc.
- * @param free The free function to use internally. IDefault: \c free.
- * @param cparams The compression parameters used when a caterva container is created.
- * @param dparams The decompression parameters used when data of a caterva container is decompressed.
+ * @param cfg The configuration parameters needed for the context creation.
+ * @param ctx The memory pointer where the context will be created.
  *
- * @return Pointer to a new Caterva context. \p NULL is returned if this fails.
+ * @return An error code.
  */
-caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc2_cparams cparams, blosc2_dparams dparams);
+int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx);
 
 
 /**
@@ -193,20 +235,7 @@ caterva_ctx_t *caterva_new_ctx(void *(*all)(size_t), void (*free)(void *), blosc
  *
  * @return An error code.
  */
-int caterva_free_ctx(caterva_ctx_t *ctx);
-
-
-/**
- * @brief Create a caterva dimensions vector
- *
- * A #caterva_dims_t can be used to represent shapes or points of the container.
- *
- * @param dims The size of each dimension
- * @param ndim The number of dimensions
- *
- * @return The caterva dimensions vector created
- */
-caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
+int caterva_context_free(caterva_context_t **ctx);
 
 
 /**
@@ -227,7 +256,8 @@ caterva_dims_t caterva_new_dims(const int64_t *dims, int8_t ndim);
  *
  * @return A pointer to the empty caterva container created
  */
-caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, caterva_dims_t *pshape);
+int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                        caterva_array_t **array);
 
 
 /**
@@ -237,7 +267,7 @@ caterva_array_t *caterva_empty_array(caterva_ctx_t *ctx, blosc2_frame *fr, cater
  *
  * @return An error code
  */
-int caterva_free_array(caterva_array_t *carr);
+int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
 
 
 /**
@@ -249,7 +279,7 @@ int caterva_free_array(caterva_array_t *carr);
  *
  * @return An error code
  */
-int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
+int caterva_array_append(caterva_context_t *ctx, caterva_array_t *carr, void *part, int64_t partsize);
 
 
 /**
@@ -263,7 +293,7 @@ int caterva_append(caterva_array_t *carr, void *part, int64_t partsize);
  *
  * @return A pointer to the new caterva container
  */
-caterva_array_t *caterva_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, bool copy);
+int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy, caterva_array_t **array);
 
 
 /**
@@ -278,7 +308,7 @@ caterva_array_t *caterva_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, boo
  *
  * @return A pointer to the new caterva container
  */
-caterva_array_t *caterva_from_sframe(caterva_ctx_t *ctx, uint8_t *sframe, int64_t len, bool copy);
+int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy, caterva_array_t **array);
 
 
 /**
@@ -292,7 +322,7 @@ caterva_array_t *caterva_from_sframe(caterva_ctx_t *ctx, uint8_t *sframe, int64_
  *
  * @return A pointer to the new caterva container
  */
-caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, bool copy);
+int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool copy, caterva_array_t **array);
 
 
 /**
@@ -304,7 +334,8 @@ caterva_array_t *caterva_from_file(caterva_ctx_t *ctx, const char *filename, boo
  *
  * @return An error code
  */
-int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src);
+int caterva_array_from_buffer(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                              void *buffer, int64_t len, caterva_array_t **array);
 
 
 /**
@@ -315,7 +346,7 @@ int caterva_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src)
  *
  * @return An error code
  */
-int caterva_to_buffer(caterva_array_t *src, void *dest);
+int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *dest, int64_t len);
 
 
 /**
@@ -328,7 +359,8 @@ int caterva_to_buffer(caterva_array_t *src, void *dest);
  *
  * @return An error code
  */
-int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start, caterva_dims_t *stop);
+int caterva_array_get_slice(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                            caterva_array_t *src, int64_t *start, int64_t *stop, caterva_array_t **array);
 
 
 /**
@@ -340,7 +372,7 @@ int caterva_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_
  *
  * @return An error code
  */
-int caterva_squeeze(caterva_array_t *src);
+int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
 
 
 /**
@@ -353,8 +385,8 @@ int caterva_squeeze(caterva_array_t *src);
  * @param d_pshape The partition shape of the buffer
  * @return An error code
  */
-int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
-                             caterva_dims_t *stop, caterva_dims_t *d_pshape);
+int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start, int64_t *stop,
+                                   int64_t *shape, void *dest, int64_t len);
 
 
 /**
@@ -374,8 +406,8 @@ int caterva_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *s
  *
  * @return An error code
  */
-int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_dims_t *start,
-                                     caterva_dims_t *stop, caterva_dims_t *d_pshape);
+int caterva_array_get_slice_buffer_no_copy(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
+                                           int64_t *stop, void **dest);
 
 
 /**
@@ -390,41 +422,8 @@ int caterva_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, caterva_
  *
  * @return An error code
  */
-int caterva_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *start,
-                             caterva_dims_t *stop);
-
-
-/**
- * @brief Update the shape of a caterva container.
- *
- * This is used when data is added to the container to update the shape
- *
- * @param src Pointer to the container from which the shape will be updated
- * @param shape The new shape of the container
- *
- * @return An error code
- */
-int caterva_update_shape(caterva_array_t *src, caterva_dims_t *shape);
-
-
-/**
- * @brief Get the shape of a caterva array
- *
- * @param src pointer to the container from which the partition shape will be obtained
- *
- * @return The partition shape of the caterva array
- */
-caterva_dims_t caterva_get_shape(caterva_array_t *src);
-
-
-/**
- * @brief Get the partition shape of a caterva array
- *
- * @param src pointer to the container from which the partition shape will be obtained
- *
- * @return The partition shape of the caterva array
- */
-caterva_dims_t caterva_get_pshape(caterva_array_t *src);
+int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *src, int64_t len, int64_t *start,
+                                   int64_t *stop, caterva_array_t *dest);
 
 
 /**
@@ -437,7 +436,7 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src);
  *
  * @return An error code
  */
-int caterva_copy(caterva_array_t *dest, caterva_array_t *src);
+int caterva_array_copy(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src, caterva_array_t *dest);
 
 
 #endif

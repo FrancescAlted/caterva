@@ -11,7 +11,7 @@
 
 #include "test_common.h"
 
-static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
+static void test_squeeze(caterva_context_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
                          int64_t *pshape_dest_, int64_t *start_, int64_t *stop_) {
 
     caterva_dims_t shape = caterva_new_dims(shape_, ndim);
@@ -21,9 +21,9 @@ static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64
     caterva_array_t *src;
     if (pshape_ != NULL) {
         caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_empty_array(ctx, NULL, &pshape);
+        src = caterva_array_empty(ctx, NULL, &pshape);
     } else {
-        src = caterva_empty_array(ctx, NULL, NULL);
+        src = caterva_array_empty(ctx, NULL, NULL);
     }
 
     size_t buf_size = 1;
@@ -34,18 +34,18 @@ static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64
     double *buf_src = (double *) malloc(buf_size * src->ctx->cparams.typesize);
     fill_buf(buf_src, buf_size);
 
-    CATERVA_TEST_ERROR(caterva_from_buffer(src, &shape, buf_src));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(src, &shape, buf_src));
 
     caterva_array_t *dest;
     if (pshape_dest_ != NULL) {
         caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-        dest = caterva_empty_array(ctx, NULL, &pshape_dest);
+        dest = caterva_array_empty(ctx, NULL, &pshape_dest);
     } else {
-        dest = caterva_empty_array(ctx, NULL, NULL);
+        dest = caterva_array_empty(ctx, NULL, NULL);
     }
-    CATERVA_TEST_ERROR(caterva_get_slice(dest, src, &start, &stop));
+    CATERVA_TEST_ERROR(caterva_array_get_slice(dest, src, &start, &stop));
 
-    CATERVA_TEST_ERROR(caterva_squeeze(dest));
+    CATERVA_TEST_ERROR(caterva_array_squeeze(dest));
 
     LWTEST_ASSERT_TRUE(src->ndim != dest->ndim);
 
@@ -55,16 +55,16 @@ static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64
 }
 
 LWTEST_DATA(squeeze) {
-    caterva_ctx_t *ctx;
+    caterva_context_t *ctx;
 };
 
 LWTEST_SETUP(squeeze) {
-    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
+    data->ctx = caterva_context_new(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
     data->ctx->cparams.typesize = sizeof(double);
 }
 
 LWTEST_TEARDOWN(squeeze) {
-    caterva_free_ctx(data->ctx);
+    caterva_context_free(data->ctx);
 }
 
 LWTEST_FIXTURE(squeeze, ndim3) {

@@ -13,13 +13,13 @@
 #ifndef CATERVA_CATERVA_BLOSC_H
 #define CATERVA_CATERVA_BLOSC_H
 
-caterva_array_t *caterva_blosc_empty_array(caterva_ctx_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape);
+caterva_array_t *caterva_blosc_empty_array(caterva_context_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape);
 
-caterva_array_t *caterva_blosc_from_frame(caterva_ctx_t *ctx, blosc2_frame *frame, bool copy);
+caterva_array_t *caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy);
 
-caterva_array_t *caterva_blosc_from_sframe(caterva_ctx_t *ctx, uint8_t *sframe, int64_t len, bool copy);
+caterva_array_t *caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy);
 
-caterva_array_t *caterva_blosc_from_file(caterva_ctx_t *ctx, const char *filename, bool copy);
+caterva_array_t *caterva_blosc_from_file(caterva_context_t *ctx, const char *filename, bool copy);
 
 int caterva_blosc_free_array(caterva_array_t *carr);
 
