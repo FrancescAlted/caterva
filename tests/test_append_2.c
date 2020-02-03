@@ -52,7 +52,7 @@ static void test_append_2(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int
             printf("%f,", bufdest[i]);
             bufassert[i] = bufdest[i];
     }
-    assert_buf(bufassert, result, (size_t)80, 1e-14);
+    assert_buf(bufassert, result, (size_t)10, 1e-14);
 
     /* Free mallocs  */
     free(bufdest);

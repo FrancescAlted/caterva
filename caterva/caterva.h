@@ -377,6 +377,8 @@ int caterva_repart(caterva_array_t *dest, caterva_array_t *src);
  */
 int caterva_squeeze(caterva_array_t *src);
 
+int caterva_squeeze_2(caterva_array_t *src);
+
 
 /**
  * @brief Get a slice into a C buffer from a caterva container
