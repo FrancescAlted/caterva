@@ -14,3 +14,5 @@ Actions to be done
 * Add examples into the Python wrapper documentation and create some jupyter notebooks.
 
 * Build wheels to make the installation easier for the user.
+
+* Add a new level of multidimensionality in Caterva. After that, we will support three layers of multidimensionality in a Caterva container: the shape, the chunk shape and the block shape.
