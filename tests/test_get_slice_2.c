@@ -89,7 +89,7 @@ LWTEST_SETUP(get_slice_2) {
 LWTEST_TEARDOWN(get_slice_2) {
     caterva_free_ctx(data->ctx);
 }
-/*
+
 LWTEST_FIXTURE(get_slice_2, ndim_2) {
     const int8_t ndim = 2;
     int64_t shape_[] = {10, 10};
@@ -121,7 +121,7 @@ LWTEST_FIXTURE(get_slice_2, ndim_2_2) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, false, false, result);
 }
 
-*/
+
 LWTEST_FIXTURE(get_slice_2, ndim_3_no_sp) {
     const int8_t ndim = 3;
     int64_t shape_[] = {10, 10, 10};
@@ -130,7 +130,7 @@ LWTEST_FIXTURE(get_slice_2, ndim_3_no_sp) {
     int64_t start_[] = {3, 0, 3};
     int64_t stop_[] = {6, 7, 10};
     int64_t pshape_dest_[] = {2, 4, 3};
-    int64_t spshape_dest_[] = {2, 4, 3};
+    int64_t spshape_dest_[] = {2, 2, 2};
     bool persist = true;
     bool copy = false;
 
@@ -150,22 +150,8 @@ LWTEST_FIXTURE(get_slice_2, ndim_3_no_sp) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, persist, copy, result);
 }
 
-LWTEST_FIXTURE(get_slice_2, ndim_3) {
-    const int8_t ndim = 3;
-    int64_t shape_[] = {5, 6, 3};
-    int64_t pshape_[] = {3, 3, 3};
-    int64_t spshape_[] = {2, 2, 2};
-    int64_t start_[] = {2, 2, 0};
-    int64_t stop_[] = {4, 4, 2};
-    bool persist = true;
-    bool copy = false;
-
-    double result[1024] = {42, 43, 45, 46, 60, 61, 63, 64};
 
 
-    test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, NULL, NULL, persist, copy, result);
-}
-/*
 LWTEST_FIXTURE(get_slice_2, ndim_3_2) {
     const int8_t ndim = 3;
     int64_t shape_[] = {5, 6, 3};
@@ -173,7 +159,7 @@ LWTEST_FIXTURE(get_slice_2, ndim_3_2) {
     int64_t spshape_[] = {2, 2, 2};
     int64_t start_[] = {2, 1, 0};
     int64_t stop_[] = {4, 4, 2};
-    int64_t pshape_dest_[] = {2, 3, 2};     // epshape ??????????????????????????????
+    int64_t pshape_dest_[] = {2, 3, 2};
     int64_t spshape_dest_[] = {2, 2, 2};
     bool persist = true;
     bool copy = false;
@@ -185,11 +171,15 @@ LWTEST_FIXTURE(get_slice_2, ndim_3_2) {
 }
 
 
-LWTEST_FIXTURE(get_slice_2, ndim_4_plain) {
+LWTEST_FIXTURE(get_slice_2, ndim_4) {
     const int8_t ndim = 4;
     int64_t shape_[] = {10, 10, 10, 10};
+    int64_t pshape_[] = {3, 3, 3, 3};
+    int64_t spshape_[] = {2, 2, 2, 2};
     int64_t start_[] = {5, 3, 9, 2};
     int64_t stop_[] = {9, 6, 10, 7};
+    int64_t pshape_dest_[] = {2, 3, 1, 2};
+    int64_t spshape_dest_[] = {2, 2, 1, 2};
 
     double result[1024] = {5392, 5393, 5394, 5395, 5396, 5492, 5493, 5494, 5495, 5496, 5592, 5593,
                            5594, 5595, 5596, 6392, 6393, 6394, 6395, 6396, 6492, 6493, 6494, 6495,
@@ -197,7 +187,7 @@ LWTEST_FIXTURE(get_slice_2, ndim_4_plain) {
                            7493, 7494, 7495, 7496, 7592, 7593, 7594, 7595, 7596, 8392, 8393, 8394,
                            8395, 8396, 8492, 8493, 8494, 8495, 8496, 8592, 8593, 8594, 8595, 8596};
 
-    test_get_slice_2(data->ctx, ndim, shape_, NULL, NULL, start_, stop_, NULL, NULL, false, false, result);
+    test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, false, false, result);
 }
 
 LWTEST_FIXTURE(get_slice_2, ndim_5_no_sp) {
@@ -223,11 +213,15 @@ LWTEST_FIXTURE(get_slice_2, ndim_5_no_sp) {
 }
 
 
-LWTEST_FIXTURE(get_slice_2, ndim_6_plain) {
+LWTEST_FIXTURE(get_slice_2, ndim_6) {
     const int8_t ndim = 6;
     int64_t shape_[] = {10, 10, 10, 10, 10, 10};
+    int64_t pshape_[] = {3, 4, 2, 2, 2, 3, 2, 1};
+    int64_t spshape_[] = {2, 2, 1, 2, 2, 2, 1, 1};
     int64_t start_[] = {0, 4, 2, 4, 5, 1};
     int64_t stop_[] = {1, 7, 4, 6, 8, 3};
+    int64_t pshape_dest_[] = {1, 3, 1, 1, 3, 2};
+    int64_t spshape_dest_[] = {1, 2, 1, 1, 2, 1};
 
     double result[1024] = {42451, 42452, 42461, 42462, 42471, 42472, 42551, 42552, 42561, 42562,
                            42571, 42572, 43451, 43452, 43461, 43462, 43471, 43472, 43551, 43552,
@@ -238,7 +232,7 @@ LWTEST_FIXTURE(get_slice_2, ndim_6_plain) {
                            63451, 63452, 63461, 63462, 63471, 63472, 63551, 63552, 63561, 63562,
                            63571, 63572};
 
-    test_get_slice_2(data->ctx, ndim, shape_, NULL, NULL, start_, stop_, NULL, NULL, false, false, result);
+    test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, false, false, result);
 }
 
 LWTEST_FIXTURE(get_slice_2, ndim_7_no_sp) {
@@ -259,14 +253,17 @@ LWTEST_FIXTURE(get_slice_2, ndim_7_no_sp) {
     test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, persist, copy, result);
 }
 
-LWTEST_FIXTURE(get_slice_2, ndim_8_plain) {
+LWTEST_FIXTURE(get_slice_2, ndim_8) {
     const int8_t ndim = 8;
     int64_t shape_[] = {5, 3, 4, 5, 4, 3, 2, 3};
+    int64_t pshape_[] = {3, 2, 3, 4, 2, 2, 1, 2};
+    int64_t spshape_[] = {3, 1, 2, 2, 2, 1, 1, 1};
     int64_t start_[] = {3, 2, 2, 2, 2, 1, 1, 1};
     int64_t stop_[] = {4, 3, 3, 3, 3, 3, 2, 3};
+    int64_t pshape_dest_[] = {1, 1, 1, 1, 1, 1, 1, 2};
+    int64_t spshape_dest_[] = {1, 1, 1, 1, 1, 1, 1, 1};
 
     double result[1024] = {16750, 16751, 16756, 16757};
 
-    test_get_slice_2(data->ctx, ndim, shape_, NULL, NULL, start_, stop_, NULL, NULL, false, false, result);
+    test_get_slice_2(data->ctx, ndim, shape_, pshape_, spshape_, start_, stop_, pshape_dest_, spshape_dest_, false, false, result);
 }
-*/

@@ -40,7 +40,6 @@ static void test_append_2(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int
         }
         res = caterva_append_2(src, buffer, src->next_size * src->ctx->cparams.typesize);
     }
-    free(buffer);
 
     /* Fill dest array with caterva_array_t data */
     double *bufdest = (double *) malloc((size_t)src->size * src->ctx->cparams.typesize);

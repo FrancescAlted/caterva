@@ -35,7 +35,7 @@ static void test_derepart_chunk(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape
         buffer_src[i] =  (double) i;
     }
     caterva_repart_chunk((int8_t *) buffer_dest, size_dest, buffer_src, size_src, carr, carr->ctx);
-    caterva_derepart_chunk((int8_t *) buffer_dereparted, size_src, buffer_dest, size_dest, carr, carr->ctx);
+    caterva_derepart_chunk((int8_t *) buffer_dereparted, size_src, (int8_t *) buffer_dest, size_dest, carr, carr->ctx);
     /*
     printf("\n derepart chunk \n", NULL);
     for (int i = 0; i < carr->psize; ++i) {
