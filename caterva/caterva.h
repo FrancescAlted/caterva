@@ -477,6 +477,16 @@ caterva_dims_t caterva_get_pshape(caterva_array_t *src);
 
 
 /**
+ * @brief Get the subpartition shape of a caterva array
+ *
+ * @param src pointer to the container from which the partition shape will be obtained
+ *
+ * @return The subpartition shape of the caterva array
+ */
+caterva_dims_t caterva_get_spshape(caterva_array_t *src);
+
+
+/**
  * @brief Make a copy of the container data.
  *
  * The copy is done into \p dest container
