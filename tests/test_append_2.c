@@ -34,10 +34,6 @@ static void test_append_2(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int
             buffer[i] = ind;
             ind++;
         }
-        printf("\n buffer \n");
-        for (int i = 0; i < src->next_size; ++i) {
-            printf("%f,", buffer[i]);
-        }
         res = caterva_append_2(src, buffer, src->next_size * src->ctx->cparams.typesize);
     }
 
@@ -46,9 +42,7 @@ static void test_append_2(caterva_ctx_t *ctx, uint8_t ndim, int64_t *shape_, int
     caterva_to_buffer_2(src, bufdest);
 
     double *bufassert = (double *) malloc((size_t)80);
-    printf("\n bufdest \n");
     for (int i = 0; i < 10; ++i) {
-            printf("%f,", bufdest[i]);
             bufassert[i] = bufdest[i];
     }
     assert_buf(bufassert, result, (size_t)10, 1e-14);

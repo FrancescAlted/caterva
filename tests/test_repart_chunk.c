@@ -63,7 +63,6 @@ LWTEST_TEARDOWN(repart_chunk) {
 
 LWTEST_FIXTURE(repart_chunk, 2_dim) {
     const uint8_t ndim = 2;
-    // sin padding (todo bonito)
     int64_t shape_[] = {8, 16};
     int64_t pshape_[] = {4, 8};
     int64_t spshape_[] = {2, 4};
@@ -74,7 +73,6 @@ LWTEST_FIXTURE(repart_chunk, 2_dim) {
 
 LWTEST_FIXTURE(repart_chunk, 2_dim_pad) {
     const uint8_t ndim = 2;
-    //con padding
     int64_t shape__[] = {8, 16};
     int64_t pshape__[] = {4, 8};
     int64_t spshape__[] = {2, 3};
@@ -86,7 +84,6 @@ LWTEST_FIXTURE(repart_chunk, 2_dim_pad) {
 
 LWTEST_FIXTURE(repart_chunk, 3_dim) {
     const uint8_t ndim = 3;
-    // sin padding
     int64_t shape_[] = {4, 3, 2};
     int64_t pshape_[] = {2, 2, 2};
     int64_t spshape_[] = {1, 2, 1};
@@ -96,7 +93,6 @@ LWTEST_FIXTURE(repart_chunk, 3_dim) {
 
 LWTEST_FIXTURE(repart_chunk, 3_dim_pad) {
     const uint8_t ndim = 3;
-    // con padding
     int64_t shape_[] = {4, 3, 2};
     int64_t pshape_[] = {2, 3, 2};
     int64_t spshape_[] = {1, 2, 1};
@@ -107,7 +103,6 @@ LWTEST_FIXTURE(repart_chunk, 3_dim_pad) {
 
 LWTEST_FIXTURE(repart_chunk, 4_dim) {
     const uint8_t ndim = 4;
-    // sin padding
     int64_t shape_[] = {4, 3, 5, 4};
     int64_t pshape_[] = {2, 2, 2, 2};
     int64_t spshape_[] = {1, 2, 1, 1};
@@ -117,7 +112,6 @@ LWTEST_FIXTURE(repart_chunk, 4_dim) {
 
 LWTEST_FIXTURE(repart_chunk, 4_dim_pad) {
     const uint8_t ndim = 4;
-    // con padding
     int64_t shape_[] = {4, 3, 2, 6};
     int64_t pshape_[] = {2, 3, 2, 2};
     int64_t spshape_[] = {1, 2, 1, 1};

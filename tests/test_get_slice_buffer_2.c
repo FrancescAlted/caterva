@@ -41,10 +41,6 @@ static void test_get_slice_buffer_2(caterva_ctx_t *ctx, int8_t ndim, int64_t *sh
         buf_src[i] = (double) i;
     }
     caterva_from_buffer_2(src, &shape, buf_src);
-   /* printf("\n buf_src: \n");
-    for( int i = 0; i< src->epsize; i++){
-        printf("%f,", ((double *) buf_src)[i]);
-    }*/
     uint64_t dest_size = 1;
     for (int i = 0; i < stop.ndim; ++i) {
         dest_size *= stop.dims[i] - start.dims[i];

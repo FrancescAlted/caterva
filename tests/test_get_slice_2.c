@@ -55,7 +55,7 @@ static void test_get_slice_2(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, i
     }
 
     if (pshape_ != NULL) {
-        if (persist) {           // ??????????????????????????????????????????????????????????????
+        if (persist) {            
             // Close src and reopen the caterva frame persisted on-disk
             caterva_free_array(src);
             src = caterva_from_file(ctx, "persistency.caterva", copy);
@@ -66,10 +66,6 @@ static void test_get_slice_2(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, i
     caterva_squeeze_2(dest);
     double *buf_dest = (double *) malloc((size_t)dest->size * src->ctx->cparams.typesize);
     caterva_to_buffer_2(dest, buf_dest);
-    printf("\n \n buf_dest \n");
-    for (int i = 0; i < dest->size; ++i) {
-        printf("%f,", buf_dest[i]);
-    }
     assert_buf(buf_dest, result, (size_t)dest->size, 1e-14);
     free(buf_src);
     free(buf_dest);

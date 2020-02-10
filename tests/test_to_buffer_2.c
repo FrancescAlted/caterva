@@ -37,10 +37,6 @@ static void test_to_buffer_2(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, i
 
     double *buf_dest = (double *) malloc((size_t)buf_size * src->ctx->cparams.typesize);
     caterva_to_buffer_2(src, buf_dest);
-    /*printf("\n buf_dest", NULL);
-    for (int i = 0; i < buf_size; ++i) {
-        printf("%f,", buf_dest[i]);
-    }*/
     assert_buf(buf_dest, result, (size_t)src->size, 1e-14);
     free(buf_src);
     free(buf_dest);
