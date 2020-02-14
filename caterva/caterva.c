@@ -63,7 +63,6 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
         return CATERVA_ERR_NULL_POINTER;
     }
 
-    (*array)->empty = true;
     (*array)->filled = false;
     (*array)->nparts = 0;
 

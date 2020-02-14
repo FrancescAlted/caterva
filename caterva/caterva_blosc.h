@@ -13,7 +13,8 @@
 #ifndef CATERVA_CATERVA_BLOSC_H
 #define CATERVA_CATERVA_BLOSC_H
 
-caterva_array_t *caterva_blosc_empty_array(caterva_context_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape);
+int caterva_blosc_empty_array(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                              caterva_array_t **array);
 
 caterva_array_t *caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy);
 

@@ -227,23 +227,50 @@ int caterva_plainbuffer_update_shape(caterva_array_t *carr, caterva_dims_t *shap
     return CATERVA_SUCCEED;
 }
 
-caterva_array_t *caterva_plainbuffer_empty_array(caterva_context_t *ctx, blosc2_frame *frame, caterva_dims_t *pshape) {
+int caterva_plainbuffer_empty_array(caterva_context_t *ctx, caterva_params_t *params,
+                                                 caterva_storage_t *storage, caterva_array_t **array) {
     /* Create a caterva_array_t buffer */
-    caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
-    if (carr == NULL) {
+    (*array) = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
+    if ((*array) == NULL) {
         DEBUG_PRINT("Pointer is null");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
-    carr->size = 1;
-    carr->chunksize = 1;
-    carr->extendedesize = 1;
+
+    (*array)->storage = storage->backend;
+    (*array)->ndim = params->ndim;
+    (*array)->itemsize = params->itemsize;
+
+    int64_t *shape = params->shape;
+
+    (*array)->size = 1;
+    (*array)->chunksize = 1;
+    (*array)->extendedesize = 1;
+
+    for (int i = 0; i < params->ndim; ++i) {
+        (*array)->shape[i] = shape[i];
+        (*array)->chunkshape[i] = shape[i];
+        (*array)->extendedshape[i] = shape[i];
+
+        (*array)->size *= shape[i];
+        (*array)->chunksize *= shape[i];
+        (*array)->extendedesize *= shape[i];
+    }
+
+    for (int i = params->ndim; i < CATERVA_MAXDIM; ++i) {
+        (*array)->shape[i] = 1;
+        (*array)->chunkshape[i] = 1;
+        (*array)->extendedshape[i] = 1;
+    }
+
     // The partition cache (empty initially)
-    carr->part_cache.data = NULL;
-    carr->part_cache.nchunk = -1;  // means no valid cache yet
-    carr->sc = NULL;
-    carr->buf = NULL;
+    (*array)->part_cache.data = NULL;
+    (*array)->part_cache.nchunk = -1;  // means no valid cache yet
 
-    carr->storage = CATERVA_STORAGE_PLAINBUFFER;
+    (*array)->sc = NULL;
 
-    return carr;
+    uint8_t *buf = ctx->cfg->alloc((*array)->extendedesize * params->itemsize);
+
+    (*array)->buf = buf;
+
+    return CATERVA_SUCCEED;
 }

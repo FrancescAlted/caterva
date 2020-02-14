@@ -148,8 +148,7 @@ struct part_cache_s {
 
 
 typedef struct caterva_storage_properties_blosc_s {
-    int64_t chunkshape[CATERVA_MAXDIM];
-    int64_t blockshape[CATERVA_MAXDIM];
+    int32_t chunkshape[CATERVA_MAXDIM];
     bool enforceframe;
     char* filename;
 } caterva_storage_properties_blosc_t;
@@ -171,8 +170,8 @@ typedef struct caterva_storage_s {
 } caterva_storage_t;
 
 
-typedef struct caterva_shape_s {
-    uint64_t shape[CATERVA_MAXDIM];
+typedef struct caterva_params_s {
+    int64_t shape[CATERVA_MAXDIM];
     uint8_t ndim;
     uint8_t itemsize;
 } caterva_params_t;
@@ -279,7 +278,7 @@ int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
  *
  * @return An error code
  */
-int caterva_array_append(caterva_context_t *ctx, caterva_array_t *carr, void *part, int64_t partsize);
+int caterva_array_append(caterva_context_t *ctx, caterva_array_t *carr, void *chunk, int64_t chunksize);
 
 
 /**
@@ -335,7 +334,7 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  * @return An error code
  */
 int caterva_array_from_buffer(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
-                              void *buffer, int64_t len, caterva_array_t **array);
+                              void *buffer, int64_t buffersize, caterva_array_t **array);
 
 
 /**
@@ -346,7 +345,7 @@ int caterva_array_from_buffer(caterva_context_t *ctx, caterva_params_t *params, 
  *
  * @return An error code
  */
-int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *dest, int64_t len);
+int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize);
 
 
 /**
@@ -386,7 +385,23 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
  * @return An error code
  */
 int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start, int64_t *stop,
-                                   int64_t *shape, void *dest, int64_t len);
+                                   int64_t *shape, void *buffer, int64_t buffersize);
+
+
+/**
+ * @brief Set a slice into a caterva container from a C buffer
+ *
+ * It can only be used if the container is based on a buffer.
+ *
+ * @param dest Pointer to the caterva container where the partition will be set
+ * @param src Pointer to the buffer where the slice data is
+ * @param start The coordinates where the slice will begin
+ * @param stop The coordinates where the slice will end
+ *
+ * @return An error code
+ */
+int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, int64_t *start,
+                                   int64_t *stop, caterva_array_t *array);
 
 
 /**
@@ -410,21 +425,6 @@ int caterva_array_get_slice_buffer_no_copy(caterva_context_t *ctx, caterva_array
                                            int64_t *stop, void **dest);
 
 
-/**
- * @brief Set a slice into a caterva container from a C buffer
- *
- * It can only be used if the container is based on a buffer.
- *
- * @param dest Pointer to the caterva container where the partition will be set
- * @param src Pointer to the buffer where the slice data is
- * @param start The coordinates where the slice will begin
- * @param stop The coordinates where the slice will end
- *
- * @return An error code
- */
-int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *src, int64_t len, int64_t *start,
-                                   int64_t *stop, caterva_array_t *dest);
-
 
 /**
  * @brief Make a copy of the container data.
@@ -436,7 +436,7 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *src, int64_t le
  *
  * @return An error code
  */
-int caterva_array_copy(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src, caterva_array_t *dest);
+int caterva_array_copy(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src, caterva_array_t **dest);
 
 
 #endif
