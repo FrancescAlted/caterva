@@ -54,9 +54,9 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
         return CATERVA_ERR_NULL_POINTER;
     }
     if (storage->backend == CATERVA_STORAGE_BLOSC) {
-        caterva_blosc_empty_array(ctx, params, storage, array);
+        CATERVA_ERROR(caterva_blosc_empty_array(ctx, params, storage, array));
     } else {
-        caterva_plainbuffer_empty_array(ctx, params, storage, array);
+        CATERVA_ERROR(caterva_plainbuffer_empty_array(ctx, params, storage, array));
     }
     if (array == NULL) {
         DEBUG_PRINT("Error creating an empty caterva array");
@@ -70,21 +70,22 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
 }
 
 
-caterva_array_t *caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy) {
+int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy, caterva_array_t **array) {
     if (ctx == NULL) {
         DEBUG_PRINT("Context is null");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
     if (frame == NULL) {
         DEBUG_PRINT("Frame is null");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
-    caterva_array_t *carr = caterva_blosc_from_frame(ctx, frame, copy);
-    if (carr == NULL) {
+
+    CATERVA_ERROR(caterva_blosc_from_frame(ctx, frame, copy, array));
+    if ((*array) == NULL) {
         DEBUG_PRINT("Error creating a caterva container from a frame");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
-    return carr;
+    return CATERVA_SUCCEED;
 }
 
 

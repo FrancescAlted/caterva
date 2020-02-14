@@ -55,14 +55,14 @@ static void swap_store(void *dest, const void *pa, int size) {
 }
 
 
-static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape, uint8_t **smeta) {
+static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape, uint8_t **smeta) {
     // Allocate space for Caterva metalayer
     int32_t max_smeta_len = 1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) + \
         (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t)));
     *smeta = malloc((size_t)max_smeta_len);
     uint8_t *pmeta = *smeta;
 
-    // Build an array with 5 entries (version, ndim, shape, pshape, bshape)
+    // Build an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
     *pmeta++ = 0x90 + 5;
 
     // version entry
@@ -82,26 +82,26 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
     }
     assert(pmeta - *smeta < max_smeta_len);
 
-    // pshape entry
+    // chunkshape entry
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
     for (int8_t i = 0; i < ndim; i++) {
         *pmeta++ = 0xd2;  // int32
-        swap_store(pmeta, pshape + i, sizeof(int32_t));
+        swap_store(pmeta, chunkshape + i, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - *smeta <= max_smeta_len);
 
-    // bshape entry
+    // blockshape entry
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
-    int32_t *bshape = malloc(CATERVA_MAXDIM * sizeof(int32_t));
+    int32_t *blockshape = malloc(CATERVA_MAXDIM * sizeof(int32_t));
     for (int8_t i = 0; i < ndim; i++) {
         *pmeta++ = 0xd2;  // int32
-        bshape[i] = 0;  // FIXME: update when support for multidimensional bshapes would be ready
+        blockshape[i] = 0;  // FIXME: update when support for multidimensional bshapes would be ready
         // NOTE: we need to initialize the header so as to avoid false negatives in valgrind
-        swap_store(pmeta, bshape + i, sizeof(int32_t));
+        swap_store(pmeta, blockshape + i, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
-    free(bshape);
+    free(blockshape);
     assert(pmeta - *smeta <= max_smeta_len);
     int32_t slen = (int32_t)(pmeta - *smeta);
 
@@ -109,10 +109,10 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *pshape
 }
 
 
-static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims_t *shape, caterva_dims_t *pshape) {
+static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim, int64_t *shape, int32_t *chunkshape) {
     uint8_t *pmeta = smeta;
 
-    // Check that we have an array with 5 entries (version, ndim, shape, pshape, bshape)
+    // Check that we have an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
     assert(*pmeta == 0x90 + 5);
     pmeta += 1;
     assert(pmeta - smeta < smeta_len);
@@ -124,48 +124,47 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
     assert(pmeta - smeta < smeta_len);
 
     // ndim entry
-    int8_t ndim = pmeta[0];  // positive fixnum (7-bit positive integer)
-    assert (ndim <= CATERVA_MAXDIM);
+    *ndim = pmeta[0];
+    int8_t ndim_aux = *ndim;  // positive fixnum (7-bit positive integer)
+    assert (ndim_aux <= CATERVA_MAXDIM);
     pmeta += 1;
     assert(pmeta - smeta < smeta_len);
-    shape->ndim = ndim;
-    pshape->ndim = ndim;
 
     // shape entry
     // Initialize to ones, as required by Caterva
-    for (int i = 0; i < CATERVA_MAXDIM; i++) shape->dims[i] = 1;
-    assert(*pmeta == (uint8_t)(0x90) + ndim);  // fix array with ndim elements
+    for (int i = 0; i < CATERVA_MAXDIM; i++) shape[i] = 1;
+    assert(*pmeta == (uint8_t)(0x90) + ndim_aux);  // fix array with ndim elements
     pmeta += 1;
-    for (int8_t i = 0; i < ndim; i++) {
+    for (int8_t i = 0; i < ndim_aux; i++) {
         assert(*pmeta == 0xd3);   // int64
         pmeta += 1;
-        swap_store(shape->dims + i, pmeta, sizeof(int64_t));
+        swap_store(shape + i, pmeta, sizeof(int64_t));
         pmeta += sizeof(int64_t);
     }
     assert(pmeta - smeta < smeta_len);
 
-    // pshape entry
+    // chunkshape entry
     // Initialize to ones, as required by Caterva
-    for (int i = 0; i < CATERVA_MAXDIM; i++) pshape->dims[i] = 1;
-    assert(*pmeta == (uint8_t)(0x90) + ndim);  // fix array with ndim elements
+    for (int i = 0; i < CATERVA_MAXDIM; i++) chunkshape[i] = 1;
+    assert(*pmeta == (uint8_t)(0x90) + ndim_aux);  // fix array with ndim elements
     pmeta += 1;
-    for (int8_t i = 0; i < ndim; i++) {
+    for (int8_t i = 0; i < ndim_aux; i++) {
         assert(*pmeta == 0xd2);  // int32
         pmeta += 1;
-        swap_store(pshape->dims + i, pmeta, sizeof(int32_t));
+        swap_store(chunkshape + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - smeta <= smeta_len);
 
-    // bshape entry
+    // blockshape entry
     // Initialize to ones, as required by Caterva
-    // for (int i = 0; i < CATERVA_MAXDIM; i++) bshape->dims[i] = 1;
-    assert(*pmeta == (uint8_t)(0x90) + ndim);  // fix array with ndim elements
+    // for (int i = 0; i < CATERVA_MAXDIM; i++) blockshape[i] = 1;
+    assert(*pmeta == (uint8_t)(0x90) + ndim_aux);  // fix array with ndim elements
     pmeta += 1;
-    for (int8_t i = 0; i < ndim; i++) {
+    for (int8_t i = 0; i < ndim_aux; i++) {
         assert(*pmeta == 0xd2);  // int32
         pmeta += 1;
-        // swap_store(bshape->dims + i, pmeta, sizeof(int32_t));
+        // swap_store(blockshape + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - smeta <= smeta_len);
@@ -175,88 +174,82 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, caterva_dims
 }
 
 
-caterva_array_t *caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy) {
+int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy, caterva_array_t **array) {
     if (ctx == NULL) {
         DEBUG_PRINT("Context is null");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
     if (frame == NULL) {
         DEBUG_PRINT("Frame is null");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
     /* Create a caterva_array_t buffer */
-    caterva_array_t *carr = (caterva_array_t *) ctx->alloc(sizeof(caterva_array_t));
-
-    /* Copy context to caterva_array_t */
-    carr->ctx = (caterva_context_t *) ctx->alloc(sizeof(caterva_context_t));
-    if (carr->ctx == NULL) {
-        DEBUG_PRINT("Pointer is null");
-        return NULL;
-    }
-    memcpy(&carr->ctx[0], &ctx[0], sizeof(caterva_context_t));
+    *array = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
 
     /* Create a schunk out of the frame */
     blosc2_schunk *sc = blosc2_schunk_from_frame(frame, copy);
     if (sc == NULL) {
         DEBUG_PRINT("Schunk is null");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
-    carr->sc = sc;
-    carr->storage = CATERVA_STORAGE_BLOSC;
+    (*array)->sc = sc;
+    (*array)->storage = CATERVA_STORAGE_BLOSC;
 
-    blosc2_dparams *dparams;
-    if (blosc2_schunk_get_dparams(carr->sc, &dparams) <0) {
-        DEBUG_PRINT("Blosc error");
-        return NULL;
-    }
     blosc2_cparams *cparams;
-    if (blosc2_schunk_get_cparams(carr->sc, &cparams) < 0) {
+    if (blosc2_schunk_get_cparams(sc, &cparams) < 0) {
         DEBUG_PRINT("Blosc error");
-        return NULL;
+        return CATERVA_ERR_NULL_POINTER;
     }
-    memcpy(&carr->ctx->dparams, dparams, sizeof(blosc2_dparams));
-    memcpy(&carr->ctx->cparams, cparams, sizeof(blosc2_cparams));
+
+    (*array)->itemsize = cparams->typesize;
 
     // Deserialize the caterva metalayer
-    caterva_dims_t shape;
-    caterva_dims_t pshape;
     uint8_t *smeta;
     uint32_t smeta_len;
     if (blosc2_get_metalayer(sc, "caterva", &smeta, &smeta_len) < 0) {
         DEBUG_PRINT("Blosc error");
-        return NULL;
+        return CATERVA_ERR_BLOSC_FAILED;
     }
-    deserialize_meta(smeta, smeta_len, &shape, &pshape);
-    carr->size = 1;
-    carr->chunksize = 1;
-    carr->extendedesize = 1;
-    carr->ndim = pshape.ndim;
+    deserialize_meta(smeta, smeta_len, &(*array)->ndim, (*array)->shape, (*array)->chunkshape);
 
-    for (int i = 0; i < CATERVA_MAXDIM; i++) {
-        carr->shape[i] = shape.dims[i];
-        carr->size *= shape.dims[i];
-        carr->chunkshape[i] = (int32_t)(pshape.dims[i]);
-        carr->chunksize *= carr->chunkshape[i];
-        if (shape.dims[i] % pshape.dims[i] == 0) {
-            // The case for shape.dims[i] == 1 and pshape.dims[i] == 1 is handled here
-            carr->extendedshape[i] = shape.dims[i];
+    int64_t *shape = (*array)->shape;
+    int32_t *chunkshape = (*array)->chunkshape;
+
+    (*array)->size = 1;
+    (*array)->chunksize = 1;
+    (*array)->extendedesize = 1;
+
+    for (int i = 0; i < (*array)->ndim; ++i) {
+        if (shape[i] % chunkshape[i] == 0) {
+            (*array)->extendedshape[i] = shape[i];
         } else {
-            carr->extendedshape[i] = shape.dims[i] + pshape.dims[i] - shape.dims[i] % pshape.dims[i];
+            (*array)->extendedshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
         }
-        carr->extendedesize *= carr->extendedshape[i];
+        (*array)->size *= shape[i];
+        (*array)->chunksize *= chunkshape[i];
+        (*array)->extendedesize *= (*array)->extendedshape[i];
     }
+
+    for (int i = (*array)->ndim; i < CATERVA_MAXDIM; ++i) {
+        (*array)->shape[i] = 1;
+        (*array)->chunkshape[i] = 1;
+        (*array)->extendedshape[i] = 1;
+    }
+
 
     // The partition cache (empty initially)
-    carr->part_cache.data = NULL;
-    carr->part_cache.nchunk = -1;  // means no valid cache yet
-    carr->empty = false;
-    if (carr->sc->nchunks == carr->extendedesize / carr->chunksize) {
-        carr->filled = true;
+    (*array)->part_cache.data = NULL;
+    (*array)->part_cache.nchunk = -1;  // means no valid cache yet
+
+    (*array)->buf = NULL;
+
+    if (sc->nchunks == (*array)->extendedesize / (*array)->chunksize) {
+        (*array)->filled = true;
     } else {
-        carr->filled = false;
+        (*array)->filled = false;
     }
 
-    return carr;
+    return CATERVA_SUCCEED;
 }
 
 
