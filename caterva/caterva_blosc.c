@@ -308,8 +308,10 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
 
 
 int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize) {
+    CATERVA_UNUSED_PARAM(buffersize);
+
     const int8_t *bbuffer = (int8_t *) buffer;
-    
+
     int64_t d_shape[CATERVA_MAXDIM];
     int64_t d_eshape[CATERVA_MAXDIM];
     int32_t d_pshape[CATERVA_MAXDIM];
@@ -324,7 +326,7 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
     int8_t typesize = array->itemsize;
     int8_t *chunk = ctx->cfg->alloc((size_t) array->chunksize * typesize);
     CATERVA_ERROR_NULL(chunk);
-    
+
     /* Calculate the constants out of the for  */
     int64_t aux[CATERVA_MAXDIM];
     aux[7] = d_eshape[7] / d_pshape[7];
