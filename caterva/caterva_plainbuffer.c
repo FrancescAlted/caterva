@@ -21,21 +21,19 @@ int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **arr
 }
 
 
-int caterva_plainbuffer_append(caterva_array_t *carr, void *part, int64_t partsize) {
-    if (carr->nparts == 0) {
-        carr->buf = malloc(carr->size * (size_t) carr->ctx->cparams.typesize);
-        CATERVA_ERROR_NULL(carr->buf);
-    } else {
-        carr->nparts = 0;
+int caterva_plainbuffer_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
+    if (array->nparts == 0) {
+        array->buf = ctx->cfg->alloc(array->size * array->itemsize);
+        CATERVA_ERROR_NULL(array->buf);
     }
-    int64_t start_[CATERVA_MAXDIM], stop_[CATERVA_MAXDIM];
-    for (int i = 0; i < carr->ndim; ++i) {
-        start_[i] = 0;
-        stop_[i] = start_[i] + carr->chunkshape[i];
+
+    int64_t start[CATERVA_MAXDIM], stop[CATERVA_MAXDIM];
+    for (int i = 0; i < array->ndim; ++i) {
+        start[i] = 0;
+        stop[i] = start[i] + array->chunkshape[i];
     }
-    caterva_dims_t start = caterva_new_dims(start_, carr->ndim);
-    caterva_dims_t stop = caterva_new_dims(stop_, carr->ndim);
-    CATERVA_ERROR(caterva_array_set_slice_buffer(carr, part, &start, &stop));
+
+    CATERVA_ERROR(caterva_array_set_slice_buffer(ctx, chunk, chunksize, start, stop, array));
 
     return CATERVA_SUCCEED;
 }

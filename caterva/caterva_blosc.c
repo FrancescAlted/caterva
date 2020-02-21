@@ -297,8 +297,8 @@ int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
 }
 
 
-int caterva_blosc_append(caterva_array_t *carr, void *part, int64_t partsize) {
-    if (blosc2_schunk_append_buffer(carr->sc, part, partsize) < 0) {
+int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
+    if (blosc2_schunk_append_buffer(array->sc, chunk, chunksize) < 0) {
         CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
     }
     return CATERVA_SUCCEED;

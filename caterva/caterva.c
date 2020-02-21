@@ -71,14 +71,9 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
 
 
 int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy, caterva_array_t **array) {
-    if (ctx == NULL) {
-        DEBUG_PRINT("Context is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
-    if (frame == NULL) {
-        DEBUG_PRINT("Frame is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(frame);
+    CATERVA_ERROR_NULL(*array);
 
     CATERVA_ERROR(caterva_blosc_from_frame(ctx, frame, copy, array));
     if ((*array) == NULL) {
@@ -155,35 +150,33 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
 }
 
 
-int caterva_array_append(caterva_array_t *carr, void *part, int64_t partsize) {
-    CATERVA_ERROR_NULL(carr);
-    CATERVA_ERROR_NULL(part);
+int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(chunk);
 
-    if (partsize != (int64_t) carr->chunksize * carr->ctx->cparams.typesize) {
+    if (chunksize != (int64_t) array->chunksize * array->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
-    if (carr->filled) {
+    if (array->filled) {
         CATERVA_ERROR(CATERVA_ERR_CONTAINER_FILLED);
     }
-    int rc;
-    switch (carr->storage) {
+    switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
-            rc = caterva_blosc_append(carr, part, partsize);
+            CATERVA_ERROR(caterva_blosc_array_append(array, chunk, chunksize));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_append(carr, part, partsize);
+            CATERVA_ERROR(caterva_plainbuffer_array_append(array, chunk, chunksize));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
-    }
-    CATERVA_ERROR(rc);
-
-    carr->nparts++;
-    if (carr->nparts == carr->extendedesize / carr->chunksize) {
-        carr->filled = true;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
 
-    return rc;
+    array->nparts++;
+    if (array->nparts == array->extendedesize / array->chunksize) {
+        array->filled = true;
+    }
+
+    return CATERVA_SUCCEED;
 }
 
 

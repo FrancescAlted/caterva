@@ -13,7 +13,7 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
 int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **array);
 
 
-int caterva_plainbuffer_append(caterva_array_t *carr, void *part, int64_t partsize);
+int caterva_plainbuffer_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize);
 
 int caterva_plainbuffer_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src);
 

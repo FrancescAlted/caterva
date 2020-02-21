@@ -272,13 +272,13 @@ int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
 /**
  * Append a partition to a caterva container (until it is completely filled)
  *
- * @param carr Pointer to the container where data will be appended
+ * @param array Pointer to the container where data will be appended
  * @param part A pointer to the buffer where data is stored
  * @param partsize Size (in bytes) of the buffer
  *
  * @return An error code
  */
-int caterva_array_append(caterva_context_t *ctx, caterva_array_t *carr, void *chunk, int64_t chunksize);
+int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize);
 
 
 /**
