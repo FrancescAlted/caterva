@@ -39,8 +39,8 @@ int caterva_plainbuffer_array_append(caterva_context_t *ctx, caterva_array_t *ar
 }
 
 
-int caterva_plainbuffer_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src) {
-    CATERVA_ERROR(caterva_array_append(dest, src, (size_t) dest->chunksize * dest->ctx->cparams.typesize));
+int caterva_plainbuffer_array_from_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize) {
+    CATERVA_ERROR(caterva_array_append(ctx, array, buffer, buffersize));
     return CATERVA_SUCCEED;
 }
 

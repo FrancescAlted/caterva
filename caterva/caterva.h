@@ -52,6 +52,8 @@
 #define CATERVA_ERROR(rc) do { if (rc != CATERVA_SUCCEED) { DEBUG_PRINT(print_error(rc)); return rc; }} while( 0 )
 #define CATERVA_ERROR_NULL(pointer) do { if (pointer == NULL) { DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); return CATERVA_ERR_NULL_POINTER; }} while( 0 )
 
+#define CATERVA_UNUSED_PARAM(x) ((void)(x))
+
 
 static char *print_error(int rc) {
     switch (rc) {

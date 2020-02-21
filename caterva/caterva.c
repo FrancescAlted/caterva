@@ -16,10 +16,10 @@
 #include "caterva_plainbuffer.h"
 
 
-#define CATERVA_UNUSED_PARAM(x) ((void)(x))
-
 
 int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx) {
+    CATERVA_ERROR_NULL(cfg);
+    CATERVA_ERROR_NULL(ctx);
 
     (*ctx) = (caterva_context_t *) cfg->alloc(sizeof(caterva_context_t));
     if (!(*ctx)) {
@@ -37,30 +37,28 @@ int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx) {
 }
 
 
-int caterva_free_ctx(caterva_context_t **ctx) {
-    if (*ctx) {
-        void (*auxfree)(void *) = (*ctx)->cfg->free;
-        auxfree((*ctx)->cfg);
-        auxfree(*ctx);
-    }
+int caterva_context_free(caterva_context_t **ctx) {
+    CATERVA_ERROR_NULL(ctx);
+
+    void (*auxfree)(void *) = (*ctx)->cfg->free;
+    auxfree((*ctx)->cfg);
+    auxfree(*ctx);
+
     return CATERVA_SUCCEED;
 }
 
 
 int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
                         caterva_array_t **array) {
-    if (ctx == NULL) {
-        DEBUG_PRINT("Context is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(params);
+    CATERVA_ERROR_NULL(storage);
+    CATERVA_ERROR_NULL(array);
+
     if (storage->backend == CATERVA_STORAGE_BLOSC) {
         CATERVA_ERROR(caterva_blosc_array_empty(ctx, params, storage, array));
     } else {
         CATERVA_ERROR(caterva_plainbuffer_array_empty(ctx, params, storage, array));
-    }
-    if (array == NULL) {
-        DEBUG_PRINT("Error creating an empty caterva array");
-        return CATERVA_ERR_NULL_POINTER;
     }
 
     (*array)->filled = false;
@@ -73,7 +71,7 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
 int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(frame);
-    CATERVA_ERROR_NULL(*array);
+    CATERVA_ERROR_NULL(array);
 
     CATERVA_ERROR(caterva_blosc_from_frame(ctx, frame, copy, array));
     if ((*array) == NULL) {
@@ -85,14 +83,10 @@ int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
 
 
 int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy, caterva_array_t **array) {
-    if (ctx == NULL) {
-        DEBUG_PRINT("Context is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
-    if (sframe == NULL) {
-        DEBUG_PRINT("Serialized frame is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(sframe);
+    CATERVA_ERROR_NULL(array);
+
     CATERVA_ERROR(caterva_blosc_from_sframe(ctx, sframe, len, copy, array));
 
     return CATERVA_SUCCEED;
@@ -100,14 +94,10 @@ int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t l
 
 
 int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool copy, caterva_array_t **array) {
-    if (ctx == NULL) {
-        DEBUG_PRINT("Context is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
-    if (filename == NULL) {
-        DEBUG_PRINT("Filename is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(filename);
+    CATERVA_ERROR_NULL(array);
+
     CATERVA_ERROR(caterva_blosc_from_file(ctx, filename, copy, array));
 
     return CATERVA_SUCCEED;
@@ -115,7 +105,10 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
 
 
 int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array) {
-    if (*array != NULL) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+
+    if (*array) {
         switch ((*array)->storage) {
             case CATERVA_STORAGE_BLOSC:caterva_blosc_array_free(ctx, array);
                 break;
@@ -127,7 +120,7 @@ int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     return CATERVA_SUCCEED;
 }
 
-
+/*
 int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
     CATERVA_ERROR_NULL(carr);
     CATERVA_ERROR_NULL(shape);
@@ -148,9 +141,10 @@ int caterva_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
 
     return rc;
 }
-
+*/
 
 int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
+    CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(chunk);
 
@@ -162,10 +156,10 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
     }
     switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
-            CATERVA_ERROR(caterva_blosc_array_append(array, chunk, chunksize));
+            CATERVA_ERROR(caterva_blosc_array_append(ctx, array, chunk, chunksize));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            CATERVA_ERROR(caterva_plainbuffer_array_append(array, chunk, chunksize));
+            CATERVA_ERROR(caterva_plainbuffer_array_append(ctx, array, chunk, chunksize));
             break;
         default:
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
@@ -180,27 +174,32 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
 }
 
 
-int caterva_array_from_buffer(caterva_array_t *dest, caterva_dims_t *shape, void *src) {
-    CATERVA_ERROR_NULL(dest);
-    CATERVA_ERROR_NULL(shape);
-    CATERVA_ERROR_NULL(src);
+int caterva_array_from_buffer(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                              void *buffer, int64_t buffersize, caterva_array_t **array) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(params);
+    CATERVA_ERROR_NULL(storage);
+    CATERVA_ERROR_NULL(buffer);
+    CATERVA_ERROR_NULL(array);
 
-    int rc = caterva_update_shape(dest, shape);
-    CATERVA_ERROR(rc);
+    CATERVA_ERROR(caterva_array_empty(ctx, params, storage, array));
 
-    switch (dest->storage) {
+    if (buffersize != (int64_t) (*array)->size * (*array)->itemsize) {
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+
+    switch ((*array)->storage) {
         case CATERVA_STORAGE_BLOSC:
-            rc = caterva_blosc_from_buffer(dest, shape, src);
+            CATERVA_ERROR(caterva_blosc_array_from_buffer(ctx, *array, buffer, buffersize));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_from_buffer(dest, shape, src);
+            CATERVA_ERROR(caterva_plainbuffer_array_from_buffer(ctx, *array, buffer, buffersize));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-    CATERVA_ERROR(rc);
 
-    return rc;
+    return CATERVA_SUCCEED;
 }
 
 
