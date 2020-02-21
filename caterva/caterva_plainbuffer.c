@@ -182,18 +182,37 @@ int caterva_plainbuffer_array_get_slice(caterva_context_t *ctx, caterva_array_t 
 }
 
 
-int caterva_plainbuffer_squeeze(caterva_array_t *src) {
+int caterva_plainbuffer_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape) {
+    array->ndim = ndim;
+    array->size = 1;
+    array->extendedesize = 1;
+    array->chunksize = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        array->shape[i] = shape[i];
+        array->extendedshape[i] = shape[i];
+        array->chunkshape[i] = (int32_t)(shape[i]);
+        array->size *= array->shape[i];
+        array->extendedesize *= array->extendedshape[i];
+        array->chunksize *= array->chunkshape[i];
+    }
+
+    return CATERVA_SUCCEED;
+}
+
+
+int caterva_plainbuffer_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+    CATERVA_UNUSED_PARAM(ctx);
+
     uint8_t nones = 0;
-    int64_t newshape_[CATERVA_MAXDIM];
-    for (int i = 0; i < src->ndim; ++i) {
-        if (src->shape[i] != 1) {
-            newshape_[nones] = src->shape[i];
+    int64_t newshape[CATERVA_MAXDIM];
+    for (int i = 0; i < array->ndim; ++i) {
+        if (array->shape[i] != 1) {
+            newshape[nones] = array->shape[i];
             nones += 1;
         }
     }
-    src->ndim = nones;
-    caterva_dims_t newshape = caterva_new_dims(newshape_, nones);
-    CATERVA_ERROR(caterva_update_shape(src, &newshape));
+
+    CATERVA_ERROR(caterva_plainbuffer_update_shape(array, nones, newshape));
 
     return CATERVA_SUCCEED;
 }
@@ -206,23 +225,6 @@ int caterva_plainbuffer_copy(caterva_array_t *dest, caterva_array_t *src) {
     dest->buf = malloc((size_t) dest->size * dest->ctx->cparams.typesize);
     CATERVA_ERROR(caterva_array_to_buffer(src, dest->buf));
     dest->filled = true;
-
-    return CATERVA_SUCCEED;
-}
-
-
-int caterva_plainbuffer_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
-    carr->ndim = shape->ndim;
-    carr->size = 1;
-    carr->extendedesize = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        carr->shape[i] = shape->dims[i];
-        carr->extendedshape[i] = shape->dims[i];
-        carr->chunkshape[i] = (int32_t)(shape->dims[i]);
-        carr->size *= carr->shape[i];
-        carr->extendedesize *= carr->extendedshape[i];
-        carr->chunksize *= carr->chunkshape[i];
-    }
 
     return CATERVA_SUCCEED;
 }

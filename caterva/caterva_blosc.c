@@ -384,7 +384,7 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
                 }
             }
         }
-        CATERVA_ERROR(caterva_array_append(array, chunk, (size_t) array->chunksize * typesize));
+        CATERVA_ERROR(caterva_array_append(ctx, array, chunk, (size_t) array->chunksize * typesize));
     }
     ctx->cfg->free(chunk);
 
@@ -494,7 +494,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
     }
 
     // Acceleration path for the case where we are doing (1-dim) aligned chunk reads
-    if ((s_ndim == 1) && (array->chunkshape[0] == d_pshape[0]) &&
+    if ((s_ndim == 1) && (array->chunkshape[0] == shape[0]) &&
         (start[0] % array->chunkshape[0] == 0) && (stop[0] % array->chunkshape[0] == 0)) {
         int nchunk = (int)(start[0] / array->chunkshape[0]);
         // In case of an aligned read, decompress directly in destination
@@ -673,29 +673,72 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
 }
 
 
-int caterva_blosc_squeeze(caterva_array_t *src) {
-    uint8_t nones = 0;
-    int64_t newshape_[CATERVA_MAXDIM];
-    int32_t newpshape_[CATERVA_MAXDIM];
+int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape, int32_t *chunkshape) {
 
-    for (int i = 0; i < src->ndim; ++i) {
-        if (src->shape[i] != 1) {
-            newshape_[nones] = src->shape[i];
-            newpshape_[nones] = src->chunkshape[i];
+    array->size = 1;
+    array->extendedesize = 1;
+    array->chunksize = 1;
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        array->shape[i] = shape[i];
+        array->chunkshape[i] = chunkshape[i];
+        if (i < ndim) {
+            if (shape[i] % array->chunkshape[i] == 0) {
+                array->extendedshape[i] = shape[i];
+            } else {
+                array->extendedshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
+            }
+        } else {
+            array->extendedshape[i] = 1;
+        }
+        array->size *= array->shape[i];
+        array->extendedesize *= array->extendedshape[i];
+        array->chunksize *= array->chunkshape[i];
+    }
+
+    uint8_t *smeta = NULL;
+    // Serialize the dimension info ...
+    int32_t smeta_len = serialize_meta(array->ndim, array->shape, array->chunkshape, &smeta);
+    if (smeta_len < 0) {
+        fprintf(stderr, "error during serializing dims info for Caterva");
+        return -1;
+    }
+    // ... and update it in its metalayer
+    if (blosc2_has_metalayer(array->sc, "caterva") < 0) {
+        if (blosc2_add_metalayer(array->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
+            CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+        }
+    }
+    else {
+        if (blosc2_update_metalayer(array->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
+            CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+        }
+    }
+
+    return CATERVA_SUCCEED;
+}
+
+
+int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+    uint8_t nones = 0;
+    int64_t newshape[CATERVA_MAXDIM];
+    int32_t newchunkshape[CATERVA_MAXDIM];
+
+    for (int i = 0; i < array->ndim; ++i) {
+        if (array->shape[i] != 1) {
+            newshape[nones] = array->shape[i];
+            newchunkshape[nones] = array->chunkshape[i];
             nones += 1;
         }
     }
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
         if (i < nones) {
-            src->chunkshape[i] = newpshape_[i];
+            array->chunkshape[i] = newchunkshape[i];
         } else {
-            src->chunkshape[i] = 1;
+            array->chunkshape[i] = 1;
         }
     }
 
-    src->ndim = nones;
-    caterva_dims_t newshape = caterva_new_dims(newshape_, nones);
-    CATERVA_ERROR(caterva_update_shape(src, &newshape));
+    CATERVA_ERROR(caterva_blosc_update_shape(array, nones, newshape, newchunkshape));
 
     return CATERVA_SUCCEED;
 }
@@ -711,50 +754,6 @@ int caterva_blosc_copy(caterva_array_t *dest, caterva_array_t *src) {
     caterva_dims_t stop = caterva_new_dims(stop_, src->ndim);
 
     CATERVA_ERROR(caterva_array_get_slice(dest, src, &start, &stop));
-
-    return CATERVA_SUCCEED;
-}
-
-
-int caterva_blosc_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
-    if (carr->ndim != shape->ndim) {
-        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
-    }
-    carr->size = 1;
-    carr->extendedesize = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        carr->shape[i] = shape->dims[i];
-        if (i < shape->ndim) {
-            if (shape->dims[i] % carr->chunkshape[i] == 0) {
-                carr->extendedshape[i] = shape->dims[i];
-            } else {
-                carr->extendedshape[i] = shape->dims[i] + carr->chunkshape[i] - shape->dims[i] % carr->chunkshape[i];
-            }
-        } else {
-            carr->extendedshape[i] = 1;
-        }
-        carr->size *= carr->shape[i];
-        carr->extendedesize *= carr->extendedshape[i];
-    }
-
-    uint8_t *smeta = NULL;
-    // Serialize the dimension info ...
-    int32_t smeta_len = serialize_meta(carr->ndim, carr->shape, carr->chunkshape, &smeta);
-    if (smeta_len < 0) {
-        fprintf(stderr, "error during serializing dims info for Caterva");
-        return -1;
-    }
-    // ... and update it in its metalayer
-    if (blosc2_has_metalayer(carr->sc, "caterva") < 0) {
-        if (blosc2_add_metalayer(carr->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
-            CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-        }
-    }
-    else {
-        if (blosc2_update_metalayer(carr->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
-            CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-        }
-    }
 
     return CATERVA_SUCCEED;
 }

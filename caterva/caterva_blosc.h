@@ -40,10 +40,9 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
 int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
                                   caterva_array_t *array);
 
-int caterva_blosc_squeeze(caterva_array_t *src);
+int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *src);
 
 int caterva_blosc_copy(caterva_array_t *dest, caterva_array_t *src);
 
-int caterva_blosc_update_shape(caterva_array_t *carr, caterva_dims_t *shape);
 
 #endif //CATERVA_CATERVA_BLOSC_H

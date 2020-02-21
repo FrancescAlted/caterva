@@ -363,23 +363,22 @@ int caterva_array_get_slice(caterva_context_t *ctx, caterva_params_t *params, ca
 }
 
 
-int caterva_array_squeeze(caterva_array_t *src) {
-    CATERVA_ERROR_NULL(src);
+int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
 
-    int rc;
-    switch (src->storage) {
+    switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
-            rc = caterva_blosc_squeeze(src);
+            CATERVA_ERROR(caterva_blosc_array_squeeze(ctx, array));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_squeeze(src);
+            CATERVA_ERROR(caterva_plainbuffer_array_squeeze(ctx, array));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-    CATERVA_ERROR(rc);
 
-    return rc;
+    return CATERVA_SUCCEED;
 }
 
 
