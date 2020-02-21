@@ -28,9 +28,11 @@ int caterva_blosc_from_file(caterva_context_t *ctx, const char *filename, bool c
 
 int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize);
 
+
 int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize);
 
-int caterva_blosc_to_buffer(caterva_array_t *src, void *dest);
+int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer);
+
 
 int caterva_blosc_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
                                    caterva_dims_t *stop, caterva_dims_t *d_pshape);

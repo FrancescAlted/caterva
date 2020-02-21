@@ -203,24 +203,27 @@ int caterva_array_from_buffer(caterva_context_t *ctx, caterva_params_t *params, 
 }
 
 
-int caterva_array_to_buffer(caterva_array_t *src, void *dest) {
-    CATERVA_ERROR_NULL(dest);
-    CATERVA_ERROR_NULL(src);
+int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(buffer);
 
-    int rc;
-    switch (src->storage) {
+    if (buffersize != (int64_t) array->size * array->itemsize) {
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+
+    switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
-            rc = caterva_blosc_to_buffer(src, dest);
+            CATERVA_ERROR(caterva_blosc_array_to_buffer(ctx, array, buffer));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_to_buffer(src, dest);
+            CATERVA_ERROR(caterva_plainbuffer_array_to_buffer(ctx, array, buffer));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-    CATERVA_ERROR(rc);
 
-    return rc;
+    return CATERVA_SUCCEED;
 }
 
 

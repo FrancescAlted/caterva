@@ -45,8 +45,9 @@ int caterva_plainbuffer_array_from_buffer(caterva_context_t *ctx, caterva_array_
 }
 
 
-int caterva_plainbuffer_to_buffer(caterva_array_t *src, void *dest) {
-    memcpy(dest, src->buf, src->size * (size_t) src->ctx->cparams.typesize);
+int caterva_plainbuffer_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer) {
+    CATERVA_UNUSED_PARAM(ctx);
+    memcpy(buffer, array->buf, array->size * array->itemsize);
     return CATERVA_SUCCEED;
 }
 

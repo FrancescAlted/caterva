@@ -17,7 +17,7 @@ int caterva_plainbuffer_array_append(caterva_context_t *ctx, caterva_array_t *ar
 
 int caterva_plainbuffer_array_from_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize);
 
-int caterva_plainbuffer_to_buffer(caterva_array_t *src, void *dest);
+int caterva_plainbuffer_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer);
 
 int caterva_plainbuffer_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
                                          caterva_dims_t *stop, caterva_dims_t *d_pshape);
