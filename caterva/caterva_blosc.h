@@ -37,8 +37,8 @@ int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array
 int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start,
                                          int64_t *stop, int64_t *shape, void *buffer);
 
-int caterva_blosc_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start,
-                            caterva_dims_t *stop);
+int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
+                                  caterva_array_t *array);
 
 int caterva_blosc_squeeze(caterva_array_t *src);
 

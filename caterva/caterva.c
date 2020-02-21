@@ -316,7 +316,7 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            CATERVA_ERROR(caterva_plainbuffer_set_slice_buffer(ctx, buffer, start, stop, array));
+            CATERVA_ERROR(caterva_plainbuffer_array_set_slice_buffer(ctx, buffer, start, stop, array));
             break;
         default:
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
@@ -326,46 +326,40 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t
 }
 
 
-int caterva_array_get_slice(caterva_array_t *dest, caterva_array_t *src, caterva_dims_t *start,
-                            caterva_dims_t *stop) {
-    CATERVA_ERROR_NULL(dest);
+int caterva_array_get_slice(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                            caterva_array_t *src, int64_t *start, int64_t *stop, caterva_array_t **array) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(params);
+    CATERVA_ERROR_NULL(storage);
     CATERVA_ERROR_NULL(src);
     CATERVA_ERROR_NULL(start);
     CATERVA_ERROR_NULL(stop);
+    CATERVA_ERROR_NULL(array);
 
-    if (start->ndim != stop->ndim) {
+    if (src->ndim != params->ndim) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
-    if (start->ndim != src->ndim) {
-        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+
+    for (int i = 0; i < src->ndim; ++i) {
+        if (stop[i] - start[i] != params->shape[i]) {
+            CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+        }
     }
 
-    int rc;
-    int64_t shape_[CATERVA_MAXDIM];
-    for (int i = 0; i < start->ndim; ++i) {
-        shape_[i] = stop->dims[i] - start->dims[i];
-    }
-    for (int i = (int) start->ndim; i < CATERVA_MAXDIM; ++i) {
-        shape_[i] = 1;
-        start->dims[i] = 0;
-    }
-    caterva_dims_t shape = caterva_new_dims(shape_, start->ndim);
-    rc  = caterva_update_shape(dest, &shape);
-    CATERVA_ERROR(rc);
+    CATERVA_ERROR(caterva_array_empty(ctx, params, storage, array));
 
-    switch (dest->storage) {
+    switch ((*array)->storage) {
         case CATERVA_STORAGE_BLOSC:
-            rc = caterva_blosc_get_slice(dest, src, start, stop);
+            CATERVA_ERROR(caterva_blosc_array_get_slice(ctx, src, start, stop, *array));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_get_slice(dest, src, start, stop);
+            CATERVA_ERROR(caterva_plainbuffer_array_get_slice(ctx, src, start, stop, *array));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-    CATERVA_ERROR(rc);
 
-    return rc;
+    return CATERVA_SUCCEED;
 }
 
 
