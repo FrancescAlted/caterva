@@ -475,30 +475,30 @@ int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array
 }
 
 
-int caterva_blosc_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
-                                   caterva_dims_t *stop, caterva_dims_t *d_pshape) {
-    uint8_t *bdest = dest;   // for allowing pointer arithmetic
+int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start,
+                                         int64_t *stop, int64_t *shape, void *buffer) {
+    uint8_t *bbuffer = buffer;   // for allowing pointer arithmetic
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
     int64_t d_pshape_[CATERVA_MAXDIM];
     int64_t s_pshape[CATERVA_MAXDIM];
     int64_t s_eshape[CATERVA_MAXDIM];
-    int8_t s_ndim = src->ndim;
+    int8_t s_ndim = array->ndim;
 
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start->dims[i];
-        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop->dims[i];
-        d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = d_pshape->dims[i];
-        s_eshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = src->extendedshape[i];
-        s_pshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = src->chunkshape[i];
+        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start[i];
+        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop[i];
+        d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape[i];
+        s_eshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = array->extendedshape[i];
+        s_pshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = array->chunkshape[i];
     }
 
     // Acceleration path for the case where we are doing (1-dim) aligned chunk reads
-    if ((s_ndim == 1) && (src->chunkshape[0] == d_pshape->dims[0]) &&
-        (start->dims[0] % src->chunkshape[0] == 0) && (stop->dims[0] % src->chunkshape[0] == 0)) {
-        int nchunk = (int)(start->dims[0] / src->chunkshape[0]);
+    if ((s_ndim == 1) && (array->chunkshape[0] == d_pshape[0]) &&
+        (start[0] % array->chunkshape[0] == 0) && (stop[0] % array->chunkshape[0] == 0)) {
+        int nchunk = (int)(start[0] / array->chunkshape[0]);
         // In case of an aligned read, decompress directly in destination
-        if (blosc2_schunk_decompress_chunk(src->sc, nchunk, bdest, (size_t)src->chunksize * src->sc->typesize) < 0) {
+        if (blosc2_schunk_decompress_chunk(array->sc, nchunk, bbuffer, (size_t)array->chunksize * array->sc->typesize) < 0) {
             CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
         }
         return CATERVA_SUCCEED;
@@ -508,17 +508,16 @@ int caterva_blosc_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dim
         start_[j] = 0;
     }
     /* Create chunk buffers */
-    caterva_context_t *ctx = src->ctx;
-    int typesize = src->sc->typesize;
+    int typesize = array->itemsize;
 
     uint8_t *chunk;
     bool local_cache;
-    if (src->part_cache.data == NULL) {
-        chunk = (uint8_t *) ctx->alloc((size_t) src->chunksize * typesize);
+    if (array->part_cache.data == NULL) {
+        chunk = (uint8_t *) ctx->cfg->alloc((size_t) array->chunksize * typesize);
         CATERVA_ERROR_NULL(chunk);
         local_cache = true;
     } else {
-        chunk = src->part_cache.data;
+        chunk = array->part_cache.data;
         local_cache = false;
     }
     int64_t i_start[8], i_stop[8];
@@ -545,14 +544,14 @@ int caterva_blosc_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dim
                                         inc *= (int) (s_eshape[i] / s_pshape[i]);
                                     }
 
-                                    if ((src->part_cache.data == NULL) || (src->part_cache.nchunk != nchunk)) {
-                                        if (blosc2_schunk_decompress_chunk(src->sc, nchunk, chunk,
-                                                                       (size_t) src->chunksize * typesize) < 0) {
+                                    if ((array->part_cache.data == NULL) || (array->part_cache.nchunk != nchunk)) {
+                                        if (blosc2_schunk_decompress_chunk(array->sc, nchunk, chunk,
+                                                                           (size_t) array->chunksize * typesize) < 0) {
                                             CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
                                         };
                                     }
-                                    if (src->part_cache.data != NULL) {
-                                        src->part_cache.nchunk = nchunk;
+                                    if (array->part_cache.data != NULL) {
+                                        array->part_cache.nchunk = nchunk;
                                     }
 
                                     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
@@ -588,7 +587,7 @@ int caterva_blosc_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dim
                                                                         start_[i]) * buf_pointer_inc;
                                                                     buf_pointer_inc *= d_pshape_[i];
                                                                 }
-                                                                memcpy(&bdest[buf_pointer * typesize],
+                                                                memcpy(&bbuffer[buf_pointer * typesize],
                                                                        &chunk[chunk_pointer * typesize],
                                                                        (c_stop[7] - c_start[7]) * typesize);
                                                             }
@@ -607,7 +606,7 @@ int caterva_blosc_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dim
         }
     }
     if (local_cache) {
-        ctx->free(chunk);
+        ctx->cfg->free(chunk);
     }
 
     return CATERVA_SUCCEED;

@@ -227,28 +227,40 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
 }
 
 
-int caterva_array_get_slice_buffer(void *dest, caterva_array_t *src, caterva_dims_t *start,
-                                   caterva_dims_t *stop, caterva_dims_t *d_pshape) {
-    CATERVA_ERROR_NULL(dest);
-    CATERVA_ERROR_NULL(src);
+int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start, int64_t *stop,
+                                   int64_t *shape, void *buffer, int64_t buffersize) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(start);
     CATERVA_ERROR_NULL(stop);
-    CATERVA_ERROR_NULL(d_pshape);
+    CATERVA_ERROR_NULL(shape);
+    CATERVA_ERROR_NULL(buffer);
 
-    int rc;
-    switch (src->storage) {
+    int64_t size = 1;
+    for (int i = 0; i < array->ndim; ++i) {
+        if (stop[i] - start[i] > shape[i]) {
+            DEBUG_PRINT("The buffer shape can not be smaller than the slice shape");
+            return CATERVA_ERR_INVALID_ARGUMENT;
+        }
+        size *= shape[i];
+    }
+
+    if (buffersize != size * array->itemsize) {
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+
+    switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
-            rc = caterva_blosc_get_slice_buffer(dest, src, start, stop, d_pshape);
+            CATERVA_ERROR(caterva_blosc_array_get_slice_buffer(ctx, array, start, stop, shape, buffer));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_get_slice_buffer(dest, src, start, stop, d_pshape);
+            CATERVA_ERROR(caterva_plainbuffer_array_get_slice_buffer(ctx, array, start, stop, shape, buffer));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-    CATERVA_ERROR(rc);
 
-    return rc;
+    return CATERVA_SUCCEED;
 }
 
 
@@ -369,7 +381,7 @@ int caterva_array_squeeze(caterva_array_t *src) {
 }
 
 
-int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
+int caterva_array_copy(caterva_array_t *dest, caterva_array_t *src) {
     CATERVA_ERROR_NULL(dest);
     CATERVA_ERROR_NULL(src);
 
@@ -387,20 +399,4 @@ int caterva_copy(caterva_array_t *dest, caterva_array_t *src) {
     CATERVA_ERROR(rc);
 
     return rc;
-}
-
-
-caterva_dims_t caterva_get_shape(caterva_array_t *src){
-    caterva_dims_t shape = caterva_new_dims(src->shape, src->ndim);
-    return shape;
-}
-
-
-caterva_dims_t caterva_get_pshape(caterva_array_t *src) {
-    caterva_dims_t pshape;
-    for (int i = 0; i < src->ndim; ++i) {
-        pshape.dims[i] = src->chunkshape[i];
-    }
-    pshape.ndim = src->ndim;
-    return pshape;
 }
