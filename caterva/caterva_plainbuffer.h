@@ -7,10 +7,11 @@
 #define CATERVA_CATERVA_PLAINBUFFER_H
 
 
-int caterva_plainbuffer_empty_array(caterva_context_t *ctx, caterva_params_t *params,
+int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *params,
                                     caterva_storage_t *storage, caterva_array_t **array);
 
-int caterva_plainbuffer_free_array(caterva_array_t *carr);
+int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **array);
+
 
 int caterva_plainbuffer_append(caterva_array_t *carr, void *part, int64_t partsize);
 

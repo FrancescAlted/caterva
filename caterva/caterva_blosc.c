@@ -253,51 +253,45 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
 }
 
 
-caterva_array_t *caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy) {
+int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy, caterva_array_t **array) {
     // Generate a real frame first
     blosc2_frame *frame = blosc2_frame_from_sframe(sframe, len, copy);
     if (frame == NULL) {
         DEBUG_PRINT("Blosc error");
-        return NULL;
+        return CATERVA_ERR_BLOSC_FAILED;
     }
     // ...and create a caterva array out of it
-    caterva_array_t *array = caterva_array_from_frame(ctx, frame, copy);
-    if (array == NULL) {
-        DEBUG_PRINT("Error creating container from frame");
-        return NULL;
-    }
+    CATERVA_ERROR(caterva_array_from_frame(ctx, frame, copy, array));
+
     if (copy) {
         // We don't need the frame anymore
         blosc2_free_frame(frame);
     }
-    return array;
+    return CATERVA_SUCCEED;
 }
 
 
-caterva_array_t *caterva_blosc_from_file(caterva_context_t *ctx, const char *filename, bool copy) {
+int caterva_blosc_from_file(caterva_context_t *ctx, const char *filename, bool copy, caterva_array_t **array) {
     // Open the frame on-disk...
     blosc2_frame *frame = blosc2_frame_from_file(filename);
     if (frame == NULL) {
         DEBUG_PRINT("Blosc error");
-        return NULL;
+        return CATERVA_ERR_BLOSC_FAILED;
     }
     // ...and create a caterva array out of it
-    caterva_array_t *array = caterva_array_from_frame(ctx, frame, copy);
-    if (array == NULL) {
-        DEBUG_PRINT("Error creating container from frame");
-        return NULL;
-    }
+    CATERVA_ERROR(caterva_array_from_frame(ctx, frame, copy, array));
+
     if (copy) {
         // We don't need the frame anymore
         blosc2_free_frame(frame);
     }
-    return array;
+    return CATERVA_SUCCEED;
 }
 
 
-int caterva_blosc_free_array(caterva_array_t *carr) {
-    if (carr->sc != NULL) {
-        blosc2_free_schunk(carr->sc);
+int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
+    if ((*array)->sc != NULL) {
+        blosc2_free_schunk((*array)->sc);
     }
     return CATERVA_SUCCEED;
 }
@@ -765,8 +759,8 @@ int caterva_blosc_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
 }
 
 
-int caterva_blosc_empty_array(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
-                                           caterva_array_t **array) {
+int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                              caterva_array_t **array) {
     /* Create a caterva_array_t buffer */
     (*array) = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
     if ((*array) == NULL) {
