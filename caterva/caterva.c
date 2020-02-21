@@ -294,27 +294,35 @@ int caterva_array_get_slice_buffer_no_copy(void **dest, caterva_array_t *src, ca
 }
 
 
-int caterva_array_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *start,
-                                   caterva_dims_t *stop) {
-    CATERVA_ERROR_NULL(dest);
-    CATERVA_ERROR_NULL(src);
+int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, int64_t *start,
+                                   int64_t *stop, caterva_array_t *array) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(buffer);
     CATERVA_ERROR_NULL(start);
     CATERVA_ERROR_NULL(stop);
+    CATERVA_ERROR_NULL(array);
 
-    int rc;
-    switch (dest->storage) {
+    int64_t size = 1;
+    for (int i = 0; i < array->ndim; ++i) {
+        size *= stop[i] - start[i];
+    }
+
+    if (buffersize != size * array->itemsize) {
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+
+    switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_set_slice_buffer(dest, src, start, stop);
+            CATERVA_ERROR(caterva_plainbuffer_set_slice_buffer(ctx, buffer, start, stop, array));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-    CATERVA_ERROR(rc);
 
-    return rc;
+    return CATERVA_SUCCEED;
 }
 
 

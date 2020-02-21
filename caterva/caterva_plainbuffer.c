@@ -108,22 +108,21 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_context_t *ctx, caterva_a
 }
 
 
-int caterva_plainbuffer_set_slice_buffer(caterva_array_t *dest, void *src, caterva_dims_t *start,
-                                         caterva_dims_t *stop) {
+int caterva_plainbuffer_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, int64_t *start,
+                                         int64_t *stop, caterva_array_t *array) {
 
-    uint8_t *bsrc = src;   // for allowing pointer arithmetic
+    uint8_t *bbuffer = buffer;   // for allowing pointer arithmetic
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
-    int8_t s_ndim = dest->ndim;
+    int8_t s_ndim = array->ndim;
 
-    caterva_dims_t shape = caterva_get_shape(dest);
     int64_t d_shape[CATERVA_MAXDIM];
     int64_t s_shape[CATERVA_MAXDIM];
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start->dims[i];
-        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop->dims[i];
-        d_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = (stop->dims[i] - start->dims[i]);
-        s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape.dims[i];
+        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start[i];
+        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop[i];
+        d_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = (stop[i] - start[i]);
+        s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = array->shape[i];
     }
     for (int j = 0; j < CATERVA_MAXDIM - s_ndim; ++j) {
         start_[j] = 0;
@@ -151,9 +150,9 @@ int caterva_plainbuffer_set_slice_buffer(caterva_array_t *dest, void *src, cater
                                     buf_pointer += (jj[i] - start_[i]) * buf_pointer_inc;
                                     buf_pointer_inc *= d_shape[i];
                                 }
-                                memcpy(&dest->buf[chunk_pointer * dest->ctx->cparams.typesize],
-                                       &bsrc[buf_pointer * dest->ctx->cparams.typesize],
-                                       (stop_[7] - start_[7]) * dest->ctx->cparams.typesize);
+                                memcpy(&array->buf[chunk_pointer * array->itemsize],
+                                       &bbuffer[buf_pointer * array->itemsize],
+                                       (stop_[7] - start_[7]) * array->itemsize);
                             }
                         }
                     }
