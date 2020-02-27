@@ -744,16 +744,16 @@ int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) 
 }
 
 
-int caterva_blosc_copy(caterva_array_t *dest, caterva_array_t *src) {
-    int64_t start_[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
-    caterva_dims_t start = caterva_new_dims(start_, src->ndim);
-    int64_t stop_[CATERVA_MAXDIM];
-    for (int i = 0; i < src->ndim; ++i) {
-        stop_[i] = src->shape[i];
-    }
-    caterva_dims_t stop = caterva_new_dims(stop_, src->ndim);
+int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
+                             caterva_array_t *src, caterva_array_t **dest) {
+    int64_t start[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-    CATERVA_ERROR(caterva_array_get_slice(dest, src, &start, &stop));
+    int64_t stop[CATERVA_MAXDIM];
+    for (int i = 0; i < src->ndim; ++i) {
+        stop[i] = src->shape[i];
+    }
+
+    CATERVA_ERROR(caterva_array_get_slice(ctx, params, storage, src, start, stop, dest));
 
     return CATERVA_SUCCEED;
 }

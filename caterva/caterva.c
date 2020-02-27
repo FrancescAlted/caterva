@@ -362,22 +362,29 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
 }
 
 
-int caterva_array_copy(caterva_array_t *dest, caterva_array_t *src) {
-    CATERVA_ERROR_NULL(dest);
+int caterva_array_copy(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src, caterva_array_t **dest) {
+    CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(src);
+    CATERVA_ERROR_NULL(storage);
+    CATERVA_ERROR_NULL(dest);
 
-    int rc;
-    switch (dest->storage) {
+    caterva_params_t params;
+    params.itemsize = src->itemsize;
+    params.ndim = src->ndim;
+    for (int i = 0; i < src->ndim; ++i) {
+        params.shape[i] = src->shape[i];
+    }
+
+    switch (storage->backend) {
         case CATERVA_STORAGE_BLOSC:
-            rc = caterva_blosc_copy(dest, src);
+            CATERVA_ERROR(caterva_blosc_array_copy(ctx, &params, storage, src, dest));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            rc = caterva_plainbuffer_copy(dest, src);
+            CATERVA_ERROR(caterva_plainbuffer_array_copy(ctx, &params, storage, src, dest));
             break;
         default:
-            rc = CATERVA_ERR_INVALID_STORAGE;
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-    CATERVA_ERROR(rc);
 
-    return rc;
+    return CATERVA_SUCCEED;
 }
