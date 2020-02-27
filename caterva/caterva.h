@@ -360,8 +360,8 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  *
  * @return An error code
  */
-int caterva_array_get_slice(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
-                            caterva_array_t *src, int64_t *start, int64_t *stop, caterva_array_t **array);
+int caterva_array_get_slice(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src,
+    int64_t *start, int64_t *stop, caterva_array_t **array);
 
 
 /**

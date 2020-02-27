@@ -57,6 +57,18 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_context_t *ctx, caterva_a
 
     CATERVA_UNUSED_PARAM(ctx);
 
+    int64_t start__[CATERVA_MAXDIM];
+    int64_t stop__[CATERVA_MAXDIM];
+    int64_t shape__[CATERVA_MAXDIM];
+    int64_t shape2__[CATERVA_MAXDIM];
+
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        start__[i] = (i < array->ndim) ? start[i] : 0;
+        stop__[i] = (i < array->ndim) ? stop[i] : 1;
+        shape__[i] = (i < array->ndim) ? array->shape[i] : 1;
+        shape2__[i] = (i < array->ndim) ? shape[i] : 1;
+    }
+
     uint8_t *bdest = buffer;   // for allowing pointer arithmetic
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
@@ -65,10 +77,10 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_context_t *ctx, caterva_a
 
     int64_t s_shape[CATERVA_MAXDIM];
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start[i];
-        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop[i];
-        s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = array->shape[i];
-        d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape[i];
+        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start__[i];
+        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop__[i];
+        s_shape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape__[i];
+        d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape2__[i];
     }
     for (int j = 0; j < CATERVA_MAXDIM - s_ndim; ++j) {
         start_[j] = 0;
@@ -129,6 +141,7 @@ int caterva_plainbuffer_array_set_slice_buffer(caterva_context_t *ctx, void *buf
     }
     for (int j = 0; j < CATERVA_MAXDIM - s_ndim; ++j) {
         start_[j] = 0;
+        stop_[j] = 1;
         d_shape[j] = 1;
 
     }

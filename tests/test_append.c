@@ -11,41 +11,66 @@
 
 #include "test_common.h"
 
-static void test_append(caterva_context_t *ctx, uint8_t ndim, int64_t *shape_, int64_t *pshape_) {
+static void test_append(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
+    caterva_storage_backend_t backend, int64_t *chunkshape, bool enforceframe, char *filename) {
 
-    caterva_dims_t shape = caterva_new_dims(shape_, ndim);
-    caterva_array_t *src;
-    if (pshape_ != NULL) {
-        caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_array_empty(ctx, NULL, &pshape);
-    } else {
-        src = caterva_array_empty(ctx, NULL, NULL);
+    caterva_params_t params;
+    params.itemsize = itemsize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
     }
 
-    CATERVA_TEST_ERROR(caterva_update_shape(src, &shape));
+    caterva_storage_t storage;
+    storage.backend = backend;
+    switch (backend) {
+        case CATERVA_STORAGE_PLAINBUFFER:
+            break;
+        case CATERVA_STORAGE_BLOSC:
+            storage.properties.blosc.filename = filename;
+            storage.properties.blosc.enforceframe = enforceframe;
+            for (int i = 0; i < ndim; ++i) {
+                storage.properties.blosc.chunkshape[i] = chunkshape[i];
+            }
+            break;
+        default:
+            CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_STORAGE);
+    }
+
+    caterva_array_t *src;
+    CATERVA_TEST_ERROR(caterva_array_empty(ctx, &params, &storage, &src));
 
     /* Fill empty caterva_array_t with blocks */
-    double *buffer = (double *) malloc(src->chunksize * src->ctx->cparams.typesize);
+    int64_t buffersize = src->chunksize * src->itemsize;
+    uint8_t *buffer = malloc(buffersize);
     int ind = 0;
-
     while (!src->filled) {
         for (int i = 0; i < src->chunksize; ++i) {
-            buffer[i] = ind;
+            switch (src->itemsize) {
+                case 4:
+                    ((float *) buffer)[i] = (float) i;
+                    break;
+                case 8:
+                    ((double *) buffer)[i] = (double) i;
+                    break;
+                default:
+                    CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_STORAGE);
+            }
         }
-        CATERVA_TEST_ERROR(caterva_array_append(src, buffer, src->chunksize * src->ctx->cparams.typesize));
+        CATERVA_TEST_ERROR(caterva_array_append(ctx, src, buffer, buffersize));
         ind++;
     }
-
     free(buffer);
 
     /* Fill dest array with caterva_array_t data */
-    double *bufdest = (double *) malloc((size_t)src->size * src->ctx->cparams.typesize);
-    CATERVA_TEST_ERROR(caterva_array_to_buffer(src, bufdest));
+    buffersize = src->size * src->itemsize;
+    buffer = malloc(buffersize);
+    CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, buffer, buffersize));
+    free(buffer);
 
 
-    /* Free mallocs  */
-    free(bufdest);
-    CATERVA_TEST_ERROR(caterva_free_array(src));
+    /* Free array  */
+    CATERVA_TEST_ERROR(caterva_array_free(ctx, &src));
 }
 
 LWTEST_DATA(append) {
@@ -53,39 +78,64 @@ LWTEST_DATA(append) {
 };
 
 LWTEST_SETUP(append) {
-    data->ctx = caterva_context_new(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
-    data->ctx->cparams.typesize = sizeof(double);
+    caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
+    caterva_context_new(&cfg, &data->ctx);
 }
 
 LWTEST_TEARDOWN(append) {
-    caterva_context_free(data->ctx);
+    caterva_context_free(&data->ctx);
 }
 
-LWTEST_FIXTURE(append, 2_dim_plain) {
-    const uint8_t ndim = 2;
-    int64_t shape_[] = {4, 3};
+LWTEST_FIXTURE(append, 2_double_plainbuffer) {
+    uint8_t itemsize = sizeof(double);
+    uint8_t ndim = 2;
+    int64_t shape[] = {4, 3};
 
-    test_append(data->ctx, ndim, shape_, NULL);
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape[] = {};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+
+    test_append(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(append, 3_dim) {
-    const uint8_t ndim = 3;
-    int64_t shape_[] = {4, 3, 3};
-    int64_t pshape_[] = {2, 2, 2};
+LWTEST_FIXTURE(append, 3_float_blosc_frame) {
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 3;
+    int64_t shape[] = {4, 3, 3};
 
-    test_append(data->ctx, ndim, shape_, pshape_);
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {2, 2, 2};
+    bool enforceframe = true;
+    char *filename = NULL;
+
+    test_append(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(append, 4_dim_plain) {
-    const uint8_t ndim = 4;
-    int64_t shape_[] = {4, 3, 5, 4};
+LWTEST_FIXTURE(append, 4_float_plainbuffer) {
 
-    test_append(data->ctx, ndim, shape_, NULL);
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 4;
+    int64_t shape[] = {10, 10, 10, 10};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape[] = {};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    test_append(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(append, 5_dim) {
-    const uint8_t ndim = 5;
-    int64_t shape_[] = {14, 23, 12, 11, 8};
-    int64_t pshape_[] = {5, 12, 5, 3, 4};
-    test_append(data->ctx, ndim, shape_, pshape_);
+LWTEST_FIXTURE(append, 5_float_blosc) {
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 5;
+    int64_t shape[] = {10, 11, 7, 4, 12};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {3, 2, 2, 3, 5};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    test_append(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
 }

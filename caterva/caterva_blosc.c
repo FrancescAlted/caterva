@@ -478,6 +478,21 @@ int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array
 int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start,
                                          int64_t *stop, int64_t *shape, void *buffer) {
     uint8_t *bbuffer = buffer;   // for allowing pointer arithmetic
+
+    int64_t start__[CATERVA_MAXDIM];
+    int64_t stop__[CATERVA_MAXDIM];
+    int64_t shape__[CATERVA_MAXDIM];
+    int64_t extendedshape__[CATERVA_MAXDIM];
+    int64_t chunkshape__[CATERVA_MAXDIM];
+
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        start__[i] = (i < array->ndim) ? start[i] : 0;
+        stop__[i] = (i < array->ndim) ? stop[i] : 1;
+        shape__[i] = (i < array->ndim) ? shape[i] : 1;
+        extendedshape__[i] = (i < array->ndim) ? array->extendedshape[i] : 1;
+        chunkshape__[i] = (i < array->ndim) ? array->chunkshape[i] : 1;
+    }
+
     int64_t start_[CATERVA_MAXDIM];
     int64_t stop_[CATERVA_MAXDIM];
     int64_t d_pshape_[CATERVA_MAXDIM];
@@ -486,11 +501,11 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
     int8_t s_ndim = array->ndim;
 
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start[i];
-        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop[i];
-        d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape[i];
-        s_eshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = array->extendedshape[i];
-        s_pshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = array->chunkshape[i];
+        start_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = start__[i];
+        stop_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = stop__[i];
+        d_pshape_[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = shape__[i];
+        s_eshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = extendedshape__[i];
+        s_pshape[(CATERVA_MAXDIM - s_ndim + i) % CATERVA_MAXDIM] = chunkshape__[i];
     }
 
     // Acceleration path for the case where we are doing (1-dim) aligned chunk reads
@@ -620,14 +635,25 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
 
     uint8_t *chunk = ctx->cfg->alloc((size_t) array->chunksize * typesize);
     CATERVA_ERROR_NULL(chunk);
+    int64_t chunkshape__[CATERVA_MAXDIM];
+    int64_t start__[CATERVA_MAXDIM];
+    int64_t stop__[CATERVA_MAXDIM];
+
+    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
+        start__[i] = (i < src->ndim) ? start[i] : 0;
+        stop__[i] = (i < src->ndim) ? stop[i] : 1;
+        chunkshape__[i] = (i < src->ndim) ? array->chunkshape[i] : 1;
+    }
+
     int64_t d_pshape[CATERVA_MAXDIM];
     int64_t d_start[CATERVA_MAXDIM];
     int64_t d_stop[CATERVA_MAXDIM];
     int8_t d_ndim = array->ndim;
+
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        d_pshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = array->chunkshape[i];
-        d_start[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = start[i];
-        d_stop[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = stop[i];
+        d_pshape[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = chunkshape__[i];
+        d_start[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = start__[i];
+        d_stop[(CATERVA_MAXDIM - d_ndim + i) % CATERVA_MAXDIM] = stop__[i];
     }
     int64_t ii[CATERVA_MAXDIM];
     for (ii[0] = d_start[0]; ii[0] < d_stop[0]; ii[0] += d_pshape[0]) {
@@ -746,6 +772,7 @@ int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) 
 
 int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
                              caterva_array_t *src, caterva_array_t **dest) {
+    CATERVA_UNUSED_PARAM(params);
     int64_t start[CATERVA_MAXDIM] = {0, 0, 0, 0, 0, 0, 0, 0};
 
     int64_t stop[CATERVA_MAXDIM];
@@ -753,7 +780,7 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params, c
         stop[i] = src->shape[i];
     }
 
-    CATERVA_ERROR(caterva_array_get_slice(ctx, params, storage, src, start, stop, dest));
+    CATERVA_ERROR(caterva_array_get_slice(ctx, storage, src, start, stop, dest));
 
     return CATERVA_SUCCEED;
 }
