@@ -766,6 +766,7 @@ int caterva_blosc_update_shape(caterva_array_t *carr, caterva_dims_t *shape) {
             CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
         }
     }
+    free(smeta);
 
     return CATERVA_SUCCEED;
 }
