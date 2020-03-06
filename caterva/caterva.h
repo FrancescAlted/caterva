@@ -34,14 +34,13 @@
 #define CATERVA_VERSION_DATE     "2019-10-28"    /* date version */
 
 
-/* Errors */
+/* Error handling */
 #define CATERVA_SUCCEED 0
 #define CATERVA_ERR_INVALID_ARGUMENT 1
 #define CATERVA_ERR_BLOSC_FAILED 2
 #define CATERVA_ERR_CONTAINER_FILLED 3
 #define CATERVA_ERR_INVALID_STORAGE 4
 #define CATERVA_ERR_NULL_POINTER 5
-
 
 #ifdef NDEBUG
 #define DEBUG_PRINT(...) do{ } while ( 0 )
@@ -54,7 +53,6 @@
 
 #define CATERVA_UNUSED_PARAM(x) ((void)(x))
 
-
 static char *print_error(int rc) {
     switch (rc) {
         case CATERVA_ERR_INVALID_STORAGE: return "Invalid storage";
@@ -63,6 +61,7 @@ static char *print_error(int rc) {
         default: return "Unknown error";
     }
 }
+
 
 /* The version for metalayer format; starts from 0 and it must not exceed 127 */
 #define CATERVA_METALAYER_VERSION 0
@@ -75,31 +74,39 @@ static char *print_error(int rc) {
 /**
  * @brief Configuration parameters used to create a Caterva context.
  */
-
-typedef struct caterva_config_s {
+struct caterva_config_s {
     void *(*alloc)(size_t);
-    //!< The allocation memory function used internally.
+    //!< The memory allocation function used internally.
     void (*free)(void *);
-    //!< The free memory function used internally.
+    //!< The memory release function used internally.
     int compcodec;
     //!< Defines the codec used in compression.
     int complevel;
-    //!< Determines the compression level used in compression.
+    //!< Determines the compression level used in Blosc.
     int usedict;
     //!< Indicates whether a dict is used to compress data or not.
     int nthreads;
-    //!< Determines the maximum number of threads that can be used by Caterva.
+    //!< Determines the maximum number of threads that can be used.
     uint8_t filters[BLOSC2_MAX_FILTERS];
     //!< Defines the filters used in compression.
     uint8_t filtersmeta[BLOSC2_MAX_FILTERS];
-    //!< Indicates the meta filters used.
+    //!< Indicates the meta filters used in Blosc.
     blosc2_prefilter_fn prefilter;
     //!< Defines the function that is applied to the data before compressing it.
     blosc2_prefilter_params *pparams;
     //!< Indicates the parameters of the prefilter function.
-} caterva_config_t;
+};
 
 
+/**
+ * @brief Type definition for the #caterva_config_s structure.
+ */
+typedef struct caterva_config_s caterva_config_t;
+
+
+/**
+ * @brief The default configuration parameters used in Caterva.
+ */
 static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {
     .alloc = malloc,
     .free = free,
@@ -125,14 +132,81 @@ typedef struct caterva_context_s {
 
 
 /**
- * @brief Formats to store #caterva_array_t data.
+ * @brief The backends available to store the #caterva_array_t data.
  */
 typedef enum caterva_storage_backend_e {
     CATERVA_STORAGE_BLOSC,
-    //!< Indicates that data is stored using a Blosc superchunk.
+    //!< Indicates that the data is stored using a Blosc superchunk.
     CATERVA_STORAGE_PLAINBUFFER,
-    //!< Indicates that data is stored using a plain buffer.
+    //!< Indicates that the data is stored using a plain buffer.
 } caterva_storage_backend_t;
+
+
+/**
+ * @brief The storage properties that have a #caterva_array_t backed by a Blosc superchunk.
+ */
+typedef struct caterva_storage_properties_blosc_s {
+    int32_t chunkshape[CATERVA_MAXDIM];
+    //!< The shape of each Blosc chunk;
+    bool enforceframe;
+    //!< Flag to indicate if the superchunk is stored as a frame.
+    char* filename;
+    //!< The superchunk/frame name. If @p filename is not @p NULL, the superchunk will be stored on disk.
+} caterva_storage_properties_blosc_t;
+
+
+/**
+ * @brief The storage properties that have a #caterva_array_t backed by a plain buffer.
+ */
+typedef struct caterva_storage_properties_plainbuffer_s {
+} caterva_storage_properties_plainbuffer_t;
+
+
+/**
+ * @brief The storage properties for a specific #caterva_array_t.
+ */
+typedef union caterva_storage_properties_u {
+    caterva_storage_properties_blosc_t blosc;
+    //!< The storage properties when the container is backed by a Blosc superchunk.
+    caterva_storage_properties_plainbuffer_t plainbuffer;
+    //!< The storage properties when the container is backed by a plain buffer.
+} caterva_storage_properties_t;
+
+
+/**
+ * @brief Storage parameters needed for the creation of a #caterva_array_t container.
+ */
+struct caterva_storage_s {
+    caterva_storage_backend_t backend;
+    //!< The backend storage.
+    caterva_storage_properties_t properties;
+    //!< The specific properties for the selected @p backend.
+};
+
+
+/**
+ * @brief Type definition for the #caterva_storage_s structure.
+ */
+typedef struct caterva_storage_s caterva_storage_t;
+
+
+/**
+ * @brief General parameters needed for the creation of a #caterva_array_t container.
+ */
+struct caterva_params_s {
+    int64_t shape[CATERVA_MAXDIM];
+    //!< The container shape.
+    uint8_t ndim;
+    //!< The container dimensions.
+    uint8_t itemsize;
+    //!< The size of each item of the container.
+};
+
+
+/**
+ * @brief Type definition for the #caterva_params_s structure.
+ */
+typedef struct caterva_params_s caterva_params_t;
 
 
 /**
@@ -149,40 +223,10 @@ struct part_cache_s {
 };
 
 
-typedef struct caterva_storage_properties_blosc_s {
-    int32_t chunkshape[CATERVA_MAXDIM];
-    bool enforceframe;
-    char* filename;
-} caterva_storage_properties_blosc_t;
-
-
-typedef struct caterva_storage_properties_plainbuffer_s {
-} caterva_storage_properties_plainbuffer_t;
-
-
-typedef union caterva_storage_properties_u {
-    caterva_storage_properties_blosc_t blosc;
-    caterva_storage_properties_plainbuffer_t plainbuffer;
-} caterva_storage_properties_t;
-
-
-typedef struct caterva_storage_s {
-    caterva_storage_backend_t backend;
-    caterva_storage_properties_t properties;
-} caterva_storage_t;
-
-
-typedef struct caterva_params_s {
-    int64_t shape[CATERVA_MAXDIM];
-    uint8_t ndim;
-    uint8_t itemsize;
-} caterva_params_t;
-
-
 /**
  * @brief A multidimensional container that allows compressed data.
  */
-typedef struct {
+typedef struct caterva_array_s {
     caterva_storage_backend_t storage;
     //!< Storage type
     blosc2_schunk *sc;
@@ -194,13 +238,13 @@ typedef struct {
     int64_t shape[CATERVA_MAXDIM];
     //!< Shape of original data.
     int32_t chunkshape[CATERVA_MAXDIM];
-    //!< Shape of each partition.
+    //!< Shape of each chunk. If @p storage equals to \p #CATERVA_STORAGE_PLAINBUFFER, it is equal to @shape.
     int64_t extendedshape[CATERVA_MAXDIM];
     //!< Shape of padded data.
     int64_t size;
     //!< Size of original data.
     int32_t chunksize;
-    //!< Size of each partition.
+    //!< Size of each chunk.
     int64_t extendedesize;
     //!< Size of padded data.
     int8_t ndim;
@@ -219,7 +263,7 @@ typedef struct {
 
 
 /**
- * @brief Create a context for Caterva functions.
+ * @brief Create a context for Caterva.
  *
  * @param cfg The configuration parameters needed for the context creation.
  * @param ctx The memory pointer where the context will be created.
@@ -230,7 +274,7 @@ int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx);
 
 
 /**
- * @brief Free a caterva context
+ * @brief Free a Caterva context.
  *
  * @param ctx Pointer to the context to be freed.
  *
