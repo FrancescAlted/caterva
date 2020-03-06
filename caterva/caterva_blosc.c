@@ -700,21 +700,23 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
 
 
 int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape, int32_t *chunkshape) {
-
+    array->ndim = ndim;
     array->size = 1;
     array->extendedesize = 1;
     array->chunksize = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        array->shape[i] = shape[i];
-        array->chunkshape[i] = chunkshape[i];
         if (i < ndim) {
+            array->shape[i] = shape[i];
+            array->chunkshape[i] = chunkshape[i];
             if (shape[i] % array->chunkshape[i] == 0) {
                 array->extendedshape[i] = shape[i];
             } else {
                 array->extendedshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
             }
         } else {
+            array->chunkshape[i] = 1;
             array->extendedshape[i] = 1;
+            array->shape[i] = 1;
         }
         array->size *= array->shape[i];
         array->extendedesize *= array->extendedshape[i];

@@ -204,9 +204,15 @@ int caterva_plainbuffer_update_shape(caterva_array_t *array, int8_t ndim, int64_
     array->extendedesize = 1;
     array->chunksize = 1;
     for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        array->shape[i] = shape[i];
-        array->extendedshape[i] = shape[i];
-        array->chunkshape[i] = (int32_t)(shape[i]);
+        if (i < ndim) {
+            array->shape[i] = shape[i];
+            array->extendedshape[i] = shape[i];
+            array->chunkshape[i] = (int32_t) (shape[i]);
+        } else {
+            array->shape[i] = 1;
+            array->extendedshape[i] = 1;
+            array->chunkshape[i] = 1;
+        }
         array->size *= array->shape[i];
         array->extendedesize *= array->extendedshape[i];
         array->chunksize *= array->chunkshape[i];
