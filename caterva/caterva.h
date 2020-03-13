@@ -67,14 +67,14 @@ static char *print_error(int rc) {
 #define CATERVA_METALAYER_VERSION 0
 
 
-/* The maximum number of dimensions for Caterva arrays */
+/* The maximum number of dimensions for caterva arrays */
 #define CATERVA_MAXDIM 8
 
 
 /**
- * @brief Configuration parameters used to create a Caterva context.
+ * @brief Configuration parameters used to create a caterva context.
  */
-struct caterva_config_s {
+typedef struct {
     void *(*alloc)(size_t);
     //!< The memory allocation function used internally.
     void (*free)(void *);
@@ -95,17 +95,11 @@ struct caterva_config_s {
     //!< Defines the function that is applied to the data before compressing it.
     blosc2_prefilter_params *pparams;
     //!< Indicates the parameters of the prefilter function.
-};
+} caterva_config_t;
 
 
 /**
- * @brief Type definition for the #caterva_config_s structure.
- */
-typedef struct caterva_config_s caterva_config_t;
-
-
-/**
- * @brief The default configuration parameters used in Caterva.
+ * @brief The default configuration parameters used in caterva.
  */
 static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {
     .alloc = malloc,
@@ -122,10 +116,10 @@ static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {
 
 
 /**
- * @brief Context for Caterva containers that specifies the functions used to manage memory and
+ * @brief Context for caterva arrays that specifies the functions used to manage memory and
  * the compression/decompression parameters used in Blosc.
  */
-typedef struct caterva_context_s {
+typedef struct {
     caterva_config_t *cfg;
     //!< The configuration paramters.
 } caterva_context_t;
@@ -134,7 +128,7 @@ typedef struct caterva_context_s {
 /**
  * @brief The backends available to store the #caterva_array_t data.
  */
-typedef enum caterva_storage_backend_e {
+typedef enum {
     CATERVA_STORAGE_BLOSC,
     //!< Indicates that the data is stored using a Blosc superchunk.
     CATERVA_STORAGE_PLAINBUFFER,
@@ -145,9 +139,9 @@ typedef enum caterva_storage_backend_e {
 /**
  * @brief The storage properties that have a #caterva_array_t backed by a Blosc superchunk.
  */
-typedef struct caterva_storage_properties_blosc_s {
+typedef struct {
     int32_t chunkshape[CATERVA_MAXDIM];
-    //!< The shape of each Blosc chunk;
+    //!< The shape of each chunk of Blosc.
     bool enforceframe;
     //!< Flag to indicate if the superchunk is stored as a frame.
     char* filename;
@@ -158,55 +152,43 @@ typedef struct caterva_storage_properties_blosc_s {
 /**
  * @brief The storage properties that have a #caterva_array_t backed by a plain buffer.
  */
-typedef struct caterva_storage_properties_plainbuffer_s {
+typedef struct {
 } caterva_storage_properties_plainbuffer_t;
 
 
 /**
  * @brief The storage properties for a specific #caterva_array_t.
  */
-typedef union caterva_storage_properties_u {
+typedef union {
     caterva_storage_properties_blosc_t blosc;
-    //!< The storage properties when the container is backed by a Blosc superchunk.
+    //!< The storage properties when the array is backed by a Blosc superchunk.
     caterva_storage_properties_plainbuffer_t plainbuffer;
-    //!< The storage properties when the container is backed by a plain buffer.
+    //!< The storage properties when the array is backed by a plain buffer.
 } caterva_storage_properties_t;
 
 
 /**
- * @brief Storage parameters needed for the creation of a #caterva_array_t container.
+ * @brief Storage parameters needed for the creation of a #caterva_array_t.
  */
-struct caterva_storage_s {
+typedef struct {
     caterva_storage_backend_t backend;
     //!< The backend storage.
     caterva_storage_properties_t properties;
     //!< The specific properties for the selected @p backend.
-};
+} caterva_storage_t;
 
 
 /**
- * @brief Type definition for the #caterva_storage_s structure.
+ * @brief General parameters needed for the creation of a #caterva_array_t.
  */
-typedef struct caterva_storage_s caterva_storage_t;
-
-
-/**
- * @brief General parameters needed for the creation of a #caterva_array_t container.
- */
-struct caterva_params_s {
+typedef struct {
     int64_t shape[CATERVA_MAXDIM];
-    //!< The container shape.
+    //!< The array shape.
     uint8_t ndim;
-    //!< The container dimensions.
+    //!< The array dimensions.
     uint8_t itemsize;
-    //!< The size of each item of the container.
-};
-
-
-/**
- * @brief Type definition for the #caterva_params_s structure.
- */
-typedef struct caterva_params_s caterva_params_t;
+    //!< The size of each item of the array.
+} caterva_params_t;
 
 
 /**
@@ -224,9 +206,9 @@ struct part_cache_s {
 
 
 /**
- * @brief A multidimensional container that allows compressed data.
+ * @brief A multidimensional array that allows compressed data.
  */
-typedef struct caterva_array_s {
+typedef struct {
     caterva_storage_backend_t storage;
     //!< Storage type
     blosc2_schunk *sc;
@@ -238,7 +220,7 @@ typedef struct caterva_array_s {
     int64_t shape[CATERVA_MAXDIM];
     //!< Shape of original data.
     int32_t chunkshape[CATERVA_MAXDIM];
-    //!< Shape of each chunk. If @p storage equals to \p #CATERVA_STORAGE_PLAINBUFFER, it is equal to @shape.
+    //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to @p shape.
     int64_t extendedshape[CATERVA_MAXDIM];
     //!< Shape of padded data.
     int64_t size;
@@ -263,7 +245,7 @@ typedef struct caterva_array_s {
 
 
 /**
- * @brief Create a context for Caterva.
+ * @brief Create a context for caterva.
  *
  * @param cfg The configuration parameters needed for the context creation.
  * @param ctx The memory pointer where the context will be created.
@@ -274,7 +256,7 @@ int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx);
 
 
 /**
- * @brief Free a Caterva context.
+ * @brief Free a caterva context.
  *
  * @param ctx Pointer to the context to be freed.
  *
@@ -284,136 +266,140 @@ int caterva_context_free(caterva_context_t **ctx);
 
 
 /**
- * @brief Create a caterva empty container
+ * @brief Create a caterva empty array.
  *
- * When a container is created, only the partition shape, the storage type and the context are defined.
- * It should be noted that the shape is defined when a container is filled and not when it is created.
+ * @param ctx Pointer of the caterva context to be used.
+ * @param params Pointer of the general params of the array desired.
+ * @param storage Pointer of the storage params of the array desired.
+ * @param array Pointer of the pointer where the array will be created.
  *
- * If \p pshape is \c NULL, the data container will be stored using a plain buffer.
- *
- * However, if \p pshape is not \c NULL, the data container will be stored using a superchunk.
- * In particular, if \p fr is \c NULL it will be stored in the memory and if it is not \c NULL
- * it will be stored on disk.
- *
- * @param ctx Pointer to the caterva context to be used
- * @param fr Pointer to the blosc frame used to store data on disk
- * @param pshape The shape of each partition
- *
- * @return A pointer to the empty caterva container created
+ * @return An error code.
  */
 int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
                         caterva_array_t **array);
 
 
 /**
- * @brief Free a caterva container
+ * @brief Free a caterva array.
  *
- * @param carr Pointer to the container to be freed
+ * @param ctx Pointer of the caterva context to be used.
+ * @param array Pointer of the pointer where the array is placed.
  *
- * @return An error code
+ * @return An error code.
  */
 int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
 
 
 /**
- * Append a partition to a caterva container (until it is completely filled)
+ * Append a chunk to a caterva array (until it is completely filled).
  *
- * @param array Pointer to the container where data will be appended
- * @param part A pointer to the buffer where data is stored
- * @param partsize Size (in bytes) of the buffer
+ * @param ctx Pointer of the caterva context to be used.
+ * @param array Pointer of the caterva array.
+ * @param chunk A pointer of the buffer where the chunk data is stored.
+ * @param chunksize Size (in bytes) of the buffer.
  *
- * @return An error code
+ * @return An error code.
  */
 int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize);
 
 
 /**
- * @brief Create a caterva container from a frame
+ * @brief Create a caterva array from a frame. It can only be used if the array
+ * is backed by a blosc super-chunk.
  *
- * @param ctx Pointer to the caterva context to be used.
- *   The context should be the same as the one used to create the array.
- * @param frame The frame for the caterva container.
- * @param copy If true, a new, sparse in-memory super-chunk is created.
- *   Else, a frame-backed one is created (i.e. no copies are made).
+ * @param ctx Pointer of the caterva context to be used.
+ * @param frame The blosc frame where the caterva array is stored.
+ * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
+ * created (i.e. no copies are made).
+ * @param array Pointer of the pointer where the array will be created.
  *
- * @return A pointer to the new caterva container
+ * @return An error code.
  */
 int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy, caterva_array_t **array);
 
 
 /**
- * @brief Create a caterva container from a serialized frame
+ * @brief Create a caterva array from a serialized frame. It can only be used if the array
+ * is backed by a blosc super-chunk.
  *
- * @param ctx Pointer to the caterva context to be used.
- *   The context should be the same as the one used to create the array.
- * @param sframe The serialized frame for the caterva container.
- * @param len The length (in bytes) of tge serialized frame.
- * @param copy If true, a new, sparse in-memory super-chunk is created.
- *   Else, a frame-backed one is created (i.e. no copies are made).
+ * @param ctx Pointer of the caterva context to be used.
+ * @param sframe The serialized frame where the caterva array is stored.
+ * @param len The size (in bytes) of the serialized frame.
+ * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
+ * created (i.e. no copies are made).
+ * @param array Pointer of the pointer where the array will be created.
  *
- * @return A pointer to the new caterva container
+ * @return An error code.
  */
 int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy, caterva_array_t **array);
 
 
 /**
- * @brief Read a caterva container from disk
+ * @brief Read a caterva array from disk.
  *
  * @param ctx Pointer to the caterva context to be used.
- *   The context should be the same as the one used to create the array.
- * @param filename The filename of the caterva container on disk.
- * @param copy If true, a new, sparse in-memory super-chunk is created.
- *   Else, a frame-backed one is created (i.e. no copies are made).
+ * @param filename The filename of the caterva array on disk.
+ * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
+ * created (i.e. no copies are made).
+ * @param array Pointer of the pointer where the array will be created.
  *
- * @return A pointer to the new caterva container
+ * @return An error code.
  */
 int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool copy, caterva_array_t **array);
 
 
 /**
- * @brief Create a caterva container from the data obtained in a C buffer
+ * @brief Create a caterva array from the data stored in a buffer.
  *
- * @param dest Pointer to the container that will be created with the buffer data
- * @param shape The shape of the buffer data
- * @param src A pointer to the C buffer where data is stored
+ * @param ctx Pointer of the caterva context to be used.
+ * @param params Pointer of the general params of the array desired.
+ * @param storage Pointer of the storage params of the array desired.
+ * @param buffer Pointer to the buffer where source data is stored.
+ * @param buffersize The size (in bytes) of the serialized frame.
+ * @param array Pointer of the pointer where the array will be created.
  *
- * @return An error code
+ * @return An error code.
  */
 int caterva_array_from_buffer(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
                               void *buffer, int64_t buffersize, caterva_array_t **array);
 
 
 /**
- * @brief Extract the data into a C buffer from a caterva container
+ * @brief Extract the data into a C buffer from a caterva array.
  *
- * @param src Pointer to the container from which the data will be obtained
- * @param dest Pointer to the buffer where data will be stored
+ * @param ctx Pointer of the caterva context to be used.
+ * @param array Pointer of the caterva array.
+ * @param buffer Pointer of the buffer where the data will be stored.
+ * @param buffersize Size (in bytes) of the buffer.
  *
- * @return An error code
+ * @return An error code.
  */
 int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize);
 
 
 /**
- * @brief Get a slice into an empty caterva container from another caterva container
+ * @brief Get a slice from a caterva array to a new caterva array.
  *
- * @param dest Pointer to the empty container where the obtained slice will be stored
- * @param src Pointer to the container from which the slice will be obtained
- * @param start The coordinates where the slice will begin
- * @param stop The coordinates where the slice will end
+ * @param ctx Pointer of the caterva context to be used.
+ * @param storage Pointer of the storage params of the array desired.
+ * @param src Pointer to the array from which the slice will be extracted
+ * @param start The coordinates where the slice will begin.
+ * @param stop The coordinates where the slice will end.
+ * @param array Pointer of the pointer where the array will be created.
  *
- * @return An error code
+ * @return An error code.
  */
 int caterva_array_get_slice(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src,
     int64_t *start, int64_t *stop, caterva_array_t **array);
 
 
 /**
- * @brief Squeeze a caterva container
+ * @brief Squeeze a caterva array
  *
- * This function remove single-dimensional entries from the shape of a caterva container.
+ * This function remove single-dimensional entries from the shape of a caterva array.
  *
- * @param src Pointer to the container to be squeezed
+ * @param ctx Pointer of the caterva context to be used.
+ * @param array Pointer of the caterva array.
  *
  * @return An error code
  */
@@ -421,51 +407,41 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
 
 
 /**
- * @brief Get a slice into a C buffer from a caterva container
+ * @brief Get a slice from a caterva array to a C buffer.
  *
- * @param dest Pointer to the buffer where data will be stored
- * @param src Pointer to the container from which the slice will be extracted
- * @param start The coordinates where the slice will begin
- * @param stop The coordinates where the slice will end
- * @param d_pshape The partition shape of the buffer
- * @return An error code
+ * @param ctx Pointer of the caterva context to be used.
+ * @param src Pointer to the array from which the slice will be extracted.
+ * @param start The coordinates where the slice will begin.
+ * @param stop The coordinates where the slice will end.
+ * @param shape The shape of the buffer.
+ * @param buffer Pointer of the buffer where the data will be stored.
+ * @param buffersize The size (in bytes) of the buffer.
+ *
+ * @return An error code.
  */
-int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start, int64_t *stop,
+int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
                                    int64_t *shape, void *buffer, int64_t buffersize);
 
 
 /**
- * @brief Set a slice into a caterva container from a C buffer
+ * @brief Set a slice into a caterva array from a C buffer. It can only be used if the array
+ * is backed by a plainbuffer.
  *
- * It can only be used if the container is based on a buffer.
+ * @param ctx Pointer of the caterva context to be used.
+ * @param buffer Pointer to the buffer where the slice data is.
+ * @param buffersize The size (in bytes) of the buffer.
+ * @param start The coordinates where the slice will begin.
+ * @param stop The coordinates where the slice will end.
+ * @param array Pointer to the caterva array where the slice will be set
  *
- * @param dest Pointer to the caterva container where the partition will be set
- * @param src Pointer to the buffer where the slice data is
- * @param start The coordinates where the slice will begin
- * @param stop The coordinates where the slice will end
- *
- * @return An error code
+ * @return An error code.
  */
 int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, int64_t *start,
                                    int64_t *stop, caterva_array_t *array);
 
 
 /**
- * @brief Get a slice (without copy) into a C pointer from a caterva container
  *
- * With this function the data is not copied, thus allowing a higher speed.
- *
- * It can only be used if the container is based on a buffer. Also, the slice obtained should
- * not be modified since it is a reference to the container data. If the slice is modified,
- * the container will also be modified.
- *
- * @param dest Pointer to the C pointer where pointer data will be referenced
- * @param src Pointer to the container from which the slice will be extracted
- * @param start The coordinates where the slice will begin
- * @param stop The coordinates where the slice will end
- * @param d_pshape The partition shape of the buffer
- *
- * @return An error code
  */
 int caterva_array_get_slice_buffer_no_copy(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
                                            int64_t *stop, void **dest);
@@ -473,12 +449,12 @@ int caterva_array_get_slice_buffer_no_copy(caterva_context_t *ctx, caterva_array
 
 
 /**
- * @brief Make a copy of the container data.
+ * @brief Make a copy of the array data. The copy is done into a new caterva array.
  *
- * The copy is done into \p dest container
- *
- * @param dest Pointer to the container where data is copied
- * @param src Pointer to the container from which data is copied
+ * @param ctx Pointer of the caterva context to be used.
+ * @param storage Pointer of the storage params of the array desired.
+ * @param src Pointer to the array from which data is copied.
+ * @param dest Pointer to the pointer where the new array will be created.
  *
  * @return An error code
  */

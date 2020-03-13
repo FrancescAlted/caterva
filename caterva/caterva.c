@@ -206,17 +206,17 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
 }
 
 
-int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start, int64_t *stop,
+int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
                                    int64_t *shape, void *buffer, int64_t buffersize) {
     CATERVA_ERROR_NULL(ctx);
-    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(src);
     CATERVA_ERROR_NULL(start);
     CATERVA_ERROR_NULL(stop);
     CATERVA_ERROR_NULL(shape);
     CATERVA_ERROR_NULL(buffer);
 
     int64_t size = 1;
-    for (int i = 0; i < array->ndim; ++i) {
+    for (int i = 0; i < src->ndim; ++i) {
         if (stop[i] - start[i] > shape[i]) {
             DEBUG_PRINT("The buffer shape can not be smaller than the slice shape");
             return CATERVA_ERR_INVALID_ARGUMENT;
@@ -224,16 +224,16 @@ int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *arra
         size *= shape[i];
     }
 
-    if (buffersize < size * array->itemsize) {
+    if (buffersize < size * src->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
-    switch (array->storage) {
+    switch (src->storage) {
         case CATERVA_STORAGE_BLOSC:
-            CATERVA_ERROR(caterva_blosc_array_get_slice_buffer(ctx, array, start, stop, shape, buffer));
+            CATERVA_ERROR(caterva_blosc_array_get_slice_buffer(ctx, src, start, stop, shape, buffer));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            CATERVA_ERROR(caterva_plainbuffer_array_get_slice_buffer(ctx, array, start, stop, shape, buffer));
+            CATERVA_ERROR(caterva_plainbuffer_array_get_slice_buffer(ctx, src, start, stop, shape, buffer));
             break;
         default:
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);

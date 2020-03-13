@@ -48,5 +48,5 @@ datasets, efficiently. Resulting slices can be either Caterva containers or regu
     :caption: Contents
 
     installation
-    api
+    reference
     wrappers
