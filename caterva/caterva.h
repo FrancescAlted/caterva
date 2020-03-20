@@ -153,6 +153,8 @@ typedef struct {
  * @brief The storage properties that have a #caterva_array_t backed by a plain buffer.
  */
 typedef struct {
+    char* filename;
+    //!< The plainbuffer name. If @p filename is not @p NULL, the plainbuffer will be stored on disk. (Not implemented yet).
 } caterva_storage_properties_plainbuffer_t;
 
 
