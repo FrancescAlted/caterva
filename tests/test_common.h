@@ -18,20 +18,44 @@
 
 #define CATERVA_TEST_ERROR(rc) do{if (rc != CATERVA_SUCCEED) {LWTEST_ERR("%s:%d  Caterva error", __FILE__, __LINE__);}} while(0)
 
-static void fill_buf(double *buf, size_t buf_size) LW_ATT_UNUSED;
-static void fill_buf(double *buf, size_t buf_size) {
-    for (size_t i = 0; i < buf_size; ++i) {
-        buf[i] = (double) i;
+static void fill_buf(uint8_t *buf, uint8_t itemsize, size_t buf_size) LW_ATT_UNUSED;
+static void fill_buf(uint8_t *buf, uint8_t itemsize, size_t buf_size) {
+    switch (itemsize) {
+        case 8:
+            for (size_t i = 0; i < buf_size; ++i) {
+                ((double *) buf)[i] = (double) i;
+            }
+            break;
+        case 4:
+            for (size_t i = 0; i < buf_size; ++i) {
+                ((float *) buf)[i] = (float) i;
+            }
+            break;
+        default:CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 }
 
-static void assert_buf(const double *exp, const double *real, size_t size, double tol) LW_ATT_UNUSED;
-static void assert_buf(const double *exp, const double *real, size_t size, double tol) {
-    for (size_t i = 0; i < size; ++i) {
-        double a = exp[i];
-        double b = real[i];
-        LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(a, b, tol);
+static void assert_buf(const uint8_t *exp, const uint8_t *real, uint8_t itemsize, size_t size, double tol) LW_ATT_UNUSED;
+static void assert_buf(const uint8_t *exp, const uint8_t *real, uint8_t itemsize, size_t size, double tol) {
+    switch (itemsize) {
+        case 8:
+            for (size_t i = 0; i < size; ++i) {
+                double a = ((double *) exp)[i];
+                double b = ((double *) real)[i];
+                LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(a, b, tol);
+            }
+            break;
+        case 4:
+            for (size_t i = 0; i < size; ++i) {
+                double a = ((float *) exp)[i];
+                double b = ((float *) real)[i];
+                LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(a, b, tol);
+            }
+            break;
+        default:
+            CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
+
 }
 
 #endif
