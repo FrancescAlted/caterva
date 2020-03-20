@@ -826,7 +826,6 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params, 
         (*array)->chunkshape[i] = 1;
         (*array)->extendedshape[i] = 1;
     }
-    free(smeta);
 
     // The partition cache (empty initially)
     (*array)->part_cache.data = NULL;
