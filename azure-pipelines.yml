@@ -16,11 +16,11 @@ strategy:
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-debug:
-      imageName: 'macos-10.13'
+      imageName: 'macos-10.14'
       BUILD_CONFIGURATION: Debug
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-release:
-      imageName: 'macos-10.13'
+      imageName: 'macos-10.14'
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     windows-debug:
