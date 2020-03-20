@@ -84,7 +84,7 @@ LWTEST_FIXTURE(roundtrip, 3_double_plainbuffer) {
     int64_t shape[] = {4, 3};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -126,7 +126,7 @@ LWTEST_FIXTURE(roundtrip, 4_double_plainbuffer) {
     int64_t shape[] = {78, 85, 34, 56};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -152,7 +152,7 @@ LWTEST_FIXTURE(roundtrip, 5_double_plainbuffer) {
     int64_t shape[] = {35, 55, 24, 36, 12};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -178,7 +178,7 @@ LWTEST_FIXTURE(roundtrip, 7_double_plainbuffer) {
     int64_t shape[] =  {12, 15, 24, 16, 12, 8, 7};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 

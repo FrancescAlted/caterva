@@ -112,12 +112,12 @@ LWTEST_FIXTURE(get_slice, 1_double_plainbuffer_plainbuffer) {
     int64_t shape[] = {10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {};
+    int64_t chunkshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -137,7 +137,7 @@ LWTEST_FIXTURE(get_slice, 2_double_plainbuffer_blosc) {
     int64_t shape[] = {10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -205,7 +205,7 @@ LWTEST_FIXTURE(get_slice, 4_double_blosc_plainbuffer) {
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {};
+    int64_t chunkshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -229,12 +229,12 @@ LWTEST_FIXTURE(get_slice, 5_float_plainbuffer_plainbuffer) {
     int64_t shape[] = {10, 10, 10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {};
+    int64_t chunkshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -261,7 +261,7 @@ LWTEST_FIXTURE(get_slice, 6_double_plainbuffer_blosc_frame) {
     int64_t shape[] = {10, 10, 10, 10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -292,7 +292,7 @@ LWTEST_FIXTURE(get_slice, 7_float_blosc_frame_plainbuffer) {
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {};
+    int64_t chunkshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 

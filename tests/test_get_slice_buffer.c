@@ -92,7 +92,7 @@ LWTEST_FIXTURE(get_slice_buffer, 1_double_plainbuffer) {
     int64_t shape[] = {10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -150,7 +150,7 @@ LWTEST_FIXTURE(get_slice_buffer, 3_float_plainbuffer) {
     int64_t shape[] = {10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -207,7 +207,7 @@ LWTEST_FIXTURE(get_slice_buffer, 5_double_plainbuffer) {
     int64_t shape[] = {10, 10, 10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -280,7 +280,7 @@ LWTEST_FIXTURE(get_slice_buffer, 7_float_plainbuffer) {
     int64_t shape[] = {10, 10, 10, 10, 10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {};
+    int64_t chunkshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
