@@ -352,16 +352,16 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  * @brief Create a caterva array from the data stored in a buffer.
  *
  * @param ctx Pointer of the caterva context to be used.
- * @param params Pointer of the general params of the array desired.
- * @param storage Pointer of the storage params of the array desired.
  * @param buffer Pointer to the buffer where source data is stored.
  * @param buffersize The size (in bytes) of the serialized frame.
+ * @param params Pointer of the general params of the array desired.
+ * @param storage Pointer of the storage params of the array desired.
  * @param array Pointer of the pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_array_from_buffer(caterva_context_t *ctx, caterva_params_t *params, caterva_storage_t *storage,
-                              void *buffer, int64_t buffersize, caterva_array_t **array);
+int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, caterva_params_t *params,
+    caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**
@@ -381,16 +381,16 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  * @brief Get a slice from a caterva array to a new caterva array.
  *
  * @param ctx Pointer of the caterva context to be used.
- * @param storage Pointer of the storage params of the array desired.
  * @param src Pointer to the array from which the slice will be extracted
  * @param start The coordinates where the slice will begin.
  * @param stop The coordinates where the slice will end.
+ * @param storage Pointer of the storage params of the array desired.
  * @param array Pointer of the pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_array_get_slice(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src,
-    int64_t *start, int64_t *stop, caterva_array_t **array);
+int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
+    caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**
@@ -441,24 +441,16 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t
 
 
 /**
- *
- */
-int caterva_array_get_slice_buffer_no_copy(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
-                                           int64_t *stop, void **dest);
-
-
-
-/**
  * @brief Make a copy of the array data. The copy is done into a new caterva array.
  *
  * @param ctx Pointer of the caterva context to be used.
- * @param storage Pointer of the storage params of the array desired.
  * @param src Pointer to the array from which data is copied.
- * @param dest Pointer to the pointer where the new array will be created.
+ * @param storage Pointer of the storage params of the array desired.
+ * @param array Pointer to the pointer where the new array will be created.
  *
  * @return An error code
  */
-int caterva_array_copy(caterva_context_t *ctx, caterva_storage_t *storage, caterva_array_t *src, caterva_array_t **dest);
+int caterva_array_copy(caterva_context_t *ctx, caterva_array_t *src, caterva_storage_t *storage, caterva_array_t **array);
 
 
 #endif

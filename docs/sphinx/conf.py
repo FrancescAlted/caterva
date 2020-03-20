@@ -3,7 +3,7 @@ import subprocess
 subprocess.call('cd ../doxygen && doxygen Doxyfile && cd ../sphinx', shell=True)
 
 project = 'Caterva'
-copyright = '2019, Blosc Developers'
+copyright = '2020, Blosc Developers'
 
 import git
 repo = git.Repo('./../..')

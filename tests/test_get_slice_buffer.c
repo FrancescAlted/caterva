@@ -48,7 +48,7 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, &params, &storage, buffer, buffersize, &src));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
 
     /* Create dest buffer */
     int64_t destbuffersize = itemsize;

@@ -48,7 +48,7 @@ static void test_roundtrip(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, &params, &storage, buffer, buffersize, &src));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);

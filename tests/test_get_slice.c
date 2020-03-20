@@ -49,7 +49,7 @@ static void test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, &params, &storage, buffer, buffersize, &src));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
 
 
     /* Create storage for dest container */
@@ -71,7 +71,7 @@ static void test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
     }
 
     caterva_array_t *dest;
-    CATERVA_TEST_ERROR(caterva_array_get_slice(ctx, &storage2, src, start, stop, &dest));
+    CATERVA_TEST_ERROR(caterva_array_get_slice(ctx, src, start, stop, &storage2, &dest));
 
     uint8_t *buffer_dest = malloc(buffersize);
     CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, dest, buffer_dest, buffersize));

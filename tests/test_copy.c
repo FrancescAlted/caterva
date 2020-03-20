@@ -48,7 +48,7 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, &params, &storage, buffer, buffersize, &src));
+    CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
 
 
     /* Create storage for dest container */
@@ -70,7 +70,7 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
     }
 
     caterva_array_t *dest;
-    CATERVA_TEST_ERROR(caterva_array_copy(ctx, &storage2, src, &dest));
+    CATERVA_TEST_ERROR(caterva_array_copy(ctx, src, &storage2, &dest));
 
     uint8_t *buffer_dest = malloc(buffersize);
     CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, dest, buffer_dest, buffersize));

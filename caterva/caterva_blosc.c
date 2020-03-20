@@ -563,7 +563,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                         if (blosc2_schunk_decompress_chunk(array->sc, nchunk, chunk,
                                                                            (size_t) array->chunksize * typesize) < 0) {
                                             CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-                                        };
+                                        }
                                     }
                                     if (array->part_cache.data != NULL) {
                                         array->part_cache.nchunk = nchunk;
@@ -782,7 +782,7 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params, c
         stop[i] = src->shape[i];
     }
 
-    CATERVA_ERROR(caterva_array_get_slice(ctx, storage, src, start, stop, dest));
+    CATERVA_ERROR(caterva_array_get_slice(ctx, src, start, stop, storage, dest));
 
     return CATERVA_SUCCEED;
 }
