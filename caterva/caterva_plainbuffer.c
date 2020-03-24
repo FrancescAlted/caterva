@@ -189,7 +189,7 @@ int caterva_plainbuffer_array_get_slice(caterva_context_t *ctx, caterva_array_t 
     for (int i = 0; i < src->ndim; ++i) {
         size *= stop[i] - start[i];
     }
-    array->buf = malloc(size * typesize);
+    array->buf = ctx->cfg->alloc(size * typesize);
     CATERVA_ERROR(caterva_array_get_slice_buffer(ctx, src, start, stop, array->shape, array->buf, size * typesize));
     array->filled = true;
     array->empty = false;
