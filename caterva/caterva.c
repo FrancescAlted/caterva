@@ -61,6 +61,7 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
     }
 
     (*array)->filled = false;
+    (*array)->empty = true;
     (*array)->nparts = 0;
 
     return CATERVA_SUCCEED;
@@ -254,7 +255,7 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t
         size *= stop[i] - start[i];
     }
 
-    if (buffersize != size * array->itemsize) {
+    if (buffersize < size * array->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
