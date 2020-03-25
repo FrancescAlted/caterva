@@ -9,6 +9,7 @@ Caterva can be built, tested and installed using CMake. The following procedure 
 typical CMake build. In order to install Caterva, you need to have the library c-blosc2 builded
 or installed.
 
+
 Unix
 ::::
 
@@ -30,6 +31,7 @@ Unix
 4. If desired, install Caterva::
 
     cmake --build . --target install
+
 
 
 Windows

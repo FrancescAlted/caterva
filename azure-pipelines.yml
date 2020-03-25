@@ -16,11 +16,11 @@ strategy:
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-debug:
-      imageName: 'macos-10.13'
+      imageName: 'macos-10.14'
       BUILD_CONFIGURATION: Debug
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-release:
-      imageName: 'macos-10.13'
+      imageName: 'macos-10.14'
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     windows-debug:
@@ -94,14 +94,14 @@ steps:
 
   - bash: |
       cd build/
-      ctest -T Test
+      ctest -T Test -V
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
-      ctest -C ${BUILD_CONFIGURATION} -T Test
+      ctest -C ${BUILD_CONFIGURATION} -T Test -V
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
