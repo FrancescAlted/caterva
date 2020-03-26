@@ -867,24 +867,23 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params, 
         return CATERVA_ERR_BLOSC_FAILED;
     }
 
-    if (frame != NULL) {
-        // Serialize the dimension info in the associated frame
-        if (sc->nmetalayers >= BLOSC2_MAX_METALAYERS) {
-            DEBUG_PRINT("the number of metalayers for this frame has been exceeded");
-            return CATERVA_ERR_BLOSC_FAILED;
-        }
-        uint8_t *smeta = NULL;
-        int32_t smeta_len = serialize_meta(params->ndim, shape, chunkshape, &smeta);
-        if (smeta_len < 0) {
-            DEBUG_PRINT("error during serializing dims info for Caterva");
-            return CATERVA_ERR_BLOSC_FAILED;
-        }
-        // And store it in caterva metalayer
-        if (blosc2_add_metalayer(sc, "caterva", smeta, (uint32_t)smeta_len) < 0) {
-            return CATERVA_ERR_BLOSC_FAILED;
-        }
-        free(smeta);
+    // Serialize the dimension info in the associated frame
+    if (sc->nmetalayers >= BLOSC2_MAX_METALAYERS) {
+        DEBUG_PRINT("the number of metalayers for this frame has been exceeded");
+        return CATERVA_ERR_BLOSC_FAILED;
     }
+    uint8_t *smeta = NULL;
+    int32_t smeta_len = serialize_meta(params->ndim, shape, chunkshape, &smeta);
+    if (smeta_len < 0) {
+        DEBUG_PRINT("error during serializing dims info for Caterva");
+        return CATERVA_ERR_BLOSC_FAILED;
+    }
+    // And store it in caterva metalayer
+    if (blosc2_add_metalayer(sc, "caterva", smeta, (uint32_t)smeta_len) < 0) {
+        return CATERVA_ERR_BLOSC_FAILED;
+    }
+    free(smeta);
+
 
     (*array)->sc = sc;
 
