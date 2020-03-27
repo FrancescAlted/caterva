@@ -22,10 +22,6 @@ int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **arr
 
 
 int caterva_plainbuffer_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
-    if (array->nparts == 0) {
-        array->buf = ctx->cfg->alloc(array->size * array->itemsize);
-        CATERVA_ERROR_NULL(array->buf);
-    }
 
     int64_t start[CATERVA_MAXDIM], stop[CATERVA_MAXDIM];
     for (int i = 0; i < array->ndim; ++i) {
