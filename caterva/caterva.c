@@ -105,7 +105,7 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
 
 
 int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array) {
-    printf("Inside caterva free array general\n");
+    printf("Inside caterva free array general \n");
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
     if (*array) {
