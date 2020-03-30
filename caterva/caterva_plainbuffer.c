@@ -14,9 +14,7 @@
 
 
 int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **array) {
-    printf("Inside caterva free array\n");
     if ((*array)->buf != NULL) {
-        printf("Freeing array in caterva!\n");
         ctx->cfg->free((*array)->buf);
     }
     return CATERVA_SUCCEED;
