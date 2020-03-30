@@ -107,12 +107,14 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
 int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
-
+    printf("Inside caterva free array general\n");
     if (*array) {
         switch ((*array)->storage) {
-            case CATERVA_STORAGE_BLOSC:caterva_blosc_array_free(ctx, array);
+            case CATERVA_STORAGE_BLOSC:
+                caterva_blosc_array_free(ctx, array);
                 break;
-            case CATERVA_STORAGE_PLAINBUFFER:caterva_plainbuffer_array_free(ctx, array);
+            case CATERVA_STORAGE_PLAINBUFFER:
+                caterva_plainbuffer_array_free(ctx, array);
                 break;
         }
         ctx->cfg->free(*array);
