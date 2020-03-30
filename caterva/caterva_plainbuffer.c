@@ -15,6 +15,8 @@
 
 int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     if ((*array)->buf != NULL) {
+        printf("Pointer (free) %p\n", (*array)->buf);
+        printf("Free array buffer\n");
         ctx->cfg->free((*array)->buf);
     }
     return CATERVA_SUCCEED;
@@ -293,6 +295,7 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
     uint8_t *buf = ctx->cfg->alloc((*array)->extendedesize * params->itemsize);
 
     (*array)->buf = buf;
+    printf("Pointer (empty) %p\n", (*array)->buf);
 
     return CATERVA_SUCCEED;
 }
