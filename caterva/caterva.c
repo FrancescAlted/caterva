@@ -78,6 +78,7 @@ int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
         DEBUG_PRINT("Error creating a caterva container from a frame");
         return CATERVA_ERR_NULL_POINTER;
     }
+    (*array)->empty = false;
     return CATERVA_SUCCEED;
 }
 
@@ -304,6 +305,8 @@ int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_
         default:
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
+    (*array)->filled = true;
+    (*array)->empty = false;
 
     return CATERVA_SUCCEED;
 }
@@ -351,6 +354,7 @@ int caterva_array_copy(caterva_context_t *ctx, caterva_array_t *src, caterva_sto
         default:
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
-
+    (*array)->filled = true;
+    (*array)->empty = false;
     return CATERVA_SUCCEED;
 }
