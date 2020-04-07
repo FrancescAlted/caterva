@@ -68,10 +68,10 @@ static char *print_error(int rc) {
 
 
 /* The maximum number of dimensions for caterva arrays */
-#define CATERVA_MAXDIM 8
+#define CATERVA_MAX_DIM 8
 
 /* The maximum number of metalayers for caterva arrays */
-#define CATERVA_MAXMETA BLOSC2_MAX_METALAYERS - 1
+#define CATERVA_MAX_METALAYERS BLOSC2_MAX_METALAYERS - 1
 
 
 /**
@@ -154,13 +154,13 @@ typedef struct {
  * @brief The storage properties for an array backed by a Blosc superchunk.
  */
 typedef struct {
-    int32_t chunkshape[CATERVA_MAXDIM];
+    int32_t chunkshape[CATERVA_MAX_DIM];
     //!< The shape of each chunk of Blosc.
     bool enforceframe;
     //!< Flag to indicate if the superchunk is stored as a frame.
     char* filename;
     //!< The superchunk/frame name. If @p filename is not @p NULL, the superchunk will be stored on disk.
-    caterva_metalayer_t metalayers[CATERVA_MAXMETA];
+    caterva_metalayer_t metalayers[CATERVA_MAX_METALAYERS];
     //!< List with the metalayers desired.
     int32_t nmetalayers;
     //!< The number of metalayers.
@@ -202,7 +202,7 @@ typedef struct {
  * @brief General parameters needed for the creation of a caterva array.
  */
 typedef struct {
-    int64_t shape[CATERVA_MAXDIM];
+    int64_t shape[CATERVA_MAX_DIM];
     //!< The array shape.
     uint8_t ndim;
     //!< The array dimensions.
@@ -237,11 +237,11 @@ typedef struct {
     uint8_t *buf;
     //!< Pointer to a plain buffer where data is stored.
     //!< Only is used if \p storage equals to @p CATERVA_STORAGE_PLAINBUFFER.
-    int64_t shape[CATERVA_MAXDIM];
+    int64_t shape[CATERVA_MAX_DIM];
     //!< Shape of original data.
-    int32_t chunkshape[CATERVA_MAXDIM];
+    int32_t chunkshape[CATERVA_MAX_DIM];
     //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to @p shape.
-    int64_t extendedshape[CATERVA_MAXDIM];
+    int64_t extendedshape[CATERVA_MAX_DIM];
     //!< Shape of padded data.
     int64_t size;
     //!< Size of original data.
