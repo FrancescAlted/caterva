@@ -22,7 +22,7 @@ static void test_roundtrip(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:

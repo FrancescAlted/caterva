@@ -23,7 +23,7 @@ static void test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
@@ -54,7 +54,7 @@ static void test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
 
     /* Create storage for dest container */
 
-    caterva_storage_t storage2;
+    caterva_storage_t storage2 = {0};
     storage2.backend = backend2;
     switch (backend2) {
         case CATERVA_STORAGE_PLAINBUFFER:
