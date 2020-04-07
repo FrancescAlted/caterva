@@ -24,7 +24,7 @@ static void test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim,
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
@@ -55,7 +55,7 @@ static void test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim,
 
     /* Create storage for dest container */
 
-    caterva_storage_t storage2;
+    caterva_storage_t storage2 = {0};
     storage2.backend = backend2;
     switch (backend2) {
         case CATERVA_STORAGE_PLAINBUFFER:

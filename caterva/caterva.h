@@ -70,6 +70,9 @@ static char *print_error(int rc) {
 /* The maximum number of dimensions for caterva arrays */
 #define CATERVA_MAXDIM 8
 
+/* The maximum number of metalayers for caterva arrays */
+#define CATERVA_MAXMETA BLOSC2_MAX_METALAYERS - 1
+
 
 /**
  * @brief Configuration parameters used to create a caterva context.
@@ -135,6 +138,17 @@ typedef enum {
     //!< Indicates that the data is stored using a plain buffer.
 } caterva_storage_backend_t;
 
+/**
+ * @brief The metalayer data needed to store it on an array
+ */
+typedef struct {
+    char *name;
+    //!< The name of the metalater
+    uint8_t *sdata;
+    //!< The serialized data to store
+    int32_t size;
+    //!< The size of the serialized data
+}caterva_metalayer_t;
 
 /**
  * @brief The storage properties for an array backed by a Blosc superchunk.
@@ -146,6 +160,10 @@ typedef struct {
     //!< Flag to indicate if the superchunk is stored as a frame.
     char* filename;
     //!< The superchunk/frame name. If @p filename is not @p NULL, the superchunk will be stored on disk.
+    caterva_metalayer_t metalayers[CATERVA_MAXMETA];
+    //!< List with the metalayers desired.
+    int32_t nmetalayers;
+    //!< The number of metalayers.
 } caterva_storage_properties_blosc_t;
 
 

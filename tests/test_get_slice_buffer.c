@@ -22,7 +22,7 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:

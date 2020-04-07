@@ -884,7 +884,12 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params, 
     }
     free(smeta);
 
-
+    for (int i = 0; i < storage->properties.blosc.nmetalayers; ++i) {
+        char *name = storage->properties.blosc.metalayers[i].name;
+        uint8_t *data = storage->properties.blosc.metalayers[i].sdata;
+        int32_t size = storage->properties.blosc.metalayers[i].size;
+        blosc2_add_metalayer(sc, name, data, size);
+    }
     (*array)->sc = sc;
 
     return CATERVA_SUCCEED;
