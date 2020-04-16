@@ -293,6 +293,9 @@ int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     CATERVA_UNUSED_PARAM(ctx);
 
     if ((*array)->sc != NULL) {
+        if ((*array)->sc->frame != NULL) {
+            blosc2_free_frame((*array)->sc->frame);
+        }
         blosc2_free_schunk((*array)->sc);
     }
     return CATERVA_SUCCEED;
