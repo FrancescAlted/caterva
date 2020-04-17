@@ -240,7 +240,6 @@ int caterva_plainbuffer_array_copy(caterva_context_t *ctx, caterva_params_t *par
 
     CATERVA_ERROR(caterva_array_empty(ctx, params, storage, dest));
 
-    (*dest)->buf = ctx->cfg->alloc((size_t) (*dest)->size * (*dest)->itemsize);
     CATERVA_ERROR(caterva_array_to_buffer(ctx, src, (*dest)->buf, (*dest)->size * (*dest)->itemsize));
     (*dest)->filled = true;
 
