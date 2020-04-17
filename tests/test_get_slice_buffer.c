@@ -11,8 +11,44 @@
 
 #include "test_common.h"
 
+static bool is_little_endian(void) {
+    bool little;
+    int i = 1;
+    char* p = (char*)&i;
+
+    if (p[0] == 1) {
+        little = true;
+    }
+    else {
+        little = false;
+    }
+    return little;
+}
+
+static inline int32_t sw32_(const void* pa) {
+    int32_t idest;
+    uint8_t* dest = (uint8_t*)&idest;
+    uint8_t* pa_ = (uint8_t*)pa;
+
+    bool little_endian = is_little_endian();
+    if (little_endian) {
+        dest[0] = pa_[0];
+        dest[1] = pa_[1];
+        dest[2] = pa_[2];
+        dest[3] = pa_[3];
+    }
+    else {
+        dest[0] = pa_[3];
+        dest[1] = pa_[2];
+        dest[2] = pa_[1];
+        dest[3] = pa_[0];
+    }
+    return idest;
+}
+
+
 static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize, int64_t *shape,
-                           caterva_storage_backend_t backend, int64_t *chunkshape, bool enforceframe,
+                           caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape, bool enforceframe,
                            char* filename, int64_t *start, int64_t *stop, int64_t *destshape, void *result) {
 
     caterva_params_t params;
@@ -22,7 +58,7 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage = {0};
+    caterva_storage_t storage;
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
@@ -32,6 +68,7 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = chunkshape[i];
+                storage.properties.blosc.blockshape[i] = blockshape[i];
             }
             break;
         default:
@@ -44,7 +81,15 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
         buffersize *= shape[i];
     }
     uint8_t *buffer = malloc(buffersize);
-    fill_buf(buffer, itemsize, buffersize / itemsize);
+    // fill_buf(buffer, itemsize, buffersize / itemsize);
+    for (int i = 0; i < (buffersize/itemsize); ++i) {
+        buffer[i] = (double) i;
+    }
+
+    printf("\n buffer: \n");
+    for (int i=0; i < 25; i++) {
+        printf("%hhu, ", buffer[i]);
+    }
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
@@ -80,7 +125,7 @@ LWTEST_SETUP(get_slice_buffer) {
 LWTEST_TEARDOWN(get_slice_buffer) {
     caterva_context_free(&data->ctx);
 }
-
+/*
 LWTEST_FIXTURE(get_slice_buffer, 1_double_plainbuffer) {
     int64_t start[] = {2};
     int64_t stop[] = {9};
@@ -93,6 +138,7 @@ LWTEST_FIXTURE(get_slice_buffer, 1_double_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -100,11 +146,12 @@ LWTEST_FIXTURE(get_slice_buffer, 1_double_plainbuffer) {
     for (int i = 0; i < ndim; ++i) {
         destshape[i] = stop[i] - start[i];
     }
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
                    start, stop, destshape, result);
 }
 
 LWTEST_FIXTURE(get_slice_buffer, 2_double_blosc) {
+
     int64_t start[] = {5, 3};
     int64_t stop[] = {9, 10};
 
@@ -117,6 +164,7 @@ LWTEST_FIXTURE(get_slice_buffer, 2_double_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 3};
+    int64_t blockshaoe[] = {1, 2};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -124,33 +172,49 @@ LWTEST_FIXTURE(get_slice_buffer, 2_double_blosc) {
     for (int i = 0; i < ndim; ++i) {
         destshape[i] = stop[i] - start[i];
     }
-
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshaoe, enforceframe, filename,
         start, stop, destshape, result);
 }
 
-LWTEST_FIXTURE(get_slice_buffer, 3_float_plainbuffer) {
-    int64_t start[] = {3, 0, 3};
-    int64_t stop[] = {6, 7, 10};
+LWTEST_FIXTURE(get_slice_buffer, 2_pad) {
 
-    float result[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
-                          323, 324, 325, 326, 327, 328, 329, 333, 334, 335, 336, 337, 338, 339,
-                          343, 344, 345, 346, 347, 348, 349, 353, 354, 355, 356, 357, 358, 359,
-                          363, 364, 365, 366, 367, 368, 369, 403, 404, 405, 406, 407, 408, 409,
-                          413, 414, 415, 416, 417, 418, 419, 423, 424, 425, 426, 427, 428, 429,
-                          433, 434, 435, 436, 437, 438, 439, 443, 444, 445, 446, 447, 448, 449,
-                          453, 454, 455, 456, 457, 458, 459, 463, 464, 465, 466, 467, 468, 469,
-                          503, 504, 505, 506, 507, 508, 509, 513, 514, 515, 516, 517, 518, 519,
-                          523, 524, 525, 526, 527, 528, 529, 533, 534, 535, 536, 537, 538, 539,
-                          543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
-                          563, 564, 565, 566, 567, 568, 569};
+    int64_t start[] = {2, 2};
+    int64_t stop[] = {4, 4};
+
+    double result[1024] = {14, 15, 20, 21};
+
+    uint8_t itemsize = sizeof(double);
+    uint8_t ndim = 2;
+    int64_t shape[] = {5, 6};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {3, 3};
+    int64_t blockshape[] = {2, 2};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    int64_t destshape[] = {0, 0, 0};
+    for (int i = 0; i < ndim; ++i) {
+        destshape[i] = stop[i] - start[i];
+    }
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                   start, stop, destshape, result);
+}
+
+LWTEST_FIXTURE(get_slice_buffer, 3_float_blosc) {
+
+    int64_t start[] = {2, 2, 0};
+    int64_t stop[] = {4, 4, 2};
+
+    float result[1024] = {42, 43, 45, 46, 60, 61, 63, 64};
 
     uint8_t itemsize = sizeof(float);
     uint8_t ndim = 3;
-    int64_t shape[] = {10, 10, 10};
+    int64_t shape[] = {5, 6, 3};
 
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {3, 3, 3};
+    int64_t blockshape[] = {2, 2, 2};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -159,11 +223,49 @@ LWTEST_FIXTURE(get_slice_buffer, 3_float_plainbuffer) {
         destshape[i] = stop[i] - start[i];
     }
 
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
                    start, stop, destshape, result);
 }
+*/
+
+LWTEST_FIXTURE(get_slice_buffer, ndim_3_no_sp) {
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 3;
+    int64_t shape_[] = {10, 10, 10};
+    int64_t pshape_[] = {3, 5, 2};
+    int64_t spshape_[] = {3, 5, 2};
+    int64_t start[] = {3, 0, 3};
+    int64_t stop[] = {6, 7, 10};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    int64_t destshape[] = {0, 0, 0};
+    for (int i = 0; i < ndim; ++i) {
+        destshape[i] = stop[i] - start[i];
+    }
+
+
+    double result[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
+                           323, 324, 325, 326, 327, 328, 329, 333, 334, 335, 336, 337, 338, 339,
+                           343, 344, 345, 346, 347, 348, 349, 353, 354, 355, 356, 357, 358, 359,
+                           363, 364, 365, 366, 367, 368, 369, 403, 404, 405, 406, 407, 408, 409,
+                           413, 414, 415, 416, 417, 418, 419, 423, 424, 425, 426, 427, 428, 429,
+                           433, 434, 435, 436, 437, 438, 439, 443, 444, 445, 446, 447, 448, 449,
+                           453, 454, 455, 456, 457, 458, 459, 463, 464, 465, 466, 467, 468, 469,
+                           503, 504, 505, 506, 507, 508, 509, 513, 514, 515, 516, 517, 518, 519,
+                           523, 524, 525, 526, 527, 528, 529, 533, 534, 535, 536, 537, 538, 539,
+                           543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
+                           563, 564, 565, 566, 567, 568, 569};
+
+
+    test_get_slice(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename,
+                   start, stop, destshape, result);}
+
 
 LWTEST_FIXTURE(get_slice_buffer, 4_float_blosc_frame) {
+
     int64_t start[] = {5, 3, 9, 2};
     int64_t stop[] = {9, 6, 10, 7};
 
@@ -179,6 +281,7 @@ LWTEST_FIXTURE(get_slice_buffer, 4_float_blosc_frame) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {3, 2, 3, 2};
+    int64_t blockshape[] = {3, 2, 3, 2};
     bool enforceframe = true;
     char *filename = NULL;
 
@@ -187,7 +290,7 @@ LWTEST_FIXTURE(get_slice_buffer, 4_float_blosc_frame) {
         destshape[i] = stop[i] - start[i];
     }
 
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
                    start, stop, destshape, result);
 }
 
@@ -208,6 +311,7 @@ LWTEST_FIXTURE(get_slice_buffer, 5_double_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -216,11 +320,11 @@ LWTEST_FIXTURE(get_slice_buffer, 5_double_plainbuffer) {
         destshape[i] = stop[i] - start[i];
     }
 
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
                    start, stop, destshape, result);
 }
 
-
+/*
 LWTEST_FIXTURE(get_slice_buffer, 6_double_blosc) {
     int64_t start[] = {0, 4, 2, 4, 5, 1};
     int64_t stop[] = {1, 7, 4, 6, 8, 3};
@@ -240,6 +344,7 @@ LWTEST_FIXTURE(get_slice_buffer, 6_double_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {6, 5, 3, 5, 4, 2};
+    int64_t blockshape[] = {1, 1, 1, 1, 1, 1};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -248,7 +353,7 @@ LWTEST_FIXTURE(get_slice_buffer, 6_double_blosc) {
         destshape[i] = stop[i] - start[i];
     }
 
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
                    start, stop, destshape, result);
 }
 
@@ -281,6 +386,7 @@ LWTEST_FIXTURE(get_slice_buffer, 7_float_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -289,7 +395,7 @@ LWTEST_FIXTURE(get_slice_buffer, 7_float_plainbuffer) {
         destshape[i] = stop[i] - start[i];
     }
 
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
                    start, stop, destshape, result);
 }
 
@@ -305,6 +411,7 @@ LWTEST_FIXTURE(get_slice_buffer, 8_float_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 2, 1, 1, 2, 2, 1, 1};
+    int64_t blockshape[] = {1, 1, 1, 1, 1, 1, 1, 1};
     bool enforceframe = true;
     char *filename = NULL;
 
@@ -313,6 +420,7 @@ LWTEST_FIXTURE(get_slice_buffer, 8_float_blosc) {
         destshape[i] = stop[i] - start[i];
     }
 
-    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, enforceframe, filename,
+    test_get_slice(data->ctx, ndim, itemsize, shape, backend, chunkshape, blockshape, enforceframe, filename,
                    start, stop, destshape, result);
 }
+*/

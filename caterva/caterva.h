@@ -68,10 +68,7 @@ static char *print_error(int rc) {
 
 
 /* The maximum number of dimensions for caterva arrays */
-#define CATERVA_MAX_DIM 8
-
-/* The maximum number of metalayers for caterva arrays */
-#define CATERVA_MAX_METALAYERS BLOSC2_MAX_METALAYERS - 1
+#define CATERVA_MAXDIM 8
 
 
 /**
@@ -105,16 +102,16 @@ typedef struct {
  * @brief The default configuration parameters used in caterva.
  */
 static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {
-    .alloc = malloc,
-    .free = free,
-    .compcodec = BLOSC_ZSTD,
-    .complevel = 5,
-    .usedict = 0,
-    .nthreads = 1,
-    .filters = {0, 0, 0, 0, 0, BLOSC_SHUFFLE},
-    .filtersmeta = {0, 0, 0, 0, 0, 0},
-    .prefilter = NULL,
-    .pparams = NULL
+        .alloc = malloc,
+        .free = free,
+        .compcodec = BLOSC_ZSTD,
+        .complevel = 5,
+        .usedict = 0,
+        .nthreads = 1,
+        .filters = {0, 0, 0, 0, 0, BLOSC_SHUFFLE},
+        .filtersmeta = {0, 0, 0, 0, 0, 0},
+        .prefilter = NULL,
+        .pparams = NULL
 };
 
 
@@ -134,36 +131,23 @@ typedef struct {
 typedef enum {
     CATERVA_STORAGE_BLOSC,
     //!< Indicates that the data is stored using a Blosc superchunk.
-    CATERVA_STORAGE_PLAINBUFFER,
+            CATERVA_STORAGE_PLAINBUFFER,
     //!< Indicates that the data is stored using a plain buffer.
 } caterva_storage_backend_t;
 
-/**
- * @brief The metalayer data needed to store it on an array
- */
-typedef struct {
-    char *name;
-    //!< The name of the metalater
-    uint8_t *sdata;
-    //!< The serialized data to store
-    int32_t size;
-    //!< The size of the serialized data
-}caterva_metalayer_t;
 
 /**
  * @brief The storage properties for an array backed by a Blosc superchunk.
  */
 typedef struct {
-    int32_t chunkshape[CATERVA_MAX_DIM];
+    int32_t chunkshape[CATERVA_MAXDIM];
+    //!< The shape of each chunk of Blosc.
+    int32_t blockshape[CATERVA_MAXDIM];
     //!< The shape of each chunk of Blosc.
     bool enforceframe;
     //!< Flag to indicate if the superchunk is stored as a frame.
     char* filename;
     //!< The superchunk/frame name. If @p filename is not @p NULL, the superchunk will be stored on disk.
-    caterva_metalayer_t metalayers[CATERVA_MAX_METALAYERS];
-    //!< List with the metalayers desired.
-    int32_t nmetalayers;
-    //!< The number of metalayers.
 } caterva_storage_properties_blosc_t;
 
 
@@ -202,7 +186,7 @@ typedef struct {
  * @brief General parameters needed for the creation of a caterva array.
  */
 typedef struct {
-    int64_t shape[CATERVA_MAX_DIM];
+    int64_t shape[CATERVA_MAXDIM];
     //!< The array shape.
     uint8_t ndim;
     //!< The array dimensions.
@@ -237,18 +221,30 @@ typedef struct {
     uint8_t *buf;
     //!< Pointer to a plain buffer where data is stored.
     //!< Only is used if \p storage equals to @p CATERVA_STORAGE_PLAINBUFFER.
-    int64_t shape[CATERVA_MAX_DIM];
+    int64_t shape[CATERVA_MAXDIM];
     //!< Shape of original data.
-    int32_t chunkshape[CATERVA_MAX_DIM];
+    int32_t chunkshape[CATERVA_MAXDIM];
     //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to @p shape.
-    int64_t extendedshape[CATERVA_MAX_DIM];
+    int64_t extendedshape[CATERVA_MAXDIM];
     //!< Shape of padded data.
+    int32_t blockshape[CATERVA_MAXDIM];
+    //!< Shape of each subpartition.
+    int64_t extendedchunkshape[CATERVA_MAXDIM];
+    //!< Shape of padded partition.
+    int32_t next_chunkshape[CATERVA_MAXDIM];
+    //!< Shape of next partition to be appened.
     int64_t size;
     //!< Size of original data.
     int32_t chunksize;
     //!< Size of each chunk.
-    int64_t extendedesize;
+    int64_t extendedsize;
     //!< Size of padded data.
+    int32_t blocksize;
+    //!< Size of each subpartition.
+    int64_t extendedchunksize;
+    //!< Size of padded partition.
+    int64_t next_chunksize;
+    //!< Size of next partiton to be appened.
     int8_t ndim;
     //!< Data dimensions.
     int8_t itemsize;
@@ -308,6 +304,21 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
  * @return An error code.
  */
 int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
+
+
+/**
+ * @brief Reorders a buffer in order to be able to append subpartitions
+ *
+ * @param chunk Pointer to the buffer where data will be stored
+ * @param size_chunk Size of the destination buffer
+ * @param src A pointer to the buffer where data is stored
+ * @param size_src Size of the source buffer
+ * @param carr Pointer to the container where useful parameters are stored
+ * @param ctx Pointer to the caterva context to be used
+ *
+ * @return An error code
+ */
+int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksize, void *chunk, int chunksize, caterva_array_t *array);
 
 
 /**
@@ -381,7 +392,7 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  * @return An error code.
  */
 int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, caterva_params_t *params,
-    caterva_storage_t *storage, caterva_array_t **array);
+                              caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**
@@ -410,7 +421,7 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  * @return An error code.
  */
 int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
-    caterva_storage_t *storage, caterva_array_t **array);
+                            caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**
