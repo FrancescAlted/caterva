@@ -232,7 +232,7 @@ typedef struct {
     int64_t extendedchunkshape[CATERVA_MAXDIM];
     //!< Shape of padded partition.
     int32_t next_chunkshape[CATERVA_MAXDIM];
-    //!< Shape of next partition to be appened.
+    //!< Shape of next partition to be appended.
     int64_t size;
     //!< Size of original data.
     int32_t chunksize;
@@ -244,7 +244,7 @@ typedef struct {
     int64_t extendedchunksize;
     //!< Size of padded partition.
     int64_t next_chunksize;
-    //!< Size of next partiton to be appened.
+    //!< Size of next partiton to be appended.
     int8_t ndim;
     //!< Data dimensions.
     int8_t itemsize;

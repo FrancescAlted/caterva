@@ -575,7 +575,7 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
             // Copy each chunk from rchunk to dest
             printf("\n chunk: \n");
             for (int i=0; i < array->chunksize; i++) {
-                printf("%hhu, ", chunk[i]);
+                printf("%f, ", ((double *) chunk)[i]);
             }
             caterva_blosc_array_repart_chunk(rchunk, (int) array->extendedchunksize * typesize, chunk,
                                              (int) array->chunksize * typesize, array);
@@ -583,7 +583,7 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
 
             printf("\n rchunk: \n");
             for (int i=0; i < array->chunksize; i++) {
-                printf("%hhu, ", chunk[i]);
+                printf("%f, ", ((double*) chunk)[i]);
             }
             array->nparts++;
             if (array->nparts == array->extendedsize / array->chunksize) {

@@ -80,15 +80,15 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-    uint8_t *buffer = malloc(buffersize);
+    double *buffer = malloc(buffersize);
     // fill_buf(buffer, itemsize, buffersize / itemsize);
     for (int i = 0; i < (buffersize/itemsize); ++i) {
         buffer[i] = (double) i;
     }
 
     printf("\n buffer: \n");
-    for (int i=0; i < 25; i++) {
-        printf("%hhu, ", buffer[i]);
+    for (int i=0; i < 700; i++) {
+        printf("%f, ", buffer[i]);
     }
 
     /* Create caterva_array_t with original data */
@@ -229,7 +229,7 @@ LWTEST_FIXTURE(get_slice_buffer, 3_float_blosc) {
 */
 
 LWTEST_FIXTURE(get_slice_buffer, ndim_3_no_sp) {
-    uint8_t itemsize = sizeof(float);
+    uint8_t itemsize = sizeof(double);
     uint8_t ndim = 3;
     int64_t shape_[] = {10, 10, 10};
     int64_t pshape_[] = {3, 5, 2};
@@ -259,11 +259,16 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_3_no_sp) {
                            543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
                            563, 564, 565, 566, 567, 568, 569};
 
+    printf("\n result: \n");
+    for (int i=0; i < 10; i++) {
+        printf("%f, ", (double) result[i]);
+    }
 
     test_get_slice(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename,
-                   start, stop, destshape, result);}
+                   start, stop, destshape, result);
+}
 
-
+/*
 LWTEST_FIXTURE(get_slice_buffer, 4_float_blosc_frame) {
 
     int64_t start[] = {5, 3, 9, 2};
@@ -324,7 +329,7 @@ LWTEST_FIXTURE(get_slice_buffer, 5_double_plainbuffer) {
                    start, stop, destshape, result);
 }
 
-/*
+
 LWTEST_FIXTURE(get_slice_buffer, 6_double_blosc) {
     int64_t start[] = {0, 4, 2, 4, 5, 1};
     int64_t stop[] = {1, 7, 4, 6, 8, 3};
