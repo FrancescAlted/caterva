@@ -62,7 +62,7 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
         if (blosc2_has_metalayer(src->sc, "random") < 0) {
             CATERVA_TEST_ERROR(CATERVA_ERR_BLOSC_FAILED);
         }
-        double *serializeddata = malloc(sizeof(double));
+        double *serializeddata;
         uint32_t len;
         blosc2_get_metalayer(src->sc, "random", (uint8_t **) &serializeddata, &len);
         if (*serializeddata != datatoserialize) {
