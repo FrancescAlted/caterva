@@ -126,14 +126,14 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(chunk);
 
-    if (chunksize != array->next_chunksize * array->itemsize) {
-        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
-    }
     if (array->filled) {
         CATERVA_ERROR(CATERVA_ERR_CONTAINER_FILLED);
     }
     switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
+            if (chunksize != array->next_chunksize * array->itemsize) {
+                CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+            }
             CATERVA_ERROR(caterva_blosc_array_append(ctx, array, chunk, chunksize));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
