@@ -22,7 +22,9 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    double datatoserialize = 8.34;
+
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
@@ -33,6 +35,11 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
             for (int i = 0; i < ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = chunkshape[i];
             }
+            storage.properties.blosc.nmetalayers = 1;
+            storage.properties.blosc.metalayers[0].name = "random";
+            storage.properties.blosc.metalayers[0].sdata = (uint8_t *) &datatoserialize;
+            storage.properties.blosc.metalayers[0].size = 8;
+
             break;
         default:
             CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_STORAGE);
@@ -50,10 +57,22 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
     caterva_array_t *src;
     CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
 
+    /* Assert the metalayers creation */
+    if (storage.backend == CATERVA_STORAGE_BLOSC) {
+        if (blosc2_has_metalayer(src->sc, "random") < 0) {
+            CATERVA_TEST_ERROR(CATERVA_ERR_BLOSC_FAILED);
+        }
+        double *serializeddata;
+        uint32_t len;
+        blosc2_get_metalayer(src->sc, "random", (uint8_t **) &serializeddata, &len);
+        if (*serializeddata != datatoserialize) {
+            CATERVA_TEST_ERROR(CATERVA_ERR_BLOSC_FAILED);
+        }
+        free(serializeddata);
+    }
 
     /* Create storage for dest container */
-
-    caterva_storage_t storage2;
+    caterva_storage_t storage2 = {0};
     storage2.backend = backend2;
     switch (backend2) {
         case CATERVA_STORAGE_PLAINBUFFER:

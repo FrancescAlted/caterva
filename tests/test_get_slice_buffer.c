@@ -86,11 +86,6 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
         buffer[i] = (double) i;
     }
 
-    printf("\n buffer: \n");
-    for (int i=0; i < 700; i++) {
-        printf("%f, ", buffer[i]);
-    }
-
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
     CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
@@ -105,10 +100,6 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     /* Fill dest buffer with a slice*/
     CATERVA_TEST_ERROR(caterva_array_get_slice_buffer(ctx, src, start, stop, destshape, destbuffer, destbuffersize));
 
-    printf("\n slice: \n");
-    for (int i=0; i < destbuffersize/itemsize; i++) {
-        printf("%f, ", ((double *) destbuffer)[i]);
-    }
     /* Assert results */
     assert_buf(destbuffer, result, itemsize, destbuffersize/itemsize, 1e-14);
 
