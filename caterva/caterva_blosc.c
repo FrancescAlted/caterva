@@ -203,6 +203,8 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
 
     (*array)->itemsize = cparams->typesize;
 
+    free(cparams);
+
     // Deserialize the caterva metalayer
     uint8_t *smeta;
     uint32_t smeta_len;
@@ -211,6 +213,7 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
         return CATERVA_ERR_BLOSC_FAILED;
     }
     deserialize_meta(smeta, smeta_len, &(*array)->ndim, (*array)->shape, (*array)->chunkshape);
+    free(smeta);
 
     int64_t *shape = (*array)->shape;
     int32_t *chunkshape = (*array)->chunkshape;
