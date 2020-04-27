@@ -1,8 +1,8 @@
-# Release notes for Caterva 0.2.3
+# Release notes for Caterva 0.3.0
 
-## Changes from 0.2.2 to 0.2.3
+## Changes from 0.2.2 to 0.3.0
 
-  XXX version-specific blurb XXX
+* Big code and API refactorization.  As result, the API is more consistent and hopefully more intuitive to use.  For more info on the new API, see https://caterva.readthedocs.io.
 
 ## Changes from 0.2.1 to 0.2.2
 

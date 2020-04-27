@@ -1,10 +1,9 @@
-# Announcing Caterva 0.2.3: a simple multidimensional container for compressed data
+# Announcing Caterva 0.3.0: a simple multidimensional container for compressed data
 
 
 ## What is new?
 
-In this release, a caterva container can be created from a serialized frame using 
-`caterva_from_sframe()` function.
+Big code and API refactorization.  As result, the API is more consistent and hopefully more intuitive to use.  For more info on the new API, see https://caterva.readthedocs.io.
 
 For more info, please see the release notes in:
 
