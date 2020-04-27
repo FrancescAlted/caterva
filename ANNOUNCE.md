@@ -1,4 +1,4 @@
-# Announcing Caterva 0.3.0: a simple multidimensional container for compressed data
+# Announcing Caterva 0.3.3: a simple multidimensional container for compressed data
 
 
 ## What is new?
