@@ -27,11 +27,11 @@
 
 /* Version numbers */
 #define CATERVA_VERSION_MAJOR    0    /* for major interface/format changes  */
-#define CATERVA_VERSION_MINOR    2    /* for minor interface/format changes  */
-#define CATERVA_VERSION_RELEASE  3    /* for tweaks, bug-fixes, or development */
+#define CATERVA_VERSION_MINOR    3    /* for minor interface/format changes  */
+#define CATERVA_VERSION_RELEASE  1    /* for tweaks, bug-fixes, or development */
 
-#define CATERVA_VERSION_STRING   "0.2.3-dev"  /* string version.  Sync with above! */
-#define CATERVA_VERSION_DATE     "2019-10-28"    /* date version */
+#define CATERVA_VERSION_STRING   "0.3.1"  /* string version.  Sync with above! */
+#define CATERVA_VERSION_DATE     "2020-04-27"    /* date version */
 
 
 /* Error handling */
