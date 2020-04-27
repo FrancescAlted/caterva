@@ -58,7 +58,7 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
@@ -254,11 +254,6 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_3_pad) {
                            543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
                            563, 564, 565, 566, 567, 568, 569};
 
-    printf("\n result: \n");
-    for (int i=0; i < 10; i++) {
-        printf("%f, ", (double) result[i]);
-    }
-
     test_get_slice(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename,
                    start, stop, destshape, result);
 }
@@ -294,11 +289,6 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_3_no_sp) {
                            523, 524, 525, 526, 527, 528, 529, 533, 534, 535, 536, 537, 538, 539,
                            543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
                            563, 564, 565, 566, 567, 568, 569};
-
-    printf("\n result: \n");
-    for (int i=0; i < 10; i++) {
-        printf("%f, ", (double) result[i]);
-    }
 
     test_get_slice(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename,
                    start, stop, destshape, result);

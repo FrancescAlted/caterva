@@ -22,7 +22,7 @@ static void test_append_2(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:

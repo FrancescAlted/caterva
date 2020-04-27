@@ -22,7 +22,7 @@ static void test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize, caterva_
     for (int i = 0; i < ndim; ++i) {
         params.shape[i] = shape_[i];
     }
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.properties.blosc.filename = filename;
     storage.properties.blosc.enforceframe = enforceframe;
     storage.backend = backend;

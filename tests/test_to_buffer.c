@@ -22,7 +22,7 @@ static void test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
@@ -44,12 +44,7 @@ static void test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-/*
-    printf("\n buffer: \n");
-    for (int i=0; i < (buffersize/itemsize); i++) {
-        printf("%f, ", ((double *) result)[i]);
-    }
-*/
+
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
     CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, result, buffersize, &params, &storage, &src));
@@ -59,12 +54,7 @@ static void test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
 
     /* Fill dest buffer with a slice*/
     CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, destbuffer, buffersize));
-/*
-    printf("\n to buffer: \n");
-    for (int i=0; i < (buffersize/itemsize); i++) {
-        printf("%f, ", ((double *) destbuffer)[i]);
-    }
-  */
+
     /* Assert results */
     assert_buf(destbuffer, result, itemsize, buffersize/itemsize, 1e-14);
 
