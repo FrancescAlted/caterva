@@ -22,7 +22,7 @@ static void test_roundtrip(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
         params.shape[i] = shape[i];
     }
 
-    caterva_storage_t storage;
+    caterva_storage_t storage = {0};
     storage.backend = backend;
     switch (backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
@@ -136,10 +136,10 @@ LWTEST_FIXTURE(roundtrip, 4_double_plainbuffer) {
 LWTEST_FIXTURE(roundtrip, 5_float_blosc_frame) {
     uint8_t itemsize = sizeof(float);
     uint8_t ndim = 5;
-    int64_t shape[] = {4, 3, 8, 5, 10};
+    int64_t shape[] = {41, 32, 81, 12, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {2, 2, 3, 3, 4};
+    int64_t chunkshape[] = {12, 12, 13, 5, 4};
     bool enforceframe = true;
     char *filename = NULL;
 

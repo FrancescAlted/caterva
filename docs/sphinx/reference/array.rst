@@ -27,6 +27,9 @@ Storage parameters
 .. doxygenstruct:: caterva_storage_properties_blosc_t
    :members:
 
+.. doxygenstruct:: caterva_metalayer_t
+   :members:
+
 .. doxygenstruct:: caterva_storage_properties_plainbuffer_t
    :members:
 
