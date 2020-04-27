@@ -1,4 +1,12 @@
-# Release notes for Caterva 0.3.0
+# Release notes for Caterva
+
+## Changes from 0.3.1 to 0.3.2
+
+* Do the actual tag in master.
+
+## Changes from 0.3.0 to 0.3.1
+
+* Fix versions in caterva.h.
 
 ## Changes from 0.2.2 to 0.3.0
 
