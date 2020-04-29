@@ -26,6 +26,10 @@ if (NOT BLOSC_LIB)
         set(BLOSC_LIB ${DEP_LIB})
         message(STATUS "Blosc2 library found at: ${BLOSC_LIB}")
     endif()
+    find_path(BLOSC_INCLUDE "blosc2.h")
+    if (BLOSC_INCLUDE)
+        message(STATUS "Blosc2 header found at: ${BLOSC_INCLUDE}")
+    endif()
 endif()
 
 
