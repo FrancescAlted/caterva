@@ -44,7 +44,7 @@ static void test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-
+    printf("\n bufdest size %ld \n", (buffersize/itemsize));
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
     CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, result, buffersize, &params, &storage, &src));
@@ -55,6 +55,10 @@ static void test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     /* Fill dest buffer with a slice*/
     CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, destbuffer, buffersize));
 
+    printf("\n to buffer \n");
+    for (int i=0; i<(buffersize/itemsize); i++) {
+        printf("%f, ", ((double*) destbuffer)[i]);
+    }
     /* Assert results */
     assert_buf(destbuffer, result, itemsize, buffersize/itemsize, 1e-14);
 
@@ -98,6 +102,7 @@ LWTEST_FIXTURE(to_buffer, ndim_2) {
     }
 
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_,  enforceframe, filename, result);
+    free(result);
 }
 
 LWTEST_FIXTURE(to_buffer, ndim_2_2) {
@@ -120,7 +125,8 @@ LWTEST_FIXTURE(to_buffer, ndim_2_2) {
     }
 
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
-}
+    free(result);
+ }
 */
 /*
 LWTEST_FIXTURE(to_buffer, ndim_3_no_sp) {
@@ -143,8 +149,9 @@ LWTEST_FIXTURE(to_buffer, ndim_3_no_sp) {
     }
 
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
-}
-
+    free(result);
+ }
+*/
 LWTEST_FIXTURE(to_buffer, ndim_3) {
     const int8_t ndim = 3;
     uint8_t itemsize = sizeof(double);
@@ -153,7 +160,7 @@ LWTEST_FIXTURE(to_buffer, ndim_3) {
     char *filename = NULL;
 
     int64_t shape_[] = {5, 6, 3};
-    int64_t pshape_[] = {3, 3, 3};
+    int64_t pshape_[] = {4, 3, 3};
     int64_t spshape_[] = {3, 3, 2};
 
     int64_t buf_size = 1;
@@ -166,8 +173,9 @@ LWTEST_FIXTURE(to_buffer, ndim_3) {
     }
 
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
+    free(result);
 }
-
+/*
 LWTEST_FIXTURE(to_buffer, ndim_5_no_sp) {
     const int8_t ndim = 5;
     uint8_t itemsize = sizeof(double);
@@ -188,6 +196,7 @@ LWTEST_FIXTURE(to_buffer, ndim_5_no_sp) {
     }
 
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
+    free(result);
 }
 
 LWTEST_FIXTURE(to_buffer, ndim_6) {
@@ -210,8 +219,9 @@ LWTEST_FIXTURE(to_buffer, ndim_6) {
     }
 
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_,  enforceframe, filename, result);
-}
-*/
+    free(result);
+ }
+
 LWTEST_FIXTURE(to_buffer, ndim_7) {
     const int8_t ndim = 7;
     uint8_t itemsize = sizeof(double);
@@ -230,10 +240,10 @@ LWTEST_FIXTURE(to_buffer, ndim_7) {
     for (int64_t i = 0; i < buf_size; ++i) {
         result[i] = (double) i;
     }
-
+    printf("bufsize %ld", buf_size);
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
     free(result);
-}
+}*/
 /*
 LWTEST_FIXTURE(to_buffer, ndim_3_hard) {
     const int8_t ndim = 3;
@@ -256,5 +266,6 @@ LWTEST_FIXTURE(to_buffer, ndim_3_hard) {
     }
 
     test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
-}
+    free(result);
+ }
  */

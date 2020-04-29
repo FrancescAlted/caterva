@@ -577,22 +577,22 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
                 }
             }
             // Copy each chunk from rchunk to dest
-            /*
+
             printf("\n chunk: \n");
             for (int i=0; i < array->chunksize; i++) {
                 printf("%f, ", ((double *) chunk)[i]);
             }
-             */
+
             caterva_blosc_array_repart_chunk(rchunk, (int) array->extendedchunksize * typesize, chunk,
                                              (int) array->chunksize * typesize, array);
             blosc2_schunk_append_buffer(array->sc, rchunk, (size_t) array->extendedchunksize * typesize);
             array->empty = false;
-            /*
+
             printf("\n rchunk: \n");
             for (int i=0; i < array->chunksize; i++) {
                 printf("%f, ", ((double*) rchunk)[i]);
             }
-             */
+
             array->nparts++;
             if (array->nparts == array->extendedsize / array->chunksize) {
                 array->filled = true;
@@ -805,8 +805,11 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                                                                                                     ii[i] - start_[i]) * buf_pointer_inc;
                                                                                                     buf_pointer_inc *= d_pshape_[i];
                                                                                                 }
+
                                                                                                 memcpy(&bbuffer[buf_pointer * typesize],&chunk[(s_start + sp_pointer)
                                                                                                        * typesize],(sp_stop[7] - sp_start[7]) * typesize);
+                                                                                                printf("\n memcpy %ld elementos de chunk %ld (%f) a bbufer %ld (%f) \n", (sp_stop[7] - sp_start[7]),
+                                                                                                       (s_start + sp_pointer), ((double *) chunk)[(s_start + sp_pointer)], buf_pointer, ((double*) bbuffer)[buf_pointer]);
                                                                                             }
                                                                                         }
                                                                                     }
