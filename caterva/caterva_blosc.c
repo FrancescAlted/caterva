@@ -578,21 +578,10 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
             }
             // Copy each chunk from rchunk to dest
 
-            printf("\n chunk: \n");
-            for (int i=0; i < array->chunksize; i++) {
-                printf("%f, ", ((double *) chunk)[i]);
-            }
-
             caterva_blosc_array_repart_chunk(rchunk, (int) array->extendedchunksize * typesize, chunk,
                                              (int) array->chunksize * typesize, array);
             blosc2_schunk_append_buffer(array->sc, rchunk, (size_t) array->extendedchunksize * typesize);
             array->empty = false;
-
-            printf("\n rchunk: \n");
-            for (int i=0; i < array->chunksize; i++) {
-                printf("%f, ", ((double*) rchunk)[i]);
-            }
-
             array->nparts++;
             if (array->nparts == array->extendedsize / array->chunksize) {
                 array->filled = true;
@@ -775,6 +764,12 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                                                         } else {
                                                                             sp_stop[i] = s_spshape[i];
                                                                         }
+                                                                        if ((jj[i] + 1) * s_spshape[i] > s_pshape[i]) { // case padding
+                                                                            int64_t lastn = s_pshape[i] % s_spshape[i];
+                                                                            if (lastn < sp_stop[i]) {
+                                                                                sp_stop[i] = lastn;
+                                                                            }
+                                                                        }
                                                                     }
                                                                     kk[7] = sp_start[7];
                                                                     for (kk[0] = sp_start[0]; kk[0] < sp_stop[0]; ++kk[0]) {
@@ -784,13 +779,6 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                                                                     for (kk[4] = sp_start[4]; kk[4] < sp_stop[4]; ++kk[4]) {
                                                                                         for (kk[5] = sp_start[5]; kk[5] < sp_stop[5]; ++kk[5]) {
                                                                                             for (kk[6] = sp_start[6]; kk[6] < sp_stop[6]; ++kk[6]) {
-                                                                                                // case padding in dim7
-                                                                                                if ((jj[7] + 1) * s_spshape[7] > s_pshape[7]) {
-                                                                                                    int64_t lastn = s_pshape[7] % s_spshape[7];
-                                                                                                    if (lastn < sp_stop[7]) {
-                                                                                                        sp_stop[7] = lastn;
-                                                                                                    }
-                                                                                                }
                                                                                                 // Copy each line of data from spart to bdest
                                                                                                 int64_t sp_pointer = 0;
                                                                                                 int64_t sp_pointer_inc = 1;
@@ -808,8 +796,6 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
 
                                                                                                 memcpy(&bbuffer[buf_pointer * typesize],&chunk[(s_start + sp_pointer)
                                                                                                        * typesize],(sp_stop[7] - sp_start[7]) * typesize);
-                                                                                                printf("\n memcpy %ld elementos de chunk %ld (%f) a bbufer %ld (%f) \n", (sp_stop[7] - sp_start[7]),
-                                                                                                       (s_start + sp_pointer), ((double *) chunk)[(s_start + sp_pointer)], buf_pointer, ((double*) bbuffer)[buf_pointer]);
                                                                                             }
                                                                                         }
                                                                                     }

@@ -53,7 +53,8 @@ static void test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize, caterva_
     if (res != 0) {
         printf("Error code : %d\n", res);
     }
-    for (int i = 0; i < carr->chunksize; ++i) {
+    printf("\n buffer dest \n");
+    for (int i = 0; i < carr->extendedchunksize; ++i) {
         printf("%f,", buffer_dest[i]);
     }
 
@@ -76,7 +77,7 @@ LWTEST_TEARDOWN(repart_chunk) {
     caterva_context_free(&data->ctx);
 }
 
-/*
+
 LWTEST_FIXTURE(repart_chunk, 2_dim) {
     const uint8_t ndim = 2;
     uint8_t itemsize = sizeof(double);
@@ -132,7 +133,7 @@ LWTEST_FIXTURE(repart_chunk, 3_dim_pad) {
     double result[1024] = {0, 2, 1, 3, 4, 0, 5, 0, 6, 8, 7, 9, 10, 0, 11, 0};
     test_repart_chunk(data->ctx, itemsize, backend, ndim, shape_, pshape_, spshape_, enforceframe, filename, result);
 }
-*/
+
 LWTEST_FIXTURE(repart_chunk, 3_dim_2) {
     const uint8_t ndim = 3;
     uint8_t itemsize = sizeof(double);
@@ -142,14 +143,14 @@ LWTEST_FIXTURE(repart_chunk, 3_dim_2) {
     int64_t shape_[] = {5, 6, 3};
     int64_t pshape_[] = {4, 3, 3};
     int64_t spshape_[] = {3, 3, 2};
-    double result[1024] = {0.000000, 1.000000, 3.000000, 4.000000, 6.000000, 7.000000, 18.000000, 19.000000, 21.000000,
-                           22.000000, 24.000000, 25.000000, 36.000000, 37.000000, 39.000000, 40.000000, 42.000000, 43.000000,
-                           2.000000, 0.000000, 5.000000, 0.000000, 8.000000, 0.000000, 20.000000, 0.000000, 23.000000,
-                           0.000000, 26.000000, 0.000000, 38.000000, 0.000000, 41.000000, 0.000000, 44.000000, 0.000000,
-                           54, 55, 57, 58, 60, 61, 0,0,0,0,0,0,0,0,0,0,0,0, 56, 0, 59, 0, 62, 0, 0,0,0,0,0,0,0,0,0,0,0,0};
+    double result[1024] = {0.000000, 1.000000, 3.000000, 4.000000, 6.000000, 7.000000, 9.000000, 10.000000, 12.000000,
+                           13.000000, 15.000000, 16.000000, 18.000000, 19.000000, 21.000000, 22.000000, 24.000000, 25.000000,
+                           2.000000, 0.000000, 5.000000, 0.000000, 8.000000, 0.000000, 11.000000, 0.000000, 14.000000,
+                           0.000000, 17.000000, 0.000000, 20.000000, 0.000000, 23.000000, 0.000000, 26.000000, 0.000000,
+                           27, 28, 30, 31, 33, 34, 0,0,0,0,0,0,0,0,0,0,0,0, 29, 0, 32, 0, 35, 0, 0,0,0,0,0,0,0,0,0,0,0,0};
     test_repart_chunk(data->ctx, itemsize, backend, ndim, shape_, pshape_, spshape_, enforceframe, filename, result);
 }
-/*
+
 LWTEST_FIXTURE(repart_chunk, 4_dim) {
     const uint8_t ndim = 4;
     uint8_t itemsize = sizeof(double);
@@ -193,4 +194,4 @@ LWTEST_FIXTURE(repart_chunk, 5_dim_plain) {
     }
     test_repart_chunk(data->ctx, itemsize, backend, ndim, shape_, pshape_, spshape_, enforceframe, filename, result);
 }
-*/
+
