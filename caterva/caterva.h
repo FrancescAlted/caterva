@@ -53,6 +53,7 @@
 
 #define CATERVA_UNUSED_PARAM(x) ((void)(x))
 
+static char *print_error(int rc) __attribute__((unused));
 static char *print_error(int rc) {
     switch (rc) {
         case CATERVA_ERR_INVALID_STORAGE: return "Invalid storage";
