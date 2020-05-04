@@ -443,7 +443,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
             }
         }
         caterva_blosc_array_repart_chunk(repartedchunk, size_rep, paddedchunk, size_chunk, array);
-        ctx->cfg->free(chunk);
+        free(paddedchunk);
     } else {
         caterva_blosc_array_repart_chunk(repartedchunk, size_rep, chunk, chunksize, array);
     }
@@ -470,9 +470,9 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
     for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
         aux[i] = c_eshape[i] / c_pshape[i] * aux[i + 1];
     }
-    poschunk[7] = array->nparts % aux[7];
+    poschunk[7] = (array->nparts + 1) % aux[7];
     for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
-        poschunk[i] = (array->nparts % aux[i]) / aux[i + 1];
+        poschunk[i] = ((array->nparts + 1) % aux[i]) / aux[i + 1];
     }
 
     // Update next_chunkshape, next_chunksize

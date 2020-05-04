@@ -47,37 +47,38 @@ static void test_append_2(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
     uint8_t *buffer = malloc(buffersize);
     int ind = 0;
     while (!src->filled) {
-        for (int i = 0; i < src->chunksize; ++i) {
+        memset(buffer, 0, buffersize);
+        for (int i = 0; i < src->next_chunksize; ++i) {
             switch (src->itemsize) {
                 case 4:
-                    ((float *) buffer)[i] = (float) i;
+                    ((float *) buffer)[i] = (float) ind;
                     break;
                 case 8:
-                    ((double *) buffer)[i] = (double) i;
+                    ((double *) buffer)[i] = (double) ind;
                     break;
                 default:
                     CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_STORAGE);
             }
+            ind ++;
         }
         printf("\n buffer to append: \n");
-        for(int i=0; i<src->chunksize; i++) {
+        for(int i=0; i<src->next_chunksize; i++) {
             printf("%f, ", ((double*) buffer)[i]);
         }
-        CATERVA_TEST_ERROR(caterva_array_append(ctx, src, buffer, buffersize));
-        ind++;
+        CATERVA_TEST_ERROR(caterva_array_append(ctx, src, buffer, src->next_chunksize * src->itemsize));
     }
     free(buffer);
 
     /* Fill dest array with caterva_array_t data */
     buffersize = src->size * src->itemsize;
-    buffer = malloc(buffersize);
-    CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, buffer, buffersize));
+    uint8_t *buffer_dest = malloc(buffersize);
+    CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, buffer_dest, buffersize));
     printf("\n to buffer: \n");
     for(int i=0; i<src->size; i++) {
-        printf("%f, ", ((double*) buffer)[i]);
+        printf("%f, ", ((double*) buffer_dest)[i]);
     }
-    assert_buf(buffer, result, src->itemsize,(size_t)10, 1e-14);
-    free(buffer);
+    assert_buf(buffer_dest, result, src->itemsize,(size_t)10, 1e-14);
+    free(buffer_dest);
 
 
     /* Free array  */
@@ -112,34 +113,21 @@ LWTEST_FIXTURE(append_2, 2_dim_pad_sp) {
 
     test_append_2(data->ctx, itemsize, ndim, shape_, backend, chunkshape_, blockshape_, enforceframe, filename, result);
 }
-/*
-LWTEST_FIXTURE(append_2, 2_dim) {
-    uint8_t itemsize = sizeof(double);
-    const uint8_t ndim = 2;
-    int64_t shape_[] = {10, 10};
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-
-    int64_t pshape_[] = {3, 3};
-    int64_t spshape_[] = {2, 2};
-    double result[80] = {0,1,2,9,10,11,18,19,20,27};
-    bool enforceframe = false;
-    char *filename = NULL;
-    test_append_2(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
-}
 
 LWTEST_FIXTURE(append_2, 3_dim) {
     uint8_t itemsize = sizeof(double);
     const uint8_t ndim = 3;
-    int64_t shape_[] = {4, 3, 3};
+    int64_t shape_[] = {4, 4, 5};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t pshape_[] = {2, 2, 2};
-    int64_t spshape_[] = {1, 1, 1};
-    double result[80] = {0,1,8,2,3,9,12,13,16,4};
+    int64_t pshape_[] = {3, 3, 4};
+    int64_t spshape_[] = {3, 2, 3};
+    double result[80] = {0,1,2,3,36,4,5,6,7,37};
     bool enforceframe = false;
     char *filename = NULL;
     test_append_2(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
 }
+
 
 LWTEST_FIXTURE(append_2, 4_dim) {
     uint8_t itemsize = sizeof(double);
@@ -148,12 +136,13 @@ LWTEST_FIXTURE(append_2, 4_dim) {
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
 
     int64_t pshape_[] = {2, 3, 2, 3};
-    int64_t spshape_[] = {1, 2, 1, 1};
+    int64_t spshape_[] = {2, 3, 1, 3};
     double result[80] = {0,1,2,36,37,38,3,4,5,39};
     bool enforceframe = false;
     char *filename = NULL;
     test_append_2(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
 }
+
 
 LWTEST_FIXTURE(append_2, 5_dim) {
     uint8_t itemsize = sizeof(double);
@@ -168,4 +157,3 @@ LWTEST_FIXTURE(append_2, 5_dim) {
     char *filename = NULL;
     test_append_2(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
 }
-*/
