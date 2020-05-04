@@ -52,8 +52,13 @@
 #define CATERVA_ERROR_NULL(pointer) do { if (pointer == NULL) { DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); return CATERVA_ERR_NULL_POINTER; }} while( 0 )
 
 #define CATERVA_UNUSED_PARAM(x) ((void)(x))
+#ifdef __GNUC__
+#define CATERVA_ATTRIBUTE_UNUSED  __attribute__((unused))
+#else
+#define CATERVA_ATTRIBUTE_UNUSED
+#endif
 
-static char *print_error(int rc) __attribute__((unused));
+static char *print_error(int rc) CATERVA_ATTRIBUTE_UNUSED;
 static char *print_error(int rc) {
     switch (rc) {
         case CATERVA_ERR_INVALID_STORAGE: return "Invalid storage";
