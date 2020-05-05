@@ -325,21 +325,6 @@ int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
 
 
 /**
- * @brief Reorders a buffer in order to be able to append subpartitions
- *
- * @param chunk Pointer to the buffer where data will be stored
- * @param size_chunk Size of the destination buffer
- * @param src A pointer to the buffer where data is stored
- * @param size_src Size of the source buffer
- * @param carr Pointer to the container where useful parameters are stored
- * @param ctx Pointer to the caterva context to be used
- *
- * @return An error code
- */
-int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksize, void *chunk, int chunksize, caterva_array_t *array);
-
-
-/**
  * Append a chunk to a caterva array (until it is completely filled).
  *
  * @param ctx Pointer to the caterva context to be used.

@@ -44,7 +44,7 @@ static void test_append_2(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
 
     /* Fill empty caterva_array_t with blocks */
     int64_t buffersize = src->chunksize * src->itemsize;
-    uint8_t *buffer = malloc(buffersize);
+    uint8_t *buffer = ctx->cfg->alloc(buffersize);
     int ind = 0;
     while (!src->filled) {
         memset(buffer, 0, buffersize);
@@ -61,25 +61,17 @@ static void test_append_2(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
             }
             ind ++;
         }
-        printf("\n buffer to append: \n");
-        for(int i=0; i<src->next_chunksize; i++) {
-            printf("%f, ", ((double*) buffer)[i]);
-        }
         CATERVA_TEST_ERROR(caterva_array_append(ctx, src, buffer, src->next_chunksize * src->itemsize));
     }
-    free(buffer);
+    ctx->cfg->free(buffer);
 
     /* Fill dest array with caterva_array_t data */
     buffersize = src->size * src->itemsize;
-    uint8_t *buffer_dest = malloc(buffersize);
+    uint8_t *buffer_dest = ctx->cfg->alloc(buffersize);
     CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, buffer_dest, buffersize));
-    printf("\n to buffer: \n");
-    for(int i=0; i<src->size; i++) {
-        printf("%f, ", ((double*) buffer_dest)[i]);
-    }
-    assert_buf(buffer_dest, result, src->itemsize,(size_t)10, 1e-14);
-    free(buffer_dest);
 
+    assert_buf(buffer_dest, result, src->itemsize,(size_t)10, 1e-14);
+    ctx->cfg->free(buffer_dest);
 
     /* Free array  */
     CATERVA_TEST_ERROR(caterva_array_free(ctx, &src));

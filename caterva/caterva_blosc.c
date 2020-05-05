@@ -402,7 +402,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
     }
 
     if (padding) {
-        uint8_t *paddedchunk = malloc(size_chunk);
+        uint8_t *paddedchunk = ctx->cfg->alloc(size_chunk);
         memset(paddedchunk, 0, size_chunk);
         int32_t next_pshape[CATERVA_MAX_DIM];
         for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
@@ -443,13 +443,9 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
             }
         }
         caterva_blosc_array_repart_chunk(repartedchunk, size_rep, paddedchunk, size_chunk, array);
-        free(paddedchunk);
+        ctx->cfg->free(paddedchunk);
     } else {
         caterva_blosc_array_repart_chunk(repartedchunk, size_rep, chunk, chunksize, array);
-    }
-    printf("\n reparted chunk: \n");
-    for(int i=0; i<array->extendedchunksize; i++) {
-        printf("%f, ", ((double*) repartedchunk)[i]);
     }
     if (blosc2_schunk_append_buffer(array->sc, repartedchunk, size_rep) < 0) {
         CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
@@ -487,10 +483,6 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
     }
     for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
         array->next_chunkshape[i] = n_pshape[(CATERVA_MAX_DIM - c_ndim + i) % CATERVA_MAX_DIM];
-    }
-    printf("\n next chunk shape: \n");
-    for(int i=0; i<CATERVA_MAX_DIM; i++) {
-        printf("%d, ", ((int*) array->next_chunkshape)[i]);
     }
 
     return CATERVA_SUCCEED;
@@ -577,9 +569,16 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
                 }
             }
             // Copy each chunk from rchunk to dest
-
+            printf("\n chunk: \n");
+            for (int i=0; i < array->chunksize ; i++) {
+                printf("%hhu, ",  chunk[i]);
+            }
             caterva_blosc_array_repart_chunk(rchunk, (int) array->extendedchunksize * typesize, chunk,
                                              (int) array->chunksize * typesize, array);
+            printf("\n rchunk: \n");
+            for (int i=0; i < array->extendedchunksize ; i++) {
+                printf("%hhu, ",  rchunk[i]);
+            }
             blosc2_schunk_append_buffer(array->sc, rchunk, (size_t) array->extendedchunksize * typesize);
             array->empty = false;
             array->nparts++;
@@ -906,6 +905,9 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
                                     CATERVA_ERROR(caterva_array_get_slice_buffer(ctx, src, start_, stop_, d_pshape_,
                                                                                  chunk, array->next_chunksize * typesize));
                                     CATERVA_ERROR(caterva_array_append(ctx, array, chunk, array->next_chunksize * typesize));
+                                    for (int i = 0; i < src->ndim; ++i) {
+                                        d_pshape[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM] = array->next_chunkshape[i];
+                                    }
                                 }
                             }
                         }

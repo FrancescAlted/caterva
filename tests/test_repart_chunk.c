@@ -10,6 +10,7 @@
  */
 
 #include "test_common.h"
+#include "caterva_blosc.h"
 
 static void test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize, caterva_storage_backend_t backend, uint8_t ndim,
                               int64_t *shape_, int64_t *chunkshape, int64_t *blockshape, bool enforceframe,
@@ -44,8 +45,8 @@ static void test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize, caterva_
     /* Fill empty caterva_array_t with blocks */
     int size_src = carr->chunksize * itemsize;
     int size_dest = carr->extendedchunksize * itemsize;
-    double *buffer_src = (double *) malloc(size_src);
-    double *buffer_dest = (double *) malloc(size_dest);
+    double *buffer_src = (double *) ctx->cfg->alloc(size_src);
+    double *buffer_dest = (double *) ctx->cfg->alloc(size_dest);
     for (int i = 0; i < carr->chunksize; ++i) {
         buffer_src[i] =  (double) i;
     }
@@ -53,14 +54,10 @@ static void test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize, caterva_
     if (res != 0) {
         printf("Error code : %d\n", res);
     }
-    printf("\n buffer dest \n");
-    for (int i = 0; i < carr->extendedchunksize; ++i) {
-        printf("%f,", buffer_dest[i]);
-    }
 
     assert_buf((uint8_t*) buffer_dest, (uint8_t*) result, itemsize, (size_t)carr->extendedchunksize, 1e-8);   // tam epsize*typesize????????????????
-    free(buffer_src);
-    free(buffer_dest);
+    ctx->cfg->free(buffer_src);
+    ctx->cfg->free(buffer_dest);
     CATERVA_TEST_ERROR(caterva_array_free(ctx, &carr));
 }
 

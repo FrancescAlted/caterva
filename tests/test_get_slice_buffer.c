@@ -80,7 +80,7 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-    double *buffer = malloc(buffersize);
+    double *buffer = ctx->cfg->alloc(buffersize);
     // fill_buf(buffer, itemsize, buffersize / itemsize);
     for (int i = 0; i < (buffersize/itemsize); ++i) {
         buffer[i] = (double) i;
@@ -95,7 +95,7 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     for (int i = 0; i < ndim; ++i) {
         destbuffersize *= destshape[i];
     }
-    uint8_t *destbuffer = malloc(destbuffersize);
+    uint8_t *destbuffer = ctx->cfg->alloc(destbuffersize);
 
     /* Fill dest buffer with a slice*/
     CATERVA_TEST_ERROR(caterva_array_get_slice_buffer(ctx, src, start, stop, destshape, destbuffer, destbuffersize));
@@ -103,8 +103,8 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     /* Assert results */
     assert_buf(destbuffer, result, itemsize, destbuffersize/itemsize, 1e-14);
 
-    free(buffer);
-    free(destbuffer);
+    ctx->cfg->free(buffer);
+    ctx->cfg->free(destbuffer);
     CATERVA_TEST_ERROR(caterva_array_free(ctx, &src));
 }
 
