@@ -45,7 +45,7 @@ This section is meant to store the actual partition shape info.  There are as ma
       +--[msgpack] int32
 
 The blockshape section
----------------------
+----------------------
 
 This section is meant to store the block shape info inside the partition.  There are as many fields as `nd` dimensions::
 
@@ -57,3 +57,4 @@ This section is meant to store the block shape info inside the partition.  There
       |                |                      +--[msgpack] int32
       |                +--[msgpack] int32
       +--[msgpack] int32
+
