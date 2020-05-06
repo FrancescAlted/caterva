@@ -83,7 +83,11 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     double *buffer = ctx->cfg->alloc(buffersize);
     // fill_buf(buffer, itemsize, buffersize / itemsize);
     for (int i = 0; i < (buffersize/itemsize); ++i) {
-        buffer[i] = (double) i;
+        if (itemsize == 4) {
+            ((float *) buffer)[i] = (float) i;
+        } else {
+            ((double *) buffer)[i] = (double) i;
+        }
     }
 
     /* Create caterva_array_t with original data */
@@ -224,7 +228,7 @@ LWTEST_FIXTURE(get_slice_buffer, 3_float_blosc) {
 */
 
 LWTEST_FIXTURE(get_slice_buffer, ndim_3_pad) {
-    uint8_t itemsize = sizeof(double);
+    uint8_t itemsize = sizeof(float);
     uint8_t ndim = 3;
     int64_t shape_[] = {10, 10, 10};
     int64_t pshape_[] = {3, 5, 2};
@@ -242,7 +246,7 @@ LWTEST_FIXTURE(get_slice_buffer, ndim_3_pad) {
     }
 
 
-    double result[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
+    float result[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
                            323, 324, 325, 326, 327, 328, 329, 333, 334, 335, 336, 337, 338, 339,
                            343, 344, 345, 346, 347, 348, 349, 353, 354, 355, 356, 357, 358, 359,
                            363, 364, 365, 366, 367, 368, 369, 403, 404, 405, 406, 407, 408, 409,
@@ -300,13 +304,13 @@ LWTEST_FIXTURE(get_slice_buffer, 4_float_blosc) {
     int64_t start[] = {5, 3, 9, 2};
     int64_t stop[] = {9, 6, 10, 7};
 
-    double result[1024] = {5392, 5393, 5394, 5395, 5396, 5492, 5493, 5494, 5495, 5496, 5592, 5593,
+    float result[1024] = {5392, 5393, 5394, 5395, 5396, 5492, 5493, 5494, 5495, 5496, 5592, 5593,
                           5594, 5595, 5596, 6392, 6393, 6394, 6395, 6396, 6492, 6493, 6494, 6495,
                           6496, 6592, 6593, 6594, 6595, 6596, 7392, 7393, 7394, 7395, 7396, 7492,
                           7493, 7494, 7495, 7496, 7592, 7593, 7594, 7595, 7596, 8392, 8393, 8394,
                           8395, 8396, 8492, 8493, 8494, 8495, 8496, 8592, 8593, 8594, 8595, 8596};
 
-    uint8_t itemsize = sizeof(double);
+    uint8_t itemsize = sizeof(float);
     uint8_t ndim = 4;
     int64_t shape[] = {10, 10, 10, 10};
 
@@ -392,7 +396,7 @@ LWTEST_FIXTURE(get_slice_buffer, 7_float_plainbuffer) {
     int64_t start[] = {5, 4, 3, 8, 4, 5, 1};
     int64_t stop[] = {8, 6, 5, 9, 7, 7, 3};
 
-    double result[1024] = {5438451, 5438452, 5438461, 5438462, 5438551, 5438552, 5438561, 5438562,
+    float result[1024] = {5438451, 5438452, 5438461, 5438462, 5438551, 5438552, 5438561, 5438562,
                           5438651, 5438652, 5438661, 5438662, 5448451, 5448452, 5448461, 5448462,
                           5448551, 5448552, 5448561, 5448562, 5448651, 5448652, 5448661, 5448662,
                           5538451, 5538452, 5538461, 5538462, 5538551, 5538552, 5538561, 5538562,
@@ -411,7 +415,7 @@ LWTEST_FIXTURE(get_slice_buffer, 7_float_plainbuffer) {
                           7538651, 7538652, 7538661, 7538662, 7548451, 7548452, 7548461, 7548462,
                           7548551, 7548552, 7548561, 7548562, 7548651, 7548652, 7548661, 7548662};
 
-    uint8_t itemsize = sizeof(double);
+    uint8_t itemsize = sizeof(float);
     uint8_t ndim = 7;
     int64_t shape[] = {10, 10, 10, 10, 10, 10, 10};
 
