@@ -7,16 +7,36 @@
 # in the COPYING file in the root directory of this source tree).
 # You may select, at your option, one of the above-listed licenses.
 
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 3.12)
 
-project(caterva)
+cmake_policy(SET CMP0048 NEW)
+cmake_policy(SET CMP0077 NEW)
+
+project(caterva VERSION 0.3.3)
+
+message("Configuration for Caterva")
 
 option(SHARED_LIB "Create shared library" ON)
 option(STATIC_LIB "Create static library" ON)
+option(CATERVA_BUILD_TESTS "Build tests" ON)
+option(CATERVA_BUILD_EXAMPLES "Build examples" ON)
+
+if (DO_COVERAGE)
+    message(STATUS "Coverage is enabled")
+endif()
 
 set(CATERVA_ROOT ${CMAKE_CURRENT_LIST_DIR})
 set(CATERVA_SRC ${CMAKE_CURRENT_LIST_DIR}/caterva)
 
+if (SHARED_LIB)
+    set(CATERVA_LIB caterva_shared)
+elseif (STATIC_LIB)
+    set(CATERVA_LIB caterva_static)
+else()
+    message(FATAL_ERROR "No library is created")
+endif ()
+
+message(STATUS "Finding c-blosc2 lib")
 if (NOT BLOSC_LIB)
 	find_library(DEP_LIB blosc2 PATHS ${BLOSC_DIR} NO_DEFAULT_PATH)
 	find_library(DEP_LIB blosc2)
@@ -32,19 +52,10 @@ if (NOT BLOSC_LIB)
     endif()
 endif()
 
-
-if (SHARED_LIB)
-    set(CATERVA_LIB caterva_shared)
-elseif (STATIC_LIB)
-    set(CATERVA_LIB caterva_static)
-else()
-    error("No library is created")
-endif ()
-
 include_directories(${CATERVA_SRC})
 if (BLOSC_INCLUDE)
     include_directories(${BLOSC_INCLUDE})
-    message(STATUS "BLOSC_INCLUDE: ${BLOSC_INCLUDE}")
+    message(STATUS "BLOSC_INCLUDE: ${BLOSC_INCLUDE}") # TODO: Fix this include
 endif()
 
 include(CTest)
@@ -52,6 +63,7 @@ include(CTest)
 file(GLOB SRC_FILES ${CATERVA_SRC}/*.c)
 
 if (SHARED_LIB)
+    message(STATUS "Building caterva shared lib")
     add_library(caterva_shared SHARED ${SRC_FILES})
     if (DO_COVERAGE)
         target_compile_options(caterva_shared PRIVATE -fprofile-arcs -ftest-coverage)
@@ -64,6 +76,7 @@ if (SHARED_LIB)
 endif ()
 
 if (STATIC_LIB)
+    message(STATUS "Building caterva static lib")
     add_library(caterva_static STATIC ${SRC_FILES})
     if (DO_COVERAGE)
         target_compile_options(caterva_static PRIVATE -fprofile-arcs -ftest-coverage)
@@ -77,7 +90,15 @@ endif()
 
 install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 
-enable_testing()
-add_subdirectory(tests)
-add_subdirectory(examples)
+if (CATERVA_BUILD_TESTS)
+    message(STATUS "Adding Caterva tests")
+    enable_testing()
+    add_subdirectory(tests)
+endif()
 
+if(CATERVA_BUILD_EXAMPLES)
+    message(STATUS "Adding Caterva examples")
+    add_subdirectory(examples)
+endif()
+
+message("")
