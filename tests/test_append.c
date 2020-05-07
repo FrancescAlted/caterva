@@ -70,7 +70,7 @@ static void test_append_2(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
     uint8_t *buffer_dest = ctx->cfg->alloc(buffersize);
     CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, buffer_dest, buffersize));
 
-    assert_buf(buffer_dest, result, src->itemsize,(size_t)10, 1e-14);
+    assert_buf(buffer_dest, (const uint8_t *) result, src->itemsize, (size_t)10, 1e-14);
     ctx->cfg->free(buffer_dest);
 
     /* Free array  */

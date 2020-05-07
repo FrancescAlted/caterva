@@ -12,9 +12,9 @@
 #include "test_common.h"
 
 static void test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                         caterva_storage_backend_t backend, int64_t *chunkshape, bool enforceframe, char *filename,
-                         caterva_storage_backend_t backend2, int64_t *chunkshape2, bool enforceframe2, char *filename2,
-                         int64_t *start, int64_t *stop) {
+                         caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape, bool enforceframe, 
+                         char *filename, caterva_storage_backend_t backend2, int64_t *chunkshape2, int64_t *blockshape2,
+                         bool enforceframe2, char *filename2, int64_t *start, int64_t *stop) {
 
 
     caterva_params_t params;
@@ -34,6 +34,7 @@ static void test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim,
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = chunkshape[i];
+                storage.properties.blosc.blockshape[i] = blockshape[i];
             }
             break;
         default:
@@ -65,6 +66,7 @@ static void test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim,
             storage2.properties.blosc.enforceframe = enforceframe2;
             for (int i = 0; i < ndim; ++i) {
                 storage2.properties.blosc.chunkshape[i] = chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = blockshape2[i];
             }
             break;
         default:
@@ -106,16 +108,18 @@ LWTEST_FIXTURE(squeeze, 3_float_blosc_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {10, 10, 10};
+    int64_t blockshape[] = {3, 4, 3};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape2[] = {21, 1, 12};
+    int64_t blockshape2[] = {8, 1, 5};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    test_squeeze(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename,
-        backend2, chunkshape2, enforceframe2, filename2, start, stop);
+    test_squeeze(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+        backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
 }
 
 
@@ -129,16 +133,18 @@ LWTEST_FIXTURE(squeeze, 5_double_plainbuffer_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape2[] = {0};
+    int64_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    test_squeeze(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename,
-                 backend2, chunkshape2, enforceframe2, filename2, start, stop);
+    test_squeeze(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
 }
 
 LWTEST_FIXTURE(squeeze, 7_float_blosc_frame_plainbuffer) {
@@ -151,14 +157,16 @@ LWTEST_FIXTURE(squeeze, 7_float_blosc_frame_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 3, 5, 2, 4, 3, 2};
+    int64_t blockshape[] = {1, 2, 3, 2, 3, 2, 1};
     bool enforceframe = true;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape2[] = {0};
+    int64_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    test_squeeze(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename,
-                 backend2, chunkshape2, enforceframe2, filename2, start, stop);
+    test_squeeze(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
 }

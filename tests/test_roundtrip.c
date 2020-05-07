@@ -12,8 +12,8 @@
 #include "test_common.h"
 
 static void test_roundtrip(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                           caterva_storage_backend_t backend, int64_t *chunkshape, bool enforceframe,
-                           char *filename) {
+                           caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape,
+                           bool enforceframe, char *filename) {
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -32,6 +32,7 @@ static void test_roundtrip(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = chunkshape[i];
+                storage.properties.blosc.blockshape[i] = blockshape[i];
             }
             break;
         default:
@@ -85,10 +86,11 @@ LWTEST_FIXTURE(roundtrip, 3_double_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 
@@ -99,10 +101,11 @@ LWTEST_FIXTURE(roundtrip, 3_double_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {26, 17, 34};
+    int64_t blockshape[] = {11, 8, 13};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 
 }
 
@@ -114,10 +117,11 @@ LWTEST_FIXTURE(roundtrip, 4_float_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 2, 3, 3};
+    int64_t blockshape[] = {2, 2, 2, 3};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 LWTEST_FIXTURE(roundtrip, 4_double_plainbuffer) {
@@ -127,10 +131,11 @@ LWTEST_FIXTURE(roundtrip, 4_double_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_float_blosc_frame) {
@@ -140,10 +145,11 @@ LWTEST_FIXTURE(roundtrip, 5_float_blosc_frame) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 2, 3, 3, 4};
+    int64_t blockshape[] = {2, 1, 2, 2, 3};
     bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 LWTEST_FIXTURE(roundtrip, 5_double_plainbuffer) {
@@ -153,10 +159,11 @@ LWTEST_FIXTURE(roundtrip, 5_double_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 LWTEST_FIXTURE(roundtrip, 6_float_blosc) {
@@ -166,10 +173,11 @@ LWTEST_FIXTURE(roundtrip, 6_float_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 2, 3, 3, 4, 5};
+    int64_t blockshape[] = {2, 1, 2, 2, 3, 4};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 LWTEST_FIXTURE(roundtrip, 7_double_plainbuffer) {
@@ -179,10 +187,11 @@ LWTEST_FIXTURE(roundtrip, 7_double_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 LWTEST_FIXTURE(roundtrip, 8_float_blosc) {
@@ -192,8 +201,9 @@ LWTEST_FIXTURE(roundtrip, 8_float_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {3, 2, 3, 3, 4, 5, 4, 2};
+    int64_t blockshape[] = {2, 1, 2, 2, 3, 4, 3, 1};
     bool enforceframe = false;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename);
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
