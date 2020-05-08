@@ -208,12 +208,12 @@ typedef struct {
  * @brief General parameters needed for the creation of a caterva array.
  */
 typedef struct {
+    uint8_t itemsize;
+    //!< The size of each item of the array.
     int64_t shape[CATERVA_MAX_DIM];
     //!< The array shape.
     uint8_t ndim;
     //!< The array dimensions.
-    uint8_t itemsize;
-    //!< The size of each item of the array.
 } caterva_params_t;
 
 
