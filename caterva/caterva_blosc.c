@@ -590,8 +590,8 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
 }
 
 
-int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, const int64_t *start,
-                                         const int64_t *stop, const int64_t *shape, void *buffer) {
+int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start,
+                                         int64_t *stop, const int64_t *shape, void *buffer) {
     uint8_t *bbuffer = buffer;   // for allowing pointer arithmetic
 
     int64_t start__[CATERVA_MAX_DIM];
@@ -829,8 +829,8 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
 int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer) {
     int8_t *bbuffer = (int8_t *) buffer;
     int8_t ndim = array->ndim;
-    int64_t start[ndim];
-    int64_t stop[ndim];
+    int64_t start[CATERVA_MAX_DIM];
+    int64_t stop[CATERVA_MAX_DIM];
     for(int i=0; i<ndim; i++) {
         start[i] = 0;
         stop[i] = array->shape[i];
