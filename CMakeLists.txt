@@ -7,11 +7,12 @@
 # in the COPYING file in the root directory of this source tree).
 # You may select, at your option, one of the above-listed licenses.
 
-cmake_minimum_required(VERSION 3.12)
+# cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.5.1)
 
 
 cmake_policy(SET CMP0048 NEW)
-cmake_policy(SET CMP0077 NEW)
+# cmake_policy(SET CMP0077 NEW)
 
 project(caterva VERSION 0.3.3)
 

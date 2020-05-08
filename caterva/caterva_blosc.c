@@ -11,7 +11,7 @@
 
 #include <caterva.h>
 #include "assert.h"
-#include <unistd.h>
+
 
 // big <-> little-endian and store it in a memory position.  Sizes supported: 1, 2, 4, 8 bytes.
 static void swap_store(void *dest, const void *pa, int size) {
