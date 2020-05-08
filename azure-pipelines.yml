@@ -32,6 +32,7 @@ strategy:
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
 
+
 pool:
   vmImage: $(imageName)
 

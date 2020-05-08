@@ -203,6 +203,8 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
 
     (*array)->itemsize = cparams->typesize;
 
+    free(cparams);
+
     // Deserialize the caterva metalayer
     uint8_t *smeta;
     uint32_t smeta_len;
@@ -211,6 +213,7 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
         return CATERVA_ERR_BLOSC_FAILED;
     }
     deserialize_meta(smeta, smeta_len, &(*array)->ndim, (*array)->shape, (*array)->chunkshape);
+    free(smeta);
 
     int64_t *shape = (*array)->shape;
     int32_t *chunkshape = (*array)->chunkshape;
@@ -964,6 +967,7 @@ int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *sha
 
 
 int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+    CATERVA_UNUSED_PARAM(ctx);
     uint8_t nones = 0;
     int64_t newshape[CATERVA_MAX_DIM];
     int32_t newchunkshape[CATERVA_MAX_DIM];

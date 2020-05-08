@@ -27,11 +27,11 @@
 
 /* Version numbers */
 #define CATERVA_VERSION_MAJOR    0    /* for major interface/format changes  */
-#define CATERVA_VERSION_MINOR    2    /* for minor interface/format changes  */
+#define CATERVA_VERSION_MINOR    3    /* for minor interface/format changes  */
 #define CATERVA_VERSION_RELEASE  3    /* for tweaks, bug-fixes, or development */
 
-#define CATERVA_VERSION_STRING   "0.2.3-dev"  /* string version.  Sync with above! */
-#define CATERVA_VERSION_DATE     "2019-10-28"    /* date version */
+#define CATERVA_VERSION_STRING   "0.3.3"  /* string version.  Sync with above! */
+#define CATERVA_VERSION_DATE     "2020-04-27"    /* date version */
 
 
 /* Error handling */
@@ -52,7 +52,13 @@
 #define CATERVA_ERROR_NULL(pointer) do { if (pointer == NULL) { DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); return CATERVA_ERR_NULL_POINTER; }} while( 0 )
 
 #define CATERVA_UNUSED_PARAM(x) ((void)(x))
+#ifdef __GNUC__
+#define CATERVA_ATTRIBUTE_UNUSED  __attribute__((unused))
+#else
+#define CATERVA_ATTRIBUTE_UNUSED
+#endif
 
+static char *print_error(int rc) CATERVA_ATTRIBUTE_UNUSED;
 static char *print_error(int rc) {
     switch (rc) {
         case CATERVA_ERR_INVALID_STORAGE: return "Invalid storage";
