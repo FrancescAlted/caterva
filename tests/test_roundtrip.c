@@ -141,7 +141,7 @@ LWTEST_FIXTURE(roundtrip, 4_double_plainbuffer) {
 LWTEST_FIXTURE(roundtrip, 5_float_blosc_frame) {
     uint8_t itemsize = sizeof(float);
     uint8_t ndim = 5;
-    int64_t shape[] = {4, 3, 8, 5, 10};
+    int64_t shape[] = {41, 32, 81, 12, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 2, 3, 3, 4};
