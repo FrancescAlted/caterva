@@ -392,6 +392,7 @@ int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksiz
 int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
     CATERVA_UNUSED_PARAM(ctx);
 
+    uint8_t *bchunk = (uint8_t *) chunk;
     int64_t typesize = array->itemsize;
     int64_t size_rep = array->extendedchunksize * typesize;
     int8_t *repartedchunk = ctx->cfg->alloc(size_rep);
@@ -433,7 +434,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
                                     }
                                     if (! blank) {
                                         memcpy(paddedchunk + ind_dest * array->itemsize,
-                                               chunk + ind_src * array->itemsize,
+                                               bchunk + ind_src * array->itemsize,
                                                seq_copylen);
                                         ind_src += next_pshape[7];
                                     }
@@ -448,7 +449,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
         caterva_blosc_array_repart_chunk(repartedchunk, size_rep, paddedchunk, size_chunk, array);
         ctx->cfg->free(paddedchunk);
     } else {
-        caterva_blosc_array_repart_chunk(repartedchunk, size_rep, chunk, chunksize, array);
+        caterva_blosc_array_repart_chunk(repartedchunk, size_rep, bchunk, chunksize, array);
     }
     if (blosc2_schunk_append_buffer(array->sc, repartedchunk, size_rep) < 0) {
         CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
