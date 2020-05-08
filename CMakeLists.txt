@@ -10,6 +10,8 @@
 cmake_minimum_required(VERSION 2.8.10)
 
 project(caterva)
+set(GCC_COVERAGE_COMPILE_FLAGS "-Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 
 option(SHARED_LIB "Create shared library" ON)
 option(STATIC_LIB "Create static library" ON)

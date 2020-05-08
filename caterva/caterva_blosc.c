@@ -867,6 +867,9 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
     }
     int64_t ii[CATERVA_MAX_DIM];
     int64_t appended_shape[CATERVA_MAX_DIM];
+    for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
+        appended_shape[i] = 0;  // assigned to 0 for fixing warring
+    }
     for (ii[0] = d_start[0]; ii[0] < d_stop[0]; ii[0] += appended_shape[0]) {
         for (ii[1] = d_start[1]; ii[1] < d_stop[1]; ii[1] += appended_shape[1]) {
             for (ii[2] = d_start[2]; ii[2] < d_stop[2]; ii[2] += appended_shape[2]) {
