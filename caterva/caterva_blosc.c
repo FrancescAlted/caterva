@@ -305,17 +305,13 @@ int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
 }
 
 
-int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksize, void *chunk, int chunksize, caterva_array_t *array){
+int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk, int chunksize, caterva_array_t *array){
 
-    if (repartedchunksize != array->extendedchunksize * array->itemsize) {
-        return -1;
-    }
-    if (chunksize != array->chunksize * array->itemsize) {
-        return -2;
-    }
+    CATERVA_ERROR (rchunksize != array->extendedchunksize * array->itemsize);
+    CATERVA_ERROR (chunksize != array->chunksize * array->itemsize) ;
 
     const int8_t *src_b = (int8_t *) chunk;
-    memset(repartedchunk, 0, repartedchunksize);
+    memset(rchunk, 0, rchunksize);
     int32_t d_pshape[CATERVA_MAX_DIM];
     int64_t d_epshape[CATERVA_MAX_DIM];
     int32_t d_spshape[CATERVA_MAX_DIM];
@@ -327,10 +323,10 @@ int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksiz
         d_spshape[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM] = array->blockshape[i];
     }
 
-    int64_t aux2[CATERVA_MAX_DIM];
-    aux2[7] = d_epshape[7] / d_spshape[7];
+    int64_t aux[CATERVA_MAX_DIM];
+    aux[7] = d_epshape[7] / d_spshape[7];
     for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
-        aux2[i] = d_epshape[i] / d_spshape[i] * aux2[i + 1];
+        aux[i] = d_epshape[i] / d_spshape[i] * aux[i + 1];
     }
 
     /* Fill each subpartition buffer */
@@ -340,7 +336,7 @@ int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksiz
         /*Calculate the coord. of the subpartition first element */
         orig[7] = sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
         for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
-            orig[i] = sci % (aux2[i]) / (aux2[i + 1]) * d_spshape[i];
+            orig[i] = sci % (aux[i]) / (aux[i + 1]) * d_spshape[i];
         }
         /* Calculate if padding with 0s is needed for this subpartition */
         for (int i = CATERVA_MAX_DIM - 1; i >= 0; i--) {
@@ -374,7 +370,7 @@ int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksiz
                                         s_a *= d_pshape[i];
                                     }
 
-                                    memcpy(repartedchunk + d_coord_f * array->itemsize,
+                                    memcpy(rchunk + d_coord_f * array->itemsize,
                                            src_b + s_coord_f * array->itemsize,
                                            seq_copylen);
                                 }
@@ -395,7 +391,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
     uint8_t *bchunk = (uint8_t *) chunk;
     int64_t typesize = array->itemsize;
     int64_t size_rep = array->extendedchunksize * typesize;
-    int8_t *repartedchunk = ctx->cfg->alloc(size_rep);
+    int8_t *rchunk = ctx->cfg->alloc(size_rep);
     int32_t c_pshape[CATERVA_MAX_DIM];
     int8_t c_ndim = array->ndim;
 
@@ -446,15 +442,15 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
                 }
             }
         }
-        caterva_blosc_array_repart_chunk(repartedchunk, size_rep, paddedchunk, size_chunk, array);
+        caterva_blosc_array_repart_chunk(rchunk, size_rep, paddedchunk, size_chunk, array);
         ctx->cfg->free(paddedchunk);
     } else {
-        caterva_blosc_array_repart_chunk(repartedchunk, size_rep, bchunk, chunksize, array);
+        caterva_blosc_array_repart_chunk(rchunk, size_rep, bchunk, chunksize, array);
     }
-    if (blosc2_schunk_append_buffer(array->sc, repartedchunk, size_rep) < 0) {
+    if (blosc2_schunk_append_buffer(array->sc, rchunk, size_rep) < 0) {
         CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
     }
-    ctx->cfg->free(repartedchunk);
+    ctx->cfg->free(rchunk);
     // Calculate chunk position in each dimension
     int64_t c_shape[CATERVA_MAX_DIM];
     int64_t c_eshape[CATERVA_MAX_DIM];

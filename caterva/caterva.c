@@ -140,6 +140,9 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
             CATERVA_ERROR(caterva_blosc_array_append(ctx, array, chunk, chunksize));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
+            if (chunksize != array->chunksize * array->itemsize) {
+                CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+            }
             CATERVA_ERROR(caterva_plainbuffer_array_append(ctx, array, chunk, chunksize));
             break;
         default:
