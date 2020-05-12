@@ -137,7 +137,7 @@ LWTEST_FIXTURE(roundtrip, 4_double_plainbuffer) {
 
     test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
-
+/*
 LWTEST_FIXTURE(roundtrip, 5_float_blosc_frame) {
     uint8_t itemsize = sizeof(float);
     uint8_t ndim = 5;
@@ -151,7 +151,7 @@ LWTEST_FIXTURE(roundtrip, 5_float_blosc_frame) {
 
     test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
-
+*/
 LWTEST_FIXTURE(roundtrip, 5_double_plainbuffer) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 5;

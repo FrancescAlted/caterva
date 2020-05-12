@@ -114,7 +114,7 @@ LWTEST_SETUP(get_slice) {
 LWTEST_TEARDOWN(get_slice) {
     caterva_context_free(&data->ctx);
 }
-/*
+
 LWTEST_FIXTURE(get_slice, 1_double_plainbuffer_plainbuffer) {
     int64_t start[] = {2};
     int64_t stop[] = {9};
@@ -127,18 +127,20 @@ LWTEST_FIXTURE(get_slice, 1_double_plainbuffer_plainbuffer) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape2[] = {0};
+    int64_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    test_get_slice(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename,
-                   backend2, chunkshape2, enforceframe2, filename2, start, stop, result);
+    test_get_slice(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
 }
-*/
+
 
 LWTEST_FIXTURE(get_slice, 2_double_plainbuffer_blosc) {
     int64_t start[] = {5, 3};

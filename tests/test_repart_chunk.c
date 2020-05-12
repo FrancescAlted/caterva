@@ -176,7 +176,7 @@ LWTEST_FIXTURE(repart_chunk, 4_dim_pad) {
 }
 
 
-LWTEST_FIXTURE(repart_chunk, 5_dim_plain) {
+LWTEST_FIXTURE(repart_chunk, 5_dim_blosc) {
     const uint8_t ndim = 5;
     uint8_t itemsize = sizeof(double);
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
@@ -192,3 +192,51 @@ LWTEST_FIXTURE(repart_chunk, 5_dim_plain) {
     test_repart_chunk(data->ctx, itemsize, backend, ndim, shape_, pshape_, spshape_, enforceframe, filename, result);
 }
 
+LWTEST_FIXTURE(repart_chunk, 6_dim_pad) {
+    const uint8_t ndim = 6;
+    uint8_t itemsize = sizeof(double );
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    bool enforceframe = true;
+    char *filename = NULL;
+    int64_t shape_[] = {2, 3, 2, 3, 3, 6};
+    int64_t pshape_[] = {1, 2, 1, 2, 3, 5};
+    int64_t spshape_[] = {1, 1, 1, 2, 2, 5};
+    double result[1024] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 10,
+                            11, 12, 13, 14, 0, 0, 0, 0, 0, 25, 26, 27, 28, 29, 0, 0, 0, 0, 0, 30, 31,
+                            32, 33, 34, 35, 36, 37, 38, 39, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
+                            40, 41, 42, 43, 44, 0, 0, 0, 0, 0, 55, 56, 57, 58, 59, 0, 0, 0, 0, 0};
+    test_repart_chunk(data->ctx, itemsize, backend, ndim, shape_, pshape_, spshape_, enforceframe, filename, result);
+}
+
+LWTEST_FIXTURE(repart_chunk, 7_dim_pad) {
+    const uint8_t ndim = 7;
+    uint8_t itemsize = sizeof(double );
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    bool enforceframe = true;
+    char *filename = NULL;
+    int64_t shape_[] = {2, 3, 2, 3, 3, 2, 5};
+    int64_t pshape_[] = {1, 2, 1, 2, 3, 2, 4};
+    int64_t spshape_[] = {1, 2, 1, 2, 2, 1, 3};
+    double result[1024] = { 0, 1, 2, 8, 9, 10, 24, 25, 26, 32, 33, 34, 48, 49, 50, 56, 57, 58, 72, 73, 74, 80,
+                            81, 82, 3, 0, 0, 11, 0, 0, 27, 0, 0, 35, 0, 0, 51, 0, 0, 59, 0, 0, 75, 0, 0, 83, 0,
+                            0, 4, 5, 6, 12, 13, 14, 28, 29, 30, 36, 37, 38, 52, 53, 54, 60, 61, 62, 76, 77, 78,
+                            84, 85, 86, 7, 0, 0, 15, 0, 0, 31, 0, 0, 39, 0, 0, 55, 0, 0, 63, 0, 0, 79, 0, 0, 87,
+                            0, 0, 16, 17, 18, 0, 0, 0, 40, 41, 42, 0, 0, 0, 64, 65, 66, 0, 0, 0, 88, 89, 90, 0,
+                            0, 0, 19, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 67, 0, 0, 0, 0, 0, 91, 0, 0, 0, 0, 0, 20,
+                            21, 22, 0, 0, 0, 44, 45, 46, 0, 0, 0, 68, 69, 70, 0, 0, 0, 92, 93, 94, 0, 0, 0, 23,
+                            0, 0, 0, 0, 0, 47, 0, 0, 0, 0, 0, 71, 0, 0, 0, 0, 0, 95, 0, 0, 0, 0, 0};
+    test_repart_chunk(data->ctx, itemsize, backend, ndim, shape_, pshape_, spshape_, enforceframe, filename, result);
+}
+
+LWTEST_FIXTURE(repart_chunk, 8_dim_float) {
+    const uint8_t ndim = 8;
+    uint8_t itemsize = sizeof(double );
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    bool enforceframe = false;
+    char *filename = NULL;
+    int64_t shape_[] = {1, 2, 1, 3, 3, 2, 2, 3};
+    int64_t pshape_[] = {1, 2, 1, 2, 3, 2, 2, 3};
+    int64_t spshape_[] = {1, 2, 1, 2, 2, 1, 2, 3};
+    double result[1024] = {0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51, 52, 53, 72, 73, 74, 75, 76, 77, 84, 85, 86, 87, 88, 89, 108, 109, 110, 111, 112, 113, 120, 121, 122, 123, 124, 125, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 42, 43, 44, 45, 46, 47, 54, 55, 56, 57, 58, 59, 78, 79, 80, 81, 82, 83, 90, 91, 92, 93, 94, 95, 114, 115, 116, 117, 118, 119, 126, 127, 128, 129, 130, 131, 24, 25, 26, 27, 28, 29, 0, 0, 0, 0, 0, 0, 60, 61, 62, 63, 64, 65, 0, 0, 0, 0, 0, 0, 96, 97, 98, 99, 100, 101, 0, 0, 0, 0, 0, 0, 132, 133, 134, 135, 136, 137, 0, 0, 0, 0, 0, 0, 30, 31, 32, 33, 34, 35, 0, 0, 0, 0, 0, 0, 66, 67, 68, 69, 70, 71, 0, 0, 0, 0, 0, 0, 102, 103, 104, 105, 106, 107, 0, 0, 0, 0, 0, 0, 138, 139, 140, 141, 142, 143, 0, 0, 0, 0, 0, 0};
+    test_repart_chunk(data->ctx, itemsize, backend, ndim, shape_, pshape_, spshape_, enforceframe, filename, result);
+}
