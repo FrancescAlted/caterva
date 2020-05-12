@@ -14,12 +14,20 @@ cmake_policy(SET CMP0077 NEW)
 
 project(caterva VERSION 0.3.3)
 
-message("Configuration for Caterva")
-
 option(SHARED_LIB "Create shared library" ON)
 option(STATIC_LIB "Create static library" ON)
 option(CATERVA_BUILD_TESTS "Build tests" ON)
 option(CATERVA_BUILD_EXAMPLES "Build examples" ON)
+
+if (MSVC)
+    # warning level 4 and all warnings as errors
+    # add_compile_options(/W4 /WX)
+    add_compile_options(/W4)
+else()
+    # lots of warnings and all warnings as errors
+    # add_compile_options(-Wall -Wextra -pedantic -Werror)
+    add_compile_options(-Wall -Wextra)
+endif()
 
 if (DO_COVERAGE)
     message(STATUS "Coverage is enabled")
