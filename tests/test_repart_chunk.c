@@ -44,7 +44,7 @@ static void test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize, caterva_
 
     /* Fill empty caterva_array_t with blocks */
     int size_src = carr->chunksize * itemsize;
-    int size_dest = carr->extendedchunksize * itemsize;
+    int size_dest = carr->extchunksize * itemsize;
     double *buffer_src = (double *) ctx->cfg->alloc(size_src);
     double *buffer_dest = (double *) ctx->cfg->alloc(size_dest);
     for (int i = 0; i < carr->chunksize; ++i) {
@@ -55,7 +55,7 @@ static void test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize, caterva_
         printf("Error code : %d\n", res);
     }
 
-    assert_buf((uint8_t*) buffer_dest, (uint8_t*) result, itemsize, (size_t)carr->extendedchunksize, 1e-8);   // tam epsize*typesize????????????????
+    assert_buf((uint8_t*) buffer_dest, (uint8_t*) result, itemsize, (size_t)carr->extchunksize, 1e-8);   // tam epsize*typesize????????????????
     ctx->cfg->free(buffer_src);
     ctx->cfg->free(buffer_dest);
     CATERVA_TEST_ERROR(caterva_array_free(ctx, &carr));

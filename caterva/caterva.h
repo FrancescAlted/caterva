@@ -249,11 +249,11 @@ typedef struct {
     //!< Shape of original data.
     int32_t chunkshape[CATERVA_MAX_DIM];
     //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to @p shape.
-    int64_t extendedshape[CATERVA_MAX_DIM];
+    int64_t extshape[CATERVA_MAX_DIM];
     //!< Shape of padded data.
     int32_t blockshape[CATERVA_MAX_DIM];
     //!< Shape of each subpartition.
-    int64_t extendedchunkshape[CATERVA_MAX_DIM];
+    int64_t extchunkshape[CATERVA_MAX_DIM];
     //!< Shape of padded partition.
     int32_t next_chunkshape[CATERVA_MAX_DIM];
     //!< Shape of next partition to be appended.
@@ -261,11 +261,11 @@ typedef struct {
     //!< Size of original data.
     int32_t chunksize;
     //!< Size of each chunk.
-    int64_t extendedsize;
+    int64_t extsize;
     //!< Size of padded data.
     int32_t blocksize;
     //!< Size of each subpartition.
-    int64_t extendedchunksize;
+    int64_t extchunksize;
     //!< Size of padded partition.
     int64_t next_chunksize;
     //!< Size of next partiton to be appended.
