@@ -23,6 +23,8 @@ if (MSVC)
     # warning level 4 and all warnings as errors
     # add_compile_options(/W4 /WX)
     add_compile_options(/W4)
+    add_compile_options(/wd4232)  # TODO: fix this (warning C4232: nonstandard extension used)
+    add_compile_options(/wd4127)  # TODO: fix this (warning C4127: conditional expression is constant)
 else()
     # lots of warnings and all warnings as errors
     # add_compile_options(-Wall -Wextra -pedantic -Werror)
