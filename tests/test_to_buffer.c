@@ -76,6 +76,30 @@ LWTEST_TEARDOWN(to_buffer) {
 }
 
 
+LWTEST_FIXTURE(to_buffer, ndim_1) {
+    const int8_t ndim = 1;
+    int64_t shape_[] = {30};
+    int64_t pshape_[] = {30};
+    int64_t spshape_[] = {30};
+
+    uint8_t itemsize = sizeof(double);
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    int64_t buf_size = 1;
+    for (int i = 0; i < ndim; ++i) {
+        buf_size *= (shape_[i]);
+    }
+    float *result = (float *) data->ctx->cfg->alloc((size_t)buf_size * itemsize);
+    for (int64_t i = 0; i < buf_size; ++i) {
+        result[i] = (float) i;
+    }
+
+    test_to_buffer(data->ctx, ndim, itemsize, shape_, backend, pshape_, spshape_,  enforceframe, filename, result);
+    data->ctx->cfg->free(result);
+}
+
 LWTEST_FIXTURE(to_buffer, ndim_2_plain_float) {
     const int8_t ndim = 2;
     int64_t shape_[] = {10, 10};

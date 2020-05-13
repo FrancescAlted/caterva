@@ -629,7 +629,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
     }
 
     // Acceleration path for the case where we are doing (1-dim) aligned chunk reads
-    if ((s_ndim == 1) && (array->chunkshape[0] == shape[0]) &&
+    if ((s_ndim == 1) && (array->chunkshape[0] == shape[0]) && (array->chunkshape[0] == array->blockshape[0]) &&
         (start[0] % array->chunkshape[0] == 0) && (stop[0] % array->chunkshape[0] == 0)) {
         int nchunk = (int)(start[0] / array->chunkshape[0]);
         // In case of an aligned read, decompress directly in destination

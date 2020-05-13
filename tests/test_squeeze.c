@@ -137,7 +137,7 @@ LWTEST_FIXTURE(squeeze, 3_float_blosc_blosc) {
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape2[] = {21, 1, 12};
+    int64_t chunkshape2[] = {21, 1, 10};
     int64_t blockshape2[] = {8, 1, 5};
     bool enforceframe2 = false;
     char *filename2 = NULL;

@@ -13,7 +13,7 @@
 
 static void test_append(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
                           caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape, bool enforceframe,
-                          char *filename, double *result) {
+                          char *filename, void *result) {
 
     caterva_params_t params;
     params.itemsize = itemsize;
