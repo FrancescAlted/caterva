@@ -53,7 +53,7 @@ steps:
 
   - task: CacheBeta@0
     inputs:
-      key: v3 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
+      key: v0 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
       path: $(CBLOSC2_CACHE_FOLDER)
       cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
