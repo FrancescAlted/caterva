@@ -31,6 +31,16 @@ static void fill_buf(uint8_t *buf, uint8_t itemsize, size_t buf_size) {
                 ((float *) buf)[i] = (float) i;
             }
             break;
+        case 2:
+            for (size_t i = 0; i < buf_size; ++i) {
+                ((uint16_t *) buf)[i] = (uint16_t ) i;
+            }
+            break;
+        case 1:
+            for (size_t i = 0; i < buf_size; ++i) {
+                ((uint8_t *) buf)[i] = (uint8_t ) i;
+            }
+            break;
         default:CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 }
@@ -49,6 +59,20 @@ static void assert_buf(const uint8_t *exp, const uint8_t *real, uint8_t itemsize
             for (size_t i = 0; i < size; ++i) {
                 double a = ((float *) exp)[i];
                 double b = ((float *) real)[i];
+                LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(a, b, tol);
+            }
+            break;
+        case 2:
+            for (size_t i = 0; i < size; ++i) {
+                double a = ((uint16_t *) exp)[i];
+                double b = ((uint16_t *) real)[i];
+                LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(a, b, tol);
+            }
+            break;
+        case 1:
+            for (size_t i = 0; i < size; ++i) {
+                double a = ((uint8_t *) exp)[i];
+                double b = ((uint8_t *) real)[i];
                 LWTEST_ASSERT_ALMOST_EQUAL_DOUBLE(a, b, tol);
             }
             break;

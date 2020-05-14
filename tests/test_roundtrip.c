@@ -79,8 +79,23 @@ LWTEST_TEARDOWN(roundtrip) {
     caterva_context_free(&data->ctx);
 }
 
-LWTEST_FIXTURE(roundtrip, 3_double_plainbuffer) {
-    uint8_t itemsize = sizeof(double);
+
+LWTEST_FIXTURE(roundtrip, 1_uint16_plainbuffer) {
+    uint8_t itemsize = sizeof(uint16_t);
+    uint8_t ndim = 1;
+    int64_t shape[] = {7};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+}
+
+LWTEST_FIXTURE(roundtrip, 2_uint8_plainbuffer) {
+    uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 2;
     int64_t shape[] = {4, 3};
 
@@ -124,8 +139,8 @@ LWTEST_FIXTURE(roundtrip, 4_float_blosc) {
     test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 4_double_plainbuffer) {
-    uint8_t itemsize = sizeof(double);
+LWTEST_FIXTURE(roundtrip, 4_uint8_plainbuffer) {
+    uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 4;
     int64_t shape[] = {78, 85, 34, 56};
 
@@ -166,8 +181,8 @@ LWTEST_FIXTURE(roundtrip, 5_double_plainbuffer) {
     test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 6_float_blosc) {
-    uint8_t itemsize = sizeof(float);
+LWTEST_FIXTURE(roundtrip, 6_uint16_blosc) {
+    uint8_t itemsize = sizeof(uint16_t);
     uint8_t ndim = 6;
     int64_t shape[] = {4, 3, 8, 5, 10, 12};
 
@@ -194,8 +209,8 @@ LWTEST_FIXTURE(roundtrip, 7_double_plainbuffer) {
     test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 8_float_blosc) {
-    uint8_t itemsize = sizeof(float);
+LWTEST_FIXTURE(roundtrip, 8_uint8_blosc) {
+    uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 8;
     int64_t shape[] = {4, 3, 8, 5, 10, 12, 6, 4};
 

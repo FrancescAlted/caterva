@@ -58,6 +58,12 @@ static void test_append(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, 
         }
         for (int i = 0; i < nextsize; ++i) {
             switch (src->itemsize) {
+                case 1:
+                    ((uint8_t *) buffer)[i] = (uint8_t) ind;
+                    break;
+                case 2:
+                    ((uint16_t *) buffer)[i] = (uint16_t) ind;
+                    break;
                 case 4:
                     ((float *) buffer)[i] = (float) ind;
                     break;
@@ -79,7 +85,7 @@ static void test_append(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, 
     uint8_t *buffer_dest = ctx->cfg->alloc(buffersize);
     CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, buffer_dest, buffersize));
 
-    assert_buf(buffer_dest, (const uint8_t *) result, src->itemsize, (size_t)10, 1e-14);
+    assert_buf((const uint8_t *) buffer_dest, (const uint8_t *) result, src->itemsize, (size_t)10, 1e-14);
     ctx->cfg->free(buffer_dest);
 
     /* Free array  */
@@ -100,7 +106,7 @@ LWTEST_TEARDOWN(append) {
     caterva_context_free(&data->ctx);
 }
 
-LWTEST_FIXTURE(append, 2_dim_pad_sp) {
+LWTEST_FIXTURE(append, 2_dim) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 2;
     int64_t shape_[] = {8, 8};
@@ -158,7 +164,7 @@ LWTEST_FIXTURE(append, 4_dim) {
 }
 
 
-LWTEST_FIXTURE(append, 5_dim) {
+LWTEST_FIXTURE(append, 5_dim_float) {
     uint8_t itemsize = sizeof(float);
     const uint8_t ndim = 5;
     int64_t shape_[] = {14, 23, 12, 11, 8};
@@ -186,7 +192,7 @@ LWTEST_FIXTURE(append, 6_dim) {
     test_append(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
 }
 
-LWTEST_FIXTURE(append, 7_dim) {
+LWTEST_FIXTURE(append, 7_dim_float) {
     uint8_t itemsize = sizeof(float);
     const uint8_t ndim = 7;
     int64_t shape_[] = {5, 3, 2, 4, 3, 2, 7};
@@ -195,6 +201,34 @@ LWTEST_FIXTURE(append, 7_dim) {
     int64_t pshape_[] = {5, 2, 2, 3, 2, 2, 3};
     int64_t spshape_[] = {4, 2, 1, 2, 1, 2, 2};
     float result[80] = {0,1,2,720,721,722,1440,3,4,5};
+    bool enforceframe = false;
+    char *filename = NULL;
+    test_append(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
+}
+
+LWTEST_FIXTURE(append, 8_dim_uint8) {
+    uint8_t itemsize = sizeof(uint8_t);
+    const uint8_t ndim = 8;
+    int64_t shape_[] = {5, 3, 2, 1, 4, 3, 2, 7};
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+
+    int64_t pshape_[] = {2, 2, 2, 1, 3, 1, 2, 4};
+    int64_t spshape_[] = {2, 2, 2, 1, 3, 1, 2, 4};
+    uint8_t result[80] = {0, 1, 2, 3, 192, 193, 194, 4, 5, 6};
+    bool enforceframe = false;
+    char *filename = NULL;
+    test_append(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
+}
+
+LWTEST_FIXTURE(append, 8_dim_uint16) {
+    uint8_t itemsize = sizeof(uint16_t);
+    const uint8_t ndim = 8;
+    int64_t shape_[] = {5, 3, 2, 3, 4, 3, 3, 7};
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+
+    int64_t pshape_[] = {2, 3, 2, 2, 3, 1, 2, 4};
+    int64_t spshape_[] = {2, 2, 2, 2, 2, 1, 2, 4};
+    uint16_t result[80] = {0, 1, 2, 3, 576, 577, 578, 4, 5, 6};
     bool enforceframe = false;
     char *filename = NULL;
     test_append(data->ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);

@@ -121,6 +121,27 @@ LWTEST_TEARDOWN(copy) {
     caterva_context_free(&data->ctx);
 }
 
+LWTEST_FIXTURE(copy, 1_double_plain_blosc) {
+    uint8_t itemsize = sizeof(double);
+    uint8_t ndim = 1;
+    int64_t shape[] = {17};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape2[] = {14};
+    int64_t blockshape2[] = {13};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+              filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
+}
+
 LWTEST_FIXTURE(copy, 2_double_blosc_blosc) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 2;
@@ -208,8 +229,8 @@ LWTEST_FIXTURE(copy, 5_double_plainbuffer_plainbuffer) {
             filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
-LWTEST_FIXTURE(copy, 6_float_blosc_plainbuffer) {
-    uint8_t itemsize = sizeof(float);
+LWTEST_FIXTURE(copy, 6_uint16_blosc_plainbuffer) {
+    uint8_t itemsize = sizeof(uint16_t);
     uint8_t ndim = 6;
     int64_t shape[] = {4, 3, 8, 5, 6, 5};
 
@@ -229,8 +250,8 @@ LWTEST_FIXTURE(copy, 6_float_blosc_plainbuffer) {
               filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
-LWTEST_FIXTURE(copy, 7_double_blosc_blosc) {
-    uint8_t itemsize = sizeof(double);
+LWTEST_FIXTURE(copy, 7_float_blosc_blosc) {
+    uint8_t itemsize = sizeof(float);
     uint8_t ndim = 7;
     int64_t shape[] = {2, 3, 5, 3, 4, 1, 4};
 
@@ -250,8 +271,8 @@ LWTEST_FIXTURE(copy, 7_double_blosc_blosc) {
               filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
-LWTEST_FIXTURE(copy, 8_double_plainbuffer_plainbuffer) {
-    uint8_t itemsize = sizeof(double);
+LWTEST_FIXTURE(copy, 8_uint8_plainbuffer_plainbuffer) {
+    uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 8;
     int64_t shape[] = {4, 3, 6, 8, 2, 5, 9, 3};
 

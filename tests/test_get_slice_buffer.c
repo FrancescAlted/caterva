@@ -83,10 +83,21 @@ static void test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize,
     double *buffer = ctx->cfg->alloc(buffersize);
     // fill_buf(buffer, itemsize, buffersize / itemsize);
     for (int i = 0; i < (buffersize/itemsize); ++i) {
-        if (itemsize == 4) {
-            ((float *) buffer)[i] = (float) i;
-        } else {
-            ((double *) buffer)[i] = (double) i;
+        switch (itemsize) {
+            case 1:
+                ((uint8_t *) buffer)[i] = (uint8_t) i;
+                break;
+            case 2:
+                ((uint16_t *) buffer)[i] = (uint16_t) i;
+                break;
+            case 4:
+                ((float *) buffer)[i] = (float) i;
+                break;
+            case 8:
+                ((double *) buffer)[i] = (double) i;
+                break;
+            default:
+                CATERVA_TEST_ERROR(CATERVA_ERR_INVALID_STORAGE);
         }
     }
 
@@ -174,21 +185,21 @@ LWTEST_FIXTURE(get_slice_buffer, 1_double_blosc) {
                    start, stop, destshape, result);
 }
 
-LWTEST_FIXTURE(get_slice_buffer, 2_double_blosc) {
+LWTEST_FIXTURE(get_slice_buffer, 2_uint16_blosc) {
 
     int64_t start[] = {5, 3};
     int64_t stop[] = {9, 10};
 
-    double result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
+    uint16_t result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
                            77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
 
-    uint8_t itemsize = sizeof(double);
+    uint8_t itemsize = sizeof(uint16_t);
     uint8_t ndim = 2;
-    int64_t shape[] = {10, 10};
+    int64_t shape[] = {14, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {4, 7};
-    int64_t blockshaoe[] = {3, 6};
+    int64_t chunkshape[] = {11, 9};
+    int64_t blockshaoe[] = {9, 8};
     bool enforceframe = false;
     char *filename = NULL;
 
@@ -200,14 +211,14 @@ LWTEST_FIXTURE(get_slice_buffer, 2_double_blosc) {
         start, stop, destshape, result);
 }
 
-LWTEST_FIXTURE(get_slice_buffer, 2_plainbuffer) {
+LWTEST_FIXTURE(get_slice_buffer, 2_uint8_plainbuffer) {
 
     int64_t start[] = {2, 2};
     int64_t stop[] = {4, 4};
 
-    double result[1024] = {14, 15, 20, 21};
+    uint8_t result[1024] = {14, 15, 20, 21};
 
-    uint8_t itemsize = sizeof(double);
+    uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 2;
     int64_t shape[] = {5, 6};
 

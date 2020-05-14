@@ -286,9 +286,9 @@ LWTEST_FIXTURE(to_buffer, ndim_7_float) {
     data->ctx->cfg->free(result);
 }
 
-LWTEST_FIXTURE(to_buffer, ndim_8_plain) {
+LWTEST_FIXTURE(to_buffer, ndim_8_uint8_plain) {
     const int8_t ndim = 8;
-    uint8_t itemsize = sizeof(float);
+    uint8_t itemsize = sizeof(uint8_t);
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     bool enforceframe = false;
     char *filename = NULL;
@@ -300,7 +300,7 @@ LWTEST_FIXTURE(to_buffer, ndim_8_plain) {
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
     }
-    float *result = (float *) data->ctx->cfg->alloc((size_t)buf_size * itemsize);
+    uint8_t *result = (uint8_t *) data->ctx->cfg->alloc((size_t)buf_size * itemsize);
     for (int64_t i = 0; i < buf_size; ++i) {
         result[i] = (float) i;
     }
