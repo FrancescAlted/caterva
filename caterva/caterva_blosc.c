@@ -918,28 +918,41 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
 }
 
 
-int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape, int32_t *chunkshape) {
+int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape, int32_t *chunkshape,
+                               int32_t *blockshape) {
     array->ndim = ndim;
     array->size = 1;
     array->extsize = 1;
+    array->extchunksize = 1;
     array->chunksize = 1;
+    array->blocksize = 1;
     for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
         if (i < ndim) {
             array->shape[i] = shape[i];
             array->chunkshape[i] = chunkshape[i];
+            array->blockshape[i] = blockshape[i];
             if (shape[i] % array->chunkshape[i] == 0) {
                 array->extshape[i] = shape[i];
             } else {
                 array->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
             }
+            if (chunkshape[i] % blockshape[i] == 0) {
+                array->extchunkshape[i] = chunkshape[i];
+            } else {
+                array->extchunkshape[i] = chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+            }
         } else {
+            array->blockshape[i] = 1;
             array->chunkshape[i] = 1;
             array->extshape[i] = 1;
+            array->extchunkshape[i] = 1;
             array->shape[i] = 1;
         }
         array->size *= array->shape[i];
         array->extsize *= array->extshape[i];
+        array->extchunksize *= array->extchunkshape[i];
         array->chunksize *= array->chunkshape[i];
+        array->blocksize *= array->blockshape[i];
     }
 
     uint8_t *smeta = NULL;
@@ -971,23 +984,27 @@ int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) 
     uint8_t nones = 0;
     int64_t newshape[CATERVA_MAX_DIM];
     int32_t newchunkshape[CATERVA_MAX_DIM];
+    int32_t newblockshape[CATERVA_MAX_DIM];
 
     for (int i = 0; i < array->ndim; ++i) {
         if (array->shape[i] != 1) {
             newshape[nones] = array->shape[i];
             newchunkshape[nones] = array->chunkshape[i];
+            newblockshape[nones] = array->blockshape[i];
             nones += 1;
         }
     }
     for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
         if (i < nones) {
             array->chunkshape[i] = newchunkshape[i];
+            array->blockshape[i] = newblockshape[i];
         } else {
             array->chunkshape[i] = 1;
+            array->blockshape[i] = 1;
         }
     }
 
-    CATERVA_ERROR(caterva_blosc_update_shape(array, nones, newshape, newchunkshape));
+    CATERVA_ERROR(caterva_blosc_update_shape(array, nones, newshape, newchunkshape, newblockshape));
 
     return CATERVA_SUCCEED;
 }
