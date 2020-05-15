@@ -55,7 +55,8 @@ static void swap_store(void *dest, const void *pa, int size) {
 }
 
 
-static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape, uint8_t **smeta) {
+static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape,
+                              const int32_t *blockshape, uint8_t **smeta) {
     // Allocate space for Caterva metalayer
     int32_t max_smeta_len = 1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) + \
         (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t)));
@@ -93,15 +94,11 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunks
 
     // blockshape entry
     *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
-    int32_t *blockshape = malloc(CATERVA_MAX_DIM * sizeof(int32_t));
     for (int8_t i = 0; i < ndim; i++) {
         *pmeta++ = 0xd2;  // int32
-        blockshape[i] = 0;  // FIXME: update when support for multidimensional bshapes would be ready
-        // NOTE: we need to initialize the header so as to avoid false negatives in valgrind
         swap_store(pmeta, blockshape + i, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
-    free(blockshape);
     assert(pmeta - *smeta <= max_smeta_len);
     int32_t slen = (int32_t)(pmeta - *smeta);
 
@@ -109,7 +106,8 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunks
 }
 
 
-static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim, int64_t *shape, int32_t *chunkshape) {
+static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim, int64_t *shape,
+                                int32_t *chunkshape, int32_t *blockshape) {
     uint8_t *pmeta = smeta;
 
     // Check that we have an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
@@ -158,13 +156,13 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
 
     // blockshape entry
     // Initialize to ones, as required by Caterva
-    // for (int i = 0; i < CATERVA_MAX_DIM; i++) blockshape[i] = 1;
+    for (int i = 0; i < CATERVA_MAX_DIM; i++) blockshape[i] = 1;
     assert(*pmeta == (uint8_t)(0x90) + ndim_aux);  // fix array with ndim elements
     pmeta += 1;
     for (int8_t i = 0; i < ndim_aux; i++) {
         assert(*pmeta == 0xd2);  // int32
         pmeta += 1;
-        // swap_store(blockshape + i, pmeta, sizeof(int32_t));
+        swap_store(blockshape + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
     assert(pmeta - smeta <= smeta_len);
@@ -212,15 +210,18 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
-    deserialize_meta(smeta, smeta_len, &(*array)->ndim, (*array)->shape, (*array)->chunkshape);
+    deserialize_meta(smeta, smeta_len, &(*array)->ndim, (*array)->shape, (*array)->chunkshape, (*array)->blockshape);
     free(smeta);
 
     int64_t *shape = (*array)->shape;
     int32_t *chunkshape = (*array)->chunkshape;
+    int32_t *blockshape = (*array)->blockshape;
 
     (*array)->size = 1;
     (*array)->chunksize = 1;
+    (*array)->blocksize = 1;
     (*array)->extsize = 1;
+    (*array)->extchunksize = 1;
 
     for (int i = 0; i < (*array)->ndim; ++i) {
         if (shape[i] % chunkshape[i] == 0) {
@@ -228,15 +229,24 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
         } else {
             (*array)->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
         }
+        if (chunkshape[i] % blockshape[i] == 0) {
+            (*array)->extchunkshape[i] = chunkshape[i];
+        } else {
+            (*array)->extchunkshape[i] = chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+        }
         (*array)->size *= shape[i];
         (*array)->chunksize *= chunkshape[i];
+        (*array)->blocksize *= blockshape[i];
         (*array)->extsize *= (*array)->extshape[i];
+        (*array)->extchunksize *= (*array)->extchunkshape[i];
     }
 
     for (int i = (*array)->ndim; i < CATERVA_MAX_DIM; ++i) {
         (*array)->shape[i] = 1;
         (*array)->chunkshape[i] = 1;
+        (*array)->blockshape[i] = 1;
         (*array)->extshape[i] = 1;
+        (*array)->extchunkshape[i] = 1;
     }
 
 
@@ -957,7 +967,7 @@ int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *sha
 
     uint8_t *smeta = NULL;
     // Serialize the dimension info ...
-    int32_t smeta_len = serialize_meta(array->ndim, array->shape, array->chunkshape, &smeta);
+    int32_t smeta_len = serialize_meta(array->ndim, array->shape, array->chunkshape, array->blockshape, &smeta);
     if (smeta_len < 0) {
         fprintf(stderr, "error during serializing dims info for Caterva");
         return -1;
@@ -1127,7 +1137,7 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params, 
         return CATERVA_ERR_BLOSC_FAILED;
     }
     uint8_t *smeta = NULL;
-    int32_t smeta_len = serialize_meta(params->ndim, shape, chunkshape, &smeta);
+    int32_t smeta_len = serialize_meta(params->ndim, shape, chunkshape, blockshape, &smeta);
     if (smeta_len < 0) {
         DEBUG_PRINT("error during serializing dims info for Caterva");
         return CATERVA_ERR_BLOSC_FAILED;
