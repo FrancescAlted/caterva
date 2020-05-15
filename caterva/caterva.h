@@ -252,11 +252,11 @@ typedef struct {
     int64_t extshape[CATERVA_MAX_DIM];
     //!< Shape of padded data.
     int32_t blockshape[CATERVA_MAX_DIM];
-    //!< Shape of each subpartition.
+    //!< Shape of each block.
     int64_t extchunkshape[CATERVA_MAX_DIM];
-    //!< Shape of padded partition.
+    //!< Shape of padded chunk.
     int32_t next_chunkshape[CATERVA_MAX_DIM];
-    //!< Shape of next partition to be appended.
+    //!< Shape of next chunk to be appended.
     int64_t size;
     //!< Size of original data.
     int32_t chunksize;
@@ -264,11 +264,11 @@ typedef struct {
     int64_t extsize;
     //!< Size of padded data.
     int32_t blocksize;
-    //!< Size of each subpartition.
+    //!< Size of each block.
     int64_t extchunksize;
-    //!< Size of padded partition.
+    //!< Size of padded chunk.
     int64_t next_chunksize;
-    //!< Size of next partiton to be appended.
+    //!< Size of next chunk to be appended.
     int8_t ndim;
     //!< Data dimensions.
     int8_t itemsize;
