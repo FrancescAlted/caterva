@@ -10,13 +10,19 @@
  */
 
 #include "test_common.h"
+#ifdef __GNUC__
 #include <unistd.h>
+#define FILE_EXISTS(filename) access(filename, F_OK)
+#else
+#include <io.h>
+#define FILE_EXISTS(filename) _access(filename, 0)
+#endif
 
 static void test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
                              caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape,
                              bool enforceframe, char *filename) {
 
-    if (access(filename, F_OK) != -1) {
+    if (FILE_EXISTS(filename) != -1) {
         remove(filename);
     }
     caterva_params_t params;
@@ -71,7 +77,7 @@ static void test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t n
     free(buffer_dest);
     CATERVA_TEST_ERROR(caterva_array_free(ctx, &src));
     CATERVA_TEST_ERROR(caterva_array_free(ctx, &dest));
-    if (access(filename, F_OK) != -1) {
+    if (FILE_EXISTS(filename) != -1) {
         remove(filename);
     }
 }
