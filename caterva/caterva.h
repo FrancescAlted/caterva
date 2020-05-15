@@ -162,6 +162,8 @@ typedef struct {
 typedef struct {
     int32_t chunkshape[CATERVA_MAX_DIM];
     //!< The shape of each chunk of Blosc.
+    int32_t blockshape[CATERVA_MAX_DIM];
+    //!< The shape of each block of Blosc.
     bool enforceframe;
     //!< Flag to indicate if the superchunk is stored as a frame.
     char* filename;
@@ -247,14 +249,26 @@ typedef struct {
     //!< Shape of original data.
     int32_t chunkshape[CATERVA_MAX_DIM];
     //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to @p shape.
-    int64_t extendedshape[CATERVA_MAX_DIM];
+    int64_t extshape[CATERVA_MAX_DIM];
     //!< Shape of padded data.
+    int32_t blockshape[CATERVA_MAX_DIM];
+    //!< Shape of each block.
+    int64_t extchunkshape[CATERVA_MAX_DIM];
+    //!< Shape of padded chunk.
+    int32_t next_chunkshape[CATERVA_MAX_DIM];
+    //!< Shape of next chunk to be appended.
     int64_t size;
     //!< Size of original data.
     int32_t chunksize;
     //!< Size of each chunk.
-    int64_t extendedesize;
+    int64_t extsize;
     //!< Size of padded data.
+    int32_t blocksize;
+    //!< Size of each block.
+    int64_t extchunksize;
+    //!< Size of padded chunk.
+    int64_t next_chunksize;
+    //!< Size of next chunk to be appended.
     int8_t ndim;
     //!< Data dimensions.
     int8_t itemsize;
@@ -387,7 +401,7 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  * @return An error code.
  */
 int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, caterva_params_t *params,
-    caterva_storage_t *storage, caterva_array_t **array);
+                              caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**
@@ -416,7 +430,7 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  * @return An error code.
  */
 int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
-    caterva_storage_t *storage, caterva_array_t **array);
+                            caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**

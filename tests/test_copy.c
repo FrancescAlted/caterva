@@ -12,8 +12,9 @@
 #include "test_common.h"
 
 static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                      caterva_storage_backend_t backend, int64_t *chunkshape, bool enforceframe, char *filename,
-                      caterva_storage_backend_t backend2, int64_t *chunkshape2, bool enforceframe2, char *filename2) {
+                      caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape,
+                      bool enforceframe, char *filename, caterva_storage_backend_t backend2,
+                      int64_t *chunkshape2, int64_t *blockshape2, bool enforceframe2, char *filename2) {
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -34,6 +35,7 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = chunkshape[i];
+                storage.properties.blosc.blockshape[i] = blockshape[i];
             }
             storage.properties.blosc.nmetalayers = 1;
             storage.properties.blosc.metalayers[0].name = "random";
@@ -66,7 +68,7 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
         uint32_t len;
         blosc2_get_metalayer(src->sc, "random", (uint8_t **) &serializeddata, &len);
         if (*serializeddata != datatoserialize) {
-           CATERVA_TEST_ERROR(CATERVA_ERR_BLOSC_FAILED);
+            CATERVA_TEST_ERROR(CATERVA_ERR_BLOSC_FAILED);
         }
         free(serializeddata);
     }
@@ -82,6 +84,7 @@ static void test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, in
             storage2.properties.blosc.enforceframe = enforceframe2;
             for (int i = 0; i < ndim; ++i) {
                 storage2.properties.blosc.chunkshape[i] = chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = blockshape2[i];
             }
             break;
         default:
@@ -118,6 +121,27 @@ LWTEST_TEARDOWN(copy) {
     caterva_context_free(&data->ctx);
 }
 
+LWTEST_FIXTURE(copy, 1_double_plain_blosc) {
+    uint8_t itemsize = sizeof(double);
+    uint8_t ndim = 1;
+    int64_t shape[] = {17};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape2[] = {14};
+    int64_t blockshape2[] = {13};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+              filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
+}
+
 LWTEST_FIXTURE(copy, 2_double_blosc_blosc) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 2;
@@ -125,36 +149,40 @@ LWTEST_FIXTURE(copy, 2_double_blosc_blosc) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {26, 17};
+    int64_t blockshape[] = {15, 12};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape2[] = {14, 24};
+    int64_t blockshape2[] = {7, 11};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename, backend2,
-              chunkshape2, enforceframe2, filename2);
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+            filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
 
-LWTEST_FIXTURE(copy, 3_float_blosc_plainbuffer) {
+LWTEST_FIXTURE(copy, 3_double_blosc_plainbuffer) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 3;
     int64_t shape[] = {134, 56, 204};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {26, 17, 34};
+    int64_t blockshape[] = {11, 8, 12};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape2[] = {0};
+    int64_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename, backend2,
-              chunkshape2, enforceframe2, filename2);
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+            filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
 
@@ -165,35 +193,101 @@ LWTEST_FIXTURE(copy, 4_float_plainbuffer_blosc_frame) {
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape2[] = {2, 2, 3, 2};
+    int64_t blockshape2[] = {2, 2, 2, 2};
     bool enforceframe2 = true;
     char *filename2 = NULL;
 
-    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename, backend2,
-              chunkshape2, enforceframe2, filename2);
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+            filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
 
-LWTEST_FIXTURE(copy, 5_float_plainbuffer_plainbuffer) {
+LWTEST_FIXTURE(copy, 5_double_plainbuffer_plainbuffer) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 5;
     int64_t shape[] = {4, 3, 8, 5, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape2[] = {0};
+    int64_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, enforceframe, filename, backend2,
-              chunkshape2, enforceframe2, filename2);
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+            filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
+LWTEST_FIXTURE(copy, 6_uint16_blosc_plainbuffer) {
+    uint8_t itemsize = sizeof(uint16_t);
+    uint8_t ndim = 6;
+    int64_t shape[] = {4, 3, 8, 5, 6, 5};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {3, 2, 5, 3, 5, 4};
+    int64_t blockshape[] = {2, 1, 3, 2, 2, 3};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape2[] = {0};
+    int64_t blockshape2[] = {0};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+              filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
+}
+
+LWTEST_FIXTURE(copy, 7_float_blosc_blosc) {
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 7;
+    int64_t shape[] = {2, 3, 5, 3, 4, 1, 4};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {1, 2, 4, 2, 3, 1, 3};
+    int64_t blockshape[] = {1, 1, 3, 2, 2, 1, 3};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape2[] = {2, 1, 5, 3, 3, 1, 3};
+    int64_t blockshape2[] = {2, 1, 4, 1, 2, 1, 2};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+              filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
+}
+
+LWTEST_FIXTURE(copy, 8_uint8_plainbuffer_plainbuffer) {
+    uint8_t itemsize = sizeof(uint8_t);
+    uint8_t ndim = 8;
+    int64_t shape[] = {4, 3, 6, 8, 2, 5, 9, 3};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape[] = {0};
+    int64_t blockshape[] = {0};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
+    int64_t chunkshape2[] = {0};
+    int64_t blockshape2[] = {0};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    test_copy(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe,
+              filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
+}

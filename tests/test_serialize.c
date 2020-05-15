@@ -11,7 +11,7 @@
 
 #include "test_common.h"
 
-static void test_roundtrip(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
+static void test_serialize(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
                            caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape,
                            bool enforceframe, char *filename) {
 
@@ -51,65 +51,72 @@ static void test_roundtrip(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndi
     caterva_array_t *src;
     CATERVA_TEST_ERROR(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
 
+    uint8_t *sframe = src->sc->frame->sdata;
+    int64_t slen = src->sc->frame->len;
+
+    caterva_array_t *dest;
+    caterva_array_from_sframe(ctx, sframe, slen, true, &dest);
+
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);
-    CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, src, buffer_dest, buffersize));
+    CATERVA_TEST_ERROR(caterva_array_to_buffer(ctx, dest, buffer_dest, buffersize));
 
     /* Testing */
     double tol = (itemsize == 4) ? 1e-6 : 1e-15;
-    assert_buf(buffer, buffer_dest, itemsize, src->size, tol);
+    assert_buf(buffer, buffer_dest, itemsize, dest->size, tol);
 
     /* Free mallocs */
     free(buffer);
     free(buffer_dest);
     CATERVA_TEST_ERROR(caterva_array_free(ctx, &src));
+    CATERVA_TEST_ERROR(caterva_array_free(ctx, &dest));
 }
 
 
-LWTEST_DATA(roundtrip) {
+LWTEST_DATA(serialize) {
     caterva_context_t *ctx;
 };
 
-LWTEST_SETUP(roundtrip) {
+LWTEST_SETUP(serialize) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     caterva_context_new(&cfg, &data->ctx);
 }
 
-LWTEST_TEARDOWN(roundtrip) {
+LWTEST_TEARDOWN(serialize) {
     caterva_context_free(&data->ctx);
 }
 
 
-LWTEST_FIXTURE(roundtrip, 1_uint16_plainbuffer) {
+LWTEST_FIXTURE(serialize, 1_uint16) {
     uint8_t itemsize = sizeof(uint16_t);
     uint8_t ndim = 1;
-    int64_t shape[] = {7};
+    int64_t shape[] = {500};
 
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
-    bool enforceframe = false;
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {200};
+    int64_t blockshape[] = {80};
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 2_uint8_plainbuffer) {
+LWTEST_FIXTURE(serialize, 2_uint8) {
     uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 2;
-    int64_t shape[] = {4, 3};
+    int64_t shape[] = {400, 300};
 
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
-    bool enforceframe = false;
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {55, 67};
+    int64_t blockshape[] = {40, 40};
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
 
-LWTEST_FIXTURE(roundtrip, 3_double_blosc) {
+LWTEST_FIXTURE(serialize, 3_double) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 3;
     int64_t shape[] = {134, 56, 204};
@@ -117,57 +124,58 @@ LWTEST_FIXTURE(roundtrip, 3_double_blosc) {
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {26, 17, 34};
     int64_t blockshape[] = {11, 8, 13};
-    bool enforceframe = false;
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 
 }
 
 
-LWTEST_FIXTURE(roundtrip, 4_float_blosc) {
+LWTEST_FIXTURE(serialize, 4_float) {
     uint8_t itemsize = sizeof(float);
     uint8_t ndim = 4;
-    int64_t shape[] = {4, 3, 8, 5};
+    int64_t shape[] = {10, 13, 18, 25};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {2, 2, 3, 3};
-    int64_t blockshape[] = {2, 2, 2, 3};
-    bool enforceframe = false;
+    int64_t chunkshape[] = {9, 5, 11, 10};
+    int64_t blockshape[] = {2, 2, 5, 3};
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 4_uint8_plainbuffer) {
+LWTEST_FIXTURE(serialize, 4_uint8) {
     uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 4;
     int64_t shape[] = {78, 85, 34, 56};
 
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
-    bool enforceframe = false;
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {23, 12, 24, 50};
+    int64_t blockshape[] = {11, 5, 7, 13};
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 5_double_plainbuffer) {
+
+LWTEST_FIXTURE(serialize, 5_double) {
     uint8_t itemsize = sizeof(double);
     uint8_t ndim = 5;
     int64_t shape[] = {35, 55, 24, 36, 12};
 
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
-    bool enforceframe = false;
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {10, 15, 8, 11, 11};
+    int64_t blockshape[] = {3, 3, 3, 3, 3};
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 6_uint16_blosc) {
+LWTEST_FIXTURE(serialize, 6_uint16) {
     uint8_t itemsize = sizeof(uint16_t);
     uint8_t ndim = 6;
     int64_t shape[] = {4, 3, 8, 5, 10, 12};
@@ -175,27 +183,27 @@ LWTEST_FIXTURE(roundtrip, 6_uint16_blosc) {
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {2, 2, 3, 3, 4, 5};
     int64_t blockshape[] = {2, 1, 2, 2, 3, 4};
-    bool enforceframe = false;
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 7_double_plainbuffer) {
-    uint8_t itemsize = sizeof(double);
+LWTEST_FIXTURE(serialize, 7_uint64) {
+    uint8_t itemsize = sizeof(uint64_t);
     uint8_t ndim = 7;
     int64_t shape[] =  {4, 15, 11, 6, 12, 8, 7};
 
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
-    bool enforceframe = false;
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int64_t chunkshape[] = {4, 3, 4, 3, 3, 5, 3};
+    int64_t blockshape[] = {1, 3, 2, 2, 1, 2, 2};
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
 
-LWTEST_FIXTURE(roundtrip, 8_uint8_blosc) {
+LWTEST_FIXTURE(serialize, 8_uint8) {
     uint8_t itemsize = sizeof(uint8_t);
     uint8_t ndim = 8;
     int64_t shape[] = {4, 3, 8, 5, 10, 12, 6, 4};
@@ -203,8 +211,8 @@ LWTEST_FIXTURE(roundtrip, 8_uint8_blosc) {
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
     int64_t chunkshape[] = {3, 2, 3, 3, 4, 5, 4, 2};
     int64_t blockshape[] = {2, 1, 2, 2, 3, 4, 3, 1};
-    bool enforceframe = false;
+    bool enforceframe = true;
     char *filename = NULL;
 
-    test_roundtrip(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
+    test_serialize(data->ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
