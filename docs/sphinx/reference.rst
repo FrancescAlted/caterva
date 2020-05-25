@@ -1,5 +1,5 @@
-Developer Reference Documentation
-=================================
+API Reference
+=============
 
 This section contains the Caterva public API and the structures needed to use it.
 

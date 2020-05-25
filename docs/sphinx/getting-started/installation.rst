@@ -1,7 +1,6 @@
 Installation
 ============
 
-
 Building Caterva with CMake
 +++++++++++++++++++++++++++
 

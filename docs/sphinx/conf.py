@@ -3,7 +3,7 @@ import subprocess
 subprocess.call('cd ../doxygen && doxygen Doxyfile && cd ../sphinx', shell=True)
 
 project = 'Caterva'
-copyright = '2019-2020, Blosc Developers'
+copyright = '2020, Blosc Developers'
 
 import git
 repo = git.Repo('./../..')
@@ -12,7 +12,9 @@ latest_tag = str(tags[-1])[1:]
 release = latest_tag
 version = latest_tag
 
-extensions = ["sphinx.ext.mathjax", "breathe"]
+extensions = ["sphinx.ext.mathjax",
+              "breathe",
+              "sphinx_copybutton"]
 
 source_suffix = '.rst'
 
@@ -20,22 +22,34 @@ master_doc = 'index'
 
 language = None
 
-exclude_patterns = ['.build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 pygments_style = None
 
-html_static_path = [".static"]
-html_theme = 'sphinx_rtd_theme'
-html_logo = "logo-caterva.png"
-html_favicon = "favicon-caterva.png"
+html_static_path = ["_static"]
+html_logo = "_static/caterva.png"
+html_favicon = "_static/favicon-caterva.png"
 html_show_sourcelink = False
 
+html_theme = "pydata_sphinx_theme"
+
 html_theme_options = {
-    "logo_only": True,
+    "github_url": "https://github.com/Blosc/Caterva",
+    "twitter_url": "https://twitter.com/Blosc2",
+    "use_edit_page_button": False,
+    "show_prev_next": True,
 }
 
-breathe_projects = { "caterva": "../doxygen/xml/" }
+html_context = {
+    "github_user": "Blosc",
+    "github_repo": "cat4py",
+    "github_version": "master",
+    "doc_path": "doc",
+}
+
+breathe_projects = {"caterva": "../doxygen/xml/" }
 breathe_default_project = "caterva"
+
 
 def setup(app):
     app.add_css_file('custom.css')
