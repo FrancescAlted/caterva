@@ -113,7 +113,7 @@ LWTEST_FIXTURE(append, 2_dim) {
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
 
     int64_t chunkshape_[] = {4, 4};
-    int64_t blockshape_[] = {3, 3};
+    int64_t blockshape_[] = {4, 4};
     double result[80] = {0,1,2,3,16,17,18,19,4,5};
     bool enforceframe = true;
     char *filename = NULL;

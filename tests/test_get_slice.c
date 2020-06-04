@@ -328,8 +328,8 @@ LWTEST_FIXTURE(get_slice, 6_double_plainbuffer_blosc_frame) {
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape2[] = {1, 3, 2, 1, 2, 2};
-    int64_t blockshape2[] = {1, 2, 2, 1, 2, 2};
+    int64_t chunkshape2[] = {1, 3, 2, 2, 3, 2};
+    int64_t blockshape2[] = {1, 3, 2, 1, 2, 3};
     bool enforceframe2 = true;
     char *filename2 = NULL;
 
@@ -337,15 +337,15 @@ LWTEST_FIXTURE(get_slice, 6_double_plainbuffer_blosc_frame) {
                    backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
 }
 
-LWTEST_FIXTURE(get_slice, 7_float_blosc_frame_plainbuffer) {
+LWTEST_FIXTURE(get_slice, 7_double_blosc_frame_plainbuffer) {
     int64_t start[] = {1, 4, 2, 2, 2, 2, 1};
     int64_t stop[] = {4, 5, 3, 4, 3, 5, 2};
 
-    float result[1024] = {4745, 4747, 4749, 4785, 4787, 4789, 7145, 7147, 7149, 7185, 7187,
+    double result[1024] = {4745, 4747, 4749, 4785, 4787, 4789, 7145, 7147, 7149, 7185, 7187,
                           7189, 9545, 9547, 9549, 9585, 9587, 9589};
 
 
-    uint8_t itemsize = sizeof(float);
+    uint8_t itemsize = sizeof(double);
     uint8_t ndim = 7;
     int64_t shape[] = {4, 5, 3, 4, 4, 5, 2};
 

@@ -189,7 +189,7 @@ LWTEST_FIXTURE(copy, 3_double_blosc_plainbuffer) {
 LWTEST_FIXTURE(copy, 4_float_plainbuffer_blosc_frame) {
     uint8_t itemsize = sizeof(float);
     uint8_t ndim = 4;
-    int64_t shape[] = {4, 3, 8, 5};
+    int64_t shape[] = {8, 10, 8, 9};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     int64_t chunkshape[] = {0};
@@ -198,8 +198,8 @@ LWTEST_FIXTURE(copy, 4_float_plainbuffer_blosc_frame) {
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape2[] = {2, 2, 3, 2};
-    int64_t blockshape2[] = {2, 2, 2, 2};
+    int64_t chunkshape2[] = {3, 7, 3, 3};
+    int64_t blockshape2[] = {3, 3, 3, 3};
     bool enforceframe2 = true;
     char *filename2 = NULL;
 
