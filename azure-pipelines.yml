@@ -76,6 +76,10 @@ steps:
     condition: and(eq( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
     displayName: 'Build c-blosc2'
 
+  - task: CMake@1
+    inputs:
+    workingDirectory: 'build' # Optional
+    cmakeArgs: # Optional
   - bash: |
       mkdir build
       cd build/
@@ -85,6 +89,7 @@ steps:
     displayName: 'Build caterva'
 
   - script: |
+      call "C:\Program Files (x86)\%VSINSTALL%\vcvarsall.bat" %MSVC_PLATFORM%
       mkdir build
       cd build/
       cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=%BUILD_CONFIGURATION% -DBLOSC_DIR=%BLOSC_DIR% -DBLOSC_INCLUDE=%BLOSC_INCLUDE% ..
