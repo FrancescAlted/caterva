@@ -93,14 +93,14 @@ steps:
     displayName: 'Build caterva'
 
   - bash: |
-      cd build/
+      cd build/cunit-tests
       ./caterva_cunit
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
-      cd build/
+      cd build/cunit-tests
       ./caterva_cunit
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
