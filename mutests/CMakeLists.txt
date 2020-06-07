@@ -7,7 +7,6 @@
 # in the COPYING file in the root directory of this source tree).
 # You may select, at your option, one of the above-listed licenses.
 
-file(GLOB SOURCES test_*.c)
 
 add_executable(caterva_testing test_unit.c)
 
