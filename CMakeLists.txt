@@ -105,7 +105,7 @@ if (CATERVA_BUILD_TESTS)
     message(STATUS "Adding Caterva tests")
     enable_testing()
     add_subdirectory(tests)
-    add_subdirectory(cunit-tests)
+    add_subdirectory(cunittests)
 endif()
 
 if(CATERVA_BUILD_EXAMPLES)
