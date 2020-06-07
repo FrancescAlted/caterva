@@ -78,7 +78,7 @@ jobs:
       run: |
         mkdir ${{ matrix.build-dir || '.not-used' }}
         cd ${{ matrix.build-dir || '.' }}
-        cmake . ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=${{ matrix.build-config || 'Release' }} -DBLOSC_DIR=$HOME/c-blosc2/build/blosc -DBLOSC_INCLUDE=$HOME/c-blosc2/blosc
+        cmake . ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=${{ matrix.build-config || 'Release' }} -DBLOSC_DIR=/home/runner/work/Caterva/Caterva/c-blosc2/build/blosc -DBLOSC_INCLUDE=/home/runner/work/Caterva/Caterva/c-blosc2/blosc
       env:
         CC: ${{ matrix.compiler }}
         CFLAGS: ${{ matrix.cflags }}
