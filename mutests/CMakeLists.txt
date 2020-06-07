@@ -7,11 +7,8 @@
 # in the COPYING file in the root directory of this source tree).
 # You may select, at your option, one of the above-listed licenses.
 
-file(GLOB SOURCES test_*.c)
-
-add_executable(caterva_testss test_unit.c)
+add_executable(caterva_mutests test_unit.c)
 
 # Allow linking with Blosc2 from external apps defining BLOSC_LIB
-target_link_libraries(caterva_testss ${CATERVA_LIB} ${BLOSC_LIB})
-add_test(NAME caterva_testss COMMAND caterva_testss)
-
+target_link_libraries(caterva_mutests ${CATERVA_LIB} ${BLOSC_LIB})
+add_test(NAME caterva_mutests COMMAND caterva_mutests)
