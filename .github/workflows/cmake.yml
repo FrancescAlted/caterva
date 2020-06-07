@@ -65,16 +65,16 @@ jobs:
       run: |
         brew install ninja ${{ matrix.packages }}
    
-   - name: Build c-blosc2
-     run: |
-       git clone https://github.com/Blosc/c-blosc2.git
-       cd c-blosc2/
-       mkdir ${{ matrix.build-dir || '.not-used' }}
-       cd ${{ matrix.build-dir || '.' }}
-       cmake . ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=${{ matrix.build-config || 'Release' }} -DBUILD_SHARED_LIBS=OFF
-       cmake --build . --config ${{ matrix.build-config || 'Release' }}
+    - name: Build c-blosc2
+      run: |
+        git clone https://github.com/Blosc/c-blosc2.git
+        cd c-blosc2/
+        mkdir ${{ matrix.build-dir || '.not-used' }}
+        cd ${{ matrix.build-dir || '.' }}
+        cmake . ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=${{ matrix.build-config || 'Release' }} -DBUILD_SHARED_LIBS=OFF
+        cmake --build . --config ${{ matrix.build-config || 'Release' }}
 
-   - name: Generate project files
+    - name: Generate project files
       run: |
         mkdir ${{ matrix.build-dir || '.not-used' }}
         cd ${{ matrix.build-dir || '.' }}
