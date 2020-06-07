@@ -101,15 +101,10 @@ endif()
 
 install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 
-if (CATERVA_BUILD_TESTS)
-    message(STATUS "Adding Caterva tests")
-    enable_testing()
-    add_subdirectory(tests)
-endif()
-
 if(CATERVA_BUILD_EXAMPLES)
     message(STATUS "Adding Caterva examples")
     add_subdirectory(examples)
 endif()
 
+enable_testing()
 add_subdirectory(cunit-tests)
