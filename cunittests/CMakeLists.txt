@@ -13,4 +13,5 @@ add_executable(caterva_testss main.c)
 
 # Allow linking with Blosc2 from external apps defining BLOSC_LIB
 target_link_libraries(caterva_testss ${CATERVA_LIB} ${BLOSC_LIB})
+add_test(NAME caterva_testss COMMAND caterva_testss)
 
