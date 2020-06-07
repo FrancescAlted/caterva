@@ -9,7 +9,7 @@
 
 file(GLOB SOURCES test_*.c)
 
-add_executable(caterva_testss main.c)
+add_executable(caterva_testss test_unit.c)
 
 # Allow linking with Blosc2 from external apps defining BLOSC_LIB
 target_link_libraries(caterva_testss ${CATERVA_LIB} ${BLOSC_LIB})
