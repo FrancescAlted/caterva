@@ -112,4 +112,5 @@ if(CATERVA_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-message("")
+enable_testing()
+add_subdirectory(cunit-tests)

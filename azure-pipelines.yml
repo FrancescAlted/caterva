@@ -94,14 +94,14 @@ steps:
 
   - bash: |
       cd build/
-      ctest -T Test -V
+      ./caterva_cunit
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
-      ctest -C ${BUILD_CONFIGURATION} -T Test -V
+      ./caterva_cunit
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
