@@ -316,7 +316,9 @@ int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
 
 
 int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk, int chunksize, caterva_array_t *array){
-    CATERVA_ERROR (rchunksize != array->extchunksize * array->itemsize);
+    if (rchunksize != array->extchunksize * array->itemsize) {
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
     CATERVA_ERROR (chunksize != array->chunksize * array->itemsize);
 
     const int8_t *src_b = (int8_t *) chunk;
@@ -390,7 +392,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk
             }
         }
     }
-    return 0;
+    return CATERVA_SUCCEED;
 }
 
 
