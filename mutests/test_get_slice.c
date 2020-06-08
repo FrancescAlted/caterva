@@ -46,25 +46,7 @@ static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t nd
         buffersize *= shape[i];
     }
     uint8_t *buffer = ctx->cfg->alloc(buffersize);
-    // fill_buf(buffer, itemsize, buffersize / itemsize);
-    for (int i = 0; i < (buffersize/itemsize); ++i) {
-        switch (itemsize) {
-            case 1:
-                ((uint8_t *) buffer)[i] = (uint8_t) i;
-                break;
-            case 2:
-                ((uint16_t *) buffer)[i] = (uint16_t) i;
-                break;
-            case 4:
-                ((float *) buffer)[i] = (float) i;
-                break;
-            case 8:
-                ((double *) buffer)[i] = (double) i;
-                break;
-            default:
-                MU_ASSERT_CATERVA(CATERVA_ERR_INVALID_STORAGE);
-        }
-    }
+    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
