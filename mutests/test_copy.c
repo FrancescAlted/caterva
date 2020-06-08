@@ -105,7 +105,7 @@ static char* test_copy(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, i
     free(buffer_dest);
     MU_ASSERT_CATERVA(caterva_array_free(ctx, &src));
     MU_ASSERT_CATERVA(caterva_array_free(ctx, &dest));
-    
+
     return 0;
 }
 
@@ -310,23 +310,4 @@ static char* append_tests() {
     return 0;
 }
 
-int tests_run = 0;
-int tests_failed = 0;
-
-int main(int argc, char **argv) {
-    char* filter = "";
-    if (argc == 2) {
-        filter = argv[1];
-    }
-    if(strncmp("copy", filter, strlen(filter)) != 0) {
-        return 0;
-    }
-    printf("COPY SUITE\n");
-
-    append_tests();
-
-    int tests_ok = tests_run - tests_failed;
-    printf("RESULTS: %d tests (%d ok, %d failed)\n", tests_run, tests_ok, tests_failed);
-
-    return tests_failed;
-}
+MU_RUN_SUITE("copy");
