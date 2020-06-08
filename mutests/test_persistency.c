@@ -107,7 +107,6 @@ static  char* persistency_1_uint16() {
     int64_t chunkshape[] = {200};
     int64_t blockshape[] = {80};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -121,7 +120,6 @@ static  char* persistency_2_uint8() {
     int64_t chunkshape[] = {55, 67};
     int64_t blockshape[] = {40, 40};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -135,7 +133,6 @@ static  char* persistency_3_double() {
     int64_t chunkshape[] = {26, 17, 34};
     int64_t blockshape[] = {11, 8, 13};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -149,7 +146,6 @@ static  char* persistency_4_float() {
     int64_t chunkshape[] = {9, 5, 11, 10};
     int64_t blockshape[] = {2, 2, 5, 3};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -163,7 +159,6 @@ static  char* persistency_4_uint8() {
     int64_t chunkshape[] = {23, 12, 24, 50};
     int64_t blockshape[] = {11, 5, 7, 13};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -178,7 +173,6 @@ static  char* persistency_5_double() {
     int64_t chunkshape[] = {10, 15, 8, 11, 11};
     int64_t blockshape[] = {3, 3, 3, 3, 3};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -192,7 +186,6 @@ static  char* persistency_6_uint16() {
     int64_t chunkshape[] = {2, 2, 3, 3, 4, 5};
     int64_t blockshape[] = {2, 1, 2, 2, 3, 4};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -206,7 +199,6 @@ static  char* persistency_7_uint64() {
     int64_t chunkshape[] = {4, 3, 4, 3, 3, 5, 3};
     int64_t blockshape[] = {1, 3, 2, 2, 1, 2, 2};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
@@ -220,7 +212,6 @@ static  char* persistency_8_uint8() {
     int64_t chunkshape[] = {3, 2, 3, 3, 4, 5, 4, 2};
     int64_t blockshape[] = {2, 1, 2, 2, 3, 4, 3, 1};
     bool enforceframe = true;
-    char *filename = filename;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
 }
