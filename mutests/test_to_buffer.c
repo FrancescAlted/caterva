@@ -45,19 +45,19 @@ static char* test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
     }
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    MU_ASSERT_CATERVA(caterva_array_from_buffer(ctx, result, buffersize, &params, &storage, &src));
+    MU_ASSERT_CATERVA(caterva_array_from_buffer(ctx, result, buffersize, &params, &storage, &src))
 
     /* Create dest buffer */
     uint8_t *destbuffer = ctx->cfg->alloc(buffersize);
 
     /* Fill dest buffer with a slice*/
-    MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, src, destbuffer, buffersize));
+    MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, src, destbuffer, buffersize))
 
     /* Assert results */
-    MU_ASSERT_BUFFER(destbuffer, result, buffersize);
+    MU_ASSERT_BUFFER(destbuffer, result, buffersize)
 
     ctx->cfg->free(destbuffer);
-    MU_ASSERT_CATERVA(caterva_array_free(ctx, &src));
+    MU_ASSERT_CATERVA(caterva_array_free(ctx, &src))
     
     return 0;
 }
