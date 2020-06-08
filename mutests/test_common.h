@@ -11,8 +11,8 @@
 
 #define MU_ASSERT_CATERVA(rc) MU_ASSERT(print_error(rc), rc == CATERVA_SUCCEED)
 
-static bool fill_buf(uint8_t *buf, uint8_t itemsize, size_t buf_size) MU_UNUSED;
-        static bool fill_buf(uint8_t *buf, uint8_t itemsize, size_t buf_size) {
+static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) MU_UNUSED;
+        static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) {
     switch (itemsize) {
         case 8:
             for (size_t i = 0; i < buf_size; ++i) {
