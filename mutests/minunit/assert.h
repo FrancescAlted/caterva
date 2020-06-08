@@ -5,7 +5,7 @@
 #ifndef CATERVA_ASSERT_H
 #define CATERVA_ASSERT_H
 
-#include "minunit.h"
+#define MU_ASSERT(message, test) do { if (!(test)) { sprintf(error_message, "    Err %s:%d %s", __FILE__, __LINE__, message); return error_message;} } while (0)
 
 #define MU_ASSERT_BUFFER(a, b, buflen) MU_ASSERT("Buffers are not equals", mu_assert_buffer(a, b, buflen))
 
