@@ -104,7 +104,7 @@ install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 if (CATERVA_BUILD_TESTS)
     message(STATUS "Adding Caterva tests")
     enable_testing()
-    add_subdirectory(mutests)
+    add_subdirectory(tests)
 endif()
 
 if(CATERVA_BUILD_EXAMPLES)
