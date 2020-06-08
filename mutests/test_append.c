@@ -152,7 +152,7 @@ static char* append_4_dim() {
     
     int64_t pshape_[] = {2, 3, 2, 3};
     int64_t spshape_[] = {2, 3, 1, 3};
-    double result[80] = {0,1,2,36,37,38,3,4,5,39};
+    double result[80] = {0, 1, 2, 36, 37, 38, 3, 4, 5, 39};
     bool enforceframe = false;
     char *filename = NULL;
     
@@ -167,7 +167,7 @@ static char* append_5_dim_float() {
 
     int64_t pshape_[] = {5, 12, 5, 3, 4};
     int64_t spshape_[] = {2, 5, 2, 2, 3};
-    float result[80] = {0,1,2,3,3600,3601,3602,3603,4,5};
+    float result[80] = {0, 1, 2, 3, 3600, 3601, 3602, 3603, 4, 5};
     bool enforceframe = false;
     char *filename = NULL;
     return test_append(ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
@@ -181,7 +181,7 @@ static char* append_6_dim() {
 
     int64_t pshape_[] = {7, 3, 5, 6, 5, 3};
     int64_t spshape_[] = {2, 4, 2, 1, 2, 2};
-    double result[80] = {0,1,2,9450,9451,9452,18900,18901,3,4};
+    double result[80] = {0, 1, 2, 9450, 9451, 9452, 18900, 18901, 3, 4};
     bool enforceframe = false;
     char *filename = NULL;
     return test_append(ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
@@ -195,7 +195,7 @@ static char* append_7_dim_float() {
 
     int64_t pshape_[] = {5, 2, 2, 3, 2, 2, 3};
     int64_t spshape_[] = {4, 2, 1, 2, 1, 2, 2};
-    float result[80] = {0,1,2,720,721,722,1440,3,4,5};
+    float result[80] = {0, 1, 2, 720, 721, 722, 1440, 3, 4 ,5};
     bool enforceframe = false;
     char *filename = NULL;
     return test_append(ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);

@@ -295,18 +295,18 @@ static char* copy_8_uint8_plainbuffer_plainbuffer() {
 }
 
 static char* all_tests() {
-    MU_RUN_SETUP(copy_setup);
+    MU_RUN_SETUP(copy_setup)
 
-    MU_RUN_TEST(copy_1_double_plain_blosc);
-    MU_RUN_TEST(copy_2_double_blosc_blosc);
-    MU_RUN_TEST(copy_3_double_blosc_plainbuffer);
-    MU_RUN_TEST(copy_4_float_plainbuffer_blosc_frame);
-    MU_RUN_TEST(copy_5_double_plainbuffer_plainbuffer);
-    MU_RUN_TEST(copy_6_uint16_blosc_plainbuffer);
-    MU_RUN_TEST(copy_7_float_blosc_blosc);
-    MU_RUN_TEST(copy_8_uint8_plainbuffer_plainbuffer);
+    MU_RUN_TEST(copy_1_double_plain_blosc)
+    MU_RUN_TEST(copy_2_double_blosc_blosc)
+    MU_RUN_TEST(copy_3_double_blosc_plainbuffer)
+    MU_RUN_TEST(copy_4_float_plainbuffer_blosc_frame)
+    MU_RUN_TEST(copy_5_double_plainbuffer_plainbuffer)
+    MU_RUN_TEST(copy_6_uint16_blosc_plainbuffer)
+    MU_RUN_TEST(copy_7_float_blosc_blosc)
+    MU_RUN_TEST(copy_8_uint8_plainbuffer_plainbuffer)
 
-    MU_RUN_TEARDOWN(copy_teardown);
+    MU_RUN_TEARDOWN(copy_teardown)
     return 0;
 }
 

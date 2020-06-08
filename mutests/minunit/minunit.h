@@ -17,11 +17,30 @@ extern int tests_run;
 extern int tests_failed;
 extern int tests_skiped;
 
-#define MU_RUN_TEST(test) do { printf("- %-50s ", #test); char *message = test(); ++tests_run;\
-                                if (message) { printf("[FAILED]\n"); printf("%s\n", message); ++tests_failed; } else {printf("[OK]\n"); } } while (0)
-#define MU_RUN_TEST_SKIP(test) do { printf("- %-50s ", #test); ++tests_run; ++tests_skiped; printf("[SKIPED]\n"); } while (0)
-#define MU_RUN_SETUP(setup) do {setup();} while (0)
-#define MU_RUN_TEARDOWN(teardown) do {teardown();} while (0)
+#define MU_RUN_TEST(test) { \
+    printf("- %-50s ", #test); \
+    char *message = test(); \
+    ++tests_run; \
+    if (message) { \
+        printf("[FAILED]\n"); \
+        printf("%s\n", message); \
+        ++tests_failed; \
+    } else { \
+        printf("[OK]\n"); \
+    } \
+}
+
+#define MU_RUN_TEST_SKIP(test) { \
+    printf("- %-50s ", #test); \
+    ++tests_run; \
+    ++tests_skiped; \
+    printf("[SKIPED]\n"); \
+}
+
+#define MU_RUN_SETUP(setup) \
+    setup();
+#define MU_RUN_TEARDOWN(teardown) \
+    teardown();
 
 #define MU_RUN_SUITE(name) \
     int tests_run = 0; \
