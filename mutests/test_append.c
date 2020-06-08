@@ -228,8 +228,8 @@ static char* append_8_dim_uint16() {
 }
 
 
-static char* append_tests(char* string) {
-    if(strncmp("append", string, strlen(string)) != 0) {
+static char* append_tests(char* filter) {
+    if(strncmp("append", filter, strlen(filter)) != 0) {
         return 0;
     }
 
