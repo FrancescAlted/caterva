@@ -15,8 +15,8 @@ extern int tests_run;
 extern int tests_failed;
 
 #define MU_ASSERT(message, test) do { if (!(test)) return message; } while (0)
-#define MU_RUN_TEST(test) do { printf("TEST %d: %s... ", ++tests_run, #test); char *message = test(); \
-                                if (message) { printf("[FAILED]\n"); ++tests_failed; return message; \
+#define MU_RUN_TEST(test) do { printf("- %s... ", #test); char *message = test(); ++tests_run;\
+                                if (message) { printf("[FAILED]\n"); ++tests_failed; \
                                 } else {printf("[OK]\n"); } } while (0)
 #define MU_RUN_SETUP(setup) do {setup();} while (0)
 #define MU_RUN_TEARDOWN(teardown) do {teardown();} while (0)

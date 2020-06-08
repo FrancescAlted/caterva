@@ -228,11 +228,7 @@ static char* append_8_dim_uint16() {
 }
 
 
-static char* append_tests(char* filter) {
-    if(strncmp("append", filter, strlen(filter)) != 0) {
-        return 0;
-    }
-
+static char* append_tests() {
     MU_RUN_SETUP(append_setup);
 
     MU_RUN_TEST(append_2_dim);
@@ -246,4 +242,25 @@ static char* append_tests(char* filter) {
 
     MU_RUN_TEARDOWN(append_teardown);
     return 0;
+}
+
+int tests_run = 0;
+int tests_failed = 0;
+
+int main(int argc, char **argv) {
+    char* filter = "";
+    if (argc == 2) {
+        filter = argv[1];
+    }
+    if(strncmp("append", filter, strlen(filter)) != 0) {
+        return 0;
+    }
+    printf("APPEND SUITE\n");
+
+    append_tests();
+
+    int tests_ok = tests_run - tests_failed;
+    printf("RESULTS: %d tests (%d ok, %d failed)\n", tests_run, tests_ok, tests_failed);
+
+    return tests_failed;
 }
