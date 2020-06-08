@@ -11,7 +11,7 @@ file(GLOB SOURCES test_*.c)
 
 foreach (source ${SOURCES})
     get_filename_component(target_name ${source} NAME_WE)
-    set(target caterva_mu_${target_name})
+    set(target caterva_${target_name}_mu)
     add_executable(${target} ${target_name}.c)
     target_link_libraries(${target} ${CATERVA_LIB} ${BLOSC_LIB})
     add_test(NAME ${target} COMMAND ${target})
