@@ -319,7 +319,9 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk
     if (rchunksize != array->extchunksize * array->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
-    CATERVA_ERROR (chunksize != array->chunksize * array->itemsize);
+    if (chunksize != array->chunksize * array->itemsize) {
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
 
     const int8_t *src_b = (int8_t *) chunk;
     memset(rchunk, 0, rchunksize);
