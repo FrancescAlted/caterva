@@ -76,7 +76,7 @@ static char* test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
 
     MU_ASSERT_CATERVA(caterva_array_squeeze(ctx, dest));
 
-    MU_ASSERT("Squeeze doesn't perform well", src->ndim != dest->ndim);
+    MU_ASSERT_NOT_EQUAL(src->ndim ,dest->ndim);
 
     free(buffer);
     MU_ASSERT_CATERVA(caterva_array_free(ctx, &src));
