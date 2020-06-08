@@ -294,7 +294,7 @@ static char* copy_8_uint8_plainbuffer_plainbuffer() {
               filename, backend2, chunkshape2, blockshape2, enforceframe2, filename2);
 }
 
-static char* append_tests() {
+static char* all_tests() {
     MU_RUN_SETUP(copy_setup);
 
     MU_RUN_TEST(copy_1_double_plain_blosc);
@@ -310,4 +310,4 @@ static char* append_tests() {
     return 0;
 }
 
-MU_RUN_SUITE("copy");
+MU_RUN_SUITE("COPY");

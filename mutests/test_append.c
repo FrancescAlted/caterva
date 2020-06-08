@@ -229,15 +229,14 @@ static char* append_8_dim_uint16() {
     return test_append(ctx, itemsize, ndim, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
 }
 
-
-static char* append_tests() {
+static char* all_tests() {
     MU_RUN_SETUP(append_setup);
 
     MU_RUN_TEST(append_2_dim);
     MU_RUN_TEST(append_3_dim_plain);
     MU_RUN_TEST(append_4_dim);
     MU_RUN_TEST(append_5_dim_float);
-    MU_RUN_TEST_SKIP(append_6_dim);
+    MU_RUN_TEST(append_6_dim);
     MU_RUN_TEST(append_7_dim_float);
     MU_RUN_TEST(append_8_dim_uint16);
     MU_RUN_TEST(append_8_dim_uint8);
@@ -246,23 +245,4 @@ static char* append_tests() {
     return 0;
 }
 
-int tests_run = 0;
-int tests_failed = 0;
-
-int main(int argc, char **argv) {
-    char* filter = "";
-    if (argc == 2) {
-        filter = argv[1];
-    }
-    if(strncmp("append", filter, strlen(filter)) != 0) {
-        return 0;
-    }
-    printf("APPEND SUITE\n");
-
-    append_tests();
-
-    int tests_ok = tests_run - tests_failed;
-    printf("RESULTS: %d tests (%d ok, %d failed)\n", tests_run, tests_ok, tests_failed);
-
-    return tests_failed;
-}
+MU_RUN_SUITE("APPEND");

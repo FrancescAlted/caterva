@@ -269,7 +269,7 @@ static char* squeeze_8_uint16_blosc_frame_plainbuffer() {
                  backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
 }
 
-static char* append_tests() {
+static char* all_tests() {
     MU_RUN_SETUP(squeeze_setup);
 
     MU_RUN_TEST(squeeze_2_float_blosc_plainbuffer);
@@ -284,23 +284,4 @@ static char* append_tests() {
     return 0;
 }
 
-int tests_run = 0;
-int tests_failed = 0;
-
-int main(int argc, char **argv) {
-    char* filter = "";
-    if (argc == 2) {
-        filter = argv[1];
-    }
-    if(strncmp("squeeze", filter, strlen(filter)) != 0) {
-        return 0;
-    }
-    printf("SQUEEZE SUITE\n");
-
-    append_tests();
-
-    int tests_ok = tests_run - tests_failed;
-    printf("RESULTS: %d tests (%d ok, %d failed)\n", tests_run, tests_ok, tests_failed);
-
-    return tests_failed;
-}
+MU_RUN_SUITE("SQUEEZE")
