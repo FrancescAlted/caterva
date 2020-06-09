@@ -41,8 +41,8 @@ static char* test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t 
             storage.properties.blosc.filename = filename;
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = chunkshape[i];
-                storage.properties.blosc.blockshape[i] = blockshape[i];
+                storage.properties.blosc.chunkshape[i] = (int32_t) chunkshape[i];
+                storage.properties.blosc.blockshape[i] = (int32_t) blockshape[i];
             }
             break;
         default:
@@ -54,8 +54,8 @@ static char* test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t 
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-    uint8_t *buffer = malloc(buffersize);
-    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
+    uint8_t *buffer = malloc((size_t) buffersize);
+    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, (size_t) buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
@@ -65,7 +65,7 @@ static char* test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t 
     caterva_array_from_file(ctx, filename, true, &dest);
 
     /* Fill dest array with caterva_array_t data */
-    uint8_t *buffer_dest = malloc(buffersize);
+    uint8_t *buffer_dest = malloc((size_t) buffersize);
     MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, dest, buffer_dest, buffersize));
 
     /* Testing */

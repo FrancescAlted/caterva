@@ -33,8 +33,8 @@ static char* test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize,
             break;
         case CATERVA_STORAGE_BLOSC:
             for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = chunkshape[i];
-                storage.properties.blosc.blockshape[i] = blockshape[i];
+                storage.properties.blosc.chunkshape[i] = (int32_t) chunkshape[i];
+                storage.properties.blosc.blockshape[i] = (int32_t) blockshape[i];
             }
             break;
         default:

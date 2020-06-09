@@ -44,8 +44,8 @@ static char* test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-    uint8_t *buffer = malloc(buffersize);
-    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
+    uint8_t *buffer = malloc((size_t) buffersize);
+    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, (size_t) buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
@@ -63,8 +63,8 @@ static char* test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
             storage2.properties.blosc.filename = filename2;
             storage2.properties.blosc.enforceframe = enforceframe2;
             for (int i = 0; i < ndim; ++i) {
-                storage2.properties.blosc.chunkshape[i] = chunkshape2[i];
-                storage2.properties.blosc.blockshape[i] = blockshape2[i];
+                storage2.properties.blosc.chunkshape[i] = (int32_t) chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = (int32_t) blockshape2[i];
             }
             break;
         default:

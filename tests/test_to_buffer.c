@@ -30,8 +30,8 @@ static char* test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
             storage.properties.blosc.filename = filename;
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = chunkshape[i];
-                storage.properties.blosc.blockshape[i] = blockshape[i];
+                storage.properties.blosc.chunkshape[i] = (int32_t) chunkshape[i];
+                storage.properties.blosc.blockshape[i] = (int32_t) blockshape[i];
             }
             break;
         default:
@@ -48,7 +48,7 @@ static char* test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
     MU_ASSERT_CATERVA(caterva_array_from_buffer(ctx, result, buffersize, &params, &storage, &src))
 
     /* Create dest buffer */
-    uint8_t *destbuffer = ctx->cfg->alloc(buffersize);
+    uint8_t *destbuffer = ctx->cfg->alloc((size_t) buffersize);
 
     /* Fill dest buffer with a slice*/
     MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, src, destbuffer, buffersize))

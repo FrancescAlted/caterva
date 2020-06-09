@@ -32,8 +32,8 @@ static char* test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
             storage.properties.blosc.filename = filename;
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = chunkshape[i];
-                storage.properties.blosc.blockshape[i] = blockshape[i];
+                storage.properties.blosc.chunkshape[i] = (int32_t) chunkshape[i];
+                storage.properties.blosc.blockshape[i] = (int32_t) blockshape[i];
             }
             break;
         default:
@@ -45,8 +45,8 @@ static char* test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-    double *buffer = ctx->cfg->alloc(buffersize);
-    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
+    double *buffer = ctx->cfg->alloc((size_t) buffersize);
+    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, (size_t) buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
@@ -57,7 +57,7 @@ static char* test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
     for (int i = 0; i < ndim; ++i) {
         destbuffersize *= destshape[i];
     }
-    uint8_t *destbuffer = ctx->cfg->alloc(destbuffersize);
+    uint8_t *destbuffer = ctx->cfg->alloc((size_t) destbuffersize);
 
     /* Fill dest buffer with a slice*/
     MU_ASSERT_CATERVA(caterva_array_get_slice_buffer(ctx, src, start, stop, destshape, destbuffer, destbuffersize));

@@ -32,8 +32,8 @@ static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t nd
             storage.properties.blosc.filename = filename;
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = chunkshape[i];
-                storage.properties.blosc.blockshape[i] = blockshape[i];
+                storage.properties.blosc.chunkshape[i] = (int32_t) chunkshape[i];
+                storage.properties.blosc.blockshape[i] = (int32_t) blockshape[i];
             }
             break;
         default:
@@ -45,8 +45,8 @@ static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t nd
     for (int i = 0; i < ndim; ++i) {
         buffersize *= shape[i];
     }
-    uint8_t *buffer = ctx->cfg->alloc(buffersize);
-    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
+    uint8_t *buffer = ctx->cfg->alloc((size_t) buffersize);
+    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, (size_t) buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
@@ -64,8 +64,8 @@ static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t nd
             storage2.properties.blosc.filename = filename2;
             storage2.properties.blosc.enforceframe = enforceframe2;
             for (int i = 0; i < ndim; ++i) {
-                storage2.properties.blosc.chunkshape[i] = chunkshape2[i];
-                storage2.properties.blosc.blockshape[i] = blockshape2[i];
+                storage2.properties.blosc.chunkshape[i] = (int32_t) chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = (int32_t) blockshape2[i];
             }
             break;
         default:
@@ -79,7 +79,7 @@ static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t nd
     for (int i = 0; i < src->ndim; ++i) {
         destbuffersize *= (stop[i] - start[i]);
     }
-    uint8_t *buffer_dest = ctx->cfg->alloc(destbuffersize);
+    uint8_t *buffer_dest = ctx->cfg->alloc((size_t) destbuffersize);
     MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, dest, buffer_dest, destbuffersize));
 
     /* Testing */
