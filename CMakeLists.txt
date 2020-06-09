@@ -111,5 +111,3 @@ if(CATERVA_BUILD_EXAMPLES)
     message(STATUS "Adding Caterva examples")
     add_subdirectory(examples)
 endif()
-
-message("")
