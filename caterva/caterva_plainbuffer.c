@@ -23,7 +23,8 @@ int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **arr
 
 int caterva_plainbuffer_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
 
-    int64_t start[CATERVA_MAX_DIM], stop[CATERVA_MAX_DIM];
+    int64_t start[CATERVA_MAX_DIM];
+    int64_t stop[CATERVA_MAX_DIM];
     for (int i = 0; i < array->ndim; ++i) {
         start[i] = 0;
         stop[i] = start[i] + array->chunkshape[i];
@@ -196,20 +197,20 @@ int caterva_plainbuffer_array_get_slice(caterva_context_t *ctx, caterva_array_t 
 int caterva_plainbuffer_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape) {
     array->ndim = ndim;
     array->size = 1;
-    array->extendedesize = 1;
+    array->extsize = 1;
     array->chunksize = 1;
     for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
         if (i < ndim) {
             array->shape[i] = shape[i];
-            array->extendedshape[i] = shape[i];
+            array->extshape[i] = shape[i];
             array->chunkshape[i] = (int32_t) (shape[i]);
         } else {
             array->shape[i] = 1;
-            array->extendedshape[i] = 1;
+            array->extshape[i] = 1;
             array->chunkshape[i] = 1;
         }
         array->size *= array->shape[i];
-        array->extendedesize *= array->extendedshape[i];
+        array->extsize *= array->extshape[i];
         array->chunksize *= array->chunkshape[i];
     }
 
@@ -264,22 +265,22 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
 
     (*array)->size = 1;
     (*array)->chunksize = 1;
-    (*array)->extendedesize = 1;
+    (*array)->extsize = 1;
 
     for (int i = 0; i < params->ndim; ++i) {
         (*array)->shape[i] = shape[i];
         (*array)->chunkshape[i] = shape[i];
-        (*array)->extendedshape[i] = shape[i];
+        (*array)->extshape[i] = shape[i];
 
         (*array)->size *= shape[i];
         (*array)->chunksize *= shape[i];
-        (*array)->extendedesize *= shape[i];
+        (*array)->extsize *= shape[i];
     }
 
     for (int i = params->ndim; i < CATERVA_MAX_DIM; ++i) {
         (*array)->shape[i] = 1;
         (*array)->chunkshape[i] = 1;
-        (*array)->extendedshape[i] = 1;
+        (*array)->extshape[i] = 1;
     }
 
     // The partition cache (empty initially)
@@ -288,7 +289,7 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
 
     (*array)->sc = NULL;
 
-    uint8_t *buf = ctx->cfg->alloc((*array)->extendedesize * params->itemsize);
+    uint8_t *buf = ctx->cfg->alloc((*array)->extsize * params->itemsize);
 
     (*array)->buf = buf;
 

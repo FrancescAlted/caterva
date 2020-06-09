@@ -26,16 +26,19 @@ int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t l
 int caterva_blosc_from_file(caterva_context_t *ctx, const char *filename, bool copy, caterva_array_t **array);
 
 
+int caterva_blosc_array_repart_chunk(int8_t *repartedchunk, int repartedchunksize, void *chunk, int chunksize, caterva_array_t *array);
+
+
 int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize);
 
 
 int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize);
 
-int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer);
-
 
 int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array, int64_t *start,
                                          int64_t *stop, int64_t *shape, void *buffer);
+
+int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer);
 
 int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
                                   caterva_array_t *array);

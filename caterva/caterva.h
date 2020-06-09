@@ -27,11 +27,11 @@
 
 /* Version numbers */
 #define CATERVA_VERSION_MAJOR    0    /* for major interface/format changes  */
-#define CATERVA_VERSION_MINOR    2    /* for minor interface/format changes  */
+#define CATERVA_VERSION_MINOR    3    /* for minor interface/format changes  */
 #define CATERVA_VERSION_RELEASE  3    /* for tweaks, bug-fixes, or development */
 
-#define CATERVA_VERSION_STRING   "0.2.3-dev"  /* string version.  Sync with above! */
-#define CATERVA_VERSION_DATE     "2019-10-28"    /* date version */
+#define CATERVA_VERSION_STRING   "0.3.3"  /* string version.  Sync with above! */
+#define CATERVA_VERSION_DATE     "2020-04-27"    /* date version */
 
 
 /* Error handling */
@@ -52,7 +52,13 @@
 #define CATERVA_ERROR_NULL(pointer) do { if (pointer == NULL) { DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); return CATERVA_ERR_NULL_POINTER; }} while( 0 )
 
 #define CATERVA_UNUSED_PARAM(x) ((void)(x))
+#ifdef __GNUC__
+#define CATERVA_ATTRIBUTE_UNUSED  __attribute__((unused))
+#else
+#define CATERVA_ATTRIBUTE_UNUSED
+#endif
 
+static char *print_error(int rc) CATERVA_ATTRIBUTE_UNUSED;
 static char *print_error(int rc) {
     switch (rc) {
         case CATERVA_ERR_INVALID_STORAGE: return "Invalid storage";
@@ -156,6 +162,8 @@ typedef struct {
 typedef struct {
     int32_t chunkshape[CATERVA_MAX_DIM];
     //!< The shape of each chunk of Blosc.
+    int32_t blockshape[CATERVA_MAX_DIM];
+    //!< The shape of each block of Blosc.
     bool enforceframe;
     //!< Flag to indicate if the superchunk is stored as a frame.
     char* filename;
@@ -202,12 +210,12 @@ typedef struct {
  * @brief General parameters needed for the creation of a caterva array.
  */
 typedef struct {
+    uint8_t itemsize;
+    //!< The size of each item of the array.
     int64_t shape[CATERVA_MAX_DIM];
     //!< The array shape.
     uint8_t ndim;
     //!< The array dimensions.
-    uint8_t itemsize;
-    //!< The size of each item of the array.
 } caterva_params_t;
 
 
@@ -241,14 +249,26 @@ typedef struct {
     //!< Shape of original data.
     int32_t chunkshape[CATERVA_MAX_DIM];
     //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to @p shape.
-    int64_t extendedshape[CATERVA_MAX_DIM];
+    int64_t extshape[CATERVA_MAX_DIM];
     //!< Shape of padded data.
+    int32_t blockshape[CATERVA_MAX_DIM];
+    //!< Shape of each block.
+    int64_t extchunkshape[CATERVA_MAX_DIM];
+    //!< Shape of padded chunk.
+    int32_t next_chunkshape[CATERVA_MAX_DIM];
+    //!< Shape of next chunk to be appended.
     int64_t size;
     //!< Size of original data.
     int32_t chunksize;
     //!< Size of each chunk.
-    int64_t extendedesize;
+    int64_t extsize;
     //!< Size of padded data.
+    int32_t blocksize;
+    //!< Size of each block.
+    int64_t extchunksize;
+    //!< Size of padded chunk.
+    int64_t next_chunksize;
+    //!< Size of next chunk to be appended.
     int8_t ndim;
     //!< Data dimensions.
     int8_t itemsize;
@@ -381,7 +401,7 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  * @return An error code.
  */
 int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize, caterva_params_t *params,
-    caterva_storage_t *storage, caterva_array_t **array);
+                              caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**
@@ -410,7 +430,7 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  * @return An error code.
  */
 int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start, int64_t *stop,
-    caterva_storage_t *storage, caterva_array_t **array);
+                            caterva_storage_t *storage, caterva_array_t **array);
 
 
 /**
