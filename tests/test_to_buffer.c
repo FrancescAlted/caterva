@@ -295,9 +295,9 @@ static char* to_buffer_ndim_7_uint16() {
     return message;
 }
 
-static char* to_buffer_ndim_8_uint8_plain() {
+static char* to_buffer_ndim_8_float_plain() {
     const int8_t ndim = 8;
-    uint8_t itemsize = sizeof(uint8_t);
+    uint8_t itemsize = sizeof(float);
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
     bool enforceframe = false;
     char *filename = NULL;
@@ -309,9 +309,9 @@ static char* to_buffer_ndim_8_uint8_plain() {
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
     }
-    uint8_t *result = (uint8_t *) ctx->cfg->alloc((size_t)buf_size * itemsize);
-    for (int8_t i = 0; i < buf_size; ++i) {
-        result[i] = i;
+    float *result = (float *) ctx->cfg->alloc((size_t)buf_size * itemsize);
+    for (int i = 0; i < buf_size; ++i) {
+        result[i] = (float) i;
     }
     char* message = test_to_buffer(ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
     ctx->cfg->free(result);
@@ -357,7 +357,7 @@ static char* all_tests() {
     MU_RUN_TEST(to_buffer_ndim_5_float)
     MU_RUN_TEST(to_buffer_ndim_6)
     MU_RUN_TEST(to_buffer_ndim_7_uint16)
-    MU_RUN_TEST(to_buffer_ndim_8_uint8_plain)
+    MU_RUN_TEST(to_buffer_ndim_8_float_plain)
 
     MU_RUN_TEARDOWN(to_buffer_teardown)
     return 0;
