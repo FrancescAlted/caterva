@@ -109,24 +109,26 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunks
 static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim, int64_t *shape,
                                 int32_t *chunkshape, int32_t *blockshape) {
     uint8_t *pmeta = smeta;
+    CATERVA_UNUSED_PARAM(smeta_len);
 
     // Check that we have an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
     assert(*pmeta == 0x90 + 5);
     pmeta += 1;
-    assert((pmeta - smeta) < smeta_len);
+    assert((uint32_t) (pmeta - smeta) < smeta_len);
 
     // version entry
     int8_t version = pmeta[0];  // positive fixnum (7-bit positive integer)
+    CATERVA_UNUSED_PARAM(version);
     assert (version <= CATERVA_METALAYER_VERSION);
     pmeta += 1;
-    assert((pmeta - smeta) < smeta_len);
+    assert((uint32_t) (pmeta - smeta) < smeta_len);
 
     // ndim entry
     *ndim = pmeta[0];
     int8_t ndim_aux = *ndim;  // positive fixnum (7-bit positive integer)
     assert (ndim_aux <= CATERVA_MAX_DIM);
     pmeta += 1;
-    assert((pmeta - smeta) < smeta_len);
+    assert((uint32_t) (pmeta - smeta) < smeta_len);
 
     // shape entry
     // Initialize to ones, as required by Caterva
@@ -139,7 +141,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
         swap_store(shape + i, pmeta, sizeof(int64_t));
         pmeta += sizeof(int64_t);
     }
-    assert((pmeta - smeta) < smeta_len);
+    assert((uint32_t) (pmeta - smeta) < smeta_len);
 
     // chunkshape entry
     // Initialize to ones, as required by Caterva
@@ -152,7 +154,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
         swap_store(chunkshape + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
-    assert((pmeta - smeta) <= smeta_len);
+    assert((uint32_t) (pmeta - smeta) <= smeta_len);
 
     // blockshape entry
     // Initialize to ones, as required by Caterva
@@ -165,8 +167,9 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
         swap_store(blockshape + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
-    assert((pmeta - smeta) <= smeta_len);
+    assert((uint32_t) (pmeta - smeta) <= smeta_len);
     uint32_t slen = (uint32_t)(pmeta - smeta);
+    CATERVA_UNUSED_PARAM(slen);
     assert(slen == smeta_len);
     return 0;
 }
@@ -343,9 +346,9 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk
     }
 
     /* Fill each subpartition buffer */
-    int64_t orig[CATERVA_MAX_DIM];
+    int32_t orig[CATERVA_MAX_DIM];
     int32_t actual_spsize[CATERVA_MAX_DIM];
-    for (int64_t sci = 0; sci < array->extchunksize / array->blocksize; sci++) {
+    for (int32_t sci = 0; sci < array->extchunksize / array->blocksize; sci++) {
         /*Calculate the coord. of the subpartition first element */
         orig[7] = sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
         for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
@@ -354,7 +357,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk
         /* Calculate if padding with 0s is needed for this subpartition */
         for (int i = CATERVA_MAX_DIM - 1; i >= 0; i--) {
             if (orig[i] + d_spshape[i] > d_pshape[i]) {
-                actual_spsize[i] = (int32_t) (d_pshape[i] - orig[i]);
+                actual_spsize[i] = (d_pshape[i] - orig[i]);
             } else {
                 actual_spsize[i] = d_spshape[i];
             }
@@ -822,10 +825,6 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                 }
             }
         }
-    }
-    int buf_size = 1;
-    for(int i=0; i< CATERVA_MAX_DIM; i++){
-        buf_size *= (int) d_pshape_[i];
     }
 
     ctx->cfg->free(block_maskout);
