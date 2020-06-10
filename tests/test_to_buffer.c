@@ -310,8 +310,8 @@ static char* to_buffer_ndim_8_uint8_plain() {
         buf_size *= (shape_[i]);
     }
     uint8_t *result = (uint8_t *) ctx->cfg->alloc((size_t)buf_size * itemsize);
-    for (int64_t i = 0; i < buf_size; ++i) {
-        result[i] = (float) i;
+    for (int8_t i = 0; i < buf_size; ++i) {
+        result[i] = i;
     }
     char* message = test_to_buffer(ctx, ndim, itemsize, shape_, backend, pshape_, spshape_, enforceframe, filename, result);
     ctx->cfg->free(result);

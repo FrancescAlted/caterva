@@ -113,20 +113,20 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
     // Check that we have an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
     assert(*pmeta == 0x90 + 5);
     pmeta += 1;
-    assert(pmeta - smeta < smeta_len);
+    assert((pmeta - smeta) < smeta_len);
 
     // version entry
     int8_t version = pmeta[0];  // positive fixnum (7-bit positive integer)
     assert (version <= CATERVA_METALAYER_VERSION);
     pmeta += 1;
-    assert(pmeta - smeta < smeta_len);
+    assert((pmeta - smeta) < smeta_len);
 
     // ndim entry
     *ndim = pmeta[0];
     int8_t ndim_aux = *ndim;  // positive fixnum (7-bit positive integer)
     assert (ndim_aux <= CATERVA_MAX_DIM);
     pmeta += 1;
-    assert(pmeta - smeta < smeta_len);
+    assert((pmeta - smeta) < smeta_len);
 
     // shape entry
     // Initialize to ones, as required by Caterva
@@ -139,7 +139,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
         swap_store(shape + i, pmeta, sizeof(int64_t));
         pmeta += sizeof(int64_t);
     }
-    assert(pmeta - smeta < smeta_len);
+    assert((pmeta - smeta) < smeta_len);
 
     // chunkshape entry
     // Initialize to ones, as required by Caterva
@@ -152,7 +152,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
         swap_store(chunkshape + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
-    assert(pmeta - smeta <= smeta_len);
+    assert((pmeta - smeta) <= smeta_len);
 
     // blockshape entry
     // Initialize to ones, as required by Caterva
@@ -165,7 +165,7 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
         swap_store(blockshape + i, pmeta, sizeof(int32_t));
         pmeta += sizeof(int32_t);
     }
-    assert(pmeta - smeta <= smeta_len);
+    assert((pmeta - smeta) <= smeta_len);
     uint32_t slen = (uint32_t)(pmeta - smeta);
     assert(slen == smeta_len);
     return 0;
