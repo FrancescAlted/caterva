@@ -12,7 +12,7 @@
 #include "test_common.h"
 
 static char* test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize, int64_t *shape,
-                           caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape, bool enforceframe,
+                           caterva_storage_backend_t backend, int32_t *chunkshape, int32_t *blockshape, bool enforceframe,
                            char* filename, void *result) {
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -30,8 +30,8 @@ static char* test_to_buffer(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
             storage.properties.blosc.filename = filename;
             storage.properties.blosc.enforceframe = enforceframe;
             for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = (int32_t) chunkshape[i];
-                storage.properties.blosc.blockshape[i] = (int32_t) blockshape[i];
+                storage.properties.blosc.chunkshape[i] = chunkshape[i];
+                storage.properties.blosc.blockshape[i] = blockshape[i];
             }
             break;
         default:
@@ -79,8 +79,8 @@ static char* to_buffer_teardown() {
 static char* to_buffer_ndim_1() {
     const int8_t ndim = 1;
     int64_t shape_[] = {30};
-    int64_t pshape_[] = {30};
-    int64_t spshape_[] = {30};
+    int32_t pshape_[] = {30};
+    int32_t spshape_[] = {30};
 
     uint8_t itemsize = sizeof(double);
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
@@ -104,8 +104,8 @@ static char* to_buffer_ndim_1() {
 static char* to_buffer_ndim_2_plain_uint16() {
     const int8_t ndim = 2;
     int64_t shape_[] = {10, 10};
-    int64_t pshape_[] = {0};
-    int64_t spshape_[] = {0};
+    int32_t pshape_[] = {0};
+    int32_t spshape_[] = {0};
 
     uint8_t itemsize = sizeof(uint16_t);
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
@@ -134,8 +134,8 @@ static char* to_buffer_ndim_2_blosc() {
     char *filename = NULL;
 
     int64_t shape_[] = {7, 10};
-    int64_t pshape_[] = {5, 6};
-    int64_t spshape_[] = {4, 5};
+    int32_t pshape_[] = {5, 6};
+    int32_t spshape_[] = {4, 5};
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
@@ -159,8 +159,8 @@ static char* to_buffer_ndim_3_float() {
     char *filename = NULL;
 
     int64_t shape_[] = {10, 10, 10};
-    int64_t pshape_[] = {7, 5, 4};
-    int64_t spshape_[] = {4, 4, 3};
+    int32_t pshape_[] = {7, 5, 4};
+    int32_t spshape_[] = {4, 4, 3};
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
@@ -183,8 +183,8 @@ static char* to_buffer_ndim_3_double() {
     char *filename = NULL;
 
     int64_t shape_[] = {5, 6, 3};
-    int64_t pshape_[] = {4, 3, 3};
-    int64_t spshape_[] = {3, 3, 2};
+    int32_t pshape_[] = {4, 3, 3};
+    int32_t spshape_[] = {3, 3, 2};
 
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
@@ -208,8 +208,8 @@ static char* to_buffer_ndim_4_plain_uint8() {
     char *filename = NULL;
 
     int64_t shape_[] = {10, 10, 10, 10};
-    int64_t pshape_[] = {0};
-    int64_t spshape_[] = {0};
+    int32_t pshape_[] = {0};
+    int32_t spshape_[] = {0};
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
@@ -232,8 +232,8 @@ static char* to_buffer_ndim_5_float() {
     char *filename = NULL;
 
     int64_t shape_[] = {10, 10, 10, 10, 10};
-    int64_t pshape_[] = {3, 5, 2, 4, 5};
-    int64_t spshape_[] = {3, 3, 2, 3, 5};
+    int32_t pshape_[] = {3, 5, 2, 4, 5};
+    int32_t spshape_[] = {3, 3, 2, 3, 5};
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
@@ -256,8 +256,8 @@ static char* to_buffer_ndim_6() {
     char *filename = NULL;
 
     int64_t shape_[] = {10, 10, 10, 10, 10, 10};
-    int64_t pshape_[] = {3, 4, 2, 2, 2, 3};
-    int64_t spshape_[] = {2, 3, 1, 2, 1, 2};
+    int32_t pshape_[] = {3, 4, 2, 2, 2, 3};
+    int32_t spshape_[] = {2, 3, 1, 2, 1, 2};
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
@@ -280,8 +280,8 @@ static char* to_buffer_ndim_7_uint16() {
     char *filename = NULL;
 
     int64_t shape_[] = {4, 5, 3, 4, 4, 5, 2};
-    int64_t pshape_[] = {3, 4, 2, 2, 2, 3, 1};
-    int64_t spshape_[] = {2, 3, 2, 2, 2, 3, 1};
+    int32_t pshape_[] = {3, 4, 2, 2, 2, 3, 1};
+    int32_t spshape_[] = {2, 3, 2, 2, 2, 3, 1};
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
@@ -303,8 +303,8 @@ static char* to_buffer_ndim_8_float_plain() {
     char *filename = NULL;
 
     int64_t shape_[] = {4, 5, 3, 4, 4, 5, 2, 8};
-    int64_t pshape_[] = {0};
-    int64_t spshape_[] = {0};
+    int32_t pshape_[] = {0};
+    int32_t spshape_[] = {0};
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {
         buf_size *= (shape_[i]);
@@ -326,8 +326,8 @@ static char* to_buffer_ndim_3_hard() {
     char *filename = NULL;
 
     int64_t shape_[] = {252, 252, 252};
-    int64_t pshape_[] = {64, 64, 64};
-    int64_t spshape_[] = {16, 16, 16};
+    int32_t pshape_[] = {64, 64, 64};
+    int32_t spshape_[] = {16, 16, 16};
 
     int64_t buf_size = 1;
     for (int i = 0; i < ndim; ++i) {

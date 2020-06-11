@@ -88,7 +88,7 @@ static char* test_append(caterva_context_t *ctx,
     ctx->cfg->free(buffer);
 
     /* Fill dest array with caterva_array_t data */
-    buffersize = src->size * src->itemsize;
+    buffersize = (size_t) (src->size * src->itemsize);
     uint8_t *buffer_dest = ctx->cfg->alloc(buffersize);
     MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, src, buffer_dest, buffersize));
 
