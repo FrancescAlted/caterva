@@ -43,7 +43,7 @@ static char* test_get_slice(caterva_context_t *ctx, int8_t ndim, int8_t itemsize
     /* Create original data */
     size_t buffersize = itemsize;
     for (int i = 0; i < ndim; ++i) {
-        buffersize *= shape[i];
+        buffersize *= (size_t) shape[i];
     }
     double *buffer = ctx->cfg->alloc(buffersize);
     MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));

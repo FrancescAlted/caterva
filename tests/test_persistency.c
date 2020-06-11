@@ -52,7 +52,7 @@ static char* test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t 
     /* Create original data */
     size_t buffersize = itemsize;
     for (int i = 0; i < ndim; ++i) {
-        buffersize *= shape[i];
+        buffersize *= (size_t) shape[i];
     }
     uint8_t *buffer = malloc(buffersize);
     MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
