@@ -352,7 +352,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk
         /*Calculate the coord. of the subpartition first element */
         orig[7] = sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
         for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
-            orig[i] = (sci % (aux[i]) / (aux[i + 1]) * d_spshape[i]);
+            orig[i] = (int32_t) (sci % (aux[i]) / (aux[i + 1]) * d_spshape[i]);
         }
         /* Calculate if padding with 0s is needed for this subpartition */
         for (int i = CATERVA_MAX_DIM - 1; i >= 0; i--) {
