@@ -327,7 +327,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *c
     }
 
     const int8_t *src_b = (int8_t *) chunk;
-    memset(rchunk, 0, rchunksize);
+    memset(rchunk, 0, (size_t) rchunksize);
     int32_t d_pshape[CATERVA_MAX_DIM];
     int64_t d_epshape[CATERVA_MAX_DIM];
     int32_t d_spshape[CATERVA_MAX_DIM];
@@ -339,7 +339,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *c
         d_spshape[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM] = array->blockshape[i];
     }
 
-    int32_t aux[CATERVA_MAX_DIM];
+    int64_t aux[CATERVA_MAX_DIM];
     aux[7] = d_epshape[7] / d_spshape[7];
     for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
         aux[i] = d_epshape[i] / d_spshape[i] * aux[i + 1];
@@ -352,7 +352,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *c
         /*Calculate the coord. of the subpartition first element */
         orig[7] = sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
         for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
-            orig[i] = (sci % (aux[i]) / (aux[i + 1]) * d_spshape[i]);
+            orig[i] = (int32_t) (sci % (aux[i]) / (aux[i + 1]) * d_spshape[i]);
         }
         /* Calculate if padding with 0s is needed for this subpartition */
         for (int i = CATERVA_MAX_DIM - 1; i >= 0; i--) {
@@ -401,19 +401,19 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *c
 }
 
 
-int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int64_t chunksize) {
+int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk, int32_t chunksize) {
     CATERVA_UNUSED_PARAM(ctx);
 
     uint8_t *bchunk = (uint8_t *) chunk;
     int64_t typesize = array->itemsize;
-    int size_rep = array->extchunksize * typesize;
+    int64_t size_rep = array->extchunksize * typesize;
     int8_t *rchunk = ctx->cfg->alloc((size_t) size_rep);
     int32_t c_pshape[CATERVA_MAX_DIM];
     int8_t c_ndim = array->ndim;
 
     bool padding = false;
     int32_t size_chunk = array->chunksize * array->itemsize;
-    if (chunksize != (int64_t) size_chunk) {
+    if (chunksize != size_chunk) {
         padding = true;
     }
 
