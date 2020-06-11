@@ -318,7 +318,7 @@ int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
 }
 
 
-int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk, int chunksize, caterva_array_t *array){
+int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *chunk, int32_t chunksize, caterva_array_t *array){
     if (rchunksize != array->extchunksize * array->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
@@ -339,7 +339,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk
         d_spshape[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM] = array->blockshape[i];
     }
 
-    int64_t aux[CATERVA_MAX_DIM];
+    int32_t aux[CATERVA_MAX_DIM];
     aux[7] = d_epshape[7] / d_spshape[7];
     for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
         aux[i] = d_epshape[i] / d_spshape[i] * aux[i + 1];
@@ -352,7 +352,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int rchunksize, void *chunk
         /*Calculate the coord. of the subpartition first element */
         orig[7] = sci % (d_epshape[7] / d_spshape[7]) * d_spshape[7];
         for (int i = CATERVA_MAX_DIM - 2; i >= 0; i--) {
-            orig[i] = (int32_t) (sci % (aux[i]) / (aux[i + 1]) * d_spshape[i]);
+            orig[i] = (sci % (aux[i]) / (aux[i + 1]) * d_spshape[i]);
         }
         /* Calculate if padding with 0s is needed for this subpartition */
         for (int i = CATERVA_MAX_DIM - 1; i >= 0; i--) {
@@ -406,7 +406,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
 
     uint8_t *bchunk = (uint8_t *) chunk;
     int64_t typesize = array->itemsize;
-    int64_t size_rep = array->extchunksize * typesize;
+    int size_rep = array->extchunksize * typesize;
     int8_t *rchunk = ctx->cfg->alloc((size_t) size_rep);
     int32_t c_pshape[CATERVA_MAX_DIM];
     int8_t c_ndim = array->ndim;
@@ -458,10 +458,10 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
                 }
             }
         }
-        caterva_blosc_array_repart_chunk(rchunk, (int) size_rep, paddedchunk, (int) size_chunk, array);
+        caterva_blosc_array_repart_chunk(rchunk, size_rep, paddedchunk, size_chunk, array);
         ctx->cfg->free(paddedchunk);
     } else {
-        caterva_blosc_array_repart_chunk(rchunk, (int) size_rep, bchunk, (int) chunksize, array);
+        caterva_blosc_array_repart_chunk(rchunk, size_rep, bchunk, chunksize, array);
     }
     if (blosc2_schunk_append_buffer(array->sc, rchunk, (size_t) size_rep) < 0) {
         CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
@@ -585,8 +585,8 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
                 }
             }
             // Copy each chunk from rchunk to dest
-            caterva_blosc_array_repart_chunk(rchunk, (int) array->extchunksize * typesize, chunk,
-                                             (int) array->chunksize * typesize, array);
+            caterva_blosc_array_repart_chunk(rchunk,  array->extchunksize * typesize, chunk,
+                                             array->chunksize * typesize, array);
 
             blosc2_schunk_append_buffer(array->sc, rchunk, (size_t) array->extchunksize * typesize);
             array->empty = false;
@@ -1099,7 +1099,7 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params, 
     (*array)->buf = NULL;
 
     blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
-    cparams.blocksize = (*array)->blocksize * params->itemsize; //TODO: Update when the blockshape is added
+    cparams.blocksize = (*array)->blocksize * params->itemsize;
     cparams.schunk = NULL;
     cparams.typesize = params->itemsize;
     cparams.prefilter = ctx->cfg->prefilter;
