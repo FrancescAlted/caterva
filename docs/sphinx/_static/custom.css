@@ -6,11 +6,12 @@
     background: rgba(0, 127, 136, 0.8);
 }
 
-/*
+
 .wy-nav-content {
-    max-width: 80%;
+    max-width: 100%;
+    padding: 3rem 6rem;
 }
-*/
+
 
 .rst-content dl:not(.docutils) dt {
     background: rgba(0, 127, 136, 0.05);
