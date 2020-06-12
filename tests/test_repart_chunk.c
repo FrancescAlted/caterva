@@ -14,7 +14,7 @@
 
 static char* test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize,
                               caterva_storage_backend_t backend, uint8_t ndim,
-                              int64_t *shape, int64_t *chunkshape, int64_t *blockshape, bool enforceframe,
+                              int64_t *shape, int32_t *chunkshape, int32_t *blockshape, bool enforceframe,
                               char *filename, void *result) {
 
 
@@ -80,8 +80,8 @@ static char* repart_chunk_2_dim() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {8, 16};
-    int64_t pshape[] = {4, 8};
-    int64_t spshape[] = {2, 4};
+    int32_t pshape[] = {4, 8};
+    int32_t spshape[] = {2, 4};
     double result[1024] = {0, 1, 2, 3, 8, 9, 10, 11, 4, 5, 6, 7, 12, 13,
                            14, 15, 16, 17, 18, 19, 24, 25, 26, 27, 20, 21, 22, 23, 28, 29, 30, 31};
 
@@ -95,8 +95,8 @@ static char* repart_chunk_2_dim_float() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {8, 16};
-    int64_t pshape[] = {4, 8};
-    int64_t spshape[] = {2, 3};
+    int32_t pshape[] = {4, 8};
+    int32_t spshape[] = {2, 3};
     float result[1024] = {0, 1, 2, 8, 9, 10, 3, 4, 5, 11, 12, 13, 6, 7, 0, 14, 15, 0,
                            16, 17, 18, 24, 25, 26, 19, 20, 21, 27, 28, 29, 22, 23, 0, 30, 31, 0};
     return test_repart_chunk(ctx, itemsize, backend, ndim, shape, pshape, spshape, enforceframe, filename, result);
@@ -110,8 +110,8 @@ static char* repart_chunk_3_dim() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {4, 3, 2};
-    int64_t pshape[] = {2, 2, 2};
-    int64_t spshape[] = {1, 2, 1};
+    int32_t pshape[] = {2, 2, 2};
+    int32_t spshape[] = {1, 2, 1};
     double result[1024] = {0, 2, 1, 3, 4, 6, 5, 7};
     return test_repart_chunk(ctx, itemsize, backend, ndim, shape, pshape, spshape, enforceframe, filename, result);
 }
@@ -123,8 +123,8 @@ static char* repart_chunk_3_dim_uint16() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {4, 3, 2};
-    int64_t pshape[] = {2, 3, 2};
-    int64_t spshape[] = {1, 2, 1};
+    int32_t pshape[] = {2, 3, 2};
+    int32_t spshape[] = {1, 2, 1};
     uint16_t result[1024] = {0, 2, 1, 3, 4, 0, 5, 0, 6, 8, 7, 9, 10, 0, 11, 0};
     return test_repart_chunk(ctx, itemsize, backend, ndim, shape, pshape, spshape, enforceframe, filename, result);
 }
@@ -136,13 +136,12 @@ static char* repart_chunk_3_dim_uint8() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {5, 6, 3};
-    int64_t pshape[] = {4, 3, 3};
-    int64_t spshape[] = {3, 3, 2};
-    uint8_t result[1024] = {0.000000, 1.000000, 3.000000, 4.000000, 6.000000, 7.000000, 9.000000, 10.000000, 12.000000,
-                           13.000000, 15.000000, 16.000000, 18.000000, 19.000000, 21.000000, 22.000000, 24.000000, 25.000000,
-                           2.000000, 0.000000, 5.000000, 0.000000, 8.000000, 0.000000, 11.000000, 0.000000, 14.000000,
-                           0.000000, 17.000000, 0.000000, 20.000000, 0.000000, 23.000000, 0.000000, 26.000000, 0.000000,
-                           27, 28, 30, 31, 33, 34, 0,0,0,0,0,0,0,0,0,0,0,0, 29, 0, 32, 0, 35, 0, 0,0,0,0,0,0,0,0,0,0,0,0};
+    int32_t pshape[] = {4, 3, 3};
+    int32_t spshape[] = {3, 3, 2};
+    uint8_t result[1024] = {0, 1, 3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18, 19, 21, 22, 24, 25,
+                           2, 0, 5, 0, 8, 0, 11, 0, 14, 0, 17, 0, 20, 0, 23, 0, 26, 0,
+                           27, 28, 30, 31, 33, 34, 0,0,0,0,0,0,0,0,0,0,0,0,
+                           29, 0, 32, 0, 35, 0, 0,0,0,0,0,0,0,0,0,0,0,0};
     return test_repart_chunk(ctx, itemsize, backend, ndim, shape, pshape, spshape, enforceframe, filename, result);
 }
 
@@ -153,8 +152,8 @@ static char* repart_chunk_4_dim() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {4, 3, 5, 4};
-    int64_t pshape[] = {2, 2, 2, 2};
-    int64_t spshape[] = {1, 2, 1, 1};
+    int32_t pshape[] = {2, 2, 2, 2};
+    int32_t spshape[] = {1, 2, 1, 1};
     double result[1024] = {0, 4, 1, 5, 2, 6, 3, 7, 8, 12, 9, 13, 10, 14, 11, 15};
     return test_repart_chunk(ctx, itemsize, backend, ndim, shape, pshape, spshape, enforceframe, filename, result);
 }
@@ -166,8 +165,8 @@ static char* repart_chunk_4_dim_float() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {4, 3, 2, 6};
-    int64_t pshape[] = {2, 3, 2, 2};
-    int64_t spshape[] = {1, 2, 1, 1};
+    int32_t pshape[] = {2, 3, 2, 2};
+    int32_t spshape[] = {1, 2, 1, 1};
     float result[1024] = {0, 4, 1, 5, 2, 6, 3, 7, 8, 0, 9, 0, 10, 0, 11, 0,
                            12, 16, 13, 17, 14, 18, 15, 19, 20, 0, 21, 0, 22, 0, 23, 0};
     return test_repart_chunk(ctx, itemsize, backend, ndim, shape, pshape, spshape, enforceframe, filename, result);
@@ -181,8 +180,8 @@ static char* repart_chunk_5_dim_blosc() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {14, 23, 12, 11, 8};
-    int64_t pshape[] = {2, 2, 2, 2, 2};
-    int64_t spshape[] = {1, 1, 1, 1, 1};
+    int32_t pshape[] = {2, 2, 2, 2, 2};
+    int32_t spshape[] = {1, 1, 1, 1, 1};
     double result[1024];
     for(int i = 0; i < 32; i++){
         result[i] = (double) i;
@@ -197,8 +196,8 @@ static char* repart_chunk_6_dim_pad() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {2, 3, 2, 3, 3, 6};
-    int64_t pshape[] = {1, 2, 1, 2, 3, 5};
-    int64_t spshape[] = {1, 1, 1, 2, 2, 5};
+    int32_t pshape[] = {1, 2, 1, 2, 3, 5};
+    int32_t spshape[] = {1, 1, 1, 2, 2, 5};
     double result[1024] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 10,
                             11, 12, 13, 14, 0, 0, 0, 0, 0, 25, 26, 27, 28, 29, 0, 0, 0, 0, 0, 30, 31,
                             32, 33, 34, 35, 36, 37, 38, 39, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54,
@@ -213,8 +212,8 @@ static char* repart_chunk_7_dim_uint8() {
     bool enforceframe = true;
     char *filename = NULL;
     int64_t shape[] = {2, 3, 2, 3, 3, 2, 5};
-    int64_t pshape[] = {1, 2, 1, 2, 3, 2, 4};
-    int64_t spshape[] = {1, 2, 1, 2, 2, 1, 3};
+    int32_t pshape[] = {1, 2, 1, 2, 3, 2, 4};
+    int32_t spshape[] = {1, 2, 1, 2, 2, 1, 3};
     uint8_t result[1024] = { 0, 1, 2, 8, 9, 10, 24, 25, 26, 32, 33, 34, 48, 49, 50, 56, 57, 58, 72, 73, 74, 80,
                             81, 82, 3, 0, 0, 11, 0, 0, 27, 0, 0, 35, 0, 0, 51, 0, 0, 59, 0, 0, 75, 0, 0, 83, 0,
                             0, 4, 5, 6, 12, 13, 14, 28, 29, 30, 36, 37, 38, 52, 53, 54, 60, 61, 62, 76, 77, 78,
@@ -233,8 +232,8 @@ static char* repart_chunk_8_dim() {
     bool enforceframe = false;
     char *filename = NULL;
     int64_t shape[] = {1, 2, 1, 3, 3, 2, 2, 3};
-    int64_t pshape[] = {1, 2, 1, 2, 3, 2, 2, 3};
-    int64_t spshape[] = {1, 2, 1, 2, 2, 1, 2, 3};
+    int32_t pshape[] = {1, 2, 1, 2, 3, 2, 2, 3};
+    int32_t spshape[] = {1, 2, 1, 2, 2, 1, 2, 3};
     double result[1024] = {0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17, 36, 37, 38, 39, 40, 41, 48, 49, 50, 51,
                            52, 53, 72, 73, 74, 75, 76, 77, 84, 85, 86, 87, 88, 89, 108, 109, 110, 111, 112,
                            113, 120, 121, 122, 123, 124, 125, 6, 7, 8, 9, 10, 11, 18, 19, 20, 21, 22, 23, 42,
@@ -254,8 +253,8 @@ static char* repart_chunk_8_dim_uint16() {
     bool enforceframe = false;
     char *filename = NULL;
     int64_t shape[] = {1, 2, 1, 2, 1, 1, 2, 3};
-    int64_t pshape[] = {1, 2, 1, 2, 1, 1, 2, 2};
-    int64_t spshape[] = {1, 1, 1, 1, 1, 1, 2, 1};
+    int32_t pshape[] = {1, 2, 1, 2, 1, 1, 2, 2};
+    int32_t spshape[] = {1, 1, 1, 1, 1, 1, 2, 1};
     uint16_t result[1024] = {0, 2, 1, 3, 4, 6, 5, 7, 8, 10, 9, 11, 12, 14, 13, 15};
     return test_repart_chunk(ctx, itemsize, backend, ndim, shape, pshape, spshape, enforceframe, filename, result);
 }

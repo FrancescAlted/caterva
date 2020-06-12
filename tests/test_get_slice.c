@@ -12,8 +12,8 @@
 #include "test_common.h"
 
 static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                           caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape, bool enforceframe, char *filename,
-                           caterva_storage_backend_t backend2, int64_t *chunkshape2, int64_t *blockshape2, bool enforceframe2, char *filename2,
+                           caterva_storage_backend_t backend, int32_t *chunkshape, int32_t *blockshape, bool enforceframe, char *filename,
+                           caterva_storage_backend_t backend2, int32_t *chunkshape2, int32_t *blockshape2, bool enforceframe2, char *filename2,
                            int64_t *start, int64_t *stop, void *result) {
 
     caterva_params_t params;
@@ -41,9 +41,9 @@ static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t nd
     }
 
     /* Create original data */
-    int64_t buffersize = itemsize;
+    size_t buffersize = itemsize;
     for (int i = 0; i < ndim; ++i) {
-        buffersize *= shape[i];
+        buffersize *= (size_t) shape[i];
     }
     uint8_t *buffer = ctx->cfg->alloc(buffersize);
     MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
@@ -79,7 +79,7 @@ static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t nd
     for (int i = 0; i < src->ndim; ++i) {
         destbuffersize *= (stop[i] - start[i]);
     }
-    uint8_t *buffer_dest = ctx->cfg->alloc(destbuffersize);
+    uint8_t *buffer_dest = ctx->cfg->alloc((size_t) destbuffersize);
     MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, dest, buffer_dest, destbuffersize));
 
     /* Testing */
@@ -119,14 +119,14 @@ static char* get_slice_1_double_plainbuffer_plainbuffer() {
     int64_t shape[] = {10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {0};
-    int64_t blockshape2[] = {0};
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -146,14 +146,14 @@ static char* get_slice_2_uint16_plainbuffer_blosc() {
     int64_t shape[] = {14, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape2[] = {10, 9};
-    int64_t blockshape2[] = {9, 9};
+    int32_t chunkshape2[] = {10, 9};
+    int32_t blockshape2[] = {9, 9};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -172,14 +172,14 @@ static char* get_slice_2_uint8_plainbuffer_plainbuffer() {
     int64_t shape[] = {14, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {0};
-    int64_t blockshape2[] = {0};
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -208,14 +208,14 @@ static char* get_slice_3_float_blosc_blosc() {
     int64_t shape[] = {10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {3, 5, 9};
-    int64_t blockshape[] = {3, 4, 4};
+    int32_t chunkshape[] = {3, 5, 9};
+    int32_t blockshape[] = {3, 4, 4};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape2[] = {3, 7, 7};
-    int64_t blockshape2[] = {2, 5, 5};
+    int32_t chunkshape2[] = {3, 7, 7};
+    int32_t blockshape2[] = {2, 5, 5};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -238,14 +238,14 @@ static char* get_slice_4_double_blosc_plainbuffer() {
     int64_t shape[] = {10, 10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {2, 2, 4, 2};
-    int64_t blockshape[] = {2, 2, 3, 2};
+    int32_t chunkshape[] = {2, 2, 4, 2};
+    int32_t blockshape[] = {2, 2, 3, 2};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {0};
-    int64_t blockshape2[] = {0};
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -269,14 +269,14 @@ static char* get_slice_5_float_plainbuffer_plainbuffer() {
     int64_t shape[] = {10, 10, 10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {0};
-    int64_t blockshape2[] = {0};
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -302,14 +302,14 @@ static char* get_slice_6_double_plainbuffer_blosc_frame() {
     int64_t shape[] = {10, 10, 10, 10, 10, 10};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape[] = {0};
-    int64_t blockshape[] = {0};
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
     bool enforceframe = false;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape2[] = {1, 3, 2, 2, 3, 2};
-    int64_t blockshape2[] = {1, 3, 2, 1, 2, 3};
+    int32_t chunkshape2[] = {1, 3, 2, 2, 3, 2};
+    int32_t blockshape2[] = {1, 3, 2, 1, 2, 3};
     bool enforceframe2 = true;
     char *filename2 = NULL;
 
@@ -330,14 +330,14 @@ static char* get_slice_7_double_blosc_frame_plainbuffer() {
     int64_t shape[] = {4, 5, 3, 4, 4, 5, 2};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {3, 4, 2, 2, 2, 2, 1};
-    int64_t blockshape[] = {2, 3, 2, 1, 2, 1, 1};
+    int32_t chunkshape[] = {3, 4, 2, 2, 2, 2, 1};
+    int32_t blockshape[] = {2, 3, 2, 1, 2, 1, 1};
     bool enforceframe = true;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int64_t chunkshape2[] = {0};
-    int64_t blockshape2[] = {0};
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
@@ -356,14 +356,14 @@ static char* get_slice_8_double_blosc_frame_blosc_frame() {
     int64_t shape[] = {5, 3, 4, 5, 4, 3, 2, 3};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {2, 2, 1, 1, 2, 2, 1, 1};
-    int64_t blockshape[] = {2, 2, 1, 1, 2, 2, 1, 1};
+    int32_t chunkshape[] = {2, 2, 1, 1, 2, 2, 1, 1};
+    int32_t blockshape[] = {2, 2, 1, 1, 2, 2, 1, 1};
     bool enforceframe = true;
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape2[] = {1, 1, 1, 1, 1, 1, 1, 2};
-    int64_t blockshape2[] = {1, 1, 1, 1, 1, 1, 1, 2};
+    int32_t chunkshape2[] = {1, 1, 1, 1, 1, 1, 1, 2};
+    int32_t blockshape2[] = {1, 1, 1, 1, 1, 1, 1, 2};
     bool enforceframe2 = true;
     char *filename2 = NULL;
 

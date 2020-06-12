@@ -19,7 +19,7 @@
 #endif
 
 static char* test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                             caterva_storage_backend_t backend, int64_t *chunkshape, int64_t *blockshape,
+                             caterva_storage_backend_t backend, int32_t *chunkshape, int32_t *blockshape,
                              bool enforceframe, char *filename) {
 
     if (FILE_EXISTS(filename) != -1) {
@@ -50,9 +50,9 @@ static char* test_persistency(caterva_context_t *ctx, uint8_t itemsize, uint8_t 
     }
 
     /* Create original data */
-    int64_t buffersize = itemsize;
+    size_t buffersize = itemsize;
     for (int i = 0; i < ndim; ++i) {
-        buffersize *= shape[i];
+        buffersize *= (size_t) shape[i];
     }
     uint8_t *buffer = malloc(buffersize);
     MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
@@ -104,8 +104,8 @@ static  char* persistency_1_uint16() {
     int64_t shape[] = {500};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {200};
-    int64_t blockshape[] = {80};
+    int32_t chunkshape[] = {200};
+    int32_t blockshape[] = {80};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -117,8 +117,8 @@ static  char* persistency_2_uint8() {
     int64_t shape[] = {400, 300};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {55, 67};
-    int64_t blockshape[] = {40, 40};
+    int32_t chunkshape[] = {55, 67};
+    int32_t blockshape[] = {40, 40};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -130,8 +130,8 @@ static  char* persistency_3_double() {
     int64_t shape[] = {134, 56, 204};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {26, 17, 34};
-    int64_t blockshape[] = {11, 8, 13};
+    int32_t chunkshape[] = {26, 17, 34};
+    int32_t blockshape[] = {11, 8, 13};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -143,8 +143,8 @@ static  char* persistency_4_float() {
     int64_t shape[] = {10, 13, 18, 25};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {9, 5, 11, 10};
-    int64_t blockshape[] = {2, 2, 5, 3};
+    int32_t chunkshape[] = {9, 5, 11, 10};
+    int32_t blockshape[] = {2, 2, 5, 3};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -156,8 +156,8 @@ static  char* persistency_4_uint8() {
     int64_t shape[] = {78, 85, 34, 56};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {23, 12, 24, 50};
-    int64_t blockshape[] = {11, 5, 7, 13};
+    int32_t chunkshape[] = {23, 12, 24, 50};
+    int32_t blockshape[] = {11, 5, 7, 13};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -170,8 +170,8 @@ static  char* persistency_5_double() {
     int64_t shape[] = {25, 27, 24, 25, 12};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {10, 15, 8, 11, 11};
-    int64_t blockshape[] = {3, 3, 3, 3, 3};
+    int32_t chunkshape[] = {10, 15, 8, 11, 11};
+    int32_t blockshape[] = {3, 3, 3, 3, 3};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -183,8 +183,8 @@ static  char* persistency_6_uint16() {
     int64_t shape[] = {4, 3, 8, 5, 10, 12};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {2, 2, 3, 3, 4, 5};
-    int64_t blockshape[] = {2, 1, 2, 2, 3, 4};
+    int32_t chunkshape[] = {2, 2, 3, 3, 4, 5};
+    int32_t blockshape[] = {2, 1, 2, 2, 3, 4};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -196,8 +196,8 @@ static  char* persistency_7_uint64() {
     int64_t shape[] =  {4, 15, 11, 6, 12, 8, 7};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {4, 3, 4, 3, 3, 5, 3};
-    int64_t blockshape[] = {1, 3, 2, 2, 1, 2, 2};
+    int32_t chunkshape[] = {4, 3, 4, 3, 3, 5, 3};
+    int32_t blockshape[] = {1, 3, 2, 2, 1, 2, 2};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
@@ -209,8 +209,8 @@ static  char* persistency_8_uint8() {
     int64_t shape[] = {4, 3, 8, 5, 10, 12, 6, 4};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int64_t chunkshape[] = {3, 2, 3, 3, 4, 5, 4, 2};
-    int64_t blockshape[] = {2, 1, 2, 2, 3, 4, 3, 1};
+    int32_t chunkshape[] = {3, 2, 3, 3, 4, 5, 4, 2};
+    int32_t blockshape[] = {2, 1, 2, 2, 3, 4, 3, 1};
     bool enforceframe = true;
 
     return test_persistency(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);

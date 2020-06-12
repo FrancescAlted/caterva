@@ -9,7 +9,7 @@ static char error_message[2048];
 
 #define MU_ASSERT(message, test) { \
     if (!(test)) { \
-        sprintf(error_message, "    Err %s:%d %s", __FILE__, __LINE__, message); \
+        snprintf(error_message, 2048, "    Err %s:%d %s", __FILE__, __LINE__, message); \
         return error_message; \
     } \
 }
