@@ -13,8 +13,7 @@ release = latest_tag
 version = latest_tag
 
 extensions = ["sphinx.ext.mathjax",
-              "breathe",
-              "sphinx_copybutton"]
+              "breathe"]
 
 source_suffix = '.rst'
 
