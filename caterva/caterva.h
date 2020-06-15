@@ -153,7 +153,7 @@ typedef struct {
     uint8_t *sdata;
     //!< The serialized data to store
     int32_t size;
-    //!< The size of the serialized data
+    //!< The nitems of the serialized data
 }caterva_metalayer_t;
 
 /**
@@ -211,7 +211,7 @@ typedef struct {
  */
 typedef struct {
     uint8_t itemsize;
-    //!< The size of each item of the array.
+    //!< The nitems of each item of the array.
     int64_t shape[CATERVA_MAX_DIM];
     //!< The array shape.
     uint8_t ndim;
@@ -225,7 +225,7 @@ typedef struct {
  * When a chunk is needed, it is copied into this cache. In this way, if the same chunk is needed
  * again afterwards, it is not necessary to recover it because it is already in the cache.
  */
-struct part_cache_s {
+struct chunk_cache_s {
     uint8_t *data;
     //!< Pointer to the chunk data.
     int32_t nchunk;
@@ -257,17 +257,17 @@ typedef struct {
     //!< Shape of padded chunk.
     int32_t next_chunkshape[CATERVA_MAX_DIM];
     //!< Shape of next chunk to be appended.
-    int64_t size;
+    int64_t nitems;
     //!< Size of original data.
-    int32_t chunksize;
+    int32_t chunknitems;
     //!< Size of each chunk.
-    int64_t extsize;
+    int64_t extnitems;
     //!< Size of padded data.
-    int32_t blocksize;
+    int32_t blocknitems;
     //!< Size of each block.
-    int64_t extchunksize;
+    int64_t extchunknitems;
     //!< Size of padded chunk.
-    int64_t next_chunksize;
+    int64_t next_chunknitems;
     //!< Size of next chunk to be appended.
     int8_t ndim;
     //!< Data dimensions.
@@ -277,9 +277,9 @@ typedef struct {
     //!< Indicate if an array is empty or is filled with data.
     bool filled;
     //!< Indicate if an array is completely filled or not.
-    int64_t nparts;
-    //!< Number of partitions in the array.
-    struct part_cache_s part_cache;
+    int64_t nchunks;
+    //!< Number of chunks in the array.
+    struct chunk_cache_s chunk_cache;
     //!< A partition cache.
 } caterva_array_t;
 
@@ -364,7 +364,7 @@ int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
  *
  * @param ctx Pointer to the caterva context to be used.
  * @param sframe The serialized frame where the caterva array is stored.
- * @param len The size (in bytes) of the serialized frame.
+ * @param len The nitems (in bytes) of the serialized frame.
  * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
  * created (i.e. no copies are made).
  * @param array Pointer to the memory pointer where the array will be created.
@@ -393,7 +393,7 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  *
  * @param ctx Pointer to the caterva context to be used.
  * @param buffer Pointer to the buffer where source data is stored.
- * @param buffersize The size (in bytes) of the serialized frame.
+ * @param buffersize The nitems (in bytes) of the serialized frame.
  * @param params Pointer to the general params of the array desired.
  * @param storage Pointer to the storage params of the array desired.
  * @param array Pointer to the memory pointer where the array will be created.
@@ -455,7 +455,7 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
  * @param stop The coordinates where the slice will end.
  * @param shape The shape of the buffer.
  * @param buffer Pointer to the buffer where the data will be stored.
- * @param buffersize The size (in bytes) of the buffer.
+ * @param buffersize The nitems (in bytes) of the buffer.
  *
  * @return An error code.
  */
@@ -469,7 +469,7 @@ int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src,
  *
  * @param ctx Pointer to the caterva context to be used.
  * @param buffer Pointer to the buffer where the slice data is.
- * @param buffersize The size (in bytes) of the buffer.
+ * @param buffersize The nitems (in bytes) of the buffer.
  * @param start The coordinates where the slice will begin.
  * @param stop The coordinates where the slice will end.
  * @param array Pointer to the caterva array where the slice will be set
