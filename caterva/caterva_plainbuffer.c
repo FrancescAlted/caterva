@@ -44,7 +44,7 @@ int caterva_plainbuffer_array_from_buffer(caterva_context_t *ctx, caterva_array_
 
 int caterva_plainbuffer_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer) {
     CATERVA_UNUSED_PARAM(ctx);
-    memcpy(buffer, array->buf, array->size * array->itemsize);
+    memcpy(buffer, array->buf,(size_t) array->size * array->itemsize);
     return CATERVA_SUCCEED;
 }
 
@@ -105,7 +105,7 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_context_t *ctx, caterva_a
                                 }
                                 memcpy(&bdest[buf_pointer * array->itemsize],
                                        &array->buf[chunk_pointer * array->itemsize],
-                                       (stop_[7] - start_[7]) * array->itemsize);
+                                       (size_t) (stop_[7] - start_[7]) * array->itemsize);
                             }
                         }
                     }
@@ -165,7 +165,7 @@ int caterva_plainbuffer_array_set_slice_buffer(caterva_context_t *ctx, void *buf
                                 }
                                 memcpy(&array->buf[chunk_pointer * array->itemsize],
                                        &bbuffer[buf_pointer * array->itemsize],
-                                       (stop_[7] - start_[7]) * array->itemsize);
+                                       (size_t) (stop_[7] - start_[7]) * array->itemsize);
                             }
                         }
                     }
@@ -269,11 +269,11 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
 
     for (int i = 0; i < params->ndim; ++i) {
         (*array)->shape[i] = shape[i];
-        (*array)->chunkshape[i] = shape[i];
+        (*array)->chunkshape[i] = (uint32_t) shape[i];
         (*array)->extshape[i] = shape[i];
 
         (*array)->size *= shape[i];
-        (*array)->chunksize *= shape[i];
+        (*array)->chunksize *= (uint32_t) shape[i];
         (*array)->extsize *= shape[i];
     }
 
@@ -289,7 +289,7 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
 
     (*array)->sc = NULL;
 
-    uint8_t *buf = ctx->cfg->alloc((*array)->extsize * params->itemsize);
+    uint8_t *buf = ctx->cfg->alloc((size_t) (*array)->extsize * params->itemsize);
 
     (*array)->buf = buf;
 
