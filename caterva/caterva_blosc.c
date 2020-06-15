@@ -406,7 +406,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
 
     uint8_t *bchunk = (uint8_t *) chunk;
     int64_t typesize = array->itemsize;
-    int32_t size_rep = (int32_t) array->extchunknitems * typesize;
+    int32_t size_rep = (int32_t) (array->extchunknitems * typesize);
     int8_t *rchunk = ctx->cfg->alloc((size_t) size_rep);
     int32_t c_pshape[CATERVA_MAX_DIM];
     int8_t c_ndim = array->ndim;
