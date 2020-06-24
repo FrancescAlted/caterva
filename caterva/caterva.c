@@ -150,7 +150,9 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
     }
 
     array->nchunks++;
+    array->empty = false;
     if (array->nchunks == array->extnitems / array->chunknitems) {
+
         array->filled = true;
     }
 

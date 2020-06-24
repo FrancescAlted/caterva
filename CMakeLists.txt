@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.12)
 cmake_policy(SET CMP0048 NEW)
 cmake_policy(SET CMP0077 NEW)
 
-project(caterva VERSION 0.3.3)
+project(caterva VERSION 0.3.3 LANGUAGES C)
 
 option(SHARED_LIB "Create shared library" ON)
 option(STATIC_LIB "Create static library" ON)

@@ -130,11 +130,11 @@ static char* roundtrip_3_double_blosc() {
 static char* roundtrip_4_float_blosc() {
     uint8_t itemsize = sizeof(float);
     uint8_t ndim = 4;
-    int64_t shape[] = {4, 3, 8, 5};
+    int64_t shape[] = {31, 42, 40, 7};
 
     caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {2, 2, 3, 3};
-    int32_t blockshape[] = {2, 2, 2, 3};
+    int32_t chunkshape[] = {31, 21, 16, 3};
+    int32_t blockshape[] = {8, 8, 8, 3};
     bool enforceframe = false;
     char *filename = NULL;
 
