@@ -52,16 +52,16 @@ static char* test_append(caterva_context_t *ctx,
     /* Fill empty caterva_array_t with blocks */
     int nextsize = 0;
     if (backend == CATERVA_STORAGE_PLAINBUFFER) {
-        nextsize = src->chunksize;
+        nextsize = src->chunknitems;
     }
-    size_t buffersize = src->chunksize * src->itemsize;
+    size_t buffersize = src->chunknitems * src->itemsize;
     uint8_t *buffer = ctx->cfg->alloc(buffersize);
     int ind = 0;
 
     while (!src->filled) {
         memset(buffer, 0, buffersize);
         if (backend == CATERVA_STORAGE_BLOSC) {
-            nextsize = (int) src->next_chunksize;
+            nextsize = (int) src->next_chunknitems;
         }
         for (int i = 0; i < nextsize; ++i) {
             switch (src->itemsize) {
@@ -88,7 +88,7 @@ static char* test_append(caterva_context_t *ctx,
     ctx->cfg->free(buffer);
 
     /* Fill dest array with caterva_array_t data */
-    buffersize = (size_t) (src->size * src->itemsize);
+    buffersize = (size_t) (src->nitems * src->itemsize);
     uint8_t *buffer_dest = ctx->cfg->alloc(buffersize);
     MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, src, buffer_dest, buffersize));
 
