@@ -16,11 +16,11 @@ strategy:
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-debug:
-      imageName: 'macos-10.13'
+      imageName: 'macos-10.14'
       BUILD_CONFIGURATION: Debug
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-release:
-      imageName: 'macos-10.13'
+      imageName: 'macos-10.14'
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     windows-debug:
@@ -31,6 +31,7 @@ strategy:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
+
 
 pool:
   vmImage: $(imageName)
@@ -52,7 +53,7 @@ steps:
 
   - task: CacheBeta@0
     inputs:
-      key: v3 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
+      key: v0 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
       path: $(CBLOSC2_CACHE_FOLDER)
       cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
@@ -88,20 +89,19 @@ steps:
       cd build/
       cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config ${BUILD_CONFIGURATION}
-      ls -lR
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
 
   - bash: |
       cd build/
-      ctest -T Test
+      ctest -T Test -V
     condition: ne( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
-      ctest -C ${BUILD_CONFIGURATION} -T Test
+      ctest -C ${BUILD_CONFIGURATION} -T Test -V
     condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 

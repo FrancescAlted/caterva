@@ -11,89 +11,277 @@
 
 #include "test_common.h"
 
-static void test_squeeze(caterva_ctx_t *ctx, int8_t ndim, int64_t *shape_, int64_t *pshape_,
-                         int64_t *pshape_dest_, int64_t *start_, int64_t *stop_) {
+static char* test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
+                          caterva_storage_backend_t backend, int32_t *chunkshape, int32_t *blockshape, bool enforceframe,
+                          char *filename, caterva_storage_backend_t backend2, int32_t *chunkshape2, int32_t *blockshape2,
+                          bool enforceframe2, char *filename2, int64_t *start, int64_t *stop) {
+    caterva_params_t params;
+    params.itemsize = itemsize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
 
-    caterva_dims_t shape = caterva_new_dims(shape_, ndim);
-    caterva_dims_t start = caterva_new_dims(start_, ndim);
-    caterva_dims_t stop = caterva_new_dims(stop_, ndim);
+    caterva_storage_t storage = {0};
+    storage.backend = backend;
+    switch (backend) {
+        case CATERVA_STORAGE_PLAINBUFFER:
+            break;
+        case CATERVA_STORAGE_BLOSC:
+            storage.properties.blosc.filename = filename;
+            storage.properties.blosc.enforceframe = enforceframe;
+            for (int i = 0; i < ndim; ++i) {
+                storage.properties.blosc.chunkshape[i] = chunkshape[i];
+                storage.properties.blosc.blockshape[i] = blockshape[i];
+            }
+            break;
+        default:
+            MU_ASSERT_CATERVA(CATERVA_ERR_INVALID_STORAGE);
+    }
 
+    /* Create original data */
+    size_t buffersize = itemsize;
+    for (int i = 0; i < ndim; ++i) {
+        buffersize *= (size_t) shape[i];
+    }
+    uint8_t *buffer = malloc(buffersize);
+    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
+
+    /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    if (pshape_ != NULL) {
-        caterva_dims_t pshape = caterva_new_dims(pshape_, ndim);
-        src = caterva_empty_array(ctx, NULL, &pshape);
-    } else {
-        src = caterva_empty_array(ctx, NULL, NULL);
+    MU_ASSERT_CATERVA(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
+
+
+    /* Create storage for dest container */
+
+    caterva_storage_t storage2 = {0};
+    storage2.backend = backend2;
+    switch (backend2) {
+        case CATERVA_STORAGE_PLAINBUFFER:
+            break;
+        case CATERVA_STORAGE_BLOSC:
+            storage2.properties.blosc.filename = filename2;
+            storage2.properties.blosc.enforceframe = enforceframe2;
+            for (int i = 0; i < ndim; ++i) {
+                storage2.properties.blosc.chunkshape[i] = chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = blockshape2[i];
+            }
+            break;
+        default:
+            MU_ASSERT_CATERVA(CATERVA_ERR_INVALID_STORAGE);
     }
-
-    size_t buf_size = 1;
-    for (int i = 0; i < CATERVA_MAXDIM; ++i) {
-        buf_size *= (shape.dims[i]);
-    }
-
-    double *buf_src = (double *) malloc(buf_size * src->ctx->cparams.typesize);
-    fill_buf(buf_src, buf_size);
-
-    caterva_from_buffer(src, &shape, buf_src);
 
     caterva_array_t *dest;
-    if (pshape_dest_ != NULL) {
-        caterva_dims_t pshape_dest = caterva_new_dims(pshape_dest_, ndim);
-        dest = caterva_empty_array(ctx, NULL, &pshape_dest);
-    } else {
-        dest = caterva_empty_array(ctx, NULL, NULL);
-    }
-    caterva_get_slice(dest, src, &start, &stop);
+    MU_ASSERT_CATERVA(caterva_array_get_slice(ctx, src, start, stop, &storage2, &dest));
 
-    caterva_squeeze(dest);
+    MU_ASSERT_CATERVA(caterva_array_squeeze(ctx, dest));
 
-    LWTEST_ASSERT_TRUE(src->ndim != dest->ndim);
+    MU_ASSERT_NOT_EQUAL(src->ndim ,dest->ndim);
 
-    free(buf_src);
-    caterva_free_array(src);
-    caterva_free_array(dest);
+    free(buffer);
+    MU_ASSERT_CATERVA(caterva_array_free(ctx, &src));
+    MU_ASSERT_CATERVA(caterva_array_free(ctx, &dest));
+    
+    return 0;
 }
 
-LWTEST_DATA(squeeze) {
-    caterva_ctx_t *ctx;
-};
 
-LWTEST_SETUP(squeeze) {
-    data->ctx = caterva_new_ctx(NULL, NULL, BLOSC2_CPARAMS_DEFAULTS, BLOSC2_DPARAMS_DEFAULTS);
-    data->ctx->cparams.typesize = sizeof(double);
+caterva_context_t *ctx;
+
+static char* squeeze_setup() {
+    caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
+    caterva_context_new(&cfg, &ctx);
+    return 0;
 }
 
-LWTEST_TEARDOWN(squeeze) {
-    caterva_free_ctx(data->ctx);
+static char* squeeze_teardown() {
+    caterva_context_free(&ctx);
+    return 0;
 }
 
-LWTEST_FIXTURE(squeeze, ndim3) {
-    const int8_t ndim = 3;
-    int64_t shape_[] = {100, 100, 100};
-    int64_t pshape_[] = {10, 10, 10};
-    int64_t pshape_dest_[] = {21, 1, 12};
-    int64_t start_[] = {5, 20, 60};
-    int64_t stop_[] = {23, 21, 99};
 
-    test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
+static char* squeeze_2_float_blosc_plainbuffer() {
+    int64_t start[] = {5, 20};
+    int64_t stop[] = {23, 21};
+
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 2;
+    int64_t shape[] = {100, 100};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int32_t chunkshape[] = {10, 10};
+    int32_t blockshape[] = {7, 6};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
 }
 
-LWTEST_FIXTURE(squeeze, ndim5_plain) {
-    const int8_t ndim = 5;
-    int64_t shape_[] = {22, 25, 31, 19, 31};
-    int64_t start_[] = {1, 12, 3, 12, 6};
-    int64_t stop_[] = {16, 21, 19, 13, 21};
+static char* squeeze_3_float_blosc_blosc() {
+    int64_t start[] = {5, 20, 60};
+    int64_t stop[] = {23, 21, 99};
 
-    test_squeeze(data->ctx, ndim, shape_, NULL, NULL, start_, stop_);
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 3;
+    int64_t shape[] = {100, 100, 100};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int32_t chunkshape[] = {10, 10, 10};
+    int32_t blockshape[] = {3, 4, 3};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
+    int32_t chunkshape2[] = {21, 1, 10};
+    int32_t blockshape2[] = {8, 1, 5};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+        backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
 }
 
-LWTEST_FIXTURE(squeeze, ndim7) {
-    const int8_t ndim = 7;
-    int64_t shape_[] = {6, 8, 12, 6, 7, 6, 9};
-    int64_t pshape_[] = {2, 3, 5, 2, 4, 3, 2};
-    int64_t pshape_dest_[] = {1, 3, 3, 2, 1, 1, 5};
-    int64_t start_[] = {5, 3, 3, 2, 1, 0, 4};
-    int64_t stop_[] = {6, 8, 10, 5, 2, 1, 9};
+static char* squeeze_4_double_plainbuffer_blosc() {
+    int64_t start[] = {5, 20, 10, 10};
+    int64_t stop[] = {23, 21, 33, 39};
 
-    test_squeeze(data->ctx, ndim, shape_, pshape_, pshape_dest_, start_, stop_);
+    uint8_t itemsize = sizeof(double);
+    uint8_t ndim = 4;
+    int64_t shape[] = {30, 41, 42, 55};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
+    int32_t chunkshape2[] = {12, 1, 4, 12};
+    int32_t blockshape2[] = {8, 1, 2, 5};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
 }
+
+
+static char* squeeze_5_uint8_plainbuffer_plainbuffer() {
+    int64_t start[] = {1, 12, 3, 12, 6};
+    int64_t stop[] = {16, 21, 19, 13, 21};
+
+    uint8_t itemsize = sizeof(uint8_t);
+    uint8_t ndim = 5;
+    int64_t shape[] = {22, 25, 31, 19, 31};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+}
+
+static char* squeeze_6_float_blosc_plainbuffer_frame() {
+    int64_t start[] = {3, 3, 2, 1, 0, 4};
+    int64_t stop[] = {8, 10, 5, 2, 1, 9};
+
+    uint8_t itemsize = sizeof(float);
+    uint8_t ndim = 6;
+    int64_t shape[] = {8, 12, 6, 7, 6, 9};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
+    int32_t chunkshape[] = {0};
+    int32_t blockshape[] = {0};
+    bool enforceframe = false;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
+    int32_t chunkshape2[] = {3, 7, 2, 1, 1, 4};
+    int32_t blockshape2[] = {2, 5, 2, 1, 1, 3};
+    bool enforceframe2 = true;
+    char *filename2 = NULL;
+
+    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+}
+
+static char* squeeze_7_uint64_blosc_frame_plainbuffer() {
+    int64_t start[] = {5, 3, 3, 2, 1, 0, 4};
+    int64_t stop[] = {6, 8, 10, 5, 2, 1, 9};
+
+    uint8_t itemsize = sizeof(uint64_t);
+    uint8_t ndim = 7;
+    int64_t shape[] = {6, 8, 12, 6, 7, 6, 9};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int32_t chunkshape[] = {2, 3, 5, 2, 4, 3, 2};
+    int32_t blockshape[] = {1, 2, 3, 2, 3, 2, 1};
+    bool enforceframe = true;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+}
+
+static char* squeeze_8_uint16_blosc_frame_plainbuffer() {
+    int64_t start[] = {5, 4, 3, 1, 2, 1, 0, 3};
+    int64_t stop[] = {6, 8, 7, 4, 7, 2, 1, 9};
+
+    uint8_t itemsize = sizeof(uint16_t);
+    uint8_t ndim = 8;
+    int64_t shape[] = {6, 8, 12, 6, 7, 2, 3, 9};
+
+    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
+    int32_t chunkshape[] = {2, 3, 7, 2, 4, 1, 3, 2};
+    int32_t blockshape[] = {1, 2, 7, 2, 2, 1, 2, 1};
+    bool enforceframe = true;
+    char *filename = NULL;
+
+    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
+    int32_t chunkshape2[] = {0};
+    int32_t blockshape2[] = {0};
+    bool enforceframe2 = false;
+    char *filename2 = NULL;
+
+    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
+                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+}
+
+static char* all_tests() {
+    MU_RUN_SETUP(squeeze_setup);
+
+    MU_RUN_TEST(squeeze_2_float_blosc_plainbuffer);
+    MU_RUN_TEST(squeeze_3_float_blosc_blosc);
+    MU_RUN_TEST(squeeze_4_double_plainbuffer_blosc);
+    MU_RUN_TEST(squeeze_5_uint8_plainbuffer_plainbuffer);
+    MU_RUN_TEST(squeeze_6_float_blosc_plainbuffer_frame);
+    MU_RUN_TEST(squeeze_7_uint64_blosc_frame_plainbuffer);
+    MU_RUN_TEST(squeeze_8_uint16_blosc_frame_plainbuffer);
+
+    MU_RUN_TEARDOWN(squeeze_teardown);
+    return 0;
+}
+
+MU_RUN_SUITE("SQUEEZE")
