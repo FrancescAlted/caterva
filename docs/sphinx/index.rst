@@ -8,9 +8,16 @@ versions is the same.
 
 ..  toctree::
     :maxdepth: 2
+    :caption: Getting Started
 
-    getting-started/index
-    user-guide
-    reference
-    wrappers
+    getting-started/description
+    getting-started/installation
+
+..  toctree::
+    :maxdepth: 2
+    :caption: API Reference
+
+    reference/context
+    reference/array
+    reference/wrappers
 
