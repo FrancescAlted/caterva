@@ -1,10 +1,27 @@
 Package overview
 ================
 
-Caterva is an open source C library that allows to store large multidimensional, chunked,
-compressed datasets. Data can be stored either in-memory or on-disk, but the API to handle both
-versions is the same.
+Caterva is a container for multidimensional data that is specially designed to read, in an
+incredibly efficient way, slices of data. To achieve this, a new chunking-based data layout
+has been created.
 
+.. image:: overview.png
+   :width: 40%
+   :align: center
+
+Like other libraries like zarr or hdf5, Caterva stores the data into multidimensional chunks
+(yellow cubes). These chunks can then be read individually, improving performance when
+reading slices of the dataset. But also, Caterva introduces a new level
+of chunking. Within each chunk, the data is re-partitioned into smaller multidimensional
+sets called blocks (green cubes). In this way, Caterva can read blocks individually
+(and also in parallel) instead of chunks.
+
+These partition levels, that emulate the memory hierarchy of modern computers, allow access
+to data in a more efficient way. This is due to obtain the desired slice, instead of reading
+the data using the chunks, data are obtained using the blocks.
+
+Blosc
+-----
 
 In Caterva the compression is handled transparently for the user by leveraging the Blosc2 library.
 Blosc is an extremely fast compressor specially designed for binary data. It uses the blocking
@@ -22,6 +39,9 @@ Blosc2 brings such an efficient and open format for
 An aditional feature that introduces Blosc2 is the concept of metalayers. They are small metadata
 for informing about the kind of data that is stored on a Blosc2 container. They are handy for
 defining layers with different specs: data types, geo-spatial...
+
+Caterva metalayer
++++++++++++++++++
 
 Caterva is created by specifying a metalayer on top of a Blosc2 container for storing
 multidimensional information. This metalayer can be modified so that the shapes can be updated

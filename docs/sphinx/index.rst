@@ -13,6 +13,7 @@ versions is the same.
     getting-started/description
     getting-started/installation
 
+
 ..  toctree::
     :maxdepth: 2
     :caption: API Reference
@@ -20,4 +21,11 @@ versions is the same.
     reference/context
     reference/array
     reference/wrappers
+
+
+..  toctree::
+    :maxdepth: 2
+    :caption: Development
+
+    development/release-notes
 

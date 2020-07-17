@@ -1,16 +1,13 @@
 Installation
 ============
 
-Building Caterva with CMake
-+++++++++++++++++++++++++++
-
 Caterva can be built, tested and installed using CMake. The following procedure describes a
 typical CMake build. In order to install Caterva, you need to have the library c-blosc2 builded
 or installed.
 
 
 Unix
-::::
+----
 
 1. Create the build directory inside the sources and move into it::
 
@@ -20,7 +17,7 @@ Unix
 
 2. Now run CMake configuration and, if necessary, specify the directory where the Blosc build is and the directory where the Blosc headers are::
 
-        cmake -DCMAKE_BUILD_TYPE='Debug/Release' -DBLOSC_DIR='blosc_build_dir' -DBLOSC_INCLUDE='blosc_headers_dir' ..
+        cmake -DBLOSC_DIR='blosc_build_dir' -DBLOSC_INCLUDE='blosc_headers_dir' -DCMAKE_BUILD_TYPE='Debug/Release' ..
 
 3. Build and test Caterva::
 
@@ -34,7 +31,7 @@ Unix
 
 
 Windows
-:::::::
+-------
 
 1. Create the build directory inside the sources and move into it::
 
