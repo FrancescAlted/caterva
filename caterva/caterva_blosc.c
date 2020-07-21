@@ -318,7 +318,7 @@ int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
 }
 
 
-int caterva_blosc_array_repart_chunk(int8_t *rchunk, int32_t rchunksize, void *chunk, int32_t chunksize, caterva_array_t *array){
+int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *chunk, int64_t chunksize, caterva_array_t *array){
     if (rchunksize != array->extchunknitems * array->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
