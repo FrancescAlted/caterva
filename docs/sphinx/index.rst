@@ -7,7 +7,7 @@ versions is the same.
 
 
 ..  toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Getting Started
 
     getting-started/description
@@ -15,7 +15,7 @@ versions is the same.
 
 
 ..  toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: API Reference
 
     reference/context
@@ -24,8 +24,9 @@ versions is the same.
 
 
 ..  toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Development
 
+    development/roadmap
     development/release-notes
 

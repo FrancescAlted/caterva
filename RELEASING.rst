@@ -1,18 +1,12 @@
+Release procedure
 =================
-Releasing Caterva
-=================
-
-:Author: The Blosc Development Team
-:Contact: blosc@blosc.org
-:Date: 2019-09-17
-
 
 Preliminaries
 -------------
 
 - Make sure that you are in `master` branch::
 
-    $ git checkout master
+    git checkout master
 
 - Make sure that ``RELEASE_NOTES.md`` and ``ANNOUNCE.md`` are up to
   date with the latest news in the release.
@@ -21,30 +15,41 @@ Preliminaries
 
 - Commit the changes with::
 
-    $ git commit -a -m "Getting ready for release X.Y.Z"
+    git commit -a -m "Getting ready for release X.Y.Z"
 
 
 Testing
 -------
 
+Code
+++++
+
 Create a new build/ directory, change into it and issue::
 
-  $ cmake ..
-  $ cmake --build .
-  $ ctest
+  cmake ..
+  cmake --build .
+  ctest
 
+Documentation
++++++++++++++
+
+Make sure the documentation is rendering well::
+
+  cd docs/sphinx
+  make html
+  open _build/html/index.html
 
 Tagging
 -------
 
 - Create a tag ``X.Y.Z`` from ``master``.  Use the next message::
 
-    $ git tag -a vX.Y.Z -m "Tagging version X.Y.Z"
+    git tag -a vX.Y.Z -m "Tagging version X.Y.Z"
 
 - Push the tag to the github repo::
 
-    $ git push
-    $ git push --tags
+    git push
+    git push --tags
 
 - Add the release notes for this tag in the releases tab of github project at:
   https://github.com/Blosc/Caterva/releases
@@ -72,14 +77,8 @@ Post-release actions
 
 - Commit the changes::
 
-  $ git commit -a -m"Post X.Y.Z release actions done"
-  $ git push
+  git commit -a -m"Post X.Y.Z release actions done"
+  git push
 
 That's all folks!
 
-
-.. Local Variables:
-.. mode: rst
-.. coding: utf-8
-.. fill-column: 70
-.. End:

@@ -1,8 +1,7 @@
-ROADMAP for Caterva
-===================
+Roadmap
+=======
 
-Caterva is a C library for handling multi-dimensional, compressed datasets in an easy and convenient manner.  This document lists the goals for a production release of Caterva.
-
+This document lists the main goals for the upcoming Caterva releases.
 
 Actions to be done
 ------------------

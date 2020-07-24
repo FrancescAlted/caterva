@@ -1,4 +1,1 @@
-Release Notes
-=============
-
-Under construction :)
+.. include:: ../../../RELEASE_NOTES.rst

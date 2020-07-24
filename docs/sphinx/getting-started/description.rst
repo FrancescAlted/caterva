@@ -9,8 +9,9 @@ has been created.
    :width: 40%
    :align: center
 
-Like other libraries like zarr or hdf5, Caterva stores the data into multidimensional chunks
-(yellow cubes). These chunks can then be read individually, improving performance when
+Like other libraries like zarr, hdf5 or TileDB, Caterva stores the data into
+multidimensional chunks (yellow cubes).
+These chunks can then be read individually, improving performance when
 reading slices of the dataset. But also, Caterva introduces a new level
 of chunking. Within each chunk, the data is re-partitioned into smaller multidimensional
 sets called blocks (green cubes). In this way, Caterva can read blocks individually
@@ -40,57 +41,4 @@ An aditional feature that introduces Blosc2 is the concept of metalayers. They a
 for informing about the kind of data that is stored on a Blosc2 container. They are handy for
 defining layers with different specs: data types, geo-spatial...
 
-Caterva metalayer
-+++++++++++++++++
-
-Caterva is created by specifying a metalayer on top of a Blosc2 container for storing
-multidimensional information. This metalayer can be modified so that the shapes can be updated
-(e.g. an array can grow or shrink). Specifically, Caterva metalayer follows the msgpack format::
-
-    |-0-|-1-|-2-|-3-|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|
-    | 9X| n | n | 9X| shape          | 9X| chunkshape     | 9X| blockshape     |
-    |---|---|---|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|
-      ^   ^   ^   ^                    ^                    ^
-      |   |   |   |                    |                    |
-      |   |   |   |                    |                    +--[msgpack] positive fixnum for n
-      |   |   |   |                    +--[msgpack] positive fixnum for n
-      |   |   |   +--[msgpack] fixarray with X=nd elements
-      |   |   +--[msgpack] positive fixnum for the number of dimensions (n, up to 127)
-      |   +--[msgpack] positive fixnum for the metalayer format version (up to 127)
-      +---[msgpack] fixarray with X=5 elements
-
-In this format, the shape section is meant to store the actual shape info::
-
-    |---|--8 bytes---|---|--8 bytes---|~~~~~|---|--8 bytes---|
-    | d3| first_dim  | d3| second_dim | ... | d3| nth_dim    |
-    |---|------------|---|------------|~~~~~|---|------------|
-      ^                ^                      ^
-      |                |                      |
-      |                |                      +--[msgpack] int64
-      |                +--[msgpack] int64
-      +--[msgpack] int64
-
-
-Next, the chunkshape section is meant to store the actual chunk shape info::
-
-    |---|--4 bytes---|---|--4 bytes---|~~~~~|---|--4 bytes---|
-    | d2| first_dim  | d2| second_dim | ... | d2| nth_dim    |
-    |---|------------|---|------------|~~~~~|---|------------|
-      ^                ^                      ^
-      |                |                      |
-      |                |                      +--[msgpack] int32
-      |                +--[msgpack] int32
-      +--[msgpack] int32
-
-Finally, the blockshape section is meant to store the actual block shape info::
-
-    |---|--4 bytes---|---|--4 bytes---|~~~~~|---|--4 bytes---|
-    | d2| first_dim  | d2| second_dim | ... | d2| nth_dim    |
-    |---|------------|---|------------|~~~~~|---|------------|
-      ^                ^                      ^
-      |                |                      |
-      |                |                      +--[msgpack] int32
-      |                +--[msgpack] int32
-      +--[msgpack] int32
-
-
+.. include:: ../../../CATERVA_METALAYER.rst
