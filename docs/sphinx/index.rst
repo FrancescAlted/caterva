@@ -18,8 +18,7 @@ versions is the same.
     :maxdepth: 1
     :caption: API Reference
 
-    reference/context
-    reference/array
+    reference/api
     reference/wrappers
 
 
