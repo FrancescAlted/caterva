@@ -17,9 +17,9 @@ re-partitioned into smaller multidimensional sets called blocks (green cubes).
 In this way, Caterva can read blocks individually (and also in parallel) instead
 of chunks.
 
-These partition levels allow access to data in a more efficient way. This is
-due to obtain the desired slice, instead of reading the data using the
-chunks, data are obtained using the blocks.
+These partition levels allow to access data efficiently with a larger set of
+data access patterns. This is due to obtain the desired slice, instead of
+reading the data using the chunks, data are obtained using the blocks.
 
 Blosc
 -----
