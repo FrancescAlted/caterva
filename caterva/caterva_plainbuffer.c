@@ -44,7 +44,7 @@ int caterva_plainbuffer_array_from_buffer(caterva_context_t *ctx, caterva_array_
 
 int caterva_plainbuffer_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer) {
     CATERVA_UNUSED_PARAM(ctx);
-    memcpy(buffer, array->buf, array->size * array->itemsize);
+    memcpy(buffer, array->buf, (size_t) array->nitems * array->itemsize);
     return CATERVA_SUCCEED;
 }
 
@@ -105,7 +105,7 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_context_t *ctx, caterva_a
                                 }
                                 memcpy(&bdest[buf_pointer * array->itemsize],
                                        &array->buf[chunk_pointer * array->itemsize],
-                                       (stop_[7] - start_[7]) * array->itemsize);
+                                       (size_t) (stop_[7] - start_[7]) * array->itemsize);
                             }
                         }
                     }
@@ -165,7 +165,7 @@ int caterva_plainbuffer_array_set_slice_buffer(caterva_context_t *ctx, void *buf
                                 }
                                 memcpy(&array->buf[chunk_pointer * array->itemsize],
                                        &bbuffer[buf_pointer * array->itemsize],
-                                       (stop_[7] - start_[7]) * array->itemsize);
+                                       (size_t) (stop_[7] - start_[7]) * array->itemsize);
                             }
                         }
                     }
@@ -196,9 +196,9 @@ int caterva_plainbuffer_array_get_slice(caterva_context_t *ctx, caterva_array_t 
 
 int caterva_plainbuffer_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape) {
     array->ndim = ndim;
-    array->size = 1;
-    array->extsize = 1;
-    array->chunksize = 1;
+    array->nitems = 1;
+    array->extnitems = 1;
+    array->chunknitems = 1;
     for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
         if (i < ndim) {
             array->shape[i] = shape[i];
@@ -209,9 +209,9 @@ int caterva_plainbuffer_update_shape(caterva_array_t *array, int8_t ndim, int64_
             array->extshape[i] = 1;
             array->chunkshape[i] = 1;
         }
-        array->size *= array->shape[i];
-        array->extsize *= array->extshape[i];
-        array->chunksize *= array->chunkshape[i];
+        array->nitems *= array->shape[i];
+        array->extnitems *= array->extshape[i];
+        array->chunknitems *= array->chunkshape[i];
     }
 
     return CATERVA_SUCCEED;
@@ -241,7 +241,7 @@ int caterva_plainbuffer_array_copy(caterva_context_t *ctx, caterva_params_t *par
 
     CATERVA_ERROR(caterva_array_empty(ctx, params, storage, dest));
 
-    CATERVA_ERROR(caterva_array_to_buffer(ctx, src, (*dest)->buf, (*dest)->size * (*dest)->itemsize));
+    CATERVA_ERROR(caterva_array_to_buffer(ctx, src, (*dest)->buf, (*dest)->nitems * (*dest)->itemsize));
     (*dest)->filled = true;
 
     return CATERVA_SUCCEED;
@@ -263,18 +263,18 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
 
     int64_t *shape = params->shape;
 
-    (*array)->size = 1;
-    (*array)->chunksize = 1;
-    (*array)->extsize = 1;
+    (*array)->nitems = 1;
+    (*array)->chunknitems = 1;
+    (*array)->extnitems = 1;
 
     for (int i = 0; i < params->ndim; ++i) {
         (*array)->shape[i] = shape[i];
-        (*array)->chunkshape[i] = shape[i];
+        (*array)->chunkshape[i] = (uint32_t) shape[i];
         (*array)->extshape[i] = shape[i];
 
-        (*array)->size *= shape[i];
-        (*array)->chunksize *= shape[i];
-        (*array)->extsize *= shape[i];
+        (*array)->nitems *= shape[i];
+        (*array)->chunknitems *= (uint32_t) shape[i];
+        (*array)->extnitems *= shape[i];
     }
 
     for (int i = params->ndim; i < CATERVA_MAX_DIM; ++i) {
@@ -284,12 +284,12 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
     }
 
     // The partition cache (empty initially)
-    (*array)->part_cache.data = NULL;
-    (*array)->part_cache.nchunk = -1;  // means no valid cache yet
+    (*array)->chunk_cache.data = NULL;
+    (*array)->chunk_cache.nchunk = -1;  // means no valid cache yet
 
     (*array)->sc = NULL;
 
-    uint8_t *buf = ctx->cfg->alloc((*array)->extsize * params->itemsize);
+    uint8_t *buf = ctx->cfg->alloc((size_t) (*array)->extnitems * params->itemsize);
 
     (*array)->buf = buf;
 
