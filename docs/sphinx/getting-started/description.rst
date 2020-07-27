@@ -9,7 +9,7 @@ chunking-based data layout has been created.
    :width: 40%
    :align: center
 
-Like other libraries like zarr, hdf5 or TileDB, Caterva stores the data into
+Like other libraries like zarr, HDF5 or TileDB, Caterva stores the data into
 multidimensional chunks (yellow cubes). These chunks can then be read
 individually, improving performance when reading slices of the dataset. But
 also, Caterva introduces a new level of chunking. Within each chunk, the data is
@@ -17,10 +17,9 @@ re-partitioned into smaller multidimensional sets called blocks (green cubes).
 In this way, Caterva can read blocks individually (and also in parallel) instead
 of chunks.
 
-These partition levels, that emulate the memory hierarchy of modern computers,
-allow access to data in a more efficient way. This is due to obtain the desired
-slice, instead of reading the data using the chunks, data are obtained using the
-blocks.
+These partition levels allow access to data in a more efficient way. This is
+due to obtain the desired slice, instead of reading the data using the
+chunks, data are obtained using the blocks.
 
 Blosc
 -----
