@@ -7,8 +7,7 @@ This choice allows Caterva to obtain:
 
  * High performance in the treatment of multidimensional arrays.
  * Better interaction with other languages like Python, R...
- * High portability, that is, Caterva can be compiled for a wide variety
-   of computing platforms and operating systems.
+ * Portability to a wide variety of computing platforms and operating systems.
 
 On the following pages you can find a detailed description of the
 entire C Caterva API.

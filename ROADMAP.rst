@@ -3,15 +3,29 @@ Roadmap
 
 This document lists the main goals for the upcoming Caterva releases.
 
-Actions to be done
-------------------
 
-* Do a complete refactorization of the Caterva C code to facilitate its usability. For example, after that refactorization, the shape will be passed to the container when it is created.
+Features
+--------
 
-* Adapt the Python interface to the refactorization done in C code.
+* *Append chunks in any order*. This will make it easier for the user to
+  create arrays, since they will not be forced to use a row-wise order.
 
-* Add examples into the Python wrapper documentation and create some jupyter notebooks.
+* *Update array elements*. With this, users will be able to update their
+  arrays without having to make a copy.
 
-* Build wheels to make the installation easier for the user.
+* *Resize array dimensions*. This feature will allow Caterva to increase or
+  decrease in size any dimension of the arrays.
 
-* Add a new level of multidimensionality in Caterva. After that, we will support three layers of multidimensionality in a Caterva container: the shape, the chunk shape and the block shape.
+
+Installation
+------------
+
+* *Build wheels*. Having the wheels will make the installation easier for the
+  user.
+
+
+Interoperability
+----------------
+
+* *Create a wrapper for R*. This wrapper will allow any R application that
+  needs multidimensional arrays to use Caterva natively.
