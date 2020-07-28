@@ -43,8 +43,8 @@ static char* test_repart_chunk(caterva_context_t *ctx, uint8_t itemsize,
     caterva_array_t *carr;
     caterva_array_empty(ctx, &params, &storage, &carr);
 
-    int size_src = carr->chunksize * itemsize;
-    int size_dest = (int) carr->extchunksize * itemsize;
+    int size_src = carr->chunknitems * itemsize;
+    int size_dest = (int) carr->extchunknitems * itemsize;
 
     uint8_t *buffer_src = ctx->cfg->alloc(size_src);
     uint8_t *buffer_dest = ctx->cfg->alloc(size_dest);

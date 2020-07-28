@@ -62,7 +62,7 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params, caterv
 
     (*array)->filled = false;
     (*array)->empty = true;
-    (*array)->nparts = 0;
+    (*array)->nchunks = 0;
 
     return CATERVA_SUCCEED;
 }
@@ -134,13 +134,13 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
     }
     switch (array->storage) {
         case CATERVA_STORAGE_BLOSC:
-            if (chunksize != array->next_chunksize * array->itemsize) {
+            if (chunksize != array->next_chunknitems * array->itemsize) {
                 CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
             }
             CATERVA_ERROR(caterva_blosc_array_append(ctx, array, chunk, (int32_t) chunksize));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            if (chunksize != array->chunksize * array->itemsize) {
+            if (chunksize != array->chunknitems * array->itemsize) {
                 CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
             }
             CATERVA_ERROR(caterva_plainbuffer_array_append(ctx, array, chunk, chunksize));
@@ -149,8 +149,10 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
     }
 
-    array->nparts++;
-    if (array->nparts == array->extsize / array->chunksize) {
+    array->nchunks++;
+    array->empty = false;
+    if (array->nchunks == array->extnitems / array->chunknitems) {
+
         array->filled = true;
     }
 
@@ -168,7 +170,7 @@ int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buff
 
     CATERVA_ERROR(caterva_array_empty(ctx, params, storage, array));
 
-    if (buffersize != (int64_t) (*array)->size * (*array)->itemsize) {
+    if (buffersize != (int64_t) (*array)->nitems * (*array)->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
@@ -192,7 +194,7 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(buffer);
 
-    if (buffersize < (int64_t) array->size * array->itemsize) {
+    if (buffersize < (int64_t) array->nitems * array->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
