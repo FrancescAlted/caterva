@@ -1,6 +1,25 @@
 Release notes
 =============
 
+Changes from 0.3.3 to 0.4.0
+---------------------------
+
+* API renaming. The function names simulate a *namespace* and some
+  variable names have been changed to those used by the general community
+  (*part -> chunk*).
+
+* Add a new level of multi-dimensionality. As a result, unlike other
+  libraries, Caterva supports two levels of multi-dimensional chunking (chunks
+  and blocks).
+
+* Improve library compilation to allow users to avoid building tests and
+  examples.
+
+* Simplify the test's suite for a proper integration in Windows.
+
+* Update documentation to improve the library description and to add the
+  *Release notes* and the *Roadmap* in a new section.
+
 Changes from 0.3.0 to 0.3.3
 ---------------------------
 
