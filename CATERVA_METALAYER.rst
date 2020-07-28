@@ -1,28 +1,26 @@
-Caterva MetaLayer
-===================
+Caterva metalayer
++++++++++++++++++
 
-Caterva is storing persistently its information about shapes and partition shapes as an additional layer in the Blosc2 frame format.
-
-Caterva metalayer follows the msgpack format::
+Caterva is created by specifying a metalayer on top of a Blosc2 container for storing
+multidimensional information. This metalayer can be modified so that the shapes can be updated
+(e.g. an array can grow or shrink). Specifically, Caterva metalayer follows the msgpack format::
 
     |-0-|-1-|-2-|-3-|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|
-    | 9X| nd| nd| 9X| shape          | 9X| partshape      | 9X| blockshape     |
+    | 9X| n | n | 9X| shape          | 9X| chunkshape     | 9X| blockshape     |
     |---|---|---|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|
-      ^   ^   ^    ^                    ^                    ^
-      |   |   |    |                    |                    +--[msgpack] positive fixnum for nd
-      |   |   |    |                    +--[msgpack] positive fixnum for nd
-      |   |   |    +--[msgpack] fixarray with X=nd elements
-      |   |   +--[msgpack] positive fixnum for the number of dimensions (nd, up to 127)
+      ^   ^   ^   ^                    ^                    ^
+      |   |   |   |                    |                    |
+      |   |   |   |                    |                    +--[msgpack] positive fixnum for n
+      |   |   |   |                    +--[msgpack] positive fixnum for n
+      |   |   |   +--[msgpack] fixarray with X=nd elements
+      |   |   +--[msgpack] positive fixnum for the number of dimensions (n, up to 127)
       |   +--[msgpack] positive fixnum for the metalayer format version (up to 127)
       +---[msgpack] fixarray with X=5 elements
 
-The shape section
------------------
-
-This section is meant to store the actual shape info.  There are as many fields as `nd` dimensions::
+In this format, the shape section is meant to store the actual shape info::
 
     |---|--8 bytes---|---|--8 bytes---|~~~~~|---|--8 bytes---|
-    | d3| first_dim  | d3| second_dim | ... | d3| last_dim   |
+    | d3| first_dim  | d3| second_dim | ... | d3| nth_dim    |
     |---|------------|---|------------|~~~~~|---|------------|
       ^                ^                      ^
       |                |                      |
@@ -30,13 +28,11 @@ This section is meant to store the actual shape info.  There are as many fields 
       |                +--[msgpack] int64
       +--[msgpack] int64
 
-The partshape section
----------------------
 
-This section is meant to store the actual partition shape info.  There are as many fields as `nd` dimensions::
+Next, the chunkshape section is meant to store the actual chunk shape info::
 
     |---|--4 bytes---|---|--4 bytes---|~~~~~|---|--4 bytes---|
-    | d2| first_dim  | d2| second_dim | ... | d2| last_dim   |
+    | d2| first_dim  | d2| second_dim | ... | d2| nth_dim    |
     |---|------------|---|------------|~~~~~|---|------------|
       ^                ^                      ^
       |                |                      |
@@ -44,17 +40,13 @@ This section is meant to store the actual partition shape info.  There are as ma
       |                +--[msgpack] int32
       +--[msgpack] int32
 
-The blockshape section
-----------------------
-
-This section is meant to store the block shape info inside the partition.  There are as many fields as `nd` dimensions::
+Finally, the blockshape section is meant to store the actual block shape info::
 
     |---|--4 bytes---|---|--4 bytes---|~~~~~|---|--4 bytes---|
-    | d2| first_dim  | d2| second_dim | ... | d2| last_dim   |
+    | d2| first_dim  | d2| second_dim | ... | d2| nth_dim    |
     |---|------------|---|------------|~~~~~|---|------------|
       ^                ^                      ^
       |                |                      |
       |                |                      +--[msgpack] int32
       |                +--[msgpack] int32
       +--[msgpack] int32
-

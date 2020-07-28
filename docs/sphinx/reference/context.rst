@@ -1,5 +1,5 @@
-Caterva Context
-===============
+Context
+=======
 ..  doxygenstruct:: caterva_context_t
 
 

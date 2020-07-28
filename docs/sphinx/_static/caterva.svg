@@ -2,7 +2,7 @@
   <defs>
     <style>
       .cls-1 {
-        font-nitems: 150px;
+        font-size: 150px;
         fill: #007f91;
         font-family: "Helvetica Neue";
         font-weight: 700;

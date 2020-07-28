@@ -1,5 +1,5 @@
-Caterva Array
-=============
+Array
+=====
 
 .. doxygenstruct:: caterva_array_t
 
