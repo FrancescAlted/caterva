@@ -1,6 +1,12 @@
 Release notes
 =============
 
+Changes from 0.4.0 to 0.4.1
+---------------------------
+
+XXX version-specific blurb XXX
+
+
 Changes from 0.3.3 to 0.4.0
 ---------------------------
 

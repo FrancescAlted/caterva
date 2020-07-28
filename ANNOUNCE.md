@@ -1,4 +1,4 @@
-# Announcing Caterva 0.3.3: a simple multidimensional container for compressed data
+# Announcing Caterva 0.4.0: a simple multidimensional container for compressed data
 
 
 ## What is new?
@@ -12,7 +12,7 @@ chunking (chunks and blocks).
 
 For more info, please see the release notes in:
 
-https://github.com/Blosc/Caterva/blob/master/RELEASE_NOTES.md
+https://github.com/Blosc/Caterva/releases
 
 
 ## What is it?

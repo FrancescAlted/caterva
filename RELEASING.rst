@@ -77,7 +77,7 @@ Post-release actions
 
 - Commit the changes::
 
-  git commit -a -m"Post X.Y.Z release actions done"
+  git commit -a -m "Post X.Y.Z release actions done"
   git push
 
 That's all folks!
