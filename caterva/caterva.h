@@ -26,12 +26,14 @@
 
 
 /* Version numbers */
-#define CATERVA_VERSION_MAJOR    0    /* for major interface/format changes  */
-#define CATERVA_VERSION_MINOR    3    /* for minor interface/format changes  */
-#define CATERVA_VERSION_RELEASE  3    /* for tweaks, bug-fixes, or development */
+#define CATERVA_VERSION_MAJOR    0   /* for major interface/format changes  */
+#define CATERVA_VERSION_MINOR    4   /* for minor interface/format changes  */
+#define CATERVA_VERSION_RELEASE  1-dev   /* for tweaks, bug-fixes, or
+ * development */
 
-#define CATERVA_VERSION_STRING   "0.3.3"  /* string version.  Sync with above! */
-#define CATERVA_VERSION_DATE     "2020-04-27"    /* date version */
+#define CATERVA_VERSION_STRING   "0.4.1-dev"  /* string version. Sync with
+ * above! */
+#define CATERVA_VERSION_DATE     "2020-07-28"    /* date version */
 
 
 /* Error handling */
@@ -225,7 +227,7 @@ typedef struct {
  * When a chunk is needed, it is copied into this cache. In this way, if the same chunk is needed
  * again afterwards, it is not necessary to recover it because it is already in the cache.
  */
-struct part_cache_s {
+struct chunk_cache_s {
     uint8_t *data;
     //!< Pointer to the chunk data.
     int32_t nchunk;
@@ -257,18 +259,18 @@ typedef struct {
     //!< Shape of padded chunk.
     int32_t next_chunkshape[CATERVA_MAX_DIM];
     //!< Shape of next chunk to be appended.
-    int64_t size;
-    //!< Size of original data.
-    int32_t chunksize;
-    //!< Size of each chunk.
-    int64_t extsize;
-    //!< Size of padded data.
-    int32_t blocksize;
-    //!< Size of each block.
-    int64_t extchunksize;
-    //!< Size of padded chunk.
-    int64_t next_chunksize;
-    //!< Size of next chunk to be appended.
+    int64_t nitems;
+    //!< Number of items in original data.
+    int32_t chunknitems;
+    //!< Number of items in each chunk.
+    int64_t extnitems;
+    //!< Number of items in padded data.
+    int32_t blocknitems;
+    //!< Number of items in each block.
+    int64_t extchunknitems;
+    //!< Number of items in a padded chunk.
+    int64_t next_chunknitems;
+    //!< Number of items in the next chunk to be appended.
     int8_t ndim;
     //!< Data dimensions.
     int8_t itemsize;
@@ -277,9 +279,9 @@ typedef struct {
     //!< Indicate if an array is empty or is filled with data.
     bool filled;
     //!< Indicate if an array is completely filled or not.
-    int64_t nparts;
-    //!< Number of partitions in the array.
-    struct part_cache_s part_cache;
+    int64_t nchunks;
+    //!< Number of chunks in the array.
+    struct chunk_cache_s chunk_cache;
     //!< A partition cache.
 } caterva_array_t;
 
@@ -393,7 +395,7 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  *
  * @param ctx Pointer to the caterva context to be used.
  * @param buffer Pointer to the buffer where source data is stored.
- * @param buffersize The size (in bytes) of the serialized frame.
+ * @param buffersize The size (in bytes) of the buffer.
  * @param params Pointer to the general params of the array desired.
  * @param storage Pointer to the storage params of the array desired.
  * @param array Pointer to the memory pointer where the array will be created.
