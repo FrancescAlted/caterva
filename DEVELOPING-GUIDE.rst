@@ -1,14 +1,40 @@
-Some conventions used in Caterva
-================================
+Development guide
+=================
 
-* Use C99 designated initialization whenever possible (specially in examples).
+Our Development Process
+-----------------------
 
-* Use _new and _free for memory allocating constructors and destructors and _init and _destroy for non-memory allocating constructors and destructors.
+New versions are being developed in the "master" branch,
+or in their own feature branch.
+When they are deemed ready for a release, they are merged back into "master"
+again.
 
+So all contributions must stage first through "master"
+or their own feature branch.
 
-Naming things
+Pull Requests
 -------------
 
-Naming is one of the most time-consuming tasks, but critical for communicating effectively.  Here it is a preliminary list of names that I am not comfortable with:
+We actively welcome your pull requests.
 
-* We are currently calling `filters` to a data transformation function that essentially produces the same amount of data, but with bytes shuffled or transformed in different ways.  Perhaps `transformers` would be a better name?
+1. Fork the repo and create your branch from `master`.
+2. If you've added code that should be tested, add tests.
+3. If you've changed APIs, update the documentation.
+4. Ensure the test suite passes.
+5. Make sure your code does not issue new compiler warnings.
+
+Issues
+------
+
+We use GitHub issues to track public bugs. Please ensure your description is
+clear and has sufficient instructions to be able to reproduce the issue.
+
+Coding Style
+------------
+* 4 spaces for indentation rather than tabs.
+
+License
+-------
+
+By contributing to Caterva, you agree that your contributions will be licensed
+under the [LICENSE](LICENSE) file of the project.
