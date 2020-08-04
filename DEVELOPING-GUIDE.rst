@@ -37,4 +37,4 @@ License
 -------
 
 By contributing to Caterva, you agree that your contributions will be licensed
-under the `LICENSE`_ file of the project.
+under the `<LICENSE>`_ file of the project.
