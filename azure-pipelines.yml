@@ -26,15 +26,16 @@ pool:
 
 steps:
   - bash: |
+      pip install cpplint
+      cpplint --extensions=c,h --headers=h --recursive caterva
+
+  - bash: |
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
 
   - bash: |
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
-
-  - bash: |
-      pip install -y cpplint
 
   - task: CacheBeta@0
     inputs:
