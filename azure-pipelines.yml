@@ -25,15 +25,10 @@ pool:
   vmImage: $(imageName)
 
 steps:
-  - bash: echo "##vso[task.prependpath]$CONDA/bin"
-    displayName: Add conda to PATH
-
-  - script: conda env create --quiet --file environment.yml
-    displayName: Create Anaconda environment
-
-  - bash: |
-      source activate caterva
-      cpplint --extensions=c,h --headers=h --recursive caterva
+  - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7'
+      displayName: 'Use Python 3.7'
 
   - bash: |
       python -m pip install --upgrade pip
