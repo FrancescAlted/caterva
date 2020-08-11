@@ -772,7 +772,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                                                         } else {
                                                                             sp_stop[i] = s_spshape[i];
                                                                         }
-                                                                        if ((jj[i] + 1) * s_spshape[i] > s_pshape[i]) { // case padding
+                                                                        if ((jj[i] + 1) * s_spshape[i] > s_pshape[i]) {  // case padding
                                                                             int64_t lastn = s_pshape[i] % s_spshape[i];
                                                                             if (lastn < sp_stop[i]) {
                                                                                 sp_stop[i] = lastn;
@@ -802,7 +802,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                                                                                     buf_pointer_inc *= d_pshape_[i];
                                                                                                 }
 
-                                                                                                memcpy(&bbuffer[buf_pointer * typesize],&chunk[(s_start + sp_pointer)
+                                                                                                memcpy(&bbuffer[buf_pointer * typesize], &chunk[(s_start + sp_pointer)
                                                                                                        * typesize], (size_t) (sp_stop[7] - sp_start[7]) * typesize);
                                                                                             }
                                                                                         }
