@@ -25,6 +25,9 @@ pool:
   vmImage: $(imageName)
 
 steps:
+  - script: conda env create --quiet --file environment.yml
+    displayName: Create Anaconda environment
+
   - bash: |
       python -m pip install --upgrade pip
       python -m pip install cpplint --no-binary :all:

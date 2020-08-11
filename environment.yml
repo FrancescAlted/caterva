@@ -1,0 +1,6 @@
+name: caterva
+channels:
+  - conda-forge
+dependencies:
+  - python=3.6
+  - cpplint=1.5.3
