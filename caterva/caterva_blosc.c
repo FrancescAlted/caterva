@@ -10,7 +10,7 @@
  */
 
 #include <caterva.h>
-#include "assert.h"
+#include <assert.h>
 
 
 // big <-> little-endian and store it in a memory position.  Sizes supported: 1, 2, 4, 8 bytes.

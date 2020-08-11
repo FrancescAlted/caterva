@@ -34,7 +34,7 @@ steps:
       git rev-parse --verify HEAD > ../blosc.commit
 
   - bash: |
-      - pip install -y cpplint
+      pip install -y cpplint
 
   - task: CacheBeta@0
     inputs:

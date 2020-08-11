@@ -9,9 +9,9 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-#include "caterva.h"
-#include "caterva_blosc.h"
-#include "caterva_plainbuffer.h"
+#include <caterva.h>
+#include <caterva_blosc.h>
+#include <caterva_plainbuffer.h>
 
 
 
