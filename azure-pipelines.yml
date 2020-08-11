@@ -75,22 +75,22 @@ steps:
     condition: and(eq( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
     displayName: 'Build c-blosc2'
 
+
   - bash: |
       mkdir build
       cd build/
-      cmake .. -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE)
-      cmake --build . --config $(BUILD_CONFIGURATION)
+      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
+      cmake --build . --config ${BUILD_CONFIGURATION}
     displayName: 'Build caterva'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
       ctest -C ${BUILD_CONFIGURATION} -T Test -V
-    displayName: 'Testing'
+    displayName: 'Tests'
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
-
