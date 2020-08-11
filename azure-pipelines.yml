@@ -25,7 +25,7 @@ pool:
   vmImage: $(imageName)
 
 steps:
-  - - bash: echo "##vso[task.prependpath]$CONDA/bin"
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
       displayName: Add conda to PATH
 
   - script: conda env create --quiet --file environment.yml
