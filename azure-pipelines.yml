@@ -1,28 +1,24 @@
 trigger:
-  - master
+- master
 
+variables:
+  CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/build/
+  BLOSC_INCLUDE: $(Build.SourcesDirectory)/c-blosc2/blosc/
 
-stages:
-  - stage: Build
-    jobs:
-      - job: Build blosc
-        variables:
-          CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/build/
-          BLOSC_INCLUDE: $(Build.SourcesDirectory)/c-blosc2/blosc/
-            strategy:
-              matrix:
-                linux-release:
-                  imageName: 'ubuntu-16.04'
-                  BUILD_CONFIGURATION: RelWithDebInfo
-                  BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
-                mac-release:
-                  imageName: 'macos-10.14'
-                  BUILD_CONFIGURATION: RelWithDebInfo
-                  BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
-                windows-release:
-                  imageName: 'vs2017-win2016'
-                  BUILD_CONFIGURATION: RelWithDebInfo
-                  BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
+strategy:
+  matrix:
+    linux-release:
+      imageName: 'ubuntu-16.04'
+      BUILD_CONFIGURATION: RelWithDebInfo
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
+    mac-release:
+      imageName: 'macos-10.14'
+      BUILD_CONFIGURATION: RelWithDebInfo
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
+    windows-release:
+      imageName: 'vs2017-win2016'
+      BUILD_CONFIGURATION: RelWithDebInfo
+      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
 
 
 pool:
@@ -37,6 +33,7 @@ steps:
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
 
+
   - task: CacheBeta@0
     inputs:
       key: v0 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
@@ -44,6 +41,14 @@ steps:
       cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
 
+  - bash: |
+      cd c-blosc2/
+      mkdir build
+      cd build/
+      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
+      cmake --build .
+    condition: and(ne( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
+    displayName: 'Build c-blosc2'
 
   - bash: |
       cd c-blosc2/
@@ -58,9 +63,8 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake .. -G ninja -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION}
-      -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
-      cmake --build .
+      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
+      cmake --build . --config ${BUILD_CONFIGURATION}
     displayName: 'Build caterva'
 
   - bash: |
