@@ -50,13 +50,6 @@ steps:
     condition: eq( variables['Agent.OS'], 'Linux' )
     displayName: 'Install packages (Linux)'
 
-
-  - bash: |
-      echo "##vso[task.prependpath]$CONDA/bin"
-      conda install -y -c conda-forge gcovr
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
-    displayName: 'Coverage dependencies'
-
   - task: CacheBeta@0
     inputs:
       key: v0 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
@@ -85,31 +78,15 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE ..
-      cmake --build .
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
+      cmake .. -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE)
+      cmake --build . --config $(BUILD_CONFIGURATION)
     displayName: 'Build caterva'
-
-  - bash: |
-      mkdir build
-      cd build/
-      cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
-      cmake --build . --config ${BUILD_CONFIGURATION}
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
-    displayName: 'Build caterva'
-
-  - bash: |
-      cd build/
-      ctest -T Test -V
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
-    displayName: 'Tests'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
       ctest -C ${BUILD_CONFIGURATION} -T Test -V
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
-    displayName: 'Tests'
+    displayName: 'Testing'
 
   - task: PublishTestResults@2
     inputs:
@@ -117,20 +94,3 @@ steps:
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
 
-  - bash: |
-      cd build/
-      ctest -D ExperimentalCoverage
-      cd ..
-      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
-      mv caterva/caterva.c.gcno caterva/caterva.gcno
-      mv caterva/caterva.c.gcda caterva/caterva.gcda
-      gcovr -v -r caterva/ --xml -o coverage.xml
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
-    displayName: 'Create coverage'
-
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: Cobertura
-      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
-    displayName: 'Publish coverage'
