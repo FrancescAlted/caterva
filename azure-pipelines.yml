@@ -35,7 +35,8 @@ steps:
 
   - bash: |
       choco install ninja
-      condition: eq( variables['Agent.OS'], 'Windows_NT' )
+    condition: eq( variables['Agent.OS'], 'Windows_NT' )
+
   - bash: |
       echo "##vso[task.prependpath]$CONDA/bin"
       conda install -y -c conda-forge gcovr
