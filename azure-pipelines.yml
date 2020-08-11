@@ -26,7 +26,7 @@ pool:
 
 steps:
   - bash: |
-      pip install cpplint --no-binary :all:
+      python -m pip install cpplint --no-binary :all:
       cpplint --extensions=c,h --headers=h --recursive caterva
 
   - bash: |
