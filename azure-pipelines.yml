@@ -33,14 +33,17 @@ steps:
   - bash: |
       python -m pip install cpplint --no-binary :all:
       cpplint --extensions=c,h --headers=h --recursive caterva
+    displayName: 'Execute cpplint'
 
   - bash: |
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
+    displayName: 'Export PATH'
 
   - bash: |
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
+    displayName: 'Extract c-blosc2 commit'
 
   - task: CacheBeta@0
     inputs:
@@ -49,14 +52,6 @@ steps:
       cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
 
-  - bash: |
-      cd c-blosc2/
-      mkdir build
-      cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
-      cmake --build .
-    condition: and(ne( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
-    displayName: 'Build c-blosc2'
 
   - bash: |
       cd c-blosc2/
@@ -66,7 +61,6 @@ steps:
       cmake --build . --config ${BUILD_CONFIGURATION}
     condition: ne(variables.CACHE_RESTORED, 'true')
     displayName: 'Build c-blosc2'
-
 
   - bash: |
       mkdir build
