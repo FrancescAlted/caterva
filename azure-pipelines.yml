@@ -7,26 +7,14 @@ variables:
 
 strategy:
   matrix:
-    linux-debug:
-      imageName: 'ubuntu-16.04'
-      BUILD_CONFIGURATION: Debug
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     linux-release:
       imageName: 'ubuntu-16.04'
       BUILD_CONFIGURATION: RelWithDebInfo
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
-    mac-debug:
-      imageName: 'macos-10.14'
-      BUILD_CONFIGURATION: Debug
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-release:
       imageName: 'macos-10.14'
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
-    windows-debug:
-      imageName: 'vs2017-win2016'
-      BUILD_CONFIGURATION: Debug
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
     windows-release:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: RelWithDebInfo
@@ -45,6 +33,9 @@ steps:
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
 
+  - bash: |
+      choco install ninja
+      condition: eq( variables['Agent.OS'], 'Windows_NT' )
   - bash: |
       echo "##vso[task.prependpath]$CONDA/bin"
       conda install -y -c conda-forge gcovr
