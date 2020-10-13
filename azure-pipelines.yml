@@ -7,26 +7,14 @@ variables:
 
 strategy:
   matrix:
-    linux-debug:
-      imageName: 'ubuntu-16.04'
-      BUILD_CONFIGURATION: Debug
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     linux-release:
       imageName: 'ubuntu-16.04'
       BUILD_CONFIGURATION: RelWithDebInfo
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
-    mac-debug:
-      imageName: 'macos-10.14'
-      BUILD_CONFIGURATION: Debug
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-release:
       imageName: 'macos-10.14'
       BUILD_CONFIGURATION: RelWithDebInfo
       BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
-    windows-debug:
-      imageName: 'vs2017-win2016'
-      BUILD_CONFIGURATION: Debug
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
     windows-release:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: RelWithDebInfo
@@ -37,19 +25,25 @@ pool:
   vmImage: $(imageName)
 
 steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.7'
+    displayName: 'Use Python 3.7'
+
+  - bash: |
+      python -m pip install cpplint --no-binary :all:
+      cpplint --extensions=c,h --headers=h --recursive caterva
+    displayName: 'Execute cpplint'
+
   - bash: |
       export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
+    displayName: 'Export PATH'
 
   - bash: |
       git clone https://github.com/Blosc/c-blosc2.git
       cd c-blosc2/
       git rev-parse --verify HEAD > ../blosc.commit
-
-  - bash: |
-      echo "##vso[task.prependpath]$CONDA/bin"
-      conda install -y -c conda-forge gcovr
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
-    displayName: 'Coverage dependencies'
+    displayName: 'Extract c-blosc2 commit'
 
   - task: CacheBeta@0
     inputs:
@@ -58,51 +52,27 @@ steps:
       cacheHitVar: CACHE_RESTORED
     displayName: 'Cache c-blosc2'
 
-  - bash: |
-      cd c-blosc2/
-      mkdir build
-      cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DDEACTIVATE_AVX2=ON ..
-      cmake --build .
-    condition: and(ne( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
-    displayName: 'Build c-blosc2'
 
   - bash: |
       cd c-blosc2/
       mkdir build
       cd build/
-      cmake -DDEACTIVATE_AVX2=ON ..
+      cmake -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DDEACTIVATE_AVX2=ON ..
       cmake --build . --config ${BUILD_CONFIGURATION}
-    condition: and(eq( variables['Agent.OS'], 'Windows_NT' ), ne(variables.CACHE_RESTORED, 'true'))
+    condition: ne(variables.CACHE_RESTORED, 'true')
     displayName: 'Build c-blosc2'
 
   - bash: |
       mkdir build
       cd build/
-      cmake -DCMAKE_BUILD_TYPE=$(BUILD_CONFIGURATION) -DBLOSC_DIR=$(BLOSC_DIR) -DBLOSC_INCLUDE=$(BLOSC_INCLUDE) -DDO_COVERAGE=TRUE ..
-      cmake --build .
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
-    displayName: 'Build caterva'
-
-  - bash: |
-      mkdir build
-      cd build/
-      cmake -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
+      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
       cmake --build . --config ${BUILD_CONFIGURATION}
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Build caterva'
-
-  - bash: |
-      cd build/
-      ctest -T Test -V
-    condition: ne( variables['Agent.OS'], 'Windows_NT' )
-    displayName: 'Tests'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
       ctest -C ${BUILD_CONFIGURATION} -T Test -V
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
     displayName: 'Tests'
 
   - task: PublishTestResults@2
@@ -110,21 +80,3 @@ steps:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
-
-  - bash: |
-      cd build/
-      ctest -D ExperimentalCoverage
-      cd ..
-      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
-      mv caterva/caterva.c.gcno caterva/caterva.gcno
-      mv caterva/caterva.c.gcda caterva/caterva.gcda
-      gcovr -v -r caterva/ --xml -o coverage.xml
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
-    displayName: 'Create coverage'
-
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: Cobertura
-      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
-    condition: and(eq(variables['Agent.OS'], 'Linux'), eq(variables['BUILD_CONFIGURATION'], 'RelWithDebInfo'))
-    displayName: 'Publish coverage'

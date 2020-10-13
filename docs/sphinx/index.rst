@@ -26,6 +26,7 @@ versions is the same.
     :maxdepth: 1
     :caption: Development
 
+    development/contributing
     development/roadmap
     development/release-notes
 
