@@ -58,11 +58,11 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     blosc2_schunk_decompress_chunk(array->sc, 0, data_in, isize);
 
     int32_t *blockshape = storage.properties.blosc.blockshape;
-    int osize = (17 * nbytes / 16) + 9 + 8 + BLOSC_MAX_OVERHEAD;
-    int dsize = nbytes;
+    int osize = (17 * isize / 16) + 9 + 8 + BLOSC_MAX_OVERHEAD;
+    int dsize = isize;
     int csize;
     uint8_t data_out[osize];
-    uint8_t data_dest[nbytes];
+    uint8_t data_dest[dsize];
     blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
     blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
 
@@ -95,7 +95,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     */
 
     /* Compress with clevel=5 and shuffle active  */
-    csize = blosc2_compress_ctx(cctx, nbytes, data, data_out, osize);
+    csize = blosc2_compress_ctx(cctx, isize, data_in, data_out, osize);
     if (csize == 0) {
         printf("Buffer is uncompressible.  Giving up.\n");
         return 0;
@@ -105,7 +105,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
         return csize;
     }
 
-    printf("Compression: %d -> %d (%.1fx)\n", nbytes, csize, (1. * nbytes) / csize);
+    printf("Compression: %d -> %d (%.1fx)\n", isize, csize, (1. * isize) / csize);
 
     /* Decompress  */
     dsize = blosc2_decompress_ctx(dctx, data_out, data_dest, dsize);
@@ -113,10 +113,10 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
         printf("Decompression error.  Error code: %d\n", dsize);
         return dsize;
     }
-    /*
-    printf("data2: \n");
+/*
+    printf("data_in: \n");
     for (int i = 0; i < nbytes; i++) {
-        printf("%u, ", data2[i]);
+        printf("%u, ", data_in[i]);
     }
 
     printf("\n out \n");
@@ -127,10 +127,10 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     for (int i = 0; i < nbytes; i++) {
         printf("%u, ", data_dest[i]);
     }
-    */
+*/
     for (int i = 0; i < nbytes; i++) {
-        if (data2[i] != data_dest[i]) {
-            printf("i: %d, data %u, dest %u", i, data2[i], data_dest[i]);
+        if (data_in[i] != data_dest[i]) {
+            printf("i: %d, data %u, dest %u", i, data_in[i], data_dest[i]);
             printf("\n Decompressed data differs from original!\n");
             return -1;
         }
@@ -181,7 +181,7 @@ int no_matches_pad() {
     int nbytes = typesize * isize;
     uint32_t data[isize];
     for (int i = 0; i < isize; i++) {
-        data[i] = i;
+        data[i] = (-i^2) * 111111 - (-i^2) * 11111 + i * 1111 - i * 110 + i;
     }
     caterva_params_t params;
     params.itemsize = typesize;
@@ -275,9 +275,9 @@ int same_cells() {
     uint32_t data[isize];
     for (int i = 0; i < isize; i += 4) {
         data[i] = 0;
-        data[i + 1] = 1;
+        data[i + 1] = 1111111;
         data[i + 2] = 2;
-        data[i + 3] = 3;
+        data[i + 3] = 1111111;
     }
 
     caterva_params_t params;
@@ -309,8 +309,8 @@ int same_cells_pad() {
     int nbytes = typesize * isize;
     uint32_t data[isize];
     for (int i = 0; i < (isize / 4); i++) {
-        data[i * 4] = (uint32_t *) 0;
-        data[i * 4 + 1] = (uint32_t *) 1;
+        data[i * 4] = (uint32_t *) 11111111;
+        data[i * 4 + 1] = (uint32_t *) 99999999;
     }
 
     caterva_params_t params;
@@ -638,13 +638,13 @@ int main(void) {
 /*
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
-  */
     result = no_matches_pad();
     printf("no_matches_pad: %d obtained \n \n", result);
-/*    result = all_elem_eq();
+    result = all_elem_eq();
     printf("all_elem_eq: %d obtained \n \n", result);
     result = all_elem_pad();
     printf("all_elem_pad: %d obtained \n \n", result);
+
     result = same_cells();
     printf("same_cells: %d obtained \n \n", result);
     result = same_cells_pad();
@@ -655,7 +655,7 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-
+*/
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
@@ -668,5 +668,5 @@ int main(void) {
     printf("image5 with padding: %d obtained \n \n", result);
     result = image6();
     printf("image6 with NO padding: %d obtained \n \n", result);
-*/
+
 }
