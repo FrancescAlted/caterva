@@ -20,10 +20,9 @@ static void index_unidim_to_multidim(int8_t ndim, int64_t *shape, int64_t i, int
 
     index[0] = i / strides[0];
     for (int j = 1; j < ndim; ++j) {
-        index[j] = (i % strides[j-1]) / strides[j];
+        index[j] = (i % strides[j - 1]) / strides[j];
     }
 }
-
 
 int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     if ((*array)->buf != NULL) {
@@ -116,10 +115,8 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_context_t *ctx, caterva_a
             buf_pointer += (start_copy[i] - start_[i]) * buf_pointer_inc;
             buf_pointer_inc *= d_pshape_[i];
         }
-        memcpy(&bdest[buf_pointer * array->itemsize],
-               &array->buf[chunk_pointer * array->itemsize],
+        memcpy(&bdest[buf_pointer * array->itemsize], &array->buf[chunk_pointer * array->itemsize],
                (size_t)(stop_[7] - start_[7]) * array->itemsize);
-
     }
     return CATERVA_SUCCEED;
 }
