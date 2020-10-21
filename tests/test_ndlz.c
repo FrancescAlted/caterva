@@ -61,8 +61,8 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     int osize = (17 * isize / 16) + 9 + 8 + BLOSC_MAX_OVERHEAD;
     int dsize = isize;
     int csize;
-    uint8_t data_out[osize];
-    uint8_t data_dest[dsize];
+    uint8_t *data_out = malloc(osize);
+    uint8_t *data_dest = malloc(dsize);
     blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
     blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
 
@@ -135,6 +135,9 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
             return -1;
         }
     }
+
+    blosc2_free_ctx(cctx);
+    blosc2_free_ctx(dctx);
 
     printf("Succesful roundtrip!\n");
     return dsize - csize;
@@ -655,12 +658,12 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-*/
+
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
-    result = image2();
+ */   result = image2();
     printf("image2 with  padding: %d obtained \n \n", result);
-    result = image3();
+  /*  result = image3();
     printf("image3 with NO padding: %d obtained \n \n", result);
     result = image4();
     printf("image4 with NO padding: %d obtained \n \n", result);
@@ -668,5 +671,5 @@ int main(void) {
     printf("image5 with padding: %d obtained \n \n", result);
     result = image6();
     printf("image6 with NO padding: %d obtained \n \n", result);
-
+*/
 }
