@@ -14,7 +14,7 @@
 int main() {
 
     int8_t ndim = 3;
-    int64_t shape[] = {1000, 1000, 1000};
+    int64_t shape[] = {500, 500, 500};
     int8_t itemsize = 8;
 
     int64_t slice_start[] = {50, 122, 1};
@@ -63,5 +63,8 @@ int main() {
 
     printf("Elapsed seconds: %.5f\n", blosc_elapsed_secs(t0, t1));
 
+    int8_t *a = malloc(1000);
+    slice_nelem += a[50];
+    a = 0;
     return 0;
 }
