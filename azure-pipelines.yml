@@ -41,7 +41,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} ..
+      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DENABLE_COVERAGE=TRUE ..
       cmake --build . --config ${BUILD_CONFIGURATION}
     displayName: 'Build caterva'
 
@@ -65,6 +65,7 @@ steps:
       mv caterva/caterva.c.gcno caterva/caterva.gcno
       mv caterva/caterva.c.gcda caterva/caterva.gcda
       mkdir htmlcov/
+    displayName: 'Install Coverage'
 
   - bash: |
       gcovr -v -r caterva/ --xml -o coverage.xml
