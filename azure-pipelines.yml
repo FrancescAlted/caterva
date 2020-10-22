@@ -34,7 +34,11 @@ steps:
     displayName: 'Export PATH'
 
   - bash: |
+      git submodule sync
       git submodule update --init --recursive
+    displayName: Clone repos
+
+  - bash: |
       mkdir build
       cd build/
       cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} ..
