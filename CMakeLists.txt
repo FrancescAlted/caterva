@@ -52,12 +52,6 @@ else()
     message(FATAL_ERROR "No library is created")
 endif ()
 
-set(BUILD_TESTS OFF)
-set(BUILD_FUZZERS OFF)
-set(BUILD_BENCHMARKS OFF)
-set(BUILD_EXAMPLES OFF)
-set(BUILD_SHARED OFF)
-
 add_subdirectory(contribs/c-blosc2)
 include_directories(contribs/c-blosc2/blosc)
 set(BLOSC_LIB blosc2_static)
