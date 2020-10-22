@@ -49,6 +49,7 @@ steps:
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
       ctest -C ${BUILD_CONFIGURATION} -T Test -V -L caterva
+      ctest -C ${BUILD_CONFIGURATION} -D ExperimentalCoverage
     displayName: 'Tests'
 
   - task: PublishTestResults@2
@@ -56,3 +57,20 @@ steps:
       testResultsFormat: 'CTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
+
+  - bash: |
+      conda install -y -c conda-forge gcovr
+
+      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
+      mv caterva/caterva.c.gcno caterva/caterva.gcno
+      mv caterva/caterva.c.gcda caterva/caterva.gcda
+      mkdir htmlcov/
+
+  - bash: |
+      gcovr -v -r caterva/ --xml -o coverage.xml
+
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
