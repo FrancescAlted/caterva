@@ -62,6 +62,7 @@ include(CTest)
 
 file(GLOB SRC_FILES ${CATERVA_SRC}/*.c)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 if (SHARED_LIB)
     message(STATUS "Building caterva shared lib")
     add_library(caterva_shared SHARED ${SRC_FILES})
