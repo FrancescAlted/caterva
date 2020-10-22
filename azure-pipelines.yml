@@ -34,7 +34,7 @@ steps:
     displayName: 'Export PATH'
 
   - bash: |
-      cd c-blosc2/
+      git submodule update --init --recursive
       mkdir build
       cd build/
       cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} ..
