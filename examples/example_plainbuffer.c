@@ -55,13 +55,13 @@ int main() {
     int64_t slice_size = slice_nelem * itemsize;
     int8_t *slice = malloc(slice_size);
 
-    blosc_timestamp_t t0, t1;
-    blosc_set_timestamp(&t0);
+    // blosc_timestamp_t t0, t1;
+    // blosc_set_timestamp(&t0);
     caterva_array_get_slice_buffer(ctx, arr, slice_start, slice_stop, slice_shape, slice,
                                    slice_size);
-    blosc_set_timestamp(&t1);
 
-    printf("Elapsed seconds: %.5f\n", blosc_elapsed_secs(t0, t1));
+
+    // printf("Elapsed seconds: %.5f\n", blosc_elapsed_secs(t0, t1));
 
     int8_t *a = malloc(1000);
     slice_nelem += a[50];
