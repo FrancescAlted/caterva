@@ -54,6 +54,12 @@ else()
     message(FATAL_ERROR "No library is created")
 endif ()
 
+
+set(BUILD_STATIC ON CACHE BOOL "Build a static version of the blosc library.")
+set(BUILD_SHARED OFF CACHE BOOL "Build a shared library version of the blosc library.")
+set(BUILD_TESTS OFF CACHE BOOL "Build test programs form the blosc compression library")
+set(BUILD_BENCHMARKS OFF CACHE BOOL "Build benchmark programs form the blosc compression library")
+set(BUILD_EXAMPLES OFF CACHE BOOL "Build benchmark programs form the blosc compression library")
 add_subdirectory(contribs/c-blosc2)
 include_directories(contribs/c-blosc2/blosc)
 set(BLOSC_LIB blosc2_static)
