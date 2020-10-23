@@ -152,8 +152,8 @@ static char* get_slice_2_uint16_plainbuffer_blosc() {
     char *filename = NULL;
 
     caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape2[] = {10, 9};
-    int32_t blockshape2[] = {9, 9};
+    int32_t chunkshape2[] = {4, 4};
+    int32_t blockshape2[] = {2, 3};
     bool enforceframe2 = false;
     char *filename2 = NULL;
 

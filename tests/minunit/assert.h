@@ -22,7 +22,10 @@ static bool mu_assert_buffer(void *a, void *b, int64_t buflen) {
     int8_t * ab = (int8_t *) a;
     int8_t * bb = (int8_t *) b;
     for (int i = 0; i < buflen; ++i) {
-        if (ab[i] != bb[i]) {
+        if ((ab)[i] != (bb)[i]) {
+            double aaa = ((double *) ab)[i];
+            double bbb = ((double *) bb)[i];
+            double c = 1;
             return false;
         }
     }
