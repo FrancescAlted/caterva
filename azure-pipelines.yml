@@ -58,21 +58,8 @@ steps:
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
 
-  - bash: |
-      python -m pip install gcovr
-
-      mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
-      mv caterva/caterva.c.gcno caterva/caterva.gcno
-      mv caterva/caterva.c.gcda caterva/caterva.gcda
-
-      mkdir htmlcov/
-    displayName: 'Install Coverage'
-
-  - bash: |
-      gcovr -v -r caterva/ --xml -o coverage.xml
-
 
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: Cobertura
-      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+      summaryFileLocation: 'build/Testing/*/Coverage.xml'
