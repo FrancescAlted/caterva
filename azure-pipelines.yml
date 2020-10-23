@@ -64,6 +64,7 @@ steps:
       mv build/CMakeFiles/caterva_shared.dir/caterva/*.gc* caterva/
       mv caterva/caterva.c.gcno caterva/caterva.gcno
       mv caterva/caterva.c.gcda caterva/caterva.gcda
+
       mkdir htmlcov/
     displayName: 'Install Coverage'
 
