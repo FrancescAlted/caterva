@@ -35,8 +35,7 @@ steps:
   - bash: |
       yes | pip install fcovr
       mv build/CMakeFiles/caterva_static.dir/caterva/*.gc* caterva/
-      mv caterva/caterva.c.gcno caterva/caterva.gcno
-      mv caterva/caterva.c.gcda caterva/caterva.gcda
+      rename 's/\.c\./\./' caterva/*
 
   - bash: |
       gcovr -v -r caterva/ --xml -o coverage.xml
