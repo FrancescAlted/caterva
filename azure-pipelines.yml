@@ -61,5 +61,5 @@ steps:
 
   - task: PublishCodeCoverageResults@1
     inputs:
-      codeCoverageTool: Cobertura
+      codeCoverageTool: 'CTest'
       summaryFileLocation: 'build/Testing/*/CoverageLog-0.xml'
