@@ -33,12 +33,10 @@ steps:
 
 
   - bash: |
-      yes | pip install gcovr
+      yes | python -m pip install gcovr
       mv build/CMakeFiles/caterva_static.dir/caterva/*.gc* caterva/
       rename 's/\.c\./\./' caterva/*
-
-  - bash: |
-      gcovr -v -r caterva/ --xml -o coverage.xml
+      python -m gcovr -v -r caterva/ --xml -o coverage.xml
 
   - task: PublishCodeCoverageResults@1
     inputs:
