@@ -16,7 +16,7 @@ steps:
   - bash: |
       git submodule sync
       git submodule update --init --recursive
-      displayName: Clone repos
+    displayName: 'Clone repos'
 
   - bash: |
       mkdir build

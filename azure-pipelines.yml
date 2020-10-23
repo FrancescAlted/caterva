@@ -41,7 +41,7 @@ steps:
   - bash: |
       mkdir build
       cd build/
-      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DENABLE_COVERAGE=TRUE ..
+      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} ..
       cmake --build . --config ${BUILD_CONFIGURATION}
     displayName: 'Build caterva'
 
@@ -49,7 +49,6 @@ steps:
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
       ctest -C ${BUILD_CONFIGURATION} -T Test -V -L caterva
-      ctest -C ${BUILD_CONFIGURATION} -D ExperimentalCoverage
     displayName: 'Tests'
 
   - task: PublishTestResults@2
@@ -57,9 +56,3 @@ steps:
       testResultsFormat: 'CTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'
-
-
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: 'CTest'
-      summaryFileLocation: 'build/Testing/*/CoverageLog-0.xml'
