@@ -51,14 +51,18 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     caterva_context_t *ctx;
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     caterva_context_new(&cfg, &ctx);
-    caterva_array_from_buffer(ctx, data2, nbytes, &params, &storage, &array);
+    CATERVA_ERROR(caterva_array_from_buffer(ctx, data2, nbytes, &params, &storage, &array));
 
-    int isize = (int) array->sc->chunksize;
+    int isize = (int) array->extchunknitems * typesize;
     uint8_t *data_in = malloc(isize);
-    blosc2_schunk_decompress_chunk(array->sc, 0, data_in, isize);
+    int decompressed = blosc2_schunk_decompress_chunk(array->sc, 0, data_in, isize);
+    if (decompressed < 0) {
+        printf("Error decompressing chunk \n");
+        return -1;
+    }
 
     int32_t *blockshape = storage.properties.blosc.blockshape;
-    int osize = (17 * isize / 16) + 9 + 8 + BLOSC_MAX_OVERHEAD;
+    int osize = isize + BLOSC_MAX_OVERHEAD;
     int dsize = isize;
     int csize;
     uint8_t *data_out = malloc(osize);
@@ -113,9 +117,9 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
         printf("Decompression error.  Error code: %d\n", dsize);
         return dsize;
     }
-/*
+
     printf("data_in: \n");
-    for (int i = 0; i < nbytes; i++) {
+    for (int i = 0; i < isize; i++) {
         printf("%u, ", data_in[i]);
     }
 
@@ -124,11 +128,11 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
         printf("%u, ", data_out[i]);
     }
     printf("\n dest \n");
-    for (int i = 0; i < nbytes; i++) {
+    for (int i = 0; i < dsize; i++) {
         printf("%u, ", data_dest[i]);
     }
-*/
-    for (int i = 0; i < nbytes; i++) {
+
+    for (int i = 0; i < isize; i++) {
         if (data_in[i] != data_dest[i]) {
             printf("i: %d, data %u, dest %u", i, data_in[i], data_dest[i]);
             printf("\n Decompressed data differs from original!\n");
@@ -138,6 +142,8 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
 
     blosc2_free_ctx(cctx);
     blosc2_free_ctx(dctx);
+    free(data_out);
+    free(data_dest);
 
     printf("Succesful roundtrip!\n");
     return dsize - csize;
@@ -272,7 +278,7 @@ int same_cells() {
     int typesize = 4;
     int32_t shape[8] = {32, 32};
     int32_t chunkshape[8] = {32, 32};
-    int32_t blockshape[8] = {25, 23};
+    int32_t blockshape[8] = {16, 16};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t data[isize];
@@ -448,9 +454,9 @@ int image1() {
     int32_t blockshape[8] = {77, 65};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res.bin", "rb");
-    fread(data, sizeof(data), 1, f);
+    fread(data, nbytes, 1, f);
     fclose(f);
 
     caterva_params_t params;
@@ -469,6 +475,7 @@ int image1() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -480,9 +487,9 @@ int image2() {
     int32_t blockshape[8] = {117, 123};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res2.bin", "rb");
-    fread(data, sizeof(data), 1, f);
+    fread(data, nbytes, 1, f);
     fclose(f);
 
     caterva_params_t params;
@@ -501,6 +508,7 @@ int image2() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -512,9 +520,9 @@ int image3() {
     int32_t blockshape[8] = {64, 64};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res3.bin", "rb");
-    fread(data, sizeof(data), 1, f);
+    fread(data, nbytes, 1, f);
     fclose(f);
 
     caterva_params_t params;
@@ -533,6 +541,7 @@ int image3() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -544,9 +553,9 @@ int image4() {
     int32_t blockshape[8] = {32, 32};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res4.bin", "rb");
-    fread(data, sizeof(data), 1, f);
+    fread(data, nbytes, 1, f);
     fclose(f);
 
     caterva_params_t params;
@@ -565,6 +574,7 @@ int image4() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -576,9 +586,9 @@ int image5() {
     int32_t blockshape[8] = {128, 128};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res5.bin", "rb");
-    fread(data, sizeof(data), 1, f);
+    fread(data, nbytes, 1, f);
     fclose(f);
 
     caterva_params_t params;
@@ -609,9 +619,9 @@ int image6() {
     int32_t blockshape[8] = {64, 64};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res6.bin", "rb");
-    fread(data, sizeof(data), 1, f);
+    fread(data, nbytes, 1, f);
     fclose(f);
 
     caterva_params_t params;
@@ -647,12 +657,11 @@ int main(void) {
     printf("all_elem_eq: %d obtained \n \n", result);
     result = all_elem_pad();
     printf("all_elem_pad: %d obtained \n \n", result);
-
-    result = same_cells();
+   */ result = same_cells();
     printf("same_cells: %d obtained \n \n", result);
-    result = same_cells_pad();
+  /*  result = same_cells_pad();
     printf("same_cells_pad: %d obtained \n \n", result);
-    result = some_matches();
+  /*  result = some_matches();
     printf("some_matches: %d obtained \n \n", result);
     result = padding_some();
     printf("pad_some: %d obtained \n \n", result);
@@ -661,9 +670,9 @@ int main(void) {
 
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
- */   result = image2();
+    result = image2();
     printf("image2 with  padding: %d obtained \n \n", result);
-  /*  result = image3();
+    result = image3();
     printf("image3 with NO padding: %d obtained \n \n", result);
     result = image4();
     printf("image4 with NO padding: %d obtained \n \n", result);
