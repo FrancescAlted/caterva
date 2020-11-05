@@ -311,9 +311,9 @@ int same_cells() {
 int same_cells_pad() {
     int ndim = 2;
     int typesize = 4;
-    int32_t shape[8] = {31, 30};
-    int32_t chunkshape[8] = {31, 30};
-    int32_t blockshape[8] = {25, 23};
+    int32_t shape[8] = {15, 17};
+    int32_t chunkshape[8] = {15, 17};
+    int32_t blockshape[8] = {13, 11};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t data[isize];
@@ -657,9 +657,9 @@ int main(void) {
     printf("all_elem_eq: %d obtained \n \n", result);
     result = all_elem_pad();
     printf("all_elem_pad: %d obtained \n \n", result);
-   */ result = same_cells();
+    result = same_cells();
     printf("same_cells: %d obtained \n \n", result);
-  /*  result = same_cells_pad();
+  */  result = same_cells_pad();
     printf("same_cells_pad: %d obtained \n \n", result);
   /*  result = some_matches();
     printf("some_matches: %d obtained \n \n", result);
@@ -667,7 +667,7 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-
+/*
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
