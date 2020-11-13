@@ -110,14 +110,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
 
     printf("Compression: %d -> %d (%.1fx)\n", isize, csize, (1. * isize) / csize);
-
-    /* Decompress  */
-    dsize = blosc2_decompress_ctx(dctx, data_out, data_dest, dsize);
-    if (dsize <= 0) {
-        printf("Decompression error.  Error code: %d\n", dsize);
-        return dsize;
-    }
-
+/*
     printf("data_in: \n");
     for (int i = 0; i < isize; i++) {
         printf("%u, ", data_in[i]);
@@ -127,11 +120,19 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     for (int i = 0; i < osize; i++) {
         printf("%u, ", data_out[i]);
     }
+*/
+    /* Decompress  */
+    dsize = blosc2_decompress_ctx(dctx, data_out, data_dest, dsize);
+    if (dsize <= 0) {
+        printf("Decompression error.  Error code: %d\n", dsize);
+        return dsize;
+    }
+/*
     printf("\n dest \n");
     for (int i = 0; i < dsize; i++) {
         printf("%u, ", data_dest[i]);
     }
-
+*/
     for (int i = 0; i < isize; i++) {
         if (data_in[i] != data_dest[i]) {
             printf("i: %d, data %u, dest %u", i, data_in[i], data_dest[i]);
@@ -320,6 +321,177 @@ int same_cells_pad() {
     for (int i = 0; i < (isize / 4); i++) {
         data[i * 4] = (uint32_t *) 11111111;
         data[i * 4 + 1] = (uint32_t *) 99999999;
+    }
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    return result;
+}
+
+int same_cells_pad_tam1() {
+    int ndim = 2;
+    int typesize = 1;
+    int32_t shape[8] = {15, 17};
+    int32_t chunkshape[8] = {15, 17};
+    int32_t blockshape[8] = {13, 11};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint8_t data[isize];
+    for (int i = 0; i < (isize / 4); i++) {
+        data[i * 4] = (uint32_t *) 111;
+        data[i * 4 + 1] = (uint32_t *) 99;
+    }
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    return result;
+}
+
+int matches_2_rows() {
+    int ndim = 2;
+    int typesize = 4;
+    int32_t shape[8] = {13, 13};
+    int32_t chunkshape[8] = {13, 13};
+    int32_t blockshape[8] = {13, 13};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint32_t data[isize];
+    for (int i = 0; i < isize; i += 4) {
+        if ((i <= 20) || ((i >= 48) && (i <= 68)) || ((i >= 96) && (i <= 116))) {
+            data[i] = 0;
+            data[i + 1] = 1;
+            data[i + 2] = 2;
+            data[i + 3] = 3;
+        } else if (((i >= 24) && (i <= 44)) || ((i >= 72) && (i <= 92)) || ((i >= 120) && (i <= 140))){
+            data[i] = i;
+            data[i + 1] = i + 1;
+            data[i + 2] = i + 2;
+            data[i + 3] = i + 3;
+        } else {
+            data[i] = i;
+        }
+    }
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    return result;
+}
+
+int matches_3_rows() {
+    int ndim = 2;
+    int typesize = 4;
+    int32_t shape[8] = {32, 32};
+    int32_t chunkshape[8] = {32, 32};
+    int32_t blockshape[8] = {16, 16};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint32_t data[isize];
+    for (int i = 0; i < isize; i += 4) {
+        if ((i % 12 == 0) && (i != 0)) {
+            data[i] = 1111111;
+            data[i + 1] = 3;
+            data[i + 2] = 11111;
+            data[i + 3] = 4;
+        } else {
+            data[i] = 0;
+            data[i + 1] = 1111111;
+            data[i + 2] = 2;
+            data[i + 3] = 1111;
+        }
+    }
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    return result;
+}
+
+int matches_2_couples() {
+    int ndim = 2;
+    int typesize = 1;
+    int32_t shape[8] = {12, 12};
+    int32_t chunkshape[8] = {12, 12};
+    int32_t blockshape[8] = {12, 12};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint8_t data[isize];
+    for (int i = 0; i < isize / 4; i++) {
+        if (i % 4 == 0) {
+            data[i * 4] = 0;
+            data[i * 4 + 1] = 1;
+            data[i * 4 + 2] = 2;
+            data[i * 4 + 3] = 3;
+        } else if (i % 4 == 1){
+            data[i * 4] = 10;
+            data[i * 4 + 1] = 11;
+            data[i * 4 + 2] = 12;
+            data[i * 4 + 3] = 13;
+        } else if (i % 4 == 2){
+            data[i * 4] = 20;
+            data[i * 4 + 1] = 21;
+            data[i * 4 + 2] = 22;
+            data[i * 4 + 3] = 23;
+        } else {
+            data[i * 4] = 30;
+            data[i * 4 + 1] = 31;
+            data[i * 4 + 2] = 32;
+            data[i * 4 + 3] = 33;
+        }
     }
 
     caterva_params_t params;
@@ -648,7 +820,7 @@ int image6() {
 int main(void) {
 
     int result;
-/*
+
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
     result = no_matches_pad();
@@ -659,9 +831,17 @@ int main(void) {
     printf("all_elem_pad: %d obtained \n \n", result);
     result = same_cells();
     printf("same_cells: %d obtained \n \n", result);
-  */  result = same_cells_pad();
+    result = same_cells_pad();
     printf("same_cells_pad: %d obtained \n \n", result);
-  /*  result = some_matches();
+    result = same_cells_pad_tam1();
+    printf("same_cells_pad_tam1: %d obtained \n \n", result);
+    result = matches_2_rows();
+    printf("matches_2_rows: %d obtained \n \n", result);
+    result = matches_3_rows();
+    printf("matches_3_rows: %d obtained \n \n", result);
+    result = matches_2_couples();
+    printf("matches_2_couples: %d obtained \n \n", result);
+    result = some_matches();
     printf("some_matches: %d obtained \n \n", result);
     result = padding_some();
     printf("pad_some: %d obtained \n \n", result);
