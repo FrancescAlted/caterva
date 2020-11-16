@@ -141,8 +141,11 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
         }
     }
 
+    caterva_array_free(ctx, &array);
+    caterva_context_free(&ctx);
     blosc2_free_ctx(cctx);
     blosc2_free_ctx(dctx);
+    free(data_in);
     free(data_out);
     free(data_dest);
 
@@ -847,7 +850,7 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-/*
+
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
@@ -860,5 +863,5 @@ int main(void) {
     printf("image5 with padding: %d obtained \n \n", result);
     result = image6();
     printf("image6 with NO padding: %d obtained \n \n", result);
-*/
+
 }
