@@ -42,12 +42,12 @@ extern int tests_skiped;
 #define MU_RUN_TEARDOWN(teardown) \
     teardown();
 
-#define MU_RUN_SUITE(name) \
+#define MU_RUN_SUITE() \
     int tests_run = 0; \
     int tests_failed = 0; \
     int tests_skiped = 0; \
     int main() { \
-        printf("%s SUITE\n", name); \
+        printf("%s\n", __FILE_NAME__); \
         all_tests(); \
         int tests_ok = tests_run - tests_failed - tests_skiped; \
         printf("RESULTS: %d tests (%d ok, %d failed, %d skiped)\n", tests_run, tests_ok, tests_failed, tests_skiped); \

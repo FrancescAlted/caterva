@@ -310,4 +310,4 @@ static char* all_tests() {
     return 0;
 }
 
-MU_RUN_SUITE("COPY");
+MU_RUN_SUITE();

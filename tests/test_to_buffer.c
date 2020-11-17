@@ -363,4 +363,4 @@ static char* all_tests() {
     return 0;
 }
 
-MU_RUN_SUITE("TO BUFFER")
+MU_RUN_SUITE()
