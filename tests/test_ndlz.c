@@ -819,6 +819,138 @@ int image6() {
     return result;
 }
 
+int image7() {
+    int ndim = 2;
+    int typesize = 4;
+    int32_t shape[8] = {2506, 5000};
+    int32_t chunkshape[8] = {2506, 5000};
+    int32_t blockshape[8] = {512, 512};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint32_t *data = malloc(nbytes);
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res7.bin", "rb");
+    fread(data, nbytes, 1, f);
+    fclose(f);
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
+    return result;
+}
+
+int image8() {
+    int ndim = 2;
+    int typesize = 4;
+    int32_t shape[8] = {1575, 2400};
+    int32_t chunkshape[8] = {1575, 2400};
+    int32_t blockshape[8] = {256, 256};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint32_t *data = malloc(nbytes);
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res8.bin", "rb");
+    fread(data, nbytes, 1, f);
+    fclose(f);
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
+    return result;
+}
+
+int image9() {
+    int ndim = 2;
+    int typesize = 4;
+    int32_t shape[8] = {675, 1200};
+    int32_t chunkshape[8] = {675, 1200};
+    int32_t blockshape[8] = {256, 256};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint32_t *data = malloc(nbytes);
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res9.bin", "rb");
+    fread(data, nbytes, 1, f);
+    fclose(f);
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
+    return result;
+}
+
+int image10() {
+    int ndim = 2;
+    int typesize = 4;
+    int32_t shape[8] = {2045, 3000};
+    int32_t chunkshape[8] = {2045, 3000};
+    int32_t blockshape[8] = {256, 256};
+    int isize = (int)(shape[0] * shape[1]);
+    int nbytes = typesize * isize;
+    uint32_t *data = malloc(nbytes);
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res10.bin", "rb");
+    fread(data, nbytes, 1, f);
+    fclose(f);
+
+    caterva_params_t params;
+    params.itemsize = typesize;
+    params.ndim = ndim;
+    for (int i = 0; i < ndim; ++i) {
+        params.shape[i] = shape[i];
+    }
+
+    caterva_storage_t storage = {0};
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
+
+    /* Run the test. */
+    int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
+    return result;
+}
+
 
 int main(void) {
 
@@ -863,5 +995,13 @@ int main(void) {
     printf("image5 with padding: %d obtained \n \n", result);
     result = image6();
     printf("image6 with NO padding: %d obtained \n \n", result);
+    result = image7();
+    printf("image7 with NO padding: %d obtained \n \n", result);
+    result = image8();
+    printf("image8 with NO padding: %d obtained \n \n", result);
+    result = image9();
+    printf("image9 with NO padding: %d obtained \n \n", result);
+    result = image10();
+    printf("image10 with NO padding: %d obtained \n \n", result);
 
 }
