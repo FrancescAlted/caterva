@@ -13,12 +13,16 @@
 
 int main() {
 
-    int8_t ndim = 3;
-    int64_t shape[] = {500, 500, 500};
+    int8_t ndim = 2;
+    int64_t shape[] = {10, 10};
+    int64_t chunkshape[] = {4, 4};
+    int64_t blockshape[] = {2, 2};
     int8_t itemsize = 8;
 
-    int64_t slice_start[] = {50, 122, 1};
-    int64_t slice_stop[] = {466, 256, 221};
+    int64_t slice_start[] = {2, 5};
+    int64_t slice_stop[] = {3, 6};
+    int64_t slice_chunkshape[] = {1, 1};
+    int64_t slice_blockshape[] = {1, 1};
 
     int64_t nelem = 1;
     for (int i = 0; i < ndim; ++i) {
@@ -40,32 +44,40 @@ int main() {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = CATERVA_STORAGE_PLAINBUFFER;
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    for (int i = 0; i < ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = chunkshape[i];
+        storage.properties.blosc.blockshape[i] = blockshape[i];
+    }
 
     caterva_array_t *arr;
-    caterva_array_from_buffer(ctx, data, size, &params, &storage, &arr);
+    CATERVA_ERROR(caterva_array_from_buffer(ctx, data, size, &params, &storage, &arr));
 
 
-    int64_t slice_shape[CATERVA_MAX_DIM];
-    int64_t slice_nelem = 1;
+    caterva_storage_t slice_storage = {0};
+    slice_storage.backend = CATERVA_STORAGE_BLOSC;
     for (int i = 0; i < ndim; ++i) {
-        slice_shape[i] = slice_stop[i] - slice_start[i];
-        slice_nelem *= slice_shape[i];
+        slice_storage.properties.blosc.chunkshape[i] = slice_chunkshape[i];
+        slice_storage.properties.blosc.blockshape[i] = slice_blockshape[i];
     }
-    int64_t slice_size = slice_nelem * itemsize;
-    int8_t *slice = malloc(slice_size);
+    
+    caterva_array_t *slice;
+    CATERVA_ERROR(caterva_array_get_slice(ctx, arr, slice_start, slice_stop, &slice_storage,
+                                          &slice));
 
-    // blosc_timestamp_t t0, t1;
-    // blosc_set_timestamp(&t0);
-    caterva_array_get_slice_buffer(ctx, arr, slice_start, slice_stop, slice_shape, slice,
-                                   slice_size);
-    // blosc_set_timestamp(&t1);
+    CATERVA_ERROR(caterva_array_squeeze(ctx, slice));
 
+    uint8_t *buffer;
+    uint64_t buffer_size = 1;
+    for (int i = 0; i < slice->ndim; ++i) {
+        buffer_size *= slice->shape[i];
+    }
+    buffer_size *= slice->itemsize;
+    buffer = malloc(buffer_size);
+
+    CATERVA_ERROR(caterva_array_to_buffer(ctx, slice, buffer, buffer_size));
 
     // printf("Elapsed seconds: %.5f\n", blosc_elapsed_secs(t0, t1));
 
-    int8_t *a = malloc(1000);
-    slice_nelem += a[50];
-    a = 0;
     return 0;
 }

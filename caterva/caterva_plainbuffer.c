@@ -215,13 +215,20 @@ int caterva_plainbuffer_update_shape(caterva_array_t *array, int8_t ndim, int64_
     return CATERVA_SUCCEED;
 }
 
-int caterva_plainbuffer_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
-    CATERVA_UNUSED_PARAM(ctx);
 
+int caterva_plainbuffer_array_squeeze_index(caterva_context_t *ctx,
+                                            caterva_array_t *array,
+                                            bool *index) {
+    CATERVA_UNUSED_PARAM(ctx);
     uint8_t nones = 0;
     int64_t newshape[CATERVA_MAX_DIM];
+
     for (int i = 0; i < array->ndim; ++i) {
-        if (array->shape[i] != 1) {
+        if (index[i] == true) {
+            if (array->shape[i] != 1) {
+                CATERVA_ERROR(CATERVA_ERR_INVALID_INDEX);
+            }
+        } else {
             newshape[nones] = array->shape[i];
             nones += 1;
         }
@@ -231,6 +238,24 @@ int caterva_plainbuffer_array_squeeze(caterva_context_t *ctx, caterva_array_t *a
 
     return CATERVA_SUCCEED;
 }
+
+
+int caterva_plainbuffer_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+    CATERVA_UNUSED_PARAM(ctx);
+    bool index[CATERVA_MAX_DIM];
+
+    for (int i = 0; i < array->ndim; ++i) {
+        if (array->shape[i] != 1) {
+            index[i] = false;
+        } else {
+            index[i] = true;
+        }
+    }
+    CATERVA_ERROR(caterva_plainbuffer_array_squeeze_index(ctx, array, index));
+
+    return CATERVA_SUCCEED;
+}
+
 
 int caterva_plainbuffer_array_copy(caterva_context_t *ctx, caterva_params_t *params,
                                    caterva_storage_t *storage, caterva_array_t *src,
