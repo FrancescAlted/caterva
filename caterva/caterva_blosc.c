@@ -198,7 +198,8 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     *array = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
 
     /* Create a schunk out of the frame */
-    blosc2_schunk *sc = blosc2_schunk_from_frame(frame, copy);
+    blosc2_schunk *sc = blosc2_frame_to_schunk(frame, copy);
+
     if (sc == NULL) {
         DEBUG_PRINT("Schunk is null");
         return CATERVA_ERR_NULL_POINTER;
@@ -292,7 +293,7 @@ int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t l
 
     if (copy) {
         // We don't need the frame anymore
-        blosc2_free_frame(frame);
+        blosc2_frame_free(frame);
     }
     return CATERVA_SUCCEED;
 }
@@ -310,7 +311,7 @@ int caterva_blosc_from_file(caterva_context_t *ctx, const char *filename, bool c
 
     if (copy) {
         // We don't need the frame anymore
-        blosc2_free_frame(frame);
+        blosc2_frame_free(frame);
     }
     return CATERVA_SUCCEED;
 }
@@ -319,10 +320,7 @@ int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     CATERVA_UNUSED_PARAM(ctx);
 
     if ((*array)->sc != NULL) {
-        if ((*array)->sc->frame != NULL) {
-            blosc2_free_frame((*array)->sc->frame);
-        }
-        blosc2_free_schunk((*array)->sc);
+        blosc2_schunk_free((*array)->sc);
     }
     return CATERVA_SUCCEED;
 }
@@ -1133,16 +1131,18 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     dparams.schunk = NULL;
     dparams.nthreads = ctx->cfg->nthreads;
 
-    blosc2_frame *frame = NULL;
+    blosc2_storage b_storage = BLOSC2_STORAGE_DEFAULTS;
+    b_storage.cparams = &cparams;
+    b_storage.dparams = &dparams;
+
     if (storage->properties.blosc.enforceframe) {
-        char *fname = NULL;
         if (storage->properties.blosc.filename != NULL) {
-            fname = storage->properties.blosc.filename;
+            b_storage.path = storage->properties.blosc.filename;
         }
-        frame = blosc2_new_frame(fname);
+        b_storage.sequential = true;
     }
 
-    blosc2_schunk *sc = blosc2_new_schunk(cparams, dparams, frame);
+    blosc2_schunk *sc = blosc2_schunk_new(b_storage);
 
     if (sc == NULL) {
         DEBUG_PRINT("Pointer is NULL");
