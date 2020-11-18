@@ -47,7 +47,7 @@ extern int tests_skiped;
     int tests_failed = 0; \
     int tests_skiped = 0; \
     int main() { \
-        printf("%s\n", __FILE_NAME__); \
+        printf("%s\n", __FILE__); \
         all_tests(); \
         int tests_ok = tests_run - tests_failed - tests_skiped; \
         printf("RESULTS: %d tests (%d ok, %d failed, %d skiped)\n", tests_run, tests_ok, tests_failed, tests_skiped); \
