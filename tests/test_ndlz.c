@@ -35,7 +35,6 @@
 #include <stdio.h>
 #include <blosc2.h>
 #include <ndlz.h>
-#include <ndlz.c>
 #include "test_common.h"
 
 #define SHAPE1 32
@@ -157,7 +156,7 @@ int no_matches() {
     int ndim = 2;
     int typesize = 1;
     int32_t shape[8] = {24, 36};
-    int32_t chunkshape[8] = {24, 36};
+    int32_t chunkshape[8] = {18, 24};
     int32_t blockshape[8] = {12, 12};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -188,7 +187,7 @@ int no_matches_pad() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {19, 21};
-    int32_t chunkshape[8] = {19, 21};
+    int32_t chunkshape[8] = {14, 16};
     int32_t blockshape[8] = {11, 13};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -219,8 +218,8 @@ int all_elem_eq() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {64, 64};
-    int32_t chunkshape[8] = {64, 64};
-    int32_t blockshape[8] = {32, 32};
+    int32_t chunkshape[8] = {32, 32};
+    int32_t blockshape[8] = {16, 16};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t data[isize];
@@ -250,7 +249,7 @@ int all_elem_pad() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {29, 31};
-    int32_t chunkshape[8] = {29, 31};
+    int32_t chunkshape[8] = {24, 21};
     int32_t blockshape[8] = {12, 14};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -281,7 +280,7 @@ int same_cells() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {32, 32};
-    int32_t chunkshape[8] = {32, 32};
+    int32_t chunkshape[8] = {24, 24};
     int32_t blockshape[8] = {16, 16};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -315,8 +314,8 @@ int same_cells() {
 int same_cells_pad() {
     int ndim = 2;
     int typesize = 4;
-    int32_t shape[8] = {15, 17};
-    int32_t chunkshape[8] = {15, 17};
+    int32_t shape[8] = {26, 27};
+    int32_t chunkshape[8] = {26, 22};
     int32_t blockshape[8] = {13, 11};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -348,8 +347,8 @@ int same_cells_pad() {
 int same_cells_pad_tam1() {
     int ndim = 2;
     int typesize = 1;
-    int32_t shape[8] = {15, 17};
-    int32_t chunkshape[8] = {15, 17};
+    int32_t shape[8] = {30, 24};
+    int32_t chunkshape[8] = {26, 22};
     int32_t blockshape[8] = {13, 11};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -520,7 +519,7 @@ int some_matches() {
     int ndim = 2;
     int typesize = 1;
     int32_t shape[8] = {256, 256};
-    int32_t chunkshape[8] = {256, 256};
+    int32_t chunkshape[8] = {128, 128};
     int32_t blockshape[8] = {64, 64};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -555,8 +554,8 @@ int padding_some() {
     int ndim = 2;
     int typesize = 1;
     int32_t shape[8] = {215, 233};
-    int32_t chunkshape[8] = {215, 233};
-    int32_t blockshape[8] = {98, 119};
+    int32_t chunkshape[8] = {128, 128};
+    int32_t blockshape[8] = {64, 64};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t data[isize];
@@ -590,8 +589,8 @@ int pad_some_32() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {37, 29};
-    int32_t chunkshape[8] = {37, 29};
-    int32_t blockshape[8] = {17, 18};
+    int32_t chunkshape[8] = {18, 24};
+    int32_t blockshape[8] = {12, 12};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t data[isize];
@@ -625,8 +624,8 @@ int image1() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {300, 450};
-    int32_t chunkshape[8] = {300, 450};
-    int32_t blockshape[8] = {77, 65};
+    int32_t chunkshape[8] = {150, 150};
+    int32_t blockshape[8] = {50, 50};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
@@ -658,8 +657,8 @@ int image2() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {800, 1200};
-    int32_t chunkshape[8] = {800, 1200};
-    int32_t blockshape[8] = {117, 123};
+    int32_t chunkshape[8] = {400, 400};
+    int32_t blockshape[8] = {40, 40};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
@@ -691,8 +690,8 @@ int image3() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {256, 256};
-    int32_t chunkshape[8] = {256, 256};
-    int32_t blockshape[8] = {64, 64};
+    int32_t chunkshape[8] = {64, 128};
+    int32_t blockshape[8] = {32, 32};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
@@ -724,8 +723,8 @@ int image4() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {64, 64};
-    int32_t chunkshape[8] = {64, 64};
-    int32_t blockshape[8] = {32, 32};
+    int32_t chunkshape[8] = {32, 32};
+    int32_t blockshape[8] = {16, 16};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
@@ -757,7 +756,7 @@ int image5() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {641, 1140};
-    int32_t chunkshape[8] = {641, 1140};
+    int32_t chunkshape[8] = {256, 512};
     int32_t blockshape[8] = {128, 128};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -790,7 +789,7 @@ int image6() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {256, 256};
-    int32_t chunkshape[8] = {256, 256};
+    int32_t chunkshape[8] = {128, 128};
     int32_t blockshape[8] = {64, 64};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
@@ -823,8 +822,8 @@ int image7() {
     int ndim = 2;
     int typesize = 4;
     int32_t shape[8] = {2506, 5000};
-    int32_t chunkshape[8] = {2506, 5000};
-    int32_t blockshape[8] = {512, 512};
+    int32_t chunkshape[8] = {512, 1024};
+    int32_t blockshape[8] = {128, 512};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
