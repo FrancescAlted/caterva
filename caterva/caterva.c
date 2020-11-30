@@ -339,7 +339,7 @@ int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array, 
             CATERVA_ERROR(caterva_blosc_array_squeeze_index(ctx, array, index));
             break;
         case CATERVA_STORAGE_PLAINBUFFER:
-            CATERVA_ERROR(caterva_plainbuffer_array_squeeze(ctx, array));
+            CATERVA_ERROR(caterva_plainbuffer_array_squeeze_index(ctx, array, index));
             break;
         default:
             CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);

@@ -235,4 +235,4 @@ static char* all_tests() {
     return 0;
 }
 
-MU_RUN_SUITE("SERIALIZE")
+MU_RUN_SUITE()

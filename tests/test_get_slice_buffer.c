@@ -461,4 +461,4 @@ static char* all_tests() {
     return 0;
 }
 
-MU_RUN_SUITE("GET SLICE BUFFER")
+MU_RUN_SUITE()

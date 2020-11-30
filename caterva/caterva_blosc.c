@@ -1017,9 +1017,6 @@ int caterva_blosc_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *a
 
 int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
     CATERVA_UNUSED_PARAM(ctx);
-    uint8_t nones = 0;
-    int64_t newshape[CATERVA_MAX_DIM];
-    int32_t newchunkshape[CATERVA_MAX_DIM];
     int32_t newblockshape[CATERVA_MAX_DIM];
     bool index[CATERVA_MAX_DIM];
 

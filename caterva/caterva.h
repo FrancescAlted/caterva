@@ -438,6 +438,21 @@ int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_
 /**
  * @brief Squeeze a caterva array
  *
+ * This function remove selected single-dimensional entries from the shape of a
+ caterva array.
+ *
+ * @param ctx Pointer to the caterva context to be used.
+ * @param array Pointer to the caterva array.
+ * @param index Indexes of the single-dimensional entries to remove.
+ *
+ * @return An error code
+ */
+int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array,
+                                bool *index);
+
+/**
+ * @brief Squeeze a caterva array
+ *
  * This function remove single-dimensional entries from the shape of a caterva array.
  *
  * @param ctx Pointer to the caterva context to be used.

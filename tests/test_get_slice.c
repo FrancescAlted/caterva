@@ -388,4 +388,4 @@ static char* all_tests() {
     return 0;
 }
 
-MU_RUN_SUITE("GET SLICE")
+MU_RUN_SUITE()

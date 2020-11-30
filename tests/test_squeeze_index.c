@@ -11,10 +11,23 @@
 
 #include "test_common.h"
 
-static char* test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                          caterva_storage_backend_t backend, int32_t *chunkshape, int32_t *blockshape, bool enforceframe,
-                          char *filename, caterva_storage_backend_t backend2, int32_t *chunkshape2, int32_t *blockshape2,
-                          bool enforceframe2, char *filename2, int64_t *start, int64_t *stop) {
+static char* test_squeeze_index(caterva_context_t *ctx,
+                                uint8_t itemsize,
+                                uint8_t ndim,
+                                int64_t *shape,
+                                caterva_storage_backend_t backend,
+                                int32_t *chunkshape,
+                                int32_t *blockshape,
+                                bool enforceframe,
+                                char *filename,
+                                caterva_storage_backend_t backend2,
+                                int32_t *chunkshape2,
+                                int32_t *blockshape2,
+                                bool enforceframe2,
+                                char *filename2,
+                                int64_t *start,
+                                int64_t *stop,
+                                bool *squeeze_indexes) {
     caterva_params_t params;
     params.itemsize = itemsize;
     params.ndim = ndim;
@@ -74,9 +87,15 @@ static char* test_squeeze(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim
     caterva_array_t *dest;
     MU_ASSERT_CATERVA(caterva_array_get_slice(ctx, src, start, stop, &storage2, &dest));
 
-    MU_ASSERT_CATERVA(caterva_array_squeeze(ctx, dest));
+    MU_ASSERT_CATERVA(caterva_array_squeeze_index(ctx, dest, squeeze_indexes));
 
-    MU_ASSERT_NOT_EQUAL(src->ndim ,dest->ndim);
+    int8_t nsq = 0;
+    for (int i = 0; i < ndim; ++i) {
+        if (squeeze_indexes[i] == true) {
+            nsq++;
+        }
+    }
+    MU_ASSERT_EQUAL(src->ndim ,dest->ndim + nsq);
 
     free(buffer);
     MU_ASSERT_CATERVA(caterva_array_free(ctx, &src));
@@ -120,8 +139,12 @@ static char* squeeze_2_float_blosc_plainbuffer() {
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+    bool squeeze_indexes[] = {0, 0};
+
+    return test_squeeze_index(ctx, itemsize, ndim, shape,
+                              backend, chunkshape, blockshape, enforceframe, filename,
+                              backend2, chunkshape2, blockshape2, enforceframe2, filename2,
+                              start, stop, squeeze_indexes);
 }
 
 static char* squeeze_3_float_blosc_blosc() {
@@ -144,8 +167,12 @@ static char* squeeze_3_float_blosc_blosc() {
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-        backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+    bool squeeze_indexes[] = {0, 1, 0};
+
+    return test_squeeze_index(ctx, itemsize, ndim, shape,
+                              backend, chunkshape, blockshape, enforceframe, filename,
+                              backend2, chunkshape2, blockshape2, enforceframe2, filename2,
+                              start, stop, squeeze_indexes);
 }
 
 static char* squeeze_4_double_plainbuffer_blosc() {
@@ -168,13 +195,18 @@ static char* squeeze_4_double_plainbuffer_blosc() {
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+    bool squeeze_indexes[] = {0, 1, 0, 0};
+
+
+    return test_squeeze_index(ctx, itemsize, ndim, shape,
+                              backend, chunkshape, blockshape, enforceframe, filename,
+                              backend2, chunkshape2, blockshape2, enforceframe2, filename2,
+                              start, stop, squeeze_indexes);
 }
 
 
 static char* squeeze_5_uint8_plainbuffer_plainbuffer() {
-    int64_t start[] = {1, 12, 3, 12, 6};
+    int64_t start[] = {1, 12, 3, 12, 20};
     int64_t stop[] = {16, 21, 19, 13, 21};
 
     uint8_t itemsize = sizeof(uint8_t);
@@ -193,8 +225,12 @@ static char* squeeze_5_uint8_plainbuffer_plainbuffer() {
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+    bool squeeze_indexes[] = {0, 0, 0, 0, 1};
+
+    return test_squeeze_index(ctx, itemsize, ndim, shape,
+                              backend, chunkshape, blockshape, enforceframe, filename,
+                              backend2, chunkshape2, blockshape2, enforceframe2, filename2,
+                              start, stop, squeeze_indexes);
 }
 
 static char* squeeze_6_float_blosc_plainbuffer_frame() {
@@ -217,8 +253,12 @@ static char* squeeze_6_float_blosc_plainbuffer_frame() {
     bool enforceframe2 = true;
     char *filename2 = NULL;
 
-    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+    bool squeeze_indexes[] = {0, 0, 0, 1, 0, 0};
+
+    return test_squeeze_index(ctx, itemsize, ndim, shape,
+                              backend, chunkshape, blockshape, enforceframe, filename,
+                              backend2, chunkshape2, blockshape2, enforceframe2, filename2,
+                              start, stop, squeeze_indexes);
 }
 
 static char* squeeze_7_uint64_blosc_frame_plainbuffer() {
@@ -241,12 +281,16 @@ static char* squeeze_7_uint64_blosc_frame_plainbuffer() {
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+    bool squeeze_indexes[] = {1, 0, 0, 0, 0, 0, 0};
+
+    return test_squeeze_index(ctx, itemsize, ndim, shape,
+                              backend, chunkshape, blockshape, enforceframe, filename,
+                              backend2, chunkshape2, blockshape2, enforceframe2, filename2,
+                              start, stop, squeeze_indexes);
 }
 
 static char* squeeze_8_uint16_blosc_frame_plainbuffer() {
-    int64_t start[] = {5, 4, 3, 1, 2, 1, 0, 3};
+    int64_t start[] = {5, 7, 6, 3, 6, 1, 0, 8};
     int64_t stop[] = {6, 8, 7, 4, 7, 2, 1, 9};
 
     uint8_t itemsize = sizeof(uint16_t);
@@ -265,8 +309,12 @@ static char* squeeze_8_uint16_blosc_frame_plainbuffer() {
     bool enforceframe2 = false;
     char *filename2 = NULL;
 
-    return test_squeeze(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                 backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop);
+    bool squeeze_indexes[] = {1, 1, 1, 1, 1, 1, 1, 1};
+
+    return test_squeeze_index(ctx, itemsize, ndim, shape,
+                              backend, chunkshape, blockshape, enforceframe, filename,
+                              backend2, chunkshape2, blockshape2, enforceframe2, filename2,
+                              start, stop, squeeze_indexes);
 }
 
 static char* all_tests() {
