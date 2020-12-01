@@ -26,7 +26,7 @@
 /* Version numbers */
 #define CATERVA_VERSION_MAJOR 0         /* for major interface/format changes  */
 #define CATERVA_VERSION_MINOR 4         /* for minor interface/format changes  */
-#define CATERVA_VERSION_RELEASE 1-dev /* for tweaks, bug-fixes, or development */
+#define CATERVA_VERSION_RELEASE 1       /* for tweaks, bug-fixes, or development */
 
 #define CATERVA_VERSION_STRING "0.4.1-dev" /* string version. Sync with above! */
 #define CATERVA_VERSION_DATE "2020-07-28"  /* date version */
@@ -38,6 +38,7 @@
 #define CATERVA_ERR_CONTAINER_FILLED 3
 #define CATERVA_ERR_INVALID_STORAGE 4
 #define CATERVA_ERR_NULL_POINTER 5
+#define CATERVA_ERR_INVALID_INDEX  5
 
 #ifdef NDEBUG
 #define DEBUG_PRINT(...) \
@@ -433,6 +434,21 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  */
 int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
                             int64_t *stop, caterva_storage_t *storage, caterva_array_t **array);
+
+/**
+ * @brief Squeeze a caterva array
+ *
+ * This function remove selected single-dimensional entries from the shape of a
+ caterva array.
+ *
+ * @param ctx Pointer to the caterva context to be used.
+ * @param array Pointer to the caterva array.
+ * @param index Indexes of the single-dimensional entries to remove.
+ *
+ * @return An error code
+ */
+int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array,
+                                bool *index);
 
 /**
  * @brief Squeeze a caterva array

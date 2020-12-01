@@ -330,6 +330,24 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
     return CATERVA_SUCCEED;
 }
 
+int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array, bool *index) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+
+    switch (array->storage) {
+        case CATERVA_STORAGE_BLOSC:
+            CATERVA_ERROR(caterva_blosc_array_squeeze_index(ctx, array, index));
+            break;
+        case CATERVA_STORAGE_PLAINBUFFER:
+            CATERVA_ERROR(caterva_plainbuffer_array_squeeze_index(ctx, array, index));
+            break;
+        default:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+    }
+
+    return CATERVA_SUCCEED;
+}
+
 int caterva_array_copy(caterva_context_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
                        caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);

@@ -1,24 +1,18 @@
 trigger:
 - master
 
-variables:
-  CBLOSC2_CACHE_FOLDER: $(Build.SourcesDirectory)/c-blosc2/build/
-  BLOSC_INCLUDE: $(Build.SourcesDirectory)/c-blosc2/blosc/
 
 strategy:
   matrix:
     linux-release:
       imageName: 'ubuntu-16.04'
       BUILD_CONFIGURATION: RelWithDebInfo
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     mac-release:
       imageName: 'macos-10.14'
       BUILD_CONFIGURATION: RelWithDebInfo
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/
     windows-release:
       imageName: 'vs2017-win2016'
       BUILD_CONFIGURATION: RelWithDebInfo
-      BLOSC_DIR: $(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION)
 
 
 pool:
@@ -36,47 +30,29 @@ steps:
     displayName: 'Execute cpplint'
 
   - bash: |
-      export PATH=$PATH:$(Build.SourcesDirectory)/c-blosc2/build/blosc/$(BUILD_CONFIGURATION):$(Build.SourcesDirectory)/build
+      export PATH=$PATH:$(Build.SourcesDirectory)/build:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
     displayName: 'Export PATH'
 
   - bash: |
-      git clone https://github.com/Blosc/c-blosc2.git
-      cd c-blosc2/
-      git rev-parse --verify HEAD > ../blosc.commit
-    displayName: 'Extract c-blosc2 commit'
-
-  - task: CacheBeta@0
-    inputs:
-      key: v0 | cblosc2 | $(Agent.OS) | $(BUILD_CONFIGURATION) | blosc.commit
-      path: $(CBLOSC2_CACHE_FOLDER)
-      cacheHitVar: CACHE_RESTORED
-    displayName: 'Cache c-blosc2'
-
-
-  - bash: |
-      cd c-blosc2/
-      mkdir build
-      cd build/
-      cmake -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DDEACTIVATE_AVX2=ON ..
-      cmake --build . --config ${BUILD_CONFIGURATION}
-    condition: ne(variables.CACHE_RESTORED, 'true')
-    displayName: 'Build c-blosc2'
+      git submodule sync
+      git submodule update --init --recursive
+    displayName: Clone repos
 
   - bash: |
       mkdir build
       cd build/
-      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} -DBLOSC_DIR=${BLOSC_DIR} -DBLOSC_INCLUDE=${BLOSC_INCLUDE} ..
+      cmake .. -DCMAKE_BUILD_TYPE=${BUILD_CONFIGURATION} ..
       cmake --build . --config ${BUILD_CONFIGURATION}
     displayName: 'Build caterva'
 
   - bash: |
       export PATH=$PATH:${BLOSC_DIR}:$(Build.SourcesDirectory)/build/$(BUILD_CONFIGURATION)
       cd build/
-      ctest -C ${BUILD_CONFIGURATION} -T Test -V
+      ctest -C ${BUILD_CONFIGURATION} -T Test -V -L caterva
     displayName: 'Tests'
 
   - task: PublishTestResults@2
     inputs:
-      testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+      testResultsFormat: 'CTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: 'build/Testing/*/Test.xml'
     displayName: 'Publish Tests'

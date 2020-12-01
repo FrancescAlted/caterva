@@ -11,6 +11,19 @@
 
 #include <caterva.h>
 
+static void index_unidim_to_multidim(int8_t ndim, int64_t *shape, int64_t i, int64_t *index) {
+    int64_t strides[CATERVA_MAX_DIM];
+    strides[ndim - 1] = 1;
+    for (int j = ndim - 2; j >= 0; --j) {
+        strides[j] = shape[j + 1] * strides[j + 1];
+    }
+
+    index[0] = i / strides[0];
+    for (int j = 1; j < ndim; ++j) {
+        index[j] = (i % strides[j - 1]) / strides[j];
+    }
+}
+
 int caterva_plainbuffer_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     if ((*array)->buf != NULL) {
         ctx->cfg->free((*array)->buf);
@@ -78,36 +91,32 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_context_t *ctx, caterva_a
     for (int j = 0; j < CATERVA_MAX_DIM - s_ndim; ++j) {
         start_[j] = 0;
     }
-    int64_t jj[CATERVA_MAX_DIM];
-    jj[7] = start_[7];
-    for (jj[0] = start_[0]; jj[0] < stop_[0]; ++jj[0]) {
-        for (jj[1] = start_[1]; jj[1] < stop_[1]; ++jj[1]) {
-            for (jj[2] = start_[2]; jj[2] < stop_[2]; ++jj[2]) {
-                for (jj[3] = start_[3]; jj[3] < stop_[3]; ++jj[3]) {
-                    for (jj[4] = start_[4]; jj[4] < stop_[4]; ++jj[4]) {
-                        for (jj[5] = start_[5]; jj[5] < stop_[5]; ++jj[5]) {
-                            for (jj[6] = start_[6]; jj[6] < stop_[6]; ++jj[6]) {
-                                int64_t chunk_pointer = 0;
-                                int64_t chunk_pointer_inc = 1;
-                                for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
-                                    chunk_pointer += jj[i] * chunk_pointer_inc;
-                                    chunk_pointer_inc *= s_shape[i];
-                                }
-                                int64_t buf_pointer = 0;
-                                int64_t buf_pointer_inc = 1;
-                                for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
-                                    buf_pointer += (jj[i] - start_[i]) * buf_pointer_inc;
-                                    buf_pointer_inc *= d_pshape_[i];
-                                }
-                                memcpy(&bdest[buf_pointer * array->itemsize],
-                                       &array->buf[chunk_pointer * array->itemsize],
-                                       (size_t)(stop_[7] - start_[7]) * array->itemsize);
-                            }
-                        }
-                    }
-                }
-            }
+    int64_t start_copy[CATERVA_MAX_DIM];
+    start_copy[CATERVA_MAX_DIM - 1] = start_[CATERVA_MAX_DIM - 1];
+    int64_t ncopies = 1;
+    for (int i = 0; i < CATERVA_MAX_DIM - 1; ++i) {
+        ncopies *= stop_[i] - start_[i];
+    }
+    for (int ncopy = 0; ncopy < ncopies; ++ncopy) {
+        index_unidim_to_multidim(CATERVA_MAX_DIM - 1, d_pshape_, ncopy, start_copy);
+        for (int i = 0; i < CATERVA_MAX_DIM - 1; ++i) {
+            start_copy[i] += start_[i];
         }
+
+        int64_t chunk_pointer = 0;
+        int64_t chunk_pointer_inc = 1;
+        for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
+            chunk_pointer += start_copy[i] * chunk_pointer_inc;
+            chunk_pointer_inc *= s_shape[i];
+        }
+        int64_t buf_pointer = 0;
+        int64_t buf_pointer_inc = 1;
+        for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
+            buf_pointer += (start_copy[i] - start_[i]) * buf_pointer_inc;
+            buf_pointer_inc *= d_pshape_[i];
+        }
+        memcpy(&bdest[buf_pointer * array->itemsize], &array->buf[chunk_pointer * array->itemsize],
+               (size_t)(stop_[7] - start_[7]) * array->itemsize);
     }
     return CATERVA_SUCCEED;
 }
@@ -136,36 +145,33 @@ int caterva_plainbuffer_array_set_slice_buffer(caterva_context_t *ctx, void *buf
         stop_[j] = 1;
         d_shape[j] = 1;
     }
-    int64_t jj[CATERVA_MAX_DIM];
-    jj[7] = start_[7];
-    for (jj[0] = start_[0]; jj[0] < stop_[0]; ++jj[0]) {
-        for (jj[1] = start_[1]; jj[1] < stop_[1]; ++jj[1]) {
-            for (jj[2] = start_[2]; jj[2] < stop_[2]; ++jj[2]) {
-                for (jj[3] = start_[3]; jj[3] < stop_[3]; ++jj[3]) {
-                    for (jj[4] = start_[4]; jj[4] < stop_[4]; ++jj[4]) {
-                        for (jj[5] = start_[5]; jj[5] < stop_[5]; ++jj[5]) {
-                            for (jj[6] = start_[6]; jj[6] < stop_[6]; ++jj[6]) {
-                                int64_t chunk_pointer = 0;
-                                int64_t chunk_pointer_inc = 1;
-                                for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
-                                    chunk_pointer += jj[i] * chunk_pointer_inc;
-                                    chunk_pointer_inc *= s_shape[i];
-                                }
-                                int64_t buf_pointer = 0;
-                                int64_t buf_pointer_inc = 1;
-                                for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
-                                    buf_pointer += (jj[i] - start_[i]) * buf_pointer_inc;
-                                    buf_pointer_inc *= d_shape[i];
-                                }
-                                memcpy(&array->buf[chunk_pointer * array->itemsize],
-                                       &bbuffer[buf_pointer * array->itemsize],
-                                       (size_t)(stop_[7] - start_[7]) * array->itemsize);
-                            }
-                        }
-                    }
-                }
-            }
+    int64_t start_copy[CATERVA_MAX_DIM];
+    start_copy[CATERVA_MAX_DIM - 1] = start_[CATERVA_MAX_DIM - 1];
+    int64_t ncopies = 1;
+    for (int i = 0; i < CATERVA_MAX_DIM - 1; ++i) {
+        ncopies *= stop_[i] - start_[i];
+    }
+    for (int ncopy = 0; ncopy < ncopies; ++ncopy) {
+        index_unidim_to_multidim(CATERVA_MAX_DIM - 1, d_shape, ncopy, start_copy);
+        for (int i = 0; i < CATERVA_MAX_DIM - 1; ++i) {
+            start_copy[i] += start_[i];
         }
+
+        int64_t chunk_pointer = 0;
+        int64_t chunk_pointer_inc = 1;
+        for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
+            chunk_pointer += start_copy[i] * chunk_pointer_inc;
+            chunk_pointer_inc *= s_shape[i];
+        }
+        int64_t buf_pointer = 0;
+        int64_t buf_pointer_inc = 1;
+        for (int i = CATERVA_MAX_DIM - 1; i >= 0; --i) {
+            buf_pointer += (start_copy[i] - start_[i]) * buf_pointer_inc;
+            buf_pointer_inc *= d_shape[i];
+        }
+        memcpy(&array->buf[chunk_pointer * array->itemsize],
+               &bbuffer[buf_pointer * array->itemsize],
+               (size_t)(stop_[7] - start_[7]) * array->itemsize);
     }
     return CATERVA_SUCCEED;
 }
@@ -209,13 +215,20 @@ int caterva_plainbuffer_update_shape(caterva_array_t *array, int8_t ndim, int64_
     return CATERVA_SUCCEED;
 }
 
-int caterva_plainbuffer_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
-    CATERVA_UNUSED_PARAM(ctx);
 
+int caterva_plainbuffer_array_squeeze_index(caterva_context_t *ctx,
+                                            caterva_array_t *array,
+                                            bool *index) {
+    CATERVA_UNUSED_PARAM(ctx);
     uint8_t nones = 0;
     int64_t newshape[CATERVA_MAX_DIM];
+
     for (int i = 0; i < array->ndim; ++i) {
-        if (array->shape[i] != 1) {
+        if (index[i] == true) {
+            if (array->shape[i] != 1) {
+                CATERVA_ERROR(CATERVA_ERR_INVALID_INDEX);
+            }
+        } else {
             newshape[nones] = array->shape[i];
             nones += 1;
         }
@@ -225,6 +238,24 @@ int caterva_plainbuffer_array_squeeze(caterva_context_t *ctx, caterva_array_t *a
 
     return CATERVA_SUCCEED;
 }
+
+
+int caterva_plainbuffer_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+    CATERVA_UNUSED_PARAM(ctx);
+    bool index[CATERVA_MAX_DIM];
+
+    for (int i = 0; i < array->ndim; ++i) {
+        if (array->shape[i] != 1) {
+            index[i] = false;
+        } else {
+            index[i] = true;
+        }
+    }
+    CATERVA_ERROR(caterva_plainbuffer_array_squeeze_index(ctx, array, index));
+
+    return CATERVA_SUCCEED;
+}
+
 
 int caterva_plainbuffer_array_copy(caterva_context_t *ctx, caterva_params_t *params,
                                    caterva_storage_t *storage, caterva_array_t *src,
