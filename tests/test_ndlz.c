@@ -98,7 +98,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     */
 
     /* Compress with clevel=5 and shuffle active  */
-    csize = blosc2_compress_ctx(cctx, isize, data_in, data_out, osize);
+    csize = blosc2_compress_ctx(cctx, data_in, isize, data_out, osize);
     if (csize == 0) {
         printf("Buffer is uncompressible.  Giving up.\n");
         return 0;
@@ -121,7 +121,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
 */
     /* Decompress  */
-    dsize = blosc2_decompress_ctx(dctx, data_out, data_dest, dsize);
+    dsize = blosc2_decompress_ctx(dctx, data_out, osize, data_dest, dsize);
     if (dsize <= 0) {
         printf("Decompression error.  Error code: %d\n", dsize);
         return dsize;
@@ -160,7 +160,7 @@ int no_matches() {
     int32_t blockshape[8] = {12, 12};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint8_t data[isize];
     for (int i = 0; i < isize; i++) {
         data[i] = i;
     }
