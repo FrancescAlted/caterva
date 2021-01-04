@@ -97,6 +97,8 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
     */
 
+    printf("\n test_ndlz \n");
+
     /* Compress with clevel=5 and shuffle active  */
     csize = blosc2_compress_ctx(cctx, data_in, isize, data_out, osize);
     if (csize == 0) {
@@ -160,7 +162,7 @@ int no_matches() {
     int32_t blockshape[8] = {12, 12};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint8_t data[isize];
+    uint8_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i++) {
         data[i] = i;
     }
@@ -180,6 +182,7 @@ int no_matches() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -191,7 +194,7 @@ int no_matches_pad() {
     int32_t blockshape[8] = {11, 13};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i++) {
         data[i] = (-i^2) * 111111 - (-i^2) * 11111 + i * 1111 - i * 110 + i;
     }
@@ -211,6 +214,7 @@ int no_matches_pad() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -222,7 +226,7 @@ int all_elem_eq() {
     int32_t blockshape[8] = {16, 16};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i++) {
         data[i] = 1;
     }
@@ -242,6 +246,7 @@ int all_elem_eq() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -253,7 +258,7 @@ int all_elem_pad() {
     int32_t blockshape[8] = {12, 14};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i++) {
         data[i] = 1;
     }
@@ -273,6 +278,7 @@ int all_elem_pad() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -284,7 +290,7 @@ int same_cells() {
     int32_t blockshape[8] = {16, 16};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i += 4) {
         data[i] = 0;
         data[i + 1] = 1111111;
@@ -308,6 +314,7 @@ int same_cells() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -319,7 +326,7 @@ int same_cells_pad() {
     int32_t blockshape[8] = {13, 11};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < (isize / 4); i++) {
         data[i * 4] = (uint32_t *) 11111111;
         data[i * 4 + 1] = (uint32_t *) 99999999;
@@ -341,6 +348,7 @@ int same_cells_pad() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -352,7 +360,7 @@ int same_cells_pad_tam1() {
     int32_t blockshape[8] = {13, 11};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint8_t data[isize];
+    uint8_t *data = malloc(nbytes);
     for (int i = 0; i < (isize / 4); i++) {
         data[i * 4] = (uint32_t *) 111;
         data[i * 4 + 1] = (uint32_t *) 99;
@@ -374,6 +382,7 @@ int same_cells_pad_tam1() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -385,7 +394,7 @@ int matches_2_rows() {
     int32_t blockshape[8] = {13, 13};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i += 4) {
         if ((i <= 20) || ((i >= 48) && (i <= 68)) || ((i >= 96) && (i <= 116))) {
             data[i] = 0;
@@ -418,6 +427,7 @@ int matches_2_rows() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -429,7 +439,7 @@ int matches_3_rows() {
     int32_t blockshape[8] = {16, 16};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i += 4) {
         if ((i % 12 == 0) && (i != 0)) {
             data[i] = 1111111;
@@ -460,6 +470,7 @@ int matches_3_rows() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -471,7 +482,7 @@ int matches_2_couples() {
     int32_t blockshape[8] = {12, 12};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint8_t data[isize];
+    uint8_t *data = malloc(nbytes);
     for (int i = 0; i < isize / 4; i++) {
         if (i % 4 == 0) {
             data[i * 4] = 0;
@@ -512,6 +523,7 @@ int matches_2_couples() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -523,7 +535,7 @@ int some_matches() {
     int32_t blockshape[8] = {64, 64};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i++) {
         data[i] = i;
     }
@@ -547,6 +559,7 @@ int some_matches() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -558,7 +571,7 @@ int padding_some() {
     int32_t blockshape[8] = {64, 64};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < 2 * isize / 3; i++) {
         data[i] = 0;
     }
@@ -582,6 +595,7 @@ int padding_some() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
@@ -593,7 +607,7 @@ int pad_some_32() {
     int32_t blockshape[8] = {12, 12};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t data[isize];
+    uint32_t *data = malloc(nbytes);
     for (int i = 0; i < 2 * isize / 3; i++) {
         data[i] = 0;
     }
@@ -617,6 +631,7 @@ int pad_some_32() {
 
     /* Run the test. */
     int result = test_ndlz(data, nbytes, typesize, ndim, params, storage);
+    free(data);
     return result;
 }
 
