@@ -95,11 +95,14 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     for (int i = 0; i < nbytes; i++) {
     printf("%u, ", data2[i]);
     }
-    */
 
-    printf("\n test_ndlz \n");
+    printf("\n ----------------------------------------------------------------------------- TEST NDLZ ----------"
+           "----------------------------------------------------------------------- \n");
+*/
+    blosc_timestamp_t start, end;
+    blosc_set_timestamp(&start);
 
-    /* Compress with clevel=5 and shuffle active  */
+  /* Compress with clevel=5 and shuffle active  */
     csize = blosc2_compress_ctx(cctx, data_in, isize, data_out, osize);
     if (csize == 0) {
         printf("Buffer is uncompressible.  Giving up.\n");
@@ -111,7 +114,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
 
     printf("Compression: %d -> %d (%.1fx)\n", isize, csize, (1. * isize) / csize);
-
+/*
     printf("data_in: \n");
     for (int i = 0; i < isize; i++) {
         printf("%u, ", data_in[i]);
@@ -121,13 +124,17 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     for (int i = 0; i < osize; i++) {
         printf("%u, ", data_out[i]);
     }
-
+*/
     /* Decompress  */
     dsize = blosc2_decompress_ctx(dctx, data_out, osize, data_dest, dsize);
     if (dsize <= 0) {
         printf("Decompression error.  Error code: %d\n", dsize);
         return dsize;
     }
+
+    blosc_set_timestamp(&end);
+    double ctime = blosc_elapsed_nsecs(start, end);
+
 /*
     printf("\n dest \n");
     for (int i = 0; i < dsize; i++) {
@@ -151,6 +158,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     free(data_dest);
 
     printf("Succesful roundtrip!\n");
+    printf("\n Test time: %f nsecs \n", ctime);
     return dsize - csize;
 }
 
@@ -972,9 +980,9 @@ int main(void) {
 
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
-    result = no_matches_pad();
+/*    result = no_matches_pad();
     printf("no_matches_pad: %d obtained \n \n", result);
-  /*  result = all_elem_eq();
+    result = all_elem_eq();
     printf("all_elem_eq: %d obtained \n \n", result);
     result = all_elem_pad();
     printf("all_elem_pad: %d obtained \n \n", result);
