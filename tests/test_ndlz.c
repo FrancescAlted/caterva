@@ -114,7 +114,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
 
     printf("Compression: %d -> %d (%.1fx)\n", isize, csize, (1. * isize) / csize);
-
+/*
     printf("data_in: \n");
     for (int i = 0; i < isize; i++) {
         printf("%u, ", data_in[i]);
@@ -124,7 +124,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     for (int i = 0; i < osize; i++) {
         printf("%u, ", data_out[i]);
     }
-
+*/
     /* Decompress  */
     dsize = blosc2_decompress_ctx(dctx, data_out, osize, data_dest, dsize);
     if (dsize <= 0) {
@@ -135,12 +135,12 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     blosc_set_timestamp(&end);
     double ctime = blosc_elapsed_nsecs(start, end);
 
-
+/*
     printf("\n dest \n");
     for (int i = 0; i < dsize; i++) {
         printf("%u, ", data_dest[i]);
     }
-
+*/
     for (int i = 0; i < isize; i++) {
         if (data_in[i] != data_dest[i]) {
             printf("i: %d, data %u, dest %u", i, data_in[i], data_dest[i]);
@@ -977,16 +977,16 @@ int image10() {
 int main(void) {
 
     int result;
-/*
+
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
     result = no_matches_pad();
     printf("no_matches_pad: %d obtained \n \n", result);
     result = all_elem_eq();
     printf("all_elem_eq: %d obtained \n \n", result);
-  */  result = all_elem_pad();
+    result = all_elem_pad();
     printf("all_elem_pad: %d obtained \n \n", result);
-  /*  result = same_cells();
+    result = same_cells();
     printf("same_cells: %d obtained \n \n", result);
     result = same_cells_pad();
     printf("same_cells_pad: %d obtained \n \n", result);
