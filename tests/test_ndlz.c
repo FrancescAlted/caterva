@@ -977,7 +977,7 @@ int image10() {
 int main(void) {
 
     int result;
-
+/*
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
     result = no_matches_pad();
@@ -1004,7 +1004,8 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-/*
+*/
+    printf("TEST NDLZ-ZLIB \n");
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
@@ -1025,5 +1026,5 @@ int main(void) {
     printf("image9 with NO padding: %d obtained \n \n", result);
     result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
-*/
+
 }
