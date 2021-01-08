@@ -597,7 +597,6 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                          int64_t *start, int64_t *stop, const int64_t *shape,
                                          void *buffer) {
     uint8_t *bbuffer = buffer;  // for allowing pointer arithmetic
-
     int64_t start__[CATERVA_MAX_DIM];
     int64_t stop__[CATERVA_MAX_DIM];
     int64_t shape__[CATERVA_MAX_DIM];
@@ -864,9 +863,13 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
         d_stop[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM] = stop__[i];
     }
     for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
-        d_shape[i] = (d_stop[i] - d_start[i]) / d_next_pshape[i];
-        if ((d_stop[i] - d_start[i]) % d_next_pshape[i] != 0) {
-            d_shape[i] += 1;
+        if (d_next_pshape[i] != 0) {
+            d_shape[i] = (d_stop[i] - d_start[i]) / d_next_pshape[i];
+            if ((d_stop[i] - d_start[i]) % d_next_pshape[i] != 0) {
+                d_shape[i] += 1;
+            }
+        } else {
+            d_shape[i] = 0;
         }
     }
 
@@ -1075,16 +1078,21 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
         (*array)->chunkshape[i] = chunkshape[i];
         (*array)->next_chunkshape[i] = chunkshape[i];
         (*array)->blockshape[i] = blockshape[i];
-        if (shape[i] % chunkshape[i] == 0) {
-            (*array)->extshape[i] = shape[i];
+        if (shape[i] != 0) {
+            if (shape[i] % chunkshape[i] == 0) {
+                (*array)->extshape[i] = shape[i];
+            } else {
+                (*array)->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
+            }
+            if (chunkshape[i] % blockshape[i] == 0) {
+                (*array)->extchunkshape[i] = chunkshape[i];
+            } else {
+                (*array)->extchunkshape[i] =
+                        chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+            }
         } else {
-            (*array)->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
-        }
-        if (chunkshape[i] % blockshape[i] == 0) {
-            (*array)->extchunkshape[i] = chunkshape[i];
-        } else {
-            (*array)->extchunkshape[i] =
-                chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+            (*array)->extshape[i] = 0;
+            (*array)->extchunkshape[i] = 0;
         }
         (*array)->nitems *= shape[i];
         (*array)->chunknitems *= chunkshape[i];
