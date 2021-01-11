@@ -8,8 +8,13 @@
 #include <caterva.h>
 #include "minunit/minunit.h"
 #include "minunit/assert.h"
+#include "cutest/cutest.h"
+
 
 #define MU_ASSERT_CATERVA(rc) MU_ASSERT(print_error(rc), rc == CATERVA_SUCCEED)
+
+#define CUTEST_ASSERT_CATERVA(rc) CUTEST_ASSERT((rc) == CATERVA_SUCCEED, print_error(rc));
+
 
 static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) MU_UNUSED;
         static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) {
@@ -39,5 +44,42 @@ static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) MU_UNUSED;
     }
     return true;
 }
+
+
+/* Tests data */
+
+typedef struct {
+    int8_t ndim;
+    int64_t shape[CATERVA_MAX_DIM];
+    int32_t chunkshape[CATERVA_MAX_DIM];
+    int32_t blockshape[CATERVA_MAX_DIM];
+} _test_shapes;
+
+
+typedef struct {
+    caterva_storage_backend_t backend;
+    bool sequential;
+    bool persistent;
+} _test_backend;
+
+
+void caterva_default_parameters() {
+    CUTEST_PARAMETRIZE(itemsize, bool, CUTEST_DATA(1, 2, 4, 8));
+    CUTEST_PARAMETRIZE(shapes, _test_shapes, CUTEST_DATA(
+        {2, {100, 100}, {20, 20}, {10, 10}},
+        {3, {100, 55, 123}, {31, 5, 22}, {4, 4, 4}},
+        {3, {100, 0, 12}, {31, 0, 12}, {10, 0, 12}},
+        {4, {50, 160, 31, 12}, {25, 20, 20, 10}, {5, 5, 5, 10}},
+        {5, {1, 1, 1024, 1, 1}, {1, 1, 500, 1, 1}, {1, 1, 200, 1, 1}},
+        {6, {5, 1, 200, 3, 1, 2}, {5, 1, 50, 2, 1, 2}, {2, 1, 20, 2, 1, 2}},
+    ));
+    CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
+        {CATERVA_STORAGE_PLAINBUFFER, false, false},
+        {CATERVA_STORAGE_BLOSC, false, false},
+        {CATERVA_STORAGE_BLOSC, true, false},
+        {CATERVA_STORAGE_BLOSC, true, true},
+    ));
+}
+
 
 #endif //CATERVA_TEST_COMMON_H

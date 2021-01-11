@@ -17,8 +17,8 @@ extern int tests_run;
 extern int tests_failed;
 extern int tests_skiped;
 
-#define MU_RUN_TEST(test) { \
-    printf("- %-50s ", #test); \
+#define MU_RUN_TEST(test, name) { \
+    printf("- %-50s ", name); \
     char *message = test(); \
     ++tests_run; \
     if (message) { \
