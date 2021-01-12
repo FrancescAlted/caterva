@@ -11,9 +11,7 @@
 #include "cutest/cutest.h"
 
 
-#define MU_ASSERT_CATERVA(rc) MU_ASSERT(print_error(rc), rc == CATERVA_SUCCEED)
-
-#define CUTEST_ASSERT_CATERVA(rc) CUTEST_ASSERT((rc) == CATERVA_SUCCEED, print_error(rc));
+#define CATERVA_TEST_ASSERT(rc) CUTEST_ASSERT(print_error(rc), (rc) == CATERVA_SUCCEED);
 
 
 static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) MU_UNUSED;
@@ -80,6 +78,12 @@ void caterva_default_parameters() {
         {CATERVA_STORAGE_BLOSC, true, true},
     ));
 }
+
+
+#define CATERVA_TEST_ASSERT_BUFFER(buffer1, buffer2, buffersize) \
+    for (int i = 0; i < (buffersize); ++i) { \
+        CUTEST_ASSERT("elements are not equals!", (buffer1)[i] == (buffer2)[i]); \
+    }
 
 
 #endif //CATERVA_TEST_COMMON_H

@@ -11,381 +11,173 @@
 
 #include "test_common.h"
 
-static char* test_get_slice(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                           caterva_storage_backend_t backend, int32_t *chunkshape, int32_t *blockshape, bool enforceframe, char *filename,
-                           caterva_storage_backend_t backend2, int32_t *chunkshape2, int32_t *blockshape2, bool enforceframe2, char *filename2,
-                           int64_t *start, int64_t *stop, void *result) {
+double result0[1024] = {2, 3, 4, 5, 6, 7, 8};
+double result1[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
+                        77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
+double result2[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
+                        323, 324, 325, 326, 327, 328, 329, 333, 334, 335, 336, 337, 338, 339,
+                        343, 344, 345, 346, 347, 348, 349, 353, 354, 355, 356, 357, 358, 359,
+                        363, 364, 365, 366, 367, 368, 369, 403, 404, 405, 406, 407, 408, 409,
+                        413, 414, 415, 416, 417, 418, 419, 423, 424, 425, 426, 427, 428, 429,
+                        433, 434, 435, 436, 437, 438, 439, 443, 444, 445, 446, 447, 448, 449,
+                        453, 454, 455, 456, 457, 458, 459, 463, 464, 465, 466, 467, 468, 469,
+                        503, 504, 505, 506, 507, 508, 509, 513, 514, 515, 516, 517, 518, 519,
+                        523, 524, 525, 526, 527, 528, 529, 533, 534, 535, 536, 537, 538, 539,
+                        543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
+                        563, 564, 565, 566, 567, 568, 569};
+double result3[1024] = {};
+double result4[1024] = {};
+
+typedef struct {
+    int8_t ndim;
+    int64_t shape[CATERVA_MAX_DIM];
+    int32_t chunkshape[CATERVA_MAX_DIM];
+    int32_t blockshape[CATERVA_MAX_DIM];
+    int32_t chunkshape2[CATERVA_MAX_DIM];
+    int32_t blockshape2[CATERVA_MAX_DIM];
+    int64_t start[CATERVA_MAX_DIM];
+    int64_t stop[CATERVA_MAX_DIM];
+    double *result;
+} test_copy_shapes_t;
+
+
+CUTEST_TEST_DATA(get_slice) {
+    caterva_context_t *ctx;
+};
+
+
+CUTEST_TEST_SETUP(get_slice) {
+    caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
+    cfg.nthreads = 2;
+    cfg.compcodec = BLOSC_BLOSCLZ;
+    caterva_context_new(&cfg, &data->ctx);
+
+    // Add parametrizations
+    CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(8));
+    CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
+            {CATERVA_STORAGE_PLAINBUFFER, false, false},
+            {CATERVA_STORAGE_BLOSC, false, false},
+            {CATERVA_STORAGE_BLOSC, true, false},
+            {CATERVA_STORAGE_BLOSC, true, true},
+    ));
+    CUTEST_PARAMETRIZE(backend2, _test_backend, CUTEST_DATA(
+            {CATERVA_STORAGE_PLAINBUFFER, false, false},
+            {CATERVA_STORAGE_BLOSC, false, false},
+            {CATERVA_STORAGE_BLOSC, true, false},
+            {CATERVA_STORAGE_BLOSC, true, true},
+    ));
+
+
+    CUTEST_PARAMETRIZE(shapes, test_copy_shapes_t, CUTEST_DATA(
+            {0, {0}, {0}, {0}, {0}, {0}, {0}, {0}, result3}, // 0-dim
+            {1, {10}, {7}, {2}, {6}, {2}, {2}, {9}, result0}, // 1-idim
+            {2, {14, 10}, {8, 5}, {2, 2}, {4, 4}, {2, 3}, {5, 3}, {9, 10}, result1}, // general,
+            {3, {10, 10, 10}, {3, 5, 9}, {3, 4, 4}, {3, 7, 7}, {2, 5, 5}, {3, 0, 3}, {6, 7, 10},
+             result2}, // general
+            {2, {20, 0}, {7, 0}, {3, 0}, {5, 0}, {2, 0}, {2, 0}, {8, 0}, result3}, // 0-shape
+            {2, {20, 10}, {7, 5}, {3, 5}, {5, 5}, {2, 2}, {2, 0}, {18, 0}, result4}, // 0-shape
+    ));
+}
+
+CUTEST_TEST_TEST(get_slice) {
+    CUTEST_GET_PARAMETER(backend, _test_backend);
+    CUTEST_GET_PARAMETER(shapes, test_copy_shapes_t);
+    CUTEST_GET_PARAMETER(backend2, _test_backend);
+    CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
     caterva_params_t params;
     params.itemsize = itemsize;
-    params.ndim = ndim;
-    for (int i = 0; i < ndim; ++i) {
-        params.shape[i] = shape[i];
+    params.ndim = shapes.ndim;
+    for (int i = 0; i < params.ndim; ++i) {
+        params.shape[i] = shapes.shape[i];
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = backend;
-    switch (backend) {
+    storage.backend = backend.backend;
+    switch (storage.backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
             break;
         case CATERVA_STORAGE_BLOSC:
-            storage.properties.blosc.filename = filename;
-            storage.properties.blosc.enforceframe = enforceframe;
-            for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = chunkshape[i];
-                storage.properties.blosc.blockshape[i] = blockshape[i];
+            if (backend.persistent) {
+                storage.properties.blosc.filename = "test_get_slice.b2frame";
+            }
+            storage.properties.blosc.enforceframe = backend.sequential;
+            for (int i = 0; i < params.ndim; ++i) {
+                storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
+                storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
             }
             break;
         default:
-            MU_ASSERT_CATERVA(CATERVA_ERR_INVALID_STORAGE);
+            CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
     }
 
     /* Create original data */
     size_t buffersize = itemsize;
-    for (int i = 0; i < ndim; ++i) {
-        buffersize *= (size_t) shape[i];
+    for (int i = 0; i < params.ndim; ++i) {
+        buffersize *= (size_t) shapes.shape[i];
     }
-    uint8_t *buffer = ctx->cfg->alloc(buffersize);
-    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
+    uint8_t *buffer = data->ctx->cfg->alloc(buffersize);
+    CUTEST_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    MU_ASSERT_CATERVA(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
+    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
+                                                  &src));
 
 
     /* Create storage for dest container */
 
     caterva_storage_t storage2 = {0};
-    storage2.backend = backend2;
-    switch (backend2) {
+    storage2.backend = backend2.backend;
+    switch (backend2.backend) {
         case CATERVA_STORAGE_PLAINBUFFER:
             break;
         case CATERVA_STORAGE_BLOSC:
-            storage2.properties.blosc.filename = filename2;
-            storage2.properties.blosc.enforceframe = enforceframe2;
-            for (int i = 0; i < ndim; ++i) {
-                storage2.properties.blosc.chunkshape[i] = chunkshape2[i];
-                storage2.properties.blosc.blockshape[i] = blockshape2[i];
+            if (backend2.persistent) {
+                storage2.properties.blosc.filename = "test_get_slice2.b2frame";
+            }
+            storage2.properties.blosc.enforceframe = backend2.sequential;
+            for (int i = 0; i < params.ndim; ++i) {
+                storage2.properties.blosc.chunkshape[i] = shapes.chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = shapes.blockshape2[i];
             }
             break;
         default:
-            MU_ASSERT_CATERVA(CATERVA_ERR_INVALID_STORAGE);
+            CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
     }
 
     caterva_array_t *dest;
-    MU_ASSERT_CATERVA(caterva_array_get_slice(ctx, src, start, stop, &storage2, &dest));
+    CATERVA_TEST_ASSERT(caterva_array_get_slice(data->ctx, src, shapes.start, shapes.stop,
+                                                &storage2, &dest));
 
     int64_t destbuffersize = itemsize;
     for (int i = 0; i < src->ndim; ++i) {
-        destbuffersize *= (stop[i] - start[i]);
+        destbuffersize *= (shapes.stop[i] - shapes.start[i]);
     }
-    uint8_t *buffer_dest = ctx->cfg->alloc((size_t) destbuffersize);
-    MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, dest, buffer_dest, destbuffersize));
+    if (dest->ndim == 0) {
+        destbuffersize = 0;
+    }
 
-    /* Testing */
-    MU_ASSERT_BUFFER(result, buffer_dest, destbuffersize);
+    double *buffer_dest = data->ctx->cfg->alloc((size_t) destbuffersize);
+    CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, dest, buffer_dest, destbuffersize));
+
+    for (int i = 0; i < destbuffersize / itemsize; ++i) {
+        CUTEST_ASSERT("Elements are not equals!", shapes.result[i] == buffer_dest[i]);
+    }
 
     /* Free mallocs */
-    ctx->cfg->free(buffer);
-    ctx->cfg->free(buffer_dest);
-    MU_ASSERT_CATERVA(caterva_array_free(ctx, &src));
-    MU_ASSERT_CATERVA(caterva_array_free(ctx, &dest));
+    data->ctx->cfg->free(buffer);
+    data->ctx->cfg->free(buffer_dest);
+    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &dest));
     
     return 0;
 }
 
-
-caterva_context_t *ctx;
-
-static char* get_slice_setup() {
-    caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
-    caterva_context_new(&cfg, &ctx);
-    return 0;
+CUTEST_TEST_TEARDOWN(get_slice) {
+    caterva_context_free(&data->ctx);
 }
 
-static char* get_slice_teardown() {
-    caterva_context_free(&ctx);
-    return 0;
+int main() {
+    CUTEST_TEST_RUN(get_slice);
 }
-
-static char* get_slice_1_double_plainbuffer_plainbuffer() {
-    int64_t start[] = {2};
-    int64_t stop[] = {9};
-
-    double result[1024] = {2, 3, 4, 5, 6, 7, 8};
-
-    uint8_t itemsize = sizeof(double);
-    uint8_t ndim = 1;
-    int64_t shape[] = {10};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape[] = {0};
-    int32_t blockshape[] = {0};
-    bool enforceframe = false;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape2[] = {0};
-    int32_t blockshape2[] = {0};
-    bool enforceframe2 = false;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_2_uint16_plainbuffer_blosc() {
-    int64_t start[] = {5, 3};
-    int64_t stop[] = {9, 10};
-
-    uint16_t result[1024] = {53, 54, 55, 56, 57, 58, 59, 63, 64, 65, 66, 67, 68, 69, 73, 74, 75, 76,
-                           77, 78, 79, 83, 84, 85, 86, 87, 88, 89};
-
-    uint8_t itemsize = sizeof(uint16_t);
-    uint8_t ndim = 2;
-    int64_t shape[] = {14, 10};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape[] = {0};
-    int32_t blockshape[] = {0};
-    bool enforceframe = false;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape2[] = {4, 4};
-    int32_t blockshape2[] = {2, 3};
-    bool enforceframe2 = false;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-        backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_2_uint8_plainbuffer_plainbuffer() {
-    int64_t start[] = {5, 7};
-    int64_t stop[] = {8, 8};
-
-    uint8_t result[1024] = {57, 67, 77, 87};
-
-    uint8_t itemsize = sizeof(uint8_t);
-    uint8_t ndim = 2;
-    int64_t shape[] = {14, 10};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape[] = {0};
-    int32_t blockshape[] = {0};
-    bool enforceframe = false;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape2[] = {0};
-    int32_t blockshape2[] = {0};
-    bool enforceframe2 = false;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_3_float_blosc_blosc() {
-    int64_t start[] = {3, 0, 3};
-    int64_t stop[] = {6, 7, 10};
-
-    float result[1024] = {303, 304, 305, 306, 307, 308, 309, 313, 314, 315, 316, 317, 318, 319,
-                          323, 324, 325, 326, 327, 328, 329, 333, 334, 335, 336, 337, 338, 339,
-                          343, 344, 345, 346, 347, 348, 349, 353, 354, 355, 356, 357, 358, 359,
-                          363, 364, 365, 366, 367, 368, 369, 403, 404, 405, 406, 407, 408, 409,
-                          413, 414, 415, 416, 417, 418, 419, 423, 424, 425, 426, 427, 428, 429,
-                          433, 434, 435, 436, 437, 438, 439, 443, 444, 445, 446, 447, 448, 449,
-                          453, 454, 455, 456, 457, 458, 459, 463, 464, 465, 466, 467, 468, 469,
-                          503, 504, 505, 506, 507, 508, 509, 513, 514, 515, 516, 517, 518, 519,
-                          523, 524, 525, 526, 527, 528, 529, 533, 534, 535, 536, 537, 538, 539,
-                          543, 544, 545, 546, 547, 548, 549, 553, 554, 555, 556, 557, 558, 559,
-                          563, 564, 565, 566, 567, 568, 569};
-
-    uint8_t itemsize = sizeof(float);
-    uint8_t ndim = 3;
-    int64_t shape[] = {10, 10, 10};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {3, 5, 9};
-    int32_t blockshape[] = {3, 4, 4};
-    bool enforceframe = false;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape2[] = {3, 7, 7};
-    int32_t blockshape2[] = {2, 5, 5};
-    bool enforceframe2 = false;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_4_double_blosc_plainbuffer() {
-    int64_t start[] = {5, 3, 9, 2};
-    int64_t stop[] = {9, 6, 10, 7};
-
-    float result[1024] = {5392, 5393, 5394, 5395, 5396, 5492, 5493, 5494, 5495, 5496, 5592, 5593,
-                           5594, 5595, 5596, 6392, 6393, 6394, 6395, 6396, 6492, 6493, 6494, 6495,
-                           6496, 6592, 6593, 6594, 6595, 6596, 7392, 7393, 7394, 7395, 7396, 7492,
-                           7493, 7494, 7495, 7496, 7592, 7593, 7594, 7595, 7596, 8392, 8393, 8394,
-                           8395, 8396, 8492, 8493, 8494, 8495, 8496, 8592, 8593, 8594, 8595, 8596};
-
-    uint8_t itemsize = sizeof(float);
-    uint8_t ndim = 4;
-    int64_t shape[] = {10, 10, 10, 10};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {2, 2, 4, 2};
-    int32_t blockshape[] = {2, 2, 3, 2};
-    bool enforceframe = false;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape2[] = {0};
-    int32_t blockshape2[] = {0};
-    bool enforceframe2 = false;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_5_float_plainbuffer_plainbuffer() {
-    int64_t start[] = {6, 0, 5, 5, 7};
-    int64_t stop[] = {8, 9, 6, 6, 10};
-
-    float result[1024] = {60557, 60558, 60559, 61557, 61558, 61559, 62557, 62558, 62559, 63557,
-                          63558, 63559, 64557, 64558, 64559, 65557, 65558, 65559, 66557, 66558,
-                          66559, 67557, 67558, 67559, 68557, 68558, 68559, 70557, 70558, 70559,
-                          71557, 71558, 71559, 72557, 72558, 72559, 73557, 73558, 73559, 74557,
-                          74558, 74559, 75557, 75558, 75559, 76557, 76558, 76559, 77557, 77558,
-                          77559, 78557, 78558, 78559};
-
-    uint8_t itemsize = sizeof(float );
-    uint8_t ndim = 5;
-    int64_t shape[] = {10, 10, 10, 10, 10};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape[] = {0};
-    int32_t blockshape[] = {0};
-    bool enforceframe = false;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape2[] = {0};
-    int32_t blockshape2[] = {0};
-    bool enforceframe2 = false;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_6_double_plainbuffer_blosc_frame() {
-    int64_t start[] = {0, 4, 2, 4, 5, 1};
-    int64_t stop[] = {1, 7, 4, 6, 8, 3};
-
-    float result[1024] = {42451, 42452, 42461, 42462, 42471, 42472, 42551, 42552, 42561, 42562,
-                           42571, 42572, 43451, 43452, 43461, 43462, 43471, 43472, 43551, 43552,
-                           43561, 43562, 43571, 43572, 52451, 52452, 52461, 52462, 52471, 52472,
-                           52551, 52552, 52561, 52562, 52571, 52572, 53451, 53452, 53461, 53462,
-                           53471, 53472, 53551, 53552, 53561, 53562, 53571, 53572, 62451, 62452,
-                           62461, 62462, 62471, 62472, 62551, 62552, 62561, 62562, 62571, 62572,
-                           63451, 63452, 63461, 63462, 63471, 63472, 63551, 63552, 63561, 63562,
-                           63571, 63572};
-
-    uint8_t itemsize = sizeof(float);
-    uint8_t ndim = 6;
-    int64_t shape[] = {10, 10, 10, 10, 10, 10};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape[] = {0};
-    int32_t blockshape[] = {0};
-    bool enforceframe = false;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape2[] = {1, 3, 2, 2, 3, 2};
-    int32_t blockshape2[] = {1, 3, 2, 1, 2, 3};
-    bool enforceframe2 = true;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_7_double_blosc_frame_plainbuffer() {
-    int64_t start[] = {1, 4, 2, 2, 2, 2, 1};
-    int64_t stop[] = {4, 5, 3, 4, 3, 5, 2};
-
-    double result[1024] = {4745, 4747, 4749, 4785, 4787, 4789, 7145, 7147, 7149, 7185, 7187,
-                          7189, 9545, 9547, 9549, 9585, 9587, 9589};
-
-
-    uint8_t itemsize = sizeof(double);
-    uint8_t ndim = 7;
-    int64_t shape[] = {4, 5, 3, 4, 4, 5, 2};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {3, 4, 2, 2, 2, 2, 1};
-    int32_t blockshape[] = {2, 3, 2, 1, 2, 1, 1};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_PLAINBUFFER;
-    int32_t chunkshape2[] = {0};
-    int32_t blockshape2[] = {0};
-    bool enforceframe2 = false;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* get_slice_8_double_blosc_frame_blosc_frame() {
-    int64_t start[] = {3, 2, 2, 2, 2, 1, 1, 1};
-    int64_t stop[] = {4, 3, 3, 3, 3, 3, 2, 3};
-
-    double result[1024] = {16750, 16751, 16756, 16757};
-
-    uint8_t itemsize = sizeof(double);
-    uint8_t ndim = 8;
-    int64_t shape[] = {5, 3, 4, 5, 4, 3, 2, 3};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {2, 2, 1, 1, 2, 2, 1, 1};
-    int32_t blockshape[] = {2, 2, 1, 1, 2, 2, 1, 1};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    caterva_storage_backend_t backend2 = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape2[] = {1, 1, 1, 1, 1, 1, 1, 2};
-    int32_t blockshape2[] = {1, 1, 1, 1, 1, 1, 1, 2};
-    bool enforceframe2 = true;
-    char *filename2 = NULL;
-
-    return test_get_slice(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename,
-                   backend2, chunkshape2, blockshape2, enforceframe2, filename2, start, stop, result);
-}
-
-static char* all_tests() {
-    MU_RUN_SETUP(get_slice_setup)
-
-    MU_RUN_TEST(get_slice_1_double_plainbuffer_plainbuffer)
-    MU_RUN_TEST(get_slice_2_uint16_plainbuffer_blosc)
-    MU_RUN_TEST(get_slice_2_uint8_plainbuffer_plainbuffer)
-    MU_RUN_TEST(get_slice_3_float_blosc_blosc)
-    MU_RUN_TEST(get_slice_4_double_blosc_plainbuffer)
-    MU_RUN_TEST(get_slice_5_float_plainbuffer_plainbuffer)
-    MU_RUN_TEST(get_slice_6_double_plainbuffer_blosc_frame)
-    MU_RUN_TEST(get_slice_7_double_blosc_frame_plainbuffer)
-    MU_RUN_TEST(get_slice_8_double_blosc_frame_blosc_frame)
-
-    MU_RUN_TEARDOWN(get_slice_teardown)
-    return 0;
-}
-
-MU_RUN_SUITE()

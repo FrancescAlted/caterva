@@ -170,7 +170,7 @@ int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buff
 
     CATERVA_ERROR(caterva_array_empty(ctx, params, storage, array));
 
-    if (buffersize != (int64_t)(*array)->nitems * (*array)->itemsize) {
+    if (buffersize < (int64_t)(*array)->nitems * (*array)->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
@@ -230,6 +230,7 @@ int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src,
     CATERVA_ERROR_NULL(shape);
     CATERVA_ERROR_NULL(buffer);
 
+
     int64_t size = 1;
     for (int i = 0; i < src->ndim; ++i) {
         if (stop[i] - start[i] > shape[i]) {
@@ -239,13 +240,14 @@ int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src,
         size *= shape[i];
     }
 
+    if (src->nitems == 0) {
+        return CATERVA_SUCCEED;
+    }
+
     if (buffersize < size * src->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
-    if (src->nitems == 0) {
-        return CATERVA_SUCCEED;
-    }
 
     switch (src->storage) {
         case CATERVA_STORAGE_BLOSC:
@@ -380,9 +382,6 @@ int caterva_array_copy(caterva_context_t *ctx, caterva_array_t *src, caterva_sto
     CATERVA_ERROR_NULL(storage);
     CATERVA_ERROR_NULL(array);
 
-    if (src->nitems == 0) {
-        return CATERVA_SUCCEED;
-    }
 
     caterva_params_t params;
     params.itemsize = src->itemsize;

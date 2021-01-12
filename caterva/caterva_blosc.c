@@ -1067,11 +1067,11 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     int64_t *shape = params->shape;
     int32_t *chunkshape = storage->properties.blosc.chunkshape;
     int32_t *blockshape = storage->properties.blosc.blockshape;
-    (*array)->nitems = 1;
-    (*array)->chunknitems = 1;
-    (*array)->extnitems = 1;
-    (*array)->blocknitems = 1;
-    (*array)->extchunknitems = 1;
+    (*array)->nitems = params->ndim == 0 ? 0 : 1;
+    (*array)->chunknitems = params->ndim == 0 ? 0 : 1;
+    (*array)->extnitems = params->ndim == 0 ? 0 : 1;
+    (*array)->blocknitems = params->ndim == 0 ? 0 : 1;
+    (*array)->extchunknitems = params->ndim == 0 ? 0 : 1;
 
     for (int i = 0; i < params->ndim; ++i) {
         (*array)->shape[i] = shape[i];
@@ -1101,6 +1101,7 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
         (*array)->extchunknitems *= (*array)->extchunkshape[i];
     }
     (*array)->next_chunknitems = (*array)->chunknitems;
+
 
     for (int i = params->ndim; i < CATERVA_MAX_DIM; ++i) {
         (*array)->shape[i] = 1;
