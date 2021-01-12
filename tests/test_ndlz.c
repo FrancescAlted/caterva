@@ -1005,7 +1005,7 @@ int main(void) {
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
 */
-    printf("TEST NDLZ-ZLIB \n");
+    printf("TEST ZLIB \n");
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
