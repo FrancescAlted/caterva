@@ -284,9 +284,9 @@ int caterva_plainbuffer_array_empty(caterva_context_t *ctx, caterva_params_t *pa
 
     int64_t *shape = params->shape;
 
-    (*array)->nitems = params->ndim == 0 ? 0 : 1;
-    (*array)->chunknitems = params->ndim == 0 ? 0 : 1;
-    (*array)->extnitems = params->ndim == 0 ? 0 : 1;
+    (*array)->nitems = 1;
+    (*array)->chunknitems = 1;
+    (*array)->extnitems = 1;
 
     for (int i = 0; i < params->ndim; ++i) {
         (*array)->shape[i] = shape[i];

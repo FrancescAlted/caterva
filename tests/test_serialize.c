@@ -59,7 +59,7 @@ CUTEST_TEST_TEST(serialize) {
     }
 
     /* Create original data */
-    size_t buffersize = params.ndim == 0 ? 0 : itemsize;
+    size_t buffersize = itemsize;
     for (int i = 0; i < params.ndim; ++i) {
         buffersize *= (size_t) params.shape[i];
     }

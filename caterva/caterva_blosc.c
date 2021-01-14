@@ -232,11 +232,11 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     int32_t *chunkshape = (*array)->chunkshape;
     int32_t *blockshape = (*array)->blockshape;
 
-    (*array)->nitems = (*array)->ndim == 0 ? 0 : 1;
-    (*array)->chunknitems = (*array)->ndim == 0 ? 0 : 1;
-    (*array)->blocknitems = (*array)->ndim == 0 ? 0 : 1;
-    (*array)->extnitems = (*array)->ndim == 0 ? 0 : 1;
-    (*array)->extchunknitems = (*array)->ndim == 0 ? 0 : 1;
+    (*array)->nitems = 1;
+    (*array)->chunknitems = 1;
+    (*array)->blocknitems = 1;
+    (*array)->extnitems = 1;
+    (*array)->extchunknitems = 1;
 
     for (int i = 0; i < (*array)->ndim; ++i) {
         if (shape[i] != 0) {
@@ -1082,11 +1082,11 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     int64_t *shape = params->shape;
     int32_t *chunkshape = storage->properties.blosc.chunkshape;
     int32_t *blockshape = storage->properties.blosc.blockshape;
-    (*array)->nitems = params->ndim == 0 ? 0 : 1;
-    (*array)->chunknitems = params->ndim == 0 ? 0 : 1;
-    (*array)->extnitems = params->ndim == 0 ? 0 : 1;
-    (*array)->blocknitems = params->ndim == 0 ? 0 : 1;
-    (*array)->extchunknitems = params->ndim == 0 ? 0 : 1;
+    (*array)->nitems = 1;
+    (*array)->chunknitems = 1;
+    (*array)->extnitems = 1;
+    (*array)->blocknitems = 1;
+    (*array)->extchunknitems = 1;
 
     for (int i = 0; i < params->ndim; ++i) {
         (*array)->shape[i] = shape[i];

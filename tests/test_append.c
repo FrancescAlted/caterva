@@ -123,7 +123,8 @@ CUTEST_TEST_TEST(append) {
     double *buffer_dest = data->ctx->cfg->alloc(buffersize);
     CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, src, buffer_dest, buffersize));
     if (src->nitems != 0) {
-        for (int i = 0; i < 10; ++i) {
+        int len = src->ndim == 0 ? 1 : 10;
+        for (int i = 0; i < len; ++i) {
             CUTEST_ASSERT("elements are not equals!", shapes.result[i] == buffer_dest[i]);
         }
     }
