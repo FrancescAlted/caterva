@@ -78,8 +78,6 @@ CUTEST_TEST_TEST(roundtrip) {
     CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, src, buffer_dest, buffersize));
 
     /* Testing */
-    //TODO: MU_ASSERT_BUFFER(buffer, buffer_dest, buffersize);
-
     CATERVA_TEST_ASSERT_BUFFER(buffer, buffer_dest, (int) buffersize);
 
     /* Free mallocs */

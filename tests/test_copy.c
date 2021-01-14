@@ -18,7 +18,7 @@ typedef struct {
     int32_t blockshape[CATERVA_MAX_DIM];
     int32_t chunkshape2[CATERVA_MAX_DIM];
     int32_t blockshape2[CATERVA_MAX_DIM];
-} test_copy_shapes_t;
+} test_squeeze_shapes_t;
 
 
 CUTEST_TEST_DATA(copy) {
@@ -34,19 +34,19 @@ CUTEST_TEST_SETUP(copy) {
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(1, 2, 4, 8));
-    CUTEST_PARAMETRIZE(shapes, test_copy_shapes_t, CUTEST_DATA(
+    CUTEST_PARAMETRIZE(shapes, test_squeeze_shapes_t, CUTEST_DATA(
             {2, {100, 100}, {20, 20}, {10, 10},
                 {20, 20}, {10, 10}},
             {3, {100, 55, 123}, {31, 5, 22}, {4, 4, 4},
                 {50, 15, 20}, {10, 4, 4}},
             {3, {100, 0, 12}, {31, 0, 12}, {10, 0, 12},
                 {50, 0, 12}, {25, 0, 6}},
-            {4, {50, 160, 31, 12}, {25, 20, 20, 10}, {5, 5, 5, 10},
+            {4, {25, 60, 31, 12}, {12, 20, 20, 10}, {5, 5, 5, 10},
                 {25, 20, 20, 10}, {5, 5, 5, 10}},
             {5, {1, 1, 1024, 1, 1}, {1, 1, 500, 1, 1}, {1, 1, 200, 1, 1},
                 {1, 1, 300, 1, 1}, {1, 1, 50, 1, 1}},
-            {6, {5, 1, 200, 3, 1, 2}, {5, 1, 50, 2, 1, 2}, {2, 1, 20, 2, 1, 2},
-                {4, 1, 100, 2, 1, 1}, {2, 1, 20, 2, 1, 1}},
+            {6, {5, 1, 100, 3, 1, 2}, {5, 1, 50, 2, 1, 2}, {2, 1, 20, 2, 1, 2},
+                {4, 1, 50, 2, 1, 1}, {2, 1, 20, 2, 1, 1}},
     ));
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
             {CATERVA_STORAGE_PLAINBUFFER, false, false},
@@ -65,7 +65,7 @@ CUTEST_TEST_SETUP(copy) {
 
 CUTEST_TEST_TEST(copy) {
     CUTEST_GET_PARAMETER(backend, _test_backend);
-    CUTEST_GET_PARAMETER(shapes, test_copy_shapes_t);
+    CUTEST_GET_PARAMETER(shapes, test_squeeze_shapes_t);
     CUTEST_GET_PARAMETER(backend2, _test_backend);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 

@@ -40,7 +40,7 @@ typedef struct {
     int64_t start[CATERVA_MAX_DIM];
     int64_t stop[CATERVA_MAX_DIM];
     double *result;
-} test_copy_shapes_t;
+} test_squeeze_shapes_t;
 
 
 CUTEST_TEST_DATA(get_slice_buffer) {
@@ -70,7 +70,7 @@ CUTEST_TEST_SETUP(get_slice_buffer) {
     ));
 
 
-    CUTEST_PARAMETRIZE(shapes, test_copy_shapes_t, CUTEST_DATA(
+    CUTEST_PARAMETRIZE(shapes, test_squeeze_shapes_t, CUTEST_DATA(
             {0, {0}, {0}, {0}, {0}, {0}, {0}, {0}, result3}, // 0-dim
             {1, {10}, {7}, {2}, {6}, {2}, {2}, {9}, result0}, // 1-idim
             {2, {14, 10}, {8, 5}, {2, 2}, {4, 4}, {2, 3}, {5, 3}, {9, 10}, result1}, // general,
@@ -83,7 +83,7 @@ CUTEST_TEST_SETUP(get_slice_buffer) {
 
 CUTEST_TEST_TEST(get_slice_buffer) {
     CUTEST_GET_PARAMETER(backend, _test_backend);
-    CUTEST_GET_PARAMETER(shapes, test_copy_shapes_t);
+    CUTEST_GET_PARAMETER(shapes, test_squeeze_shapes_t);
     CUTEST_GET_PARAMETER(backend2, _test_backend);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
