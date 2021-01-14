@@ -1157,10 +1157,10 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     b_storage.dparams = &dparams;
 
     if (storage->properties.blosc.enforceframe) {
-        if (storage->properties.blosc.filename != NULL) {
-            b_storage.urlpath = storage->properties.blosc.filename;
-        }
         b_storage.sequential = true;
+    }
+    if (storage->properties.blosc.filename != NULL) {
+        b_storage.urlpath = storage->properties.blosc.filename;
     }
 
     blosc2_schunk *sc = blosc2_schunk_new(b_storage);

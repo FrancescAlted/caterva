@@ -53,9 +53,10 @@ CUTEST_TEST_SETUP(append) {
     ));
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
             // {CATERVA_STORAGE_PLAINBUFFER, false, false}, TODO: Adapt test to this case
-            {CATERVA_STORAGE_BLOSC, false, false},
-            {CATERVA_STORAGE_BLOSC, true, false},
-            {CATERVA_STORAGE_BLOSC, true, true},
+            // {CATERVA_STORAGE_BLOSC, false, false},
+            // {CATERVA_STORAGE_BLOSC, true, false},
+            {CATERVA_STORAGE_BLOSC, false, true},
+            // {CATERVA_STORAGE_BLOSC, true, true},
     ));
 }
 
