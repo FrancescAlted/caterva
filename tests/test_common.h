@@ -6,15 +6,14 @@
 #define CATERVA_TEST_COMMON_H
 
 #include <caterva.h>
-#include "minunit/minunit.h"
-#include "minunit/assert.h"
 #include "cutest/cutest.h"
 
 
 #define CATERVA_TEST_ASSERT(rc) CUTEST_ASSERT(print_error(rc), (rc) == CATERVA_SUCCEED);
 
+#define CATERVA_TEST_UNUSED __attribute__((unused))
 
-static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) MU_UNUSED;
+static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) CATERVA_TEST_UNUSED;
         static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) {
     switch (itemsize) {
         case 8:
