@@ -16,6 +16,7 @@
 #else
 #define CATERVA_TEST_UNUSED
 #endif
+
 static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) CATERVA_TEST_UNUSED;
         static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) {
     switch (itemsize) {
