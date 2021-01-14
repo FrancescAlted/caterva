@@ -6,7 +6,7 @@
 #define CATERVA_TEST_COMMON_H
 
 #include <caterva.h>
-#include "cutest/cutest.h"
+#include "cutest.h"
 
 
 #define CATERVA_TEST_ASSERT(rc) CUTEST_ASSERT(print_error(rc), (rc) == CATERVA_SUCCEED);
