@@ -60,7 +60,6 @@ CUTEST_TEST_SETUP(copy) {
             {CATERVA_STORAGE_PLAINBUFFER, false, false},
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
-            {CATERVA_STORAGE_BLOSC, false, true},
             {CATERVA_STORAGE_BLOSC, true, true},
     ));
 }
