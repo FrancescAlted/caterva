@@ -11,228 +11,95 @@
 
 #include "test_common.h"
 
-static char* test_serialize(caterva_context_t *ctx, uint8_t itemsize, uint8_t ndim, int64_t *shape,
-                           caterva_storage_backend_t backend, int32_t *chunkshape, int32_t *blockshape,
-                           bool enforceframe, char *filename) {
+
+CUTEST_TEST_DATA(serialize) {
+    caterva_context_t *ctx;
+};
+
+
+CUTEST_TEST_SETUP(serialize) {
+    caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
+    cfg.nthreads = 2;
+    cfg.compcodec = BLOSC_BLOSCLZ;
+    caterva_context_new(&cfg, &data->ctx);
+
+    // Add parametrizations
+    CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(1, 2, 4, 8));
+    CUTEST_PARAMETRIZE(shapes, _test_shapes, CUTEST_DATA(
+            {0, {0}, {0}, {0}}, // 0-dim
+            {1, {10}, {7}, {2}}, // 1-idim
+            {2, {100, 100}, {20, 20}, {10, 10}},
+            {3, {100, 55, 123}, {31, 5, 22}, {4, 4, 4}},
+            {3, {100, 0, 12}, {31, 0, 12}, {10, 0, 12}},
+            {4, {50, 160, 31, 12}, {25, 20, 20, 10}, {5, 5, 5, 10}},
+            {5, {1, 1, 1024, 1, 1}, {1, 1, 500, 1, 1}, {1, 1, 200, 1, 1}},
+            {6, {5, 1, 200, 3, 1, 2}, {5, 1, 50, 2, 1, 2}, {2, 1, 20, 2, 1, 2}}
+    ));
+}
+
+
+CUTEST_TEST_TEST(serialize) {
+    CUTEST_GET_PARAMETER(shapes, _test_shapes);
+    CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
     caterva_params_t params;
     params.itemsize = itemsize;
-    params.ndim = ndim;
-    for (int i = 0; i < ndim; ++i) {
-        params.shape[i] = shape[i];
+    params.ndim = shapes.ndim;
+    for (int i = 0; i < params.ndim; ++i) {
+        params.shape[i] = shapes.shape[i];
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = backend;
-    switch (backend) {
-        case CATERVA_STORAGE_PLAINBUFFER:
-            break;
-        case CATERVA_STORAGE_BLOSC:
-            storage.properties.blosc.filename = filename;
-            storage.properties.blosc.enforceframe = enforceframe;
-            for (int i = 0; i < ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = chunkshape[i];
-                storage.properties.blosc.blockshape[i] = blockshape[i];
-            }
-            break;
-        default:
-            MU_ASSERT_CATERVA(CATERVA_ERR_INVALID_STORAGE);
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    storage.properties.blosc.filename = NULL;
+    storage.properties.blosc.enforceframe = true;
+    for (int i = 0; i < params.ndim; ++i) {
+        storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
+        storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
     }
 
     /* Create original data */
     size_t buffersize = itemsize;
-    for (int i = 0; i < ndim; ++i) {
-        buffersize *= (size_t) shape[i];
+    for (int i = 0; i < params.ndim; ++i) {
+        buffersize *= (size_t) params.shape[i];
     }
+
+
     uint8_t *buffer = malloc(buffersize);
-    MU_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
+    CUTEST_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    MU_ASSERT_CATERVA(caterva_array_from_buffer(ctx, buffer, buffersize, &params, &storage, &src));
+    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
+                                                  &src));
 
     uint8_t *sframe = src->sc->frame->sdata;
     int64_t slen = src->sc->frame->len;
 
     caterva_array_t *dest;
-    caterva_array_from_sframe(ctx, sframe, slen, true, &dest);
+    caterva_array_from_sframe(data->ctx, sframe, slen, true, &dest);
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);
-    MU_ASSERT_CATERVA(caterva_array_to_buffer(ctx, dest, buffer_dest, buffersize));
+    CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, dest, buffer_dest, buffersize));
 
     /* Testing */
-    MU_ASSERT_BUFFER(buffer, buffer_dest, buffersize);
+    CATERVA_TEST_ASSERT_BUFFER(buffer, buffer_dest, (int) buffersize);
 
     /* Free mallocs */
     free(buffer);
     free(buffer_dest);
-    MU_ASSERT_CATERVA(caterva_array_free(ctx, &src));
-    MU_ASSERT_CATERVA(caterva_array_free(ctx, &dest));
+    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &dest));
+
     return 0;
 }
 
 
-caterva_context_t *ctx;
-
-static char* serialize_setup() {
-    caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
-    caterva_context_new(&cfg, &ctx);
-    return 0;
+CUTEST_TEST_TEARDOWN(serialize) {
+    caterva_context_free(&data->ctx);
 }
 
-static char* serialize_teardown() {
-    caterva_context_free(&ctx);
-    return 0;
+int main() {
+    CUTEST_TEST_RUN(serialize);
 }
-
-
-static char* serialize_1_uint16() {
-    uint8_t itemsize = sizeof(uint16_t);
-    uint8_t ndim = 1;
-    int64_t shape[] = {500};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {200};
-    int32_t blockshape[] = {80};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-static char* serialize_2_uint8() {
-    uint8_t itemsize = sizeof(uint8_t);
-    uint8_t ndim = 2;
-    int64_t shape[] = {400, 300};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {55, 67};
-    int32_t blockshape[] = {40, 40};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-
-static char* serialize_3_double() {
-    uint8_t itemsize = sizeof(double);
-    uint8_t ndim = 3;
-    int64_t shape[] = {134, 56, 204};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {26, 17, 34};
-    int32_t blockshape[] = {11, 8, 13};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-
-}
-
-
-static char* serialize_4_float() {
-    uint8_t itemsize = sizeof(float);
-    uint8_t ndim = 4;
-    int64_t shape[] = {10, 13, 18, 25};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {9, 5, 11, 10};
-    int32_t blockshape[] = {2, 2, 5, 3};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-static char* serialize_4_uint8() {
-    uint8_t itemsize = sizeof(uint8_t);
-    uint8_t ndim = 4;
-    int64_t shape[] = {78, 85, 34, 56};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {23, 12, 24, 50};
-    int32_t blockshape[] = {11, 5, 7, 13};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-
-static char* serialize_5_double() {
-    uint8_t itemsize = sizeof(double);
-    uint8_t ndim = 5;
-    int64_t shape[] = {35, 55, 24, 36, 12};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {10, 15, 8, 11, 11};
-    int32_t blockshape[] = {3, 3, 3, 3, 3};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-static char* serialize_6_uint16() {
-    uint8_t itemsize = sizeof(uint16_t);
-    uint8_t ndim = 6;
-    int64_t shape[] = {4, 3, 8, 5, 10, 12};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {2, 2, 3, 3, 4, 5};
-    int32_t blockshape[] = {2, 1, 2, 2, 3, 4};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-static char* serialize_7_uint64() {
-    uint8_t itemsize = sizeof(uint64_t);
-    uint8_t ndim = 7;
-    int64_t shape[] =  {4, 15, 11, 6, 12, 8, 7};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {4, 3, 4, 3, 3, 5, 3};
-    int32_t blockshape[] = {1, 3, 2, 2, 1, 2, 2};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-static char* serialize_8_uint8() {
-    uint8_t itemsize = sizeof(uint8_t);
-    uint8_t ndim = 8;
-    int64_t shape[] = {4, 3, 8, 5, 10, 12, 6, 4};
-
-    caterva_storage_backend_t backend = CATERVA_STORAGE_BLOSC;
-    int32_t chunkshape[] = {3, 2, 3, 3, 4, 5, 4, 2};
-    int32_t blockshape[] = {2, 1, 2, 2, 3, 4, 3, 1};
-    bool enforceframe = true;
-    char *filename = NULL;
-
-    return test_serialize(ctx, itemsize, ndim, shape, backend, chunkshape, blockshape, enforceframe, filename);
-}
-
-static char* all_tests() {
-    MU_RUN_SETUP(serialize_setup)
-
-    MU_RUN_TEST(serialize_1_uint16)
-    MU_RUN_TEST(serialize_2_uint8)
-    MU_RUN_TEST(serialize_3_double)
-    MU_RUN_TEST(serialize_4_float)
-    MU_RUN_TEST(serialize_4_uint8)
-    MU_RUN_TEST(serialize_5_double)
-    MU_RUN_TEST(serialize_6_uint16)
-    MU_RUN_TEST(serialize_7_uint64)
-    MU_RUN_TEST(serialize_8_uint8)
-
-
-    MU_RUN_TEARDOWN(serialize_teardown)
-    return 0;
-}
-
-MU_RUN_SUITE()
