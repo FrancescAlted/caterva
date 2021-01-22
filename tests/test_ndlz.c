@@ -114,17 +114,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
 
     printf("Compression: %d -> %d (%.1fx)\n", isize, csize, (1. * isize) / csize);
-/*
-    printf("data_in: \n");
-    for (int i = 0; i < isize; i++) {
-        printf("%u, ", data_in[i]);
-    }
 
-    printf("\n out \n");
-    for (int i = 0; i < osize; i++) {
-        printf("%u, ", data_out[i]);
-    }
-*/
     /* Decompress  */
     dsize = blosc2_decompress_ctx(dctx, data_out, osize, data_dest, dsize);
     if (dsize <= 0) {
