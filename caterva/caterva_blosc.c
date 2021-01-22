@@ -239,16 +239,21 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     (*array)->extchunknitems = 1;
 
     for (int i = 0; i < (*array)->ndim; ++i) {
-        if (shape[i] % chunkshape[i] == 0) {
-            (*array)->extshape[i] = shape[i];
+        if (shape[i] != 0) {
+            if (shape[i] % chunkshape[i] == 0) {
+                (*array)->extshape[i] = shape[i];
+            } else {
+                (*array)->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
+            }
+            if (chunkshape[i] % blockshape[i] == 0) {
+                (*array)->extchunkshape[i] = chunkshape[i];
+            } else {
+                (*array)->extchunkshape[i] =
+                        chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+            }
         } else {
-            (*array)->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
-        }
-        if (chunkshape[i] % blockshape[i] == 0) {
-            (*array)->extchunkshape[i] = chunkshape[i];
-        } else {
-            (*array)->extchunkshape[i] =
-                chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+            (*array)->extshape[i] = 0;
+            (*array)->extchunkshape[i] = 0;
         }
         (*array)->nitems *= shape[i];
         (*array)->chunknitems *= chunkshape[i];
@@ -271,10 +276,15 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
 
     (*array)->buf = NULL;
 
-    if (sc->nchunks == (*array)->extnitems / (*array)->chunknitems) {
+    if ((*array)->nitems == 0) {
         (*array)->filled = true;
+        (*array)->empty = false;
     } else {
-        (*array)->filled = false;
+        if (sc->nchunks == (*array)->extnitems / (*array)->chunknitems) {
+            (*array)->filled = true;
+        } else {
+            (*array)->filled = false;
+        }
     }
 
     return CATERVA_SUCCEED;
@@ -597,7 +607,6 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
                                          int64_t *start, int64_t *stop, const int64_t *shape,
                                          void *buffer) {
     uint8_t *bbuffer = buffer;  // for allowing pointer arithmetic
-
     int64_t start__[CATERVA_MAX_DIM];
     int64_t stop__[CATERVA_MAX_DIM];
     int64_t shape__[CATERVA_MAX_DIM];
@@ -864,9 +873,13 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
         d_stop[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM] = stop__[i];
     }
     for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
-        d_shape[i] = (d_stop[i] - d_start[i]) / d_next_pshape[i];
-        if ((d_stop[i] - d_start[i]) % d_next_pshape[i] != 0) {
-            d_shape[i] += 1;
+        if (d_next_pshape[i] != 0) {
+            d_shape[i] = (d_stop[i] - d_start[i]) / d_next_pshape[i];
+            if ((d_stop[i] - d_start[i]) % d_next_pshape[i] != 0) {
+                d_shape[i] += 1;
+            }
+        } else {
+            d_shape[i] = 0;
         }
     }
 
@@ -931,16 +944,21 @@ int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *sha
             array->shape[i] = shape[i];
             array->chunkshape[i] = chunkshape[i];
             array->blockshape[i] = blockshape[i];
-            if (shape[i] % array->chunkshape[i] == 0) {
-                array->extshape[i] = shape[i];
+            if (shape[i] != 0) {
+                if (shape[i] % array->chunkshape[i] == 0) {
+                    array->extshape[i] = shape[i];
+                } else {
+                    array->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
+                }
+                if (chunkshape[i] % blockshape[i] == 0) {
+                    array->extchunkshape[i] = chunkshape[i];
+                } else {
+                    array->extchunkshape[i] =
+                            chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+                }
             } else {
-                array->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
-            }
-            if (chunkshape[i] % blockshape[i] == 0) {
-                array->extchunkshape[i] = chunkshape[i];
-            } else {
-                array->extchunkshape[i] =
-                    chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+                array->extchunkshape[i] = 0;
+                array->extshape[i] = 0;
             }
         } else {
             array->blockshape[i] = 1;
@@ -1075,16 +1093,21 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
         (*array)->chunkshape[i] = chunkshape[i];
         (*array)->next_chunkshape[i] = chunkshape[i];
         (*array)->blockshape[i] = blockshape[i];
-        if (shape[i] % chunkshape[i] == 0) {
-            (*array)->extshape[i] = shape[i];
+        if (shape[i] != 0) {
+            if (shape[i] % chunkshape[i] == 0) {
+                (*array)->extshape[i] = shape[i];
+            } else {
+                (*array)->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
+            }
+            if (chunkshape[i] % blockshape[i] == 0) {
+                (*array)->extchunkshape[i] = chunkshape[i];
+            } else {
+                (*array)->extchunkshape[i] =
+                        chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+            }
         } else {
-            (*array)->extshape[i] = shape[i] + chunkshape[i] - shape[i] % chunkshape[i];
-        }
-        if (chunkshape[i] % blockshape[i] == 0) {
-            (*array)->extchunkshape[i] = chunkshape[i];
-        } else {
-            (*array)->extchunkshape[i] =
-                chunkshape[i] + blockshape[i] - chunkshape[i] % blockshape[i];
+            (*array)->extshape[i] = 0;
+            (*array)->extchunkshape[i] = 0;
         }
         (*array)->nitems *= shape[i];
         (*array)->chunknitems *= chunkshape[i];
@@ -1093,6 +1116,7 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
         (*array)->extchunknitems *= (*array)->extchunkshape[i];
     }
     (*array)->next_chunknitems = (*array)->chunknitems;
+
 
     for (int i = params->ndim; i < CATERVA_MAX_DIM; ++i) {
         (*array)->shape[i] = 1;
@@ -1133,10 +1157,10 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     b_storage.dparams = &dparams;
 
     if (storage->properties.blosc.enforceframe) {
-        if (storage->properties.blosc.filename != NULL) {
-            b_storage.path = storage->properties.blosc.filename;
-        }
         b_storage.sequential = true;
+    }
+    if (storage->properties.blosc.filename != NULL) {
+        b_storage.urlpath = storage->properties.blosc.filename;
     }
 
     blosc2_schunk *sc = blosc2_schunk_new(b_storage);
