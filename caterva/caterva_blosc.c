@@ -308,10 +308,10 @@ int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t l
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_from_file(caterva_context_t *ctx, const char *filename, bool copy,
+int caterva_blosc_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
                             caterva_array_t **array) {
     // Open the frame on-disk...
-    blosc2_frame *frame = blosc2_frame_from_file(filename);
+    blosc2_frame *frame = blosc2_frame_from_file(urlpath);
     if (frame == NULL) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
@@ -1159,8 +1159,8 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     if (storage->properties.blosc.enforceframe) {
         b_storage.sequential = true;
     }
-    if (storage->properties.blosc.filename != NULL) {
-        b_storage.urlpath = storage->properties.blosc.filename;
+    if (storage->properties.blosc.urlpath != NULL) {
+        b_storage.urlpath = storage->properties.blosc.urlpath;
     }
 
     blosc2_schunk *sc = blosc2_schunk_new(b_storage);

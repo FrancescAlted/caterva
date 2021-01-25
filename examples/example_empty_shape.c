@@ -56,7 +56,7 @@ int main() {
 
     caterva_storage_t slice_storage = {0};
     slice_storage.backend = CATERVA_STORAGE_BLOSC;
-    slice_storage.properties.blosc.filename = "example_hola.b2frame";
+    slice_storage.properties.blosc.urlpath = "example_hola.b2frame";
     for (int i = 0; i < ndim; ++i) {
         slice_storage.properties.blosc.chunkshape[i] = slice_chunkshape[i];
         slice_storage.properties.blosc.blockshape[i] = slice_blockshape[i];

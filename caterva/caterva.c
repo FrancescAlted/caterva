@@ -95,13 +95,13 @@ int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t l
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool copy,
+int caterva_array_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
                             caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
-    CATERVA_ERROR_NULL(filename);
+    CATERVA_ERROR_NULL(urlpath);
     CATERVA_ERROR_NULL(array);
 
-    CATERVA_ERROR(caterva_blosc_from_file(ctx, filename, copy, array));
+    CATERVA_ERROR(caterva_blosc_from_file(ctx, urlpath, copy, array));
 
     return CATERVA_SUCCEED;
 }

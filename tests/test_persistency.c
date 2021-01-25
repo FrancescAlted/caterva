@@ -12,10 +12,10 @@
 #include "test_common.h"
 #ifdef __GNUC__
 #include <unistd.h>
-#define FILE_EXISTS(filename) access(filename, F_OK)
+#define FILE_EXISTS(urlpath) access(urlpath, F_OK)
 #else
 #include <io.h>
-#define FILE_EXISTS(filename) _access(filename, 0)
+#define FILE_EXISTS(urlpath) _access(urlpath, 0)
 #endif
 
 
@@ -61,10 +61,10 @@ CUTEST_TEST_TEST(persistency) {
     CUTEST_GET_PARAMETER(shapes, test_squeeze_shapes_t);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
-    char* filename = "test_persistency.b2frame";
+    char* urlpath = "test_persistency.b2frame";
 
-    if (FILE_EXISTS(filename) != -1) {
-        remove(filename);
+    if (FILE_EXISTS(urlpath) != -1) {
+        remove(urlpath);
     }
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -76,7 +76,7 @@ CUTEST_TEST_TEST(persistency) {
     caterva_storage_t storage = {0};
     storage.backend = backend.backend;
     if (backend.persistent) {
-        storage.properties.blosc.filename = filename;
+        storage.properties.blosc.urlpath = urlpath;
     }
     storage.properties.blosc.enforceframe = backend.sequential;
     for (int i = 0; i < params.ndim; ++i) {
@@ -99,7 +99,7 @@ CUTEST_TEST_TEST(persistency) {
                                                   &src));
 
     caterva_array_t *dest;
-    CATERVA_TEST_ASSERT(caterva_array_from_file(data->ctx, filename, true, &dest));
+    CATERVA_TEST_ASSERT(caterva_array_from_file(data->ctx, urlpath, true, &dest));
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);
@@ -119,8 +119,8 @@ CUTEST_TEST_TEST(persistency) {
     CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
     CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &dest));
 
-    if (FILE_EXISTS(filename) != -1) {
-        remove(filename);
+    if (FILE_EXISTS(urlpath) != -1) {
+        remove(urlpath);
     }
     return 0;
 }

@@ -51,7 +51,7 @@ CUTEST_TEST_TEST(serialize) {
 
     caterva_storage_t storage = {0};
     storage.backend = CATERVA_STORAGE_BLOSC;
-    storage.properties.blosc.filename = NULL;
+    storage.properties.blosc.urlpath = NULL;
     storage.properties.blosc.enforceframe = true;
     for (int i = 0; i < params.ndim; ++i) {
         storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
