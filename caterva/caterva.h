@@ -177,8 +177,8 @@ typedef struct {
     //!< The shape of each block of Blosc.
     bool enforceframe;
     //!< Flag to indicate if the superchunk is stored as a frame.
-    char *filename;
-    //!< The superchunk/frame name. If @p filename is not @p NULL, the superchunk will be stored on
+    char *urlpath;
+    //!< The superchunk/frame name. If @p urlpath is not @p NULL, the superchunk will be stored on
     //!< disk.
     caterva_metalayer_t metalayers[CATERVA_MAX_METALAYERS];
     //!< List with the metalayers desired.
@@ -190,8 +190,8 @@ typedef struct {
  * @brief The storage properties that have a caterva array backed by a plain buffer.
  */
 typedef struct {
-    char *filename;
-    //!< The plain buffer name. If @p filename is not @p NULL, the plain buffer will be stored on
+    char *urlpath;
+    //!< The plain buffer name. If @p urlpath is not @p NULL, the plain buffer will be stored on
     //!< disk. (Not implemented yet).
 } caterva_storage_properties_plainbuffer_t;
 
@@ -381,14 +381,14 @@ int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t l
  * @brief Read a caterva array from disk.
  *
  * @param ctx Pointer to the caterva context to be used.
- * @param filename The filename of the caterva array on disk.
+ * @param urlpath The urlpath of the caterva array on disk.
  * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
  * created (i.e. no copies are made).
  * @param array Pointer to the memory pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool copy,
+int caterva_array_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
                             caterva_array_t **array);
 
 /**

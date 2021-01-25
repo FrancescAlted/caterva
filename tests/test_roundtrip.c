@@ -47,7 +47,7 @@ CUTEST_TEST_TEST(roundtrip) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.filename = "test_roundtrip.b2frame";
+                storage.properties.blosc.urlpath = "test_roundtrip.b2frame";
             }
             storage.properties.blosc.enforceframe = backend.sequential;
             for (int i = 0; i < shapes.ndim; ++i) {

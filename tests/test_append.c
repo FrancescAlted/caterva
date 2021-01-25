@@ -79,9 +79,9 @@ CUTEST_TEST_TEST(append) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.filename = "test_append.b2frame";
+                storage.properties.blosc.urlpath = "test_append.b2frame";
             } else {
-                storage.properties.blosc.filename = NULL;
+                storage.properties.blosc.urlpath = NULL;
             }
             storage.properties.blosc.enforceframe = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {

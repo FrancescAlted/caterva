@@ -100,7 +100,7 @@ CUTEST_TEST_TEST(get_slice) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.filename = "test_get_slice.b2frame";
+                storage.properties.blosc.urlpath = "test_get_slice.b2frame";
             }
             storage.properties.blosc.enforceframe = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
@@ -135,7 +135,7 @@ CUTEST_TEST_TEST(get_slice) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend2.persistent) {
-                storage2.properties.blosc.filename = "test_get_slice2.b2frame";
+                storage2.properties.blosc.urlpath = "test_get_slice2.b2frame";
             }
             storage2.properties.blosc.enforceframe = backend2.sequential;
             for (int i = 0; i < params.ndim; ++i) {

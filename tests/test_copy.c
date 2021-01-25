@@ -85,9 +85,9 @@ CUTEST_TEST_TEST(copy) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.filename = "test_copy.b2frame";
+                storage.properties.blosc.urlpath = "test_copy.b2frame";
             } else {
-                storage.properties.blosc.filename = NULL;
+                storage.properties.blosc.urlpath = NULL;
             }
             storage.properties.blosc.enforceframe = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
@@ -139,9 +139,9 @@ CUTEST_TEST_TEST(copy) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend2.persistent) {
-                storage2.properties.blosc.filename = "test_copy2.b2frame";
+                storage2.properties.blosc.urlpath = "test_copy2.b2frame";
             } else {
-                storage2.properties.blosc.filename = NULL;
+                storage2.properties.blosc.urlpath = NULL;
             }
             storage2.properties.blosc.enforceframe = backend2.sequential;
             for (int i = 0; i < shapes.ndim; ++i) {
