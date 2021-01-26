@@ -1056,25 +1056,29 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
     CATERVA_UNUSED_PARAM(params);
 
     bool equals = true;
+    if (src->storage == CATERVA_STORAGE_PLAINBUFFER) {
+        equals = false;
+    } else {
+        if (ctx->cfg->compcodec != src->sc->compcode || ctx->cfg->complevel != src->sc->clevel) {
+            equals = false;
+        }
+        for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
+            if (ctx->cfg->filters[i] != src->sc->filters[i]) {
+                equals = false;
+                break;
+            }
+            if (ctx->cfg->filtersmeta[i] != src->sc->filters_meta[i]) {
+                equals = false;
+                break;
+            }
+        }
+    }
     for (int i = 0; i < src->ndim; ++i) {
         if (src->chunkshape[i] != storage->properties.blosc.chunkshape[i]) {
             equals = false;
             break;
         }
         if (src->blockshape[i] != storage->properties.blosc.blockshape[i]) {
-            equals = false;
-            break;
-        }
-    }
-    if (ctx->cfg->compcodec != src->sc->compcode || ctx->cfg->complevel != src->sc->clevel) {
-        equals = false;
-    }
-    for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
-        if (ctx->cfg->filters[i] != src->sc->filters[i]) {
-            equals = false;
-            break;
-        }
-        if (ctx->cfg->filtersmeta[i] != src->sc->filters_meta[i]) {
             equals = false;
             break;
         }
