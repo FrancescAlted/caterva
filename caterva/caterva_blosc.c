@@ -1053,7 +1053,6 @@ int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) 
 int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
                              caterva_storage_t *storage, caterva_array_t *src,
                              caterva_array_t **dest) {
-
     CATERVA_UNUSED_PARAM(params);
 
     bool equals = true;
