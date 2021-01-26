@@ -114,7 +114,15 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
 
     printf("Compression: %d -> %d (%.1fx)\n", isize, csize, (1. * isize) / csize);
-
+/*
+    printf("\n data_in \n");
+    for (int i = 0; i < isize; i++) {
+      printf("%u, ", data_in[i]);
+    }
+    printf("\n output \n");
+    for (int i = 0; i < osize; i++) {
+      printf("%u, ", data_out[i]);
+    }
     /* Decompress  */
     dsize = blosc2_decompress_ctx(dctx, data_out, osize, data_dest, dsize);
     if (dsize <= 0) {
@@ -125,14 +133,6 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     blosc_set_timestamp(&end);
     double ctime = blosc_elapsed_nsecs(start, end);
 /*
-    printf("\n data_in \n");
-    for (int i = 0; i < isize; i++) {
-      printf("%u, ", data_in[i]);
-    }
-    printf("\n output \n");
-    for (int i = 0; i < osize; i++) {
-      printf("%u, ", data_out[i]);
-    }
     printf("\n dest \n");
     for (int i = 0; i < dsize; i++) {
         printf("%u, ", data_dest[i]);
@@ -974,7 +974,7 @@ int image10() {
 int main(void) {
 
     int result;
-
+/*
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
     result = no_matches_pad();
@@ -1001,10 +1001,10 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-/*
+*/
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
-    result = image2();
+ /*   result = image2();
     printf("image2 with  padding: %d obtained \n \n", result);
     result = image3();
     printf("image3 with NO padding: %d obtained \n \n", result);
