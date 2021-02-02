@@ -95,10 +95,10 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     for (int i = 0; i < nbytes; i++) {
     printf("%u, ", data2[i]);
     }
-
+*/
     printf("\n ----------------------------------------------------------------------------- TEST NDLZ ----------"
            "----------------------------------------------------------------------- \n");
-*/
+
     blosc_timestamp_t start, end;
     blosc_set_timestamp(&start);
 
@@ -121,6 +121,12 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
     printf("\n output \n");
     for (int i = 0; i < osize; i++) {
+      if ((i - 16) % 65 == 0) {
+        printf("\n");
+      }
+      if (data_out[i - 52] == 137) {
+        printf("\n");
+      }
       printf("%u, ", data_out[i]);
     }
     /* Decompress  */
@@ -162,9 +168,9 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
 int no_matches() {
     int ndim = 2;
     int typesize = 1;
-    int32_t shape[8] = {24, 36};
-    int32_t chunkshape[8] = {18, 24};
-    int32_t blockshape[8] = {12, 12};
+    int32_t shape[8] = {32, 38};
+    int32_t chunkshape[8] = {32, 32};
+    int32_t blockshape[8] = {32, 32};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint8_t *data = malloc(nbytes);
@@ -974,7 +980,7 @@ int image10() {
 int main(void) {
 
     int result;
-/*
+
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
     result = no_matches_pad();
@@ -1001,10 +1007,10 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-*/
+
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
- /*   result = image2();
+    result = image2();
     printf("image2 with  padding: %d obtained \n \n", result);
     result = image3();
     printf("image3 with NO padding: %d obtained \n \n", result);
@@ -1022,5 +1028,5 @@ int main(void) {
     printf("image9 with NO padding: %d obtained \n \n", result);
     result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
-*/
+
 }
