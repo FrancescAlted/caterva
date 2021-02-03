@@ -56,7 +56,7 @@ From/To frame
 +++++++++++++
 .. doxygenfunction:: caterva_array_from_schunk
 
-.. doxygenfunction:: caterva_array_from_sframe
+.. doxygenfunction:: caterva_array_from_serial_schunk
 
 From/To file
 ++++++++++++

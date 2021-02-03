@@ -78,7 +78,7 @@ CUTEST_TEST_TEST(persistency) {
     if (backend.persistent) {
         storage.properties.blosc.urlpath = urlpath;
     }
-    storage.properties.blosc.enforceframe = backend.sequential;
+    storage.properties.blosc.sequencial = backend.sequential;
     for (int i = 0; i < params.ndim; ++i) {
         storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
         storage.properties.blosc.blockshape[i] = shapes.blockshape[i];

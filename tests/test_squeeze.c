@@ -87,7 +87,7 @@ CUTEST_TEST_TEST(squeeze) {
             if (backend.persistent) {
                 storage.properties.blosc.urlpath = "test_squeeze.b2frame";
             }
-            storage.properties.blosc.enforceframe = backend.sequential;
+            storage.properties.blosc.sequencial = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
                 storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
@@ -122,7 +122,7 @@ CUTEST_TEST_TEST(squeeze) {
             if (backend2.persistent) {
                 storage2.properties.blosc.urlpath = "test_sequeeze2.b2frame";
             }
-            storage2.properties.blosc.enforceframe = backend2.sequential;
+            storage2.properties.blosc.sequencial = backend2.sequential;
             for (int i = 0; i < params.ndim; ++i) {
                 storage2.properties.blosc.chunkshape[i] = shapes.chunkshape2[i];
                 storage2.properties.blosc.blockshape[i] = shapes.blockshape2[i];

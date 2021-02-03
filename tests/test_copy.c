@@ -89,7 +89,7 @@ CUTEST_TEST_TEST(copy) {
             } else {
                 storage.properties.blosc.urlpath = NULL;
             }
-            storage.properties.blosc.enforceframe = backend.sequential;
+            storage.properties.blosc.sequencial = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
                 storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
@@ -143,7 +143,7 @@ CUTEST_TEST_TEST(copy) {
             } else {
                 storage2.properties.blosc.urlpath = NULL;
             }
-            storage2.properties.blosc.enforceframe = backend2.sequential;
+            storage2.properties.blosc.sequencial = backend2.sequential;
             for (int i = 0; i < shapes.ndim; ++i) {
                 storage2.properties.blosc.chunkshape[i] = shapes.chunkshape2[i];
                 storage2.properties.blosc.blockshape[i] = shapes.blockshape2[i];

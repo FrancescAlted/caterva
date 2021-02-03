@@ -52,7 +52,7 @@ CUTEST_TEST_TEST(serialize) {
     caterva_storage_t storage = {0};
     storage.backend = CATERVA_STORAGE_BLOSC;
     storage.properties.blosc.urlpath = NULL;
-    storage.properties.blosc.enforceframe = true;
+    storage.properties.blosc.sequencial = true;
     for (int i = 0; i < params.ndim; ++i) {
         storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
         storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
@@ -77,7 +77,7 @@ CUTEST_TEST_TEST(serialize) {
     int64_t slen = src->sc->frame->len;
 
     caterva_array_t *dest;
-    caterva_array_from_sframe(data->ctx, sframe, slen, &dest);
+    caterva_array_from_serial_schunk(data->ctx, sframe, slen, &dest);
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);

@@ -150,7 +150,7 @@ typedef struct {
  */
 typedef enum {
     CATERVA_STORAGE_BLOSC,
-    //!< Indicates that the data is stored using a Blosc superchunk.
+    //!< Indicates that the data is stored using a Blosc super-chunk.
     CATERVA_STORAGE_PLAINBUFFER,
     //!< Indicates that the data is stored using a plain buffer.
 } caterva_storage_backend_t;
@@ -168,17 +168,17 @@ typedef struct {
 } caterva_metalayer_t;
 
 /**
- * @brief The storage properties for an array backed by a Blosc superchunk.
+ * @brief The storage properties for an array backed by a Blosc super-chunk.
  */
 typedef struct {
     int32_t chunkshape[CATERVA_MAX_DIM];
     //!< The shape of each chunk of Blosc.
     int32_t blockshape[CATERVA_MAX_DIM];
     //!< The shape of each block of Blosc.
-    bool enforceframe;
-    //!< Flag to indicate if the superchunk is stored as a frame.
+    bool sequencial;
+    //!< Flag to indicate if the super-chunk is stored sequentially or sparsely.
     char *urlpath;
-    //!< The superchunk/frame name. If @p urlpath is not @p NULL, the superchunk will be stored on
+    //!< The super-chunk name. If @p urlpath is not @p NULL, the super-chunk will be stored on
     //!< disk.
     caterva_metalayer_t metalayers[CATERVA_MAX_METALAYERS];
     //!< List with the metalayers desired.
@@ -200,7 +200,7 @@ typedef struct {
  */
 typedef union {
     caterva_storage_properties_blosc_t blosc;
-    //!< The storage properties when the array is backed by a Blosc superchunk.
+    //!< The storage properties when the array is backed by a Blosc super-chunk.
     caterva_storage_properties_plainbuffer_t plainbuffer;
     //!< The storage properties when the array is backed by a plain buffer.
 } caterva_storage_properties_t;
@@ -247,7 +247,7 @@ typedef struct {
     caterva_storage_backend_t storage;
     //!< Storage type.
     blosc2_schunk *sc;
-    //!< Pointer to a Blosc superchunk
+    //!< Pointer to a Blosc super-chunk
     //!< Only is used if \p storage equals to @p CATERVA_STORAGE_BLOSC.
     uint8_t *buf;
     //!< Pointer to a plain buffer where data is stored.
@@ -347,13 +347,11 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
                          int64_t chunksize);
 
 /**
- * @brief Create a caterva array from a frame. It can only be used if the array
+ * @brief Create a caterva array from a super-chunk. It can only be used if the array
  * is backed by a blosc super-chunk.
  *
  * @param ctx Pointer to the caterva context to be used.
- * @param schunk The blosc frame where the caterva array is stored.
- * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
- * created (i.e. no copies are made).
+ * @param schunk The blosc super-chunk where the caterva array is stored.
  * @param array Pointer to the memory pointer where the array will be created.
  *
  * @return An error code.
@@ -362,28 +360,24 @@ int
 caterva_array_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
 
 /**
- * @brief Create a caterva array from a serialized frame. It can only be used if the array
+ * @brief Create a caterva array from a serialized super-chunk. It can only be used if the array
  * is backed by a blosc super-chunk.
  *
  * @param ctx Pointer to the caterva context to be used.
- * @param sframe The serialized frame where the caterva array is stored.
- * @param len The size (in bytes) of the serialized frame.
- * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
- * created (i.e. no copies are made).
+ * @param serial_schunk The serialized super-chunk where the caterva array is stored.
+ * @param len The size (in bytes) of the serialized super-chunk.
  * @param array Pointer to the memory pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len,
-                              caterva_array_t **array);
+int caterva_array_from_serial_schunk(caterva_context_t *ctx, uint8_t *serial_schunk, int64_t len,
+                                     caterva_array_t **array);
 
 /**
  * @brief Read a caterva array from disk.
  *
  * @param ctx Pointer to the caterva context to be used.
  * @param urlpath The urlpath of the caterva array on disk.
- * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
- * created (i.e. no copies are made).
  * @param array Pointer to the memory pointer where the array will be created.
  *
  * @return An error code.

@@ -84,13 +84,13 @@ caterva_array_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len,
-                              caterva_array_t **array) {
+int caterva_array_from_serial_schunk(caterva_context_t *ctx, uint8_t *serial_schunk, int64_t len,
+                                     caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
-    CATERVA_ERROR_NULL(sframe);
+    CATERVA_ERROR_NULL(serial_schunk);
     CATERVA_ERROR_NULL(array);
 
-    CATERVA_ERROR(caterva_blosc_from_sframe(ctx, sframe, len, array));
+    CATERVA_ERROR(caterva_blosc_from_sframe(ctx, serial_schunk, len, array));
 
     return CATERVA_SUCCEED;
 }
