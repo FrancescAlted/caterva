@@ -45,7 +45,7 @@ typedef struct {
 
 
 CUTEST_TEST_DATA(get_slice_buffer) {
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
 };
 
 
@@ -53,7 +53,7 @@ CUTEST_TEST_SETUP(get_slice_buffer) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
-    caterva_context_new(&cfg, &data->ctx);
+    caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(8));
@@ -127,8 +127,8 @@ CUTEST_TEST_TEST(get_slice_buffer) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
-                                                  &src));
+    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
+                                            &src));
 
     /* Create dest buffer */
     int64_t destshape[CATERVA_MAX_DIM] = {0};
@@ -141,8 +141,8 @@ CUTEST_TEST_TEST(get_slice_buffer) {
     double *destbuffer = data->ctx->cfg->alloc((size_t) destbuffersize);
 
     /* Fill dest buffer with a slice*/
-    CATERVA_TEST_ASSERT(caterva_array_get_slice_buffer(data->ctx, src, shapes.start, shapes.stop,
-                                                     destshape, destbuffer, destbuffersize));
+    CATERVA_TEST_ASSERT(caterva_get_slice_buffer(data->ctx, src, shapes.start, shapes.stop,
+                                                 destshape, destbuffer, destbuffersize));
 
 
     for (int i = 0; i < destbuffersize / itemsize; ++i) {
@@ -152,13 +152,13 @@ CUTEST_TEST_TEST(get_slice_buffer) {
     /* Free mallocs */
     data->ctx->cfg->free(buffer);
     data->ctx->cfg->free(destbuffer);
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
 
     return 0;
 }
 
 CUTEST_TEST_TEARDOWN(get_slice_buffer) {
-    caterva_context_free(&data->ctx);
+    caterva_ctx_free(&data->ctx);
 }
 
 int main() {

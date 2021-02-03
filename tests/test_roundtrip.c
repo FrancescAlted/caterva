@@ -13,7 +13,7 @@
 
 
 CUTEST_TEST_DATA(roundtrip) {
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
 };
 
 
@@ -21,7 +21,7 @@ CUTEST_TEST_SETUP(roundtrip) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
-    caterva_context_new(&cfg, &data->ctx);
+    caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
     caterva_default_parameters();
@@ -69,13 +69,13 @@ CUTEST_TEST_TEST(roundtrip) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params,
-                                                  &storage,
-                                                  &src));
+    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params,
+                                            &storage,
+                                            &src));
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc( buffersize);
-    CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, src, buffer_dest, buffersize));
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, src, buffer_dest, buffersize));
 
     /* Testing */
     CATERVA_TEST_ASSERT_BUFFER(buffer, buffer_dest, (int) buffersize);
@@ -83,13 +83,13 @@ CUTEST_TEST_TEST(roundtrip) {
     /* Free mallocs */
     free(buffer);
     free(buffer_dest);
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
     return 0;
 }
 
 
 CUTEST_TEST_TEARDOWN(roundtrip) {
-    caterva_context_free(&data->ctx);
+    caterva_ctx_free(&data->ctx);
 }
 
 int main() {

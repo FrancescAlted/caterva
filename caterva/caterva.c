@@ -14,11 +14,11 @@
 #include "caterva_blosc.h"
 #include "caterva_plainbuffer.h"
 
-int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx) {
+int caterva_ctx_new(caterva_config_t *cfg, caterva_ctx_t **ctx) {
     CATERVA_ERROR_NULL(cfg);
     CATERVA_ERROR_NULL(ctx);
 
-    (*ctx) = (caterva_context_t *) cfg->alloc(sizeof(caterva_context_t));
+    (*ctx) = (caterva_ctx_t *) cfg->alloc(sizeof(caterva_ctx_t));
     if (!(*ctx)) {
         DEBUG_PRINT("Allocation fails");
         return CATERVA_ERR_NULL_POINTER;
@@ -34,7 +34,7 @@ int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx) {
     return CATERVA_SUCCEED;
 }
 
-int caterva_context_free(caterva_context_t **ctx) {
+int caterva_ctx_free(caterva_ctx_t **ctx) {
     CATERVA_ERROR_NULL(ctx);
 
     void (*auxfree)(void *) = (*ctx)->cfg->free;
@@ -44,8 +44,8 @@ int caterva_context_free(caterva_context_t **ctx) {
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params,
-                        caterva_storage_t *storage, caterva_array_t **array) {
+int caterva_empty(caterva_ctx_t *ctx, caterva_params_t *params,
+                  caterva_storage_t *storage, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(params);
     CATERVA_ERROR_NULL(storage);
@@ -70,7 +70,7 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params,
 }
 
 int
-caterva_array_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva_array_t **array) {
+caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(schunk);
     CATERVA_ERROR_NULL(array);
@@ -84,18 +84,18 @@ caterva_array_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_from_serial_schunk(caterva_context_t *ctx, uint8_t *serial_schunk, int64_t len,
-                                     caterva_array_t **array) {
+int caterva_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
+                               caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(serial_schunk);
     CATERVA_ERROR_NULL(array);
 
-    CATERVA_ERROR(caterva_blosc_from_sframe(ctx, serial_schunk, len, array));
+    CATERVA_ERROR(caterva_blosc_from_serial_schunk(ctx, serial_schunk, len, array));
 
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_open(caterva_context_t *ctx, const char *urlpath, caterva_array_t **array) {
+int caterva_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(urlpath);
     CATERVA_ERROR_NULL(array);
@@ -105,7 +105,7 @@ int caterva_array_open(caterva_context_t *ctx, const char *urlpath, caterva_arra
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array) {
+int caterva_free(caterva_ctx_t *ctx, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
 
@@ -123,8 +123,8 @@ int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array) {
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk,
-                         int64_t chunksize) {
+int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *chunk,
+                   int64_t chunksize) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(chunk);
@@ -158,16 +158,16 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize,
-                              caterva_params_t *params, caterva_storage_t *storage,
-                              caterva_array_t **array) {
+int caterva_from_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
+                        caterva_params_t *params, caterva_storage_t *storage,
+                        caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(params);
     CATERVA_ERROR_NULL(storage);
     CATERVA_ERROR_NULL(buffer);
     CATERVA_ERROR_NULL(array);
 
-    CATERVA_ERROR(caterva_array_empty(ctx, params, storage, array));
+    CATERVA_ERROR(caterva_empty(ctx, params, storage, array));
 
     if (buffersize < (int64_t)(*array)->nitems * (*array)->itemsize) {
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
@@ -191,8 +191,8 @@ int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buff
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer,
-                            int64_t buffersize) {
+int caterva_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer,
+                      int64_t buffersize) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(buffer);
@@ -219,9 +219,9 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
-                                   int64_t *stop, int64_t *shape, void *buffer,
-                                   int64_t buffersize) {
+int caterva_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
+                             int64_t *stop, int64_t *shape, void *buffer,
+                             int64_t buffersize) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(src);
     CATERVA_ERROR_NULL(start);
@@ -264,8 +264,8 @@ int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src,
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize,
-                                   int64_t *start, int64_t *stop, caterva_array_t *array) {
+int caterva_set_slice_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
+                             int64_t *start, int64_t *stop, caterva_array_t *array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(buffer);
     CATERVA_ERROR_NULL(start);
@@ -300,8 +300,8 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
-                            int64_t *stop, caterva_storage_t *storage, caterva_array_t **array) {
+int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
+                      int64_t *stop, caterva_storage_t *storage, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(storage);
     CATERVA_ERROR_NULL(src);
@@ -316,7 +316,7 @@ int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_
         params.shape[i] = stop[i] - start[i];
     }
 
-    CATERVA_ERROR(caterva_array_empty(ctx, &params, storage, array));
+    CATERVA_ERROR(caterva_empty(ctx, &params, storage, array));
 
     if (src->nitems == 0 || (*array)->nitems == 0) {
         return CATERVA_SUCCEED;
@@ -338,7 +338,7 @@ int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+int caterva_squeeze(caterva_ctx_t *ctx, caterva_array_t *array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
 
@@ -356,7 +356,7 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array, bool *index) {
+int caterva_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *array, bool *index) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
 
@@ -374,8 +374,8 @@ int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array, 
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_copy(caterva_context_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
-                       caterva_array_t **array) {
+int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
+                 caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(src);
     CATERVA_ERROR_NULL(storage);

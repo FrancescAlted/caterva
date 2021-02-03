@@ -25,7 +25,7 @@ typedef struct {
 
 
 CUTEST_TEST_DATA(squeeze_index) {
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
 };
 
 
@@ -33,7 +33,7 @@ CUTEST_TEST_SETUP(squeeze_index) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
-    caterva_context_new(&cfg, &data->ctx);
+    caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(
@@ -116,8 +116,8 @@ CUTEST_TEST_TEST(squeeze_index) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
-                                                  &src));
+    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
+                                            &src));
 
 
     /* Create storage for dest container */
@@ -142,10 +142,10 @@ CUTEST_TEST_TEST(squeeze_index) {
     }
 
     caterva_array_t *dest;
-    CATERVA_TEST_ASSERT(caterva_array_get_slice(data->ctx, src, shapes.start, shapes.stop,
-                                                &storage2, &dest));
+    CATERVA_TEST_ASSERT(caterva_get_slice(data->ctx, src, shapes.start, shapes.stop,
+                                          &storage2, &dest));
 
-    CATERVA_TEST_ASSERT(caterva_array_squeeze_index(data->ctx, dest, shapes.squeeze_indexes));
+    CATERVA_TEST_ASSERT(caterva_squeeze_index(data->ctx, dest, shapes.squeeze_indexes));
 
     int8_t nsq = 0;
     for (int i = 0; i < params.ndim; ++i) {
@@ -156,15 +156,15 @@ CUTEST_TEST_TEST(squeeze_index) {
     CUTEST_ASSERT("dims are not correct", src->ndim == dest->ndim + nsq);
 
     free(buffer);
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &dest));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
     
     return 0;
 }
 
 
 CUTEST_TEST_TEARDOWN(squeeze_index) {
-    caterva_context_free(&data->ctx);
+    caterva_ctx_free(&data->ctx);
 }
 
 int main() {

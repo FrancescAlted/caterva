@@ -40,47 +40,47 @@ Creation
 
 Chunk by chunk
 ++++++++++++++
-.. doxygenfunction:: caterva_array_empty
+.. doxygenfunction:: caterva_empty
 
-.. doxygenfunction:: caterva_array_append
+.. doxygenfunction:: caterva_append
 
 
 From/To buffer
 ++++++++++++++
-.. doxygenfunction:: caterva_array_from_buffer
+.. doxygenfunction:: caterva_from_buffer
 
-.. doxygenfunction:: caterva_array_to_buffer
+.. doxygenfunction:: caterva_to_buffer
 
 
 From/To frame
 +++++++++++++
-.. doxygenfunction:: caterva_array_from_schunk
+.. doxygenfunction:: caterva_from_schunk
 
 .. doxygenfunction:: caterva_array_from_serial_schunk
 
 From/To file
 ++++++++++++
-.. doxygenfunction:: caterva_array_open
+.. doxygenfunction:: caterva_open
 
 Copying
 -------
 
-.. doxygenfunction:: caterva_array_copy
+.. doxygenfunction:: caterva_copy
 
 
 Slicing
 -------
 
-.. doxygenfunction:: caterva_array_get_slice
+.. doxygenfunction:: caterva_get_slice
 
-.. doxygenfunction:: caterva_array_get_slice_buffer
+.. doxygenfunction:: caterva_get_slice_buffer
 
-.. doxygenfunction:: caterva_array_set_slice_buffer
+.. doxygenfunction:: caterva_set_slice_buffer
 
-.. doxygenfunction:: caterva_array_squeeze
+.. doxygenfunction:: caterva_squeeze
 
 
 Destruction
 -----------
 
-.. doxygenfunction:: caterva_array_free
+.. doxygenfunction:: caterva_free

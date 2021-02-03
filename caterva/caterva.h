@@ -143,7 +143,7 @@ static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
 typedef struct {
     caterva_config_t *cfg;
     //!< The configuration paramters.
-} caterva_context_t;
+} caterva_ctx_t;
 
 /**
  * @brief The backends available to store the data of the caterva array.
@@ -299,7 +299,7 @@ typedef struct {
  *
  * @return An error code.
  */
-int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx);
+int caterva_ctx_new(caterva_config_t *cfg, caterva_ctx_t **ctx);
 
 /**
  * @brief Free a context.
@@ -308,7 +308,7 @@ int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx);
  *
  * @return An error code.
  */
-int caterva_context_free(caterva_context_t **ctx);
+int caterva_ctx_free(caterva_ctx_t **ctx);
 
 /**
  * @brief Create an empty array.
@@ -320,8 +320,8 @@ int caterva_context_free(caterva_context_t **ctx);
  *
  * @return An error code.
  */
-int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params,
-                        caterva_storage_t *storage, caterva_array_t **array);
+int caterva_empty(caterva_ctx_t *ctx, caterva_params_t *params,
+                  caterva_storage_t *storage, caterva_array_t **array);
 
 /**
  * @brief Free an array.
@@ -331,7 +331,7 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params,
  *
  * @return An error code.
  */
-int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
+int caterva_free(caterva_ctx_t *ctx, caterva_array_t **array);
 
 /**
  * Append a chunk to a caterva array (until it is completely filled).
@@ -343,8 +343,8 @@ int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
  *
  * @return An error code.
  */
-int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk,
-                         int64_t chunksize);
+int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *chunk,
+                   int64_t chunksize);
 
 /**
  * @brief Create a caterva array from a super-chunk. It can only be used if the array
@@ -357,7 +357,7 @@ int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *c
  * @return An error code.
  */
 int
-caterva_array_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
+caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
 
 /**
  * @brief Create a caterva array from a serialized super-chunk. It can only be used if the array
@@ -370,7 +370,7 @@ caterva_array_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva
  *
  * @return An error code.
  */
-int caterva_array_from_serial_schunk(caterva_context_t *ctx, uint8_t *serial_schunk, int64_t len,
+int caterva_array_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
                                      caterva_array_t **array);
 
 /**
@@ -382,7 +382,7 @@ int caterva_array_from_serial_schunk(caterva_context_t *ctx, uint8_t *serial_sch
  *
  * @return An error code.
  */
-int caterva_array_open(caterva_context_t *ctx, const char *urlpath, caterva_array_t **array);
+int caterva_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array);
 
 /**
  * @brief Create a caterva array from the data stored in a buffer.
@@ -396,9 +396,9 @@ int caterva_array_open(caterva_context_t *ctx, const char *urlpath, caterva_arra
  *
  * @return An error code.
  */
-int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize,
-                              caterva_params_t *params, caterva_storage_t *storage,
-                              caterva_array_t **array);
+int caterva_from_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
+                        caterva_params_t *params, caterva_storage_t *storage,
+                        caterva_array_t **array);
 
 /**
  * @brief Extract the data into a C buffer from a caterva array.
@@ -410,8 +410,8 @@ int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buff
  *
  * @return An error code.
  */
-int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer,
-                            int64_t buffersize);
+int caterva_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer,
+                      int64_t buffersize);
 
 /**
  * @brief Get a slice from an array and store it into a new array.
@@ -425,8 +425,8 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  *
  * @return An error code.
  */
-int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
-                            int64_t *stop, caterva_storage_t *storage, caterva_array_t **array);
+int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
+                      int64_t *stop, caterva_storage_t *storage, caterva_array_t **array);
 
 /**
  * @brief Squeeze a caterva array
@@ -440,8 +440,8 @@ int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_
  *
  * @return An error code
  */
-int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array,
-                                bool *index);
+int caterva_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *array,
+                          bool *index);
 
 /**
  * @brief Squeeze a caterva array
@@ -453,7 +453,7 @@ int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array,
  *
  * @return An error code
  */
-int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
+int caterva_squeeze(caterva_ctx_t *ctx, caterva_array_t *array);
 
 /**
  * @brief Get a slice from an array and store it into a C buffer.
@@ -468,8 +468,8 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
  *
  * @return An error code.
  */
-int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
-                                   int64_t *stop, int64_t *shape, void *buffer, int64_t buffersize);
+int caterva_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
+                             int64_t *stop, int64_t *shape, void *buffer, int64_t buffersize);
 
 /**
  * @brief Set a slice into a caterva array from a C buffer. It can only be used if the array
@@ -484,8 +484,8 @@ int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src,
  *
  * @return An error code.
  */
-int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize,
-                                   int64_t *start, int64_t *stop, caterva_array_t *array);
+int caterva_set_slice_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
+                             int64_t *start, int64_t *stop, caterva_array_t *array);
 
 /**
  * @brief Make a copy of the array data. The copy is done into a new caterva array.
@@ -497,7 +497,7 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t
  *
  * @return An error code
  */
-int caterva_array_copy(caterva_context_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
-                       caterva_array_t **array);
+int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
+                 caterva_array_t **array);
 
 #endif  // CATERVA_CATERVA_H_

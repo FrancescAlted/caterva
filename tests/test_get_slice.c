@@ -43,7 +43,7 @@ typedef struct {
 
 
 CUTEST_TEST_DATA(get_slice) {
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
 };
 
 
@@ -51,7 +51,7 @@ CUTEST_TEST_SETUP(get_slice) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
-    caterva_context_new(&cfg, &data->ctx);
+    caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(8));
@@ -122,8 +122,8 @@ CUTEST_TEST_TEST(get_slice) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
-                                                  &src));
+    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
+                                            &src));
 
 
     /* Create storage for dest container */
@@ -148,8 +148,8 @@ CUTEST_TEST_TEST(get_slice) {
     }
 
     caterva_array_t *dest;
-    CATERVA_TEST_ASSERT(caterva_array_get_slice(data->ctx, src, shapes.start, shapes.stop,
-                                                &storage2, &dest));
+    CATERVA_TEST_ASSERT(caterva_get_slice(data->ctx, src, shapes.start, shapes.stop,
+                                          &storage2, &dest));
 
     int64_t destbuffersize = itemsize;
     for (int i = 0; i < src->ndim; ++i) {
@@ -157,7 +157,7 @@ CUTEST_TEST_TEST(get_slice) {
     }
 
     double *buffer_dest = data->ctx->cfg->alloc((size_t) destbuffersize);
-    CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, dest, buffer_dest, destbuffersize));
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, dest, buffer_dest, destbuffersize));
 
     for (int i = 0; i < destbuffersize / itemsize; ++i) {
         CUTEST_ASSERT("Elements are not equals!", shapes.result[i] == buffer_dest[i]);
@@ -166,14 +166,14 @@ CUTEST_TEST_TEST(get_slice) {
     /* Free mallocs */
     data->ctx->cfg->free(buffer);
     data->ctx->cfg->free(buffer_dest);
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &dest));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
     
     return 0;
 }
 
 CUTEST_TEST_TEARDOWN(get_slice) {
-    caterva_context_free(&data->ctx);
+    caterva_ctx_free(&data->ctx);
 }
 
 int main() {
