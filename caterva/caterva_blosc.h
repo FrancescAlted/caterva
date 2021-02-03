@@ -17,14 +17,13 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
 
 int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array);
 
-int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy,
-                             caterva_array_t **array);
+int
+caterva_blosc_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
 
-int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy,
+int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len,
                               caterva_array_t **array);
 
-int caterva_blosc_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
-                            caterva_array_t **array);
+int caterva_blosc_open(caterva_context_t *ctx, const char *urlpath, caterva_array_t **array);
 
 int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *chunk,
                                      int64_t chunksize, caterva_array_t *array);

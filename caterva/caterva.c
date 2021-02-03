@@ -69,13 +69,13 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy,
-                             caterva_array_t **array) {
+int
+caterva_array_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
-    CATERVA_ERROR_NULL(frame);
+    CATERVA_ERROR_NULL(schunk);
     CATERVA_ERROR_NULL(array);
 
-    CATERVA_ERROR(caterva_blosc_from_frame(ctx, frame, copy, array));
+    CATERVA_ERROR(caterva_blosc_from_schunk(ctx, schunk, array));
     if ((*array) == NULL) {
         DEBUG_PRINT("Error creating a caterva container from a frame");
         return CATERVA_ERR_NULL_POINTER;
@@ -84,24 +84,23 @@ int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy,
+int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len,
                               caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(sframe);
     CATERVA_ERROR_NULL(array);
 
-    CATERVA_ERROR(caterva_blosc_from_sframe(ctx, sframe, len, copy, array));
+    CATERVA_ERROR(caterva_blosc_from_sframe(ctx, sframe, len, array));
 
     return CATERVA_SUCCEED;
 }
 
-int caterva_array_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
-                            caterva_array_t **array) {
+int caterva_array_open(caterva_context_t *ctx, const char *urlpath, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(urlpath);
     CATERVA_ERROR_NULL(array);
 
-    CATERVA_ERROR(caterva_blosc_from_file(ctx, urlpath, copy, array));
+    CATERVA_ERROR(caterva_blosc_open(ctx, urlpath, array));
 
     return CATERVA_SUCCEED;
 }

@@ -99,7 +99,7 @@ CUTEST_TEST_TEST(persistency) {
                                                   &src));
 
     caterva_array_t *dest;
-    CATERVA_TEST_ASSERT(caterva_array_from_file(data->ctx, urlpath, true, &dest));
+    CATERVA_TEST_ASSERT(caterva_array_open(data->ctx, urlpath, &dest));
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);

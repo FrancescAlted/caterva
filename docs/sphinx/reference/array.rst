@@ -54,13 +54,13 @@ From/To buffer
 
 From/To frame
 +++++++++++++
-.. doxygenfunction:: caterva_array_from_frame
+.. doxygenfunction:: caterva_array_from_schunk
 
 .. doxygenfunction:: caterva_array_from_sframe
 
 From/To file
 ++++++++++++
-.. doxygenfunction:: caterva_array_from_file
+.. doxygenfunction:: caterva_array_open
 
 Copying
 -------

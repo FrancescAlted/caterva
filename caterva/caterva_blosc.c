@@ -184,31 +184,28 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
     return 0;
 }
 
-int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy,
-                             caterva_array_t **array) {
+int
+caterva_blosc_from_schunk(caterva_context_t *ctx, blosc2_schunk *schunk, caterva_array_t **array) {
     if (ctx == NULL) {
         DEBUG_PRINT("Context is null");
         return CATERVA_ERR_NULL_POINTER;
     }
-    if (frame == NULL) {
+    if (schunk == NULL) {
         DEBUG_PRINT("Frame is null");
         return CATERVA_ERR_NULL_POINTER;
     }
     /* Create a caterva_array_t buffer */
     *array = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
 
-    /* Create a schunk out of the frame */
-    blosc2_schunk *sc = blosc2_frame_to_schunk(frame, copy);
-
-    if (sc == NULL) {
+    if (schunk == NULL) {
         DEBUG_PRINT("Schunk is null");
         return CATERVA_ERR_NULL_POINTER;
     }
-    (*array)->sc = sc;
+    (*array)->sc = schunk;
     (*array)->storage = CATERVA_STORAGE_BLOSC;
 
     blosc2_cparams *cparams;
-    if (blosc2_schunk_get_cparams(sc, &cparams) < 0) {
+    if (blosc2_schunk_get_cparams(schunk, &cparams) < 0) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_NULL_POINTER;
     }
@@ -220,7 +217,7 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     // Deserialize the caterva metalayer
     uint8_t *smeta;
     uint32_t smeta_len;
-    if (blosc2_get_metalayer(sc, "caterva", &smeta, &smeta_len) < 0) {
+    if (blosc2_get_metalayer(schunk, "caterva", &smeta, &smeta_len) < 0) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
@@ -280,7 +277,7 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
         (*array)->filled = true;
         (*array)->empty = false;
     } else {
-        if (sc->nchunks == (*array)->extnitems / (*array)->chunknitems) {
+        if (schunk->nchunks == (*array)->extnitems / (*array)->chunknitems) {
             (*array)->filled = true;
         } else {
             (*array)->filled = false;
@@ -290,39 +287,35 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy,
+int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len,
                               caterva_array_t **array) {
     // Generate a real frame first
-    blosc2_frame *frame = blosc2_frame_from_sframe(sframe, len, copy);
-    if (frame == NULL) {
+    blosc2_schunk *sc = blosc2_schunk_open_sframe(sframe, len);
+    if (sc == NULL) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
     // ...and create a caterva array out of it
-    CATERVA_ERROR(caterva_array_from_frame(ctx, frame, copy, array));
+    CATERVA_ERROR(caterva_array_from_schunk(ctx, sc, array));
 
-    if (copy) {
-        // We don't need the frame anymore
-        blosc2_frame_free(frame);
-    }
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
-                            caterva_array_t **array) {
+int caterva_blosc_open(caterva_context_t *ctx, const char *urlpath, caterva_array_t **array) {
     // Open the frame on-disk...
-    blosc2_frame *frame = blosc2_frame_from_file(urlpath);
-    if (frame == NULL) {
+
+    blosc2_storage storage = BLOSC2_STORAGE_DEFAULTS;
+    storage.urlpath = strdup(urlpath);
+    blosc2_schunk *sc = blosc2_schunk_open(storage);
+    free(storage.urlpath);
+
+    if (sc == NULL) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
     // ...and create a caterva array out of it
-    CATERVA_ERROR(caterva_array_from_frame(ctx, frame, copy, array));
+    CATERVA_ERROR(caterva_blosc_from_schunk(ctx, sc, array));
 
-    if (copy) {
-        // We don't need the frame anymore
-        blosc2_frame_free(frame);
-    }
     return CATERVA_SUCCEED;
 }
 
