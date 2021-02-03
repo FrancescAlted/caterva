@@ -1058,20 +1058,6 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
     bool equals = true;
     if (src->storage == CATERVA_STORAGE_PLAINBUFFER) {
         equals = false;
-    } else {
-        if (ctx->cfg->compcodec != src->sc->compcode || ctx->cfg->complevel != src->sc->clevel) {
-            equals = false;
-        }
-        for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
-            if (ctx->cfg->filters[i] != src->sc->filters[i]) {
-                equals = false;
-                break;
-            }
-            if (ctx->cfg->filtersmeta[i] != src->sc->filters_meta[i]) {
-                equals = false;
-                break;
-            }
-        }
     }
     for (int i = 0; i < src->ndim; ++i) {
         if (src->chunkshape[i] != storage->properties.blosc.chunkshape[i]) {
@@ -1087,31 +1073,9 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
     if (equals) {
         CATERVA_ERROR(caterva_array_empty(ctx, params, storage, dest));
 
-        for (int nmetalayer = 0; nmetalayer < src->sc->nmetalayers; ++nmetalayer) {
-            blosc2_metalayer *metalayer = src->sc->metalayers[nmetalayer];
-            if (blosc2_has_metalayer((*dest)->sc, metalayer->name) < 0) {
-                if (blosc2_add_metalayer((*dest)->sc, metalayer->name, metalayer->content,
-                                     metalayer->content_len) < 0) {
-                    CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-                }
-            }
-        }
-
-        for (int nchunk = 0; nchunk < src->nchunks; ++nchunk) {
-            uint8_t *chunk;
-            bool needs_free;
-            if (blosc2_schunk_get_chunk(src->sc, nchunk, &chunk, &needs_free) < 0) {
-                CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-            }
-            if (blosc2_schunk_append_chunk((*dest)->sc, chunk, !needs_free) < 0) {
-                CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-            }
-        }
-
-        if (blosc2_update_usermeta((*dest)->sc, src->sc->usermeta, src->sc->usermeta_len,
-                               *src->sc->storage->cparams) < 0) {
-            CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-        }
+        blosc2_schunk *new_sc = blosc2_schunk_copy(src->sc, *(*dest)->sc->storage);
+        blosc2_schunk_free((*dest)->sc);
+        (*dest)->sc = new_sc;
 
         src->empty = false;
         src->filled = true;

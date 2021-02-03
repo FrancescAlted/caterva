@@ -146,7 +146,7 @@ CUTEST_TEST_TEST(copy) {
             storage2.properties.blosc.enforceframe = backend2.sequential;
             for (int i = 0; i < shapes.ndim; ++i) {
                 storage2.properties.blosc.chunkshape[i] = shapes.chunkshape2[i];
-                storage2.properties.blosc.blockshape[i] = shapes.chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = shapes.blockshape2[i];
             }
             break;
         default:
