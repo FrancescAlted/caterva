@@ -370,8 +370,8 @@ caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t *
  *
  * @return An error code.
  */
-int caterva_array_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
-                                     caterva_array_t **array);
+int caterva_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
+                               caterva_array_t **array);
 
 /**
  * @brief Read a caterva array from disk.
