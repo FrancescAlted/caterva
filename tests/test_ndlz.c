@@ -95,10 +95,10 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     for (int i = 0; i < nbytes; i++) {
     printf("%u, ", data2[i]);
     }
-*/
+
     printf("\n ----------------------------------------------------------------------------- TEST NDLZ ----------"
            "----------------------------------------------------------------------- \n");
-
+*/
     blosc_timestamp_t start, end;
     blosc_set_timestamp(&start);
 
@@ -168,7 +168,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
 int no_matches() {
     int ndim = 2;
     int typesize = 1;
-    int32_t shape[8] = {32, 38};
+    int32_t shape[8] = {1024, 512};
     int32_t chunkshape[8] = {32, 32};
     int32_t blockshape[8] = {32, 32};
     int isize = (int)(shape[0] * shape[1]);
@@ -980,7 +980,7 @@ int image10() {
 int main(void) {
 
     int result;
-
+/*
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
     result = no_matches_pad();
@@ -1008,6 +1008,7 @@ int main(void) {
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
 
+    printf("TEST NDLZ-ZLIB \n");
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
@@ -1026,7 +1027,7 @@ int main(void) {
     printf("image8 with NO padding: %d obtained \n \n", result);
     result = image9();
     printf("image9 with NO padding: %d obtained \n \n", result);
-    result = image10();
+  */  result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
 
 }
