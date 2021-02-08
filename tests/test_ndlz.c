@@ -1007,8 +1007,8 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-
-    printf("TEST NDLZ-ZLIB \n");
+*/
+    printf("TEST NDLZ-ZSTD \n");
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
@@ -1027,7 +1027,7 @@ int main(void) {
     printf("image8 with NO padding: %d obtained \n \n", result);
     result = image9();
     printf("image9 with NO padding: %d obtained \n \n", result);
-  */  result = image10();
+    result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
 
 }
