@@ -52,12 +52,17 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     caterva_context_new(&cfg, &ctx);
     CATERVA_ERROR(caterva_array_from_buffer(ctx, data2, nbytes, &params, &storage, &array));
 
-    int isize = (int) array->extchunknitems * typesize;
+    int nchunks = array->nchunks;
+    int chunksize = (int) array->extchunknitems * typesize;
+    int isize = nchunks * chunksize;
     uint8_t *data_in = malloc(isize);
-    int decompressed = blosc2_schunk_decompress_chunk(array->sc, 0, data_in, isize);
-    if (decompressed < 0) {
+    int decompressed;
+    for (int ci = 0; ci < nchunks; ci++) {
+      decompressed = blosc2_schunk_decompress_chunk(array->sc, ci, &data_in[ci * chunksize], chunksize);
+      if (decompressed < 0) {
         printf("Error decompressing chunk \n");
         return -1;
+      }
     }
 
     int32_t *blockshape = storage.properties.blosc.blockshape;
@@ -99,7 +104,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     printf("\n ----------------------------------------------------------------------------- TEST NDLZ ----------"
            "----------------------------------------------------------------------- \n");
 */
-    blosc_timestamp_t start, end;
+    blosc_timestamp_t start, comp, end;
     blosc_set_timestamp(&start);
 
   /* Compress with clevel=5 and shuffle active  */
@@ -112,6 +117,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
         printf("Compression error.  Error code: %d\n", csize);
         return csize;
     }
+    blosc_set_timestamp(&comp);
 
     printf("Compression: %d -> %d (%.1fx)\n", isize, csize, (1. * isize) / csize);
 /*
@@ -137,7 +143,9 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
 
     blosc_set_timestamp(&end);
-    double ctime = blosc_elapsed_nsecs(start, end);
+    double ctime = blosc_elapsed_nsecs(start, comp);
+    double dtime = blosc_elapsed_nsecs(comp, end);
+
 /*
     printf("\n dest \n");
     for (int i = 0; i < dsize; i++) {
@@ -161,7 +169,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     free(data_dest);
 
     printf("Succesful roundtrip!\n");
-    printf("\n Test time: %f nsecs \n", ctime);
+    printf("\n Test time: \n Compression: %f secs \n Decompression: %f secs \n", ctime / 1000000000, dtime / 1000000000);
     return dsize - csize;
 }
 
@@ -783,7 +791,7 @@ int image5() {
     int typesize = 4;
     int32_t shape[8] = {641, 1140};
     int32_t chunkshape[8] = {256, 512};
-    int32_t blockshape[8] = {128, 128};
+    int32_t blockshape[8] = {256, 256};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
@@ -813,7 +821,7 @@ int image5() {
 
 int image6() {
     int ndim = 2;
-    int typesize = 4;
+    int typesize = 3;
     int32_t shape[8] = {256, 256};
     int32_t chunkshape[8] = {128, 128};
     int32_t blockshape[8] = {64, 64};
@@ -846,7 +854,7 @@ int image6() {
 
 int image7() {
     int ndim = 2;
-    int typesize = 4;
+    int typesize = 3;
     int32_t shape[8] = {2506, 5000};
     int32_t chunkshape[8] = {512, 1024};
     int32_t blockshape[8] = {128, 512};
@@ -879,7 +887,7 @@ int image7() {
 
 int image8() {
     int ndim = 2;
-    int typesize = 4;
+    int typesize = 3;
     int32_t shape[8] = {1575, 2400};
     int32_t chunkshape[8] = {1575, 2400};
     int32_t blockshape[8] = {256, 256};
@@ -912,7 +920,7 @@ int image8() {
 
 int image9() {
     int ndim = 2;
-    int typesize = 4;
+    int typesize = 3;
     int32_t shape[8] = {675, 1200};
     int32_t chunkshape[8] = {675, 1200};
     int32_t blockshape[8] = {256, 256};
@@ -945,15 +953,19 @@ int image9() {
 
 int image10() {
     int ndim = 2;
-    int typesize = 4;
+    int typesize = 3;
     int32_t shape[8] = {2045, 3000};
     int32_t chunkshape[8] = {2045, 3000};
     int32_t blockshape[8] = {256, 256};
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
-    uint32_t *data = malloc(nbytes);
+    uint8_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res10.bin", "rb");
-    fread(data, nbytes, 1, f);
+    size_t err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -1008,26 +1020,26 @@ int main(void) {
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
 */
-    printf("TEST NDLZ-ZSTD \n");
-    result = image1();
+    printf("TEST NDLZ-ZLIB \n");
+/*    result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
-    result = image2();
+ *   result = image2();
     printf("image2 with  padding: %d obtained \n \n", result);
-    result = image3();
+ /*   result = image3();
     printf("image3 with NO padding: %d obtained \n \n", result);
     result = image4();
     printf("image4 with NO padding: %d obtained \n \n", result);
-    result = image5();
+  */  result = image5();
     printf("image5 with padding: %d obtained \n \n", result);
-    result = image6();
+/*    result = image6();
     printf("image6 with NO padding: %d obtained \n \n", result);
-    result = image7();
+*    result = image7();
     printf("image7 with NO padding: %d obtained \n \n", result);
-    result = image8();
+  /*  result = image8();
     printf("image8 with NO padding: %d obtained \n \n", result);
-    result = image9();
+  /  result = image9();
     printf("image9 with NO padding: %d obtained \n \n", result);
-    result = image10();
+  */  result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
 
 }
