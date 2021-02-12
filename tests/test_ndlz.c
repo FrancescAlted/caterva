@@ -664,7 +664,11 @@ int image1() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -697,7 +701,11 @@ int image2() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res2.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -730,7 +738,11 @@ int image3() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res3.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -763,7 +775,11 @@ int image4() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res4.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -796,7 +812,11 @@ int image5() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res5.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -829,7 +849,11 @@ int image6() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res6.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -862,7 +886,11 @@ int image7() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res7.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -895,7 +923,11 @@ int image8() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res8.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -928,7 +960,11 @@ int image9() {
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res9.bin", "rb");
-    fread(data, nbytes, 1, f);
+    int err = fread(data, 1, nbytes, f);
+    if (err != nbytes) {
+      printf("\n read error");
+      return -1;
+    }
     fclose(f);
 
     caterva_params_t params;
@@ -961,7 +997,7 @@ int image10() {
     int nbytes = typesize * isize;
     uint8_t *data = malloc(nbytes);
     FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res10.bin", "rb");
-    size_t err = fread(data, 1, nbytes, f);
+    int err = fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
       return -1;
@@ -1021,25 +1057,25 @@ int main(void) {
     printf("pad_some_32: %d obtained \n \n", result);
 */
     printf("TEST NDLZ-ZLIB \n");
-/*    result = image1();
+ /*   result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
- *   result = image2();
+    result = image2();
     printf("image2 with  padding: %d obtained \n \n", result);
- /*   result = image3();
+    result = image3();
     printf("image3 with NO padding: %d obtained \n \n", result);
     result = image4();
     printf("image4 with NO padding: %d obtained \n \n", result);
   */  result = image5();
     printf("image5 with padding: %d obtained \n \n", result);
-/*    result = image6();
+ /*   result = image6();
     printf("image6 with NO padding: %d obtained \n \n", result);
-*    result = image7();
+ */   result = image7();
     printf("image7 with NO padding: %d obtained \n \n", result);
-  /*  result = image8();
+   /* result = image8();
     printf("image8 with NO padding: %d obtained \n \n", result);
-  /  result = image9();
+   */ result = image9();
     printf("image9 with NO padding: %d obtained \n \n", result);
-  */  result = image10();
+    result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
 
 }
