@@ -12,43 +12,42 @@
 #ifndef CATERVA_CATERVA_BLOSC_H_
 #define CATERVA_CATERVA_BLOSC_H_
 
-int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
+int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
                               caterva_storage_t *storage, caterva_array_t **array);
 
-int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array);
+int caterva_blosc_array_free(caterva_ctx_t *ctx, caterva_array_t **array);
 
-int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy,
-                             caterva_array_t **array);
+int
+caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
 
-int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy,
-                              caterva_array_t **array);
+int caterva_blosc_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
+                                     caterva_array_t **array);
 
-int caterva_blosc_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
-                            caterva_array_t **array);
+int caterva_blosc_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array);
 
 int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *chunk,
                                      int64_t chunksize, caterva_array_t *array);
 
-int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk,
+int caterva_blosc_array_append(caterva_ctx_t *ctx, caterva_array_t *array, void *chunk,
                                int64_t chunksize);
 
-int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer,
+int caterva_blosc_array_from_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer,
                                     int64_t buffersize);
 
-int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array,
+int caterva_blosc_array_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *array,
                                          int64_t *start, int64_t *stop, int64_t *shape,
                                          void *buffer);
 
-int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer);
+int caterva_blosc_array_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer);
 
-int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
+int caterva_blosc_array_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
                                   int64_t *stop, caterva_array_t *array);
 
-int caterva_blosc_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *src, bool *index);
+int caterva_blosc_array_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *src, bool *index);
 
-int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *src);
+int caterva_blosc_array_squeeze(caterva_ctx_t *ctx, caterva_array_t *src);
 
-int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
+int caterva_blosc_array_copy(caterva_ctx_t *ctx, caterva_params_t *params,
                              caterva_storage_t *storage, caterva_array_t *src,
                              caterva_array_t **dest);
 

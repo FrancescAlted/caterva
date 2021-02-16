@@ -184,31 +184,28 @@ static int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim
     return 0;
 }
 
-int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy,
-                             caterva_array_t **array) {
+int
+caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array) {
     if (ctx == NULL) {
         DEBUG_PRINT("Context is null");
         return CATERVA_ERR_NULL_POINTER;
     }
-    if (frame == NULL) {
-        DEBUG_PRINT("Frame is null");
+    if (schunk == NULL) {
+        DEBUG_PRINT("Schunk is null");
         return CATERVA_ERR_NULL_POINTER;
     }
     /* Create a caterva_array_t buffer */
     *array = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
 
-    /* Create a schunk out of the frame */
-    blosc2_schunk *sc = blosc2_frame_to_schunk(frame, copy);
-
-    if (sc == NULL) {
+    if (schunk == NULL) {
         DEBUG_PRINT("Schunk is null");
         return CATERVA_ERR_NULL_POINTER;
     }
-    (*array)->sc = sc;
+    (*array)->sc = schunk;
     (*array)->storage = CATERVA_STORAGE_BLOSC;
 
     blosc2_cparams *cparams;
-    if (blosc2_schunk_get_cparams(sc, &cparams) < 0) {
+    if (blosc2_schunk_get_cparams(schunk, &cparams) < 0) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_NULL_POINTER;
     }
@@ -220,7 +217,7 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     // Deserialize the caterva metalayer
     uint8_t *smeta;
     uint32_t smeta_len;
-    if (blosc2_get_metalayer(sc, "caterva", &smeta, &smeta_len) < 0) {
+    if (blosc2_get_metalayer(schunk, "caterva", &smeta, &smeta_len) < 0) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
@@ -280,7 +277,7 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
         (*array)->filled = true;
         (*array)->empty = false;
     } else {
-        if (sc->nchunks == (*array)->extnitems / (*array)->chunknitems) {
+        if (schunk->nchunks == (*array)->extnitems / (*array)->chunknitems) {
             (*array)->filled = true;
         } else {
             (*array)->filled = false;
@@ -290,43 +287,36 @@ int caterva_blosc_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool c
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy,
-                              caterva_array_t **array) {
-    // Generate a real frame first
-    blosc2_frame *frame = blosc2_frame_from_sframe(sframe, len, copy);
-    if (frame == NULL) {
+int caterva_blosc_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
+                                     caterva_array_t **array) {
+    blosc2_schunk *sc = blosc2_schunk_open_sframe(serial_schunk, len);
+    if (sc == NULL) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
     // ...and create a caterva array out of it
-    CATERVA_ERROR(caterva_array_from_frame(ctx, frame, copy, array));
+    CATERVA_ERROR(caterva_from_schunk(ctx, sc, array));
 
-    if (copy) {
-        // We don't need the frame anymore
-        blosc2_frame_free(frame);
-    }
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_from_file(caterva_context_t *ctx, const char *urlpath, bool copy,
-                            caterva_array_t **array) {
-    // Open the frame on-disk...
-    blosc2_frame *frame = blosc2_frame_from_file(urlpath);
-    if (frame == NULL) {
+int caterva_blosc_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array) {
+    blosc2_storage storage = BLOSC2_STORAGE_DEFAULTS;
+    storage.urlpath = strdup(urlpath);
+    blosc2_schunk *sc = blosc2_schunk_open(storage);
+    free(storage.urlpath);
+
+    if (sc == NULL) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
     // ...and create a caterva array out of it
-    CATERVA_ERROR(caterva_array_from_frame(ctx, frame, copy, array));
+    CATERVA_ERROR(caterva_blosc_from_schunk(ctx, sc, array));
 
-    if (copy) {
-        // We don't need the frame anymore
-        blosc2_frame_free(frame);
-    }
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_free(caterva_context_t *ctx, caterva_array_t **array) {
+int caterva_blosc_array_free(caterva_ctx_t *ctx, caterva_array_t **array) {
     CATERVA_UNUSED_PARAM(ctx);
 
     if ((*array)->sc != NULL) {
@@ -411,7 +401,7 @@ int caterva_blosc_array_repart_chunk(int8_t *rchunk, int64_t rchunksize, void *c
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk,
+int caterva_blosc_array_append(caterva_ctx_t *ctx, caterva_array_t *array, void *chunk,
                                int32_t chunksize) {
     CATERVA_UNUSED_PARAM(ctx);
 
@@ -511,7 +501,7 @@ int caterva_blosc_array_append(caterva_context_t *ctx, caterva_array_t *array, v
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer,
+int caterva_blosc_array_from_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer,
                                     int64_t buffersize) {
     CATERVA_UNUSED_PARAM(buffersize);
 
@@ -603,7 +593,7 @@ int caterva_blosc_array_from_buffer(caterva_context_t *ctx, caterva_array_t *arr
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *array,
+int caterva_blosc_array_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *array,
                                          int64_t *start, int64_t *stop, const int64_t *shape,
                                          void *buffer) {
     uint8_t *bbuffer = buffer;  // for allowing pointer arithmetic
@@ -827,7 +817,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer) {
+int caterva_blosc_array_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer) {
     int8_t *bbuffer = (int8_t *) buffer;
     int8_t ndim = array->ndim;
     int64_t start[CATERVA_MAX_DIM];
@@ -841,7 +831,7 @@ int caterva_blosc_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
+int caterva_blosc_array_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
                                   int64_t *stop, caterva_array_t *array) {
     int typesize = src->itemsize;
 
@@ -917,10 +907,10 @@ int caterva_blosc_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, 
             d_pshape_[i] = d_next_pshape[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM];
         }
 
-        CATERVA_ERROR(caterva_array_get_slice_buffer(ctx, src, start_, stop_, d_pshape_, chunk,
-                                                     array->next_chunknitems * typesize));
+        CATERVA_ERROR(caterva_get_slice_buffer(ctx, src, start_, stop_, d_pshape_, chunk,
+                                               array->next_chunknitems * typesize));
 
-        CATERVA_ERROR(caterva_array_append(ctx, array, chunk, array->next_chunknitems * typesize));
+        CATERVA_ERROR(caterva_append(ctx, array, chunk, array->next_chunknitems * typesize));
         for (int i = 0; i < src->ndim; ++i) {
             d_next_pshape[(CATERVA_MAX_DIM - d_ndim + i) % CATERVA_MAX_DIM] =
                 array->next_chunkshape[i];
@@ -998,7 +988,7 @@ int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *sha
 }
 
 
-int caterva_blosc_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array, bool *index) {
+int caterva_blosc_array_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *array, bool *index) {
     CATERVA_UNUSED_PARAM(ctx);
     uint8_t nones = 0;
     int64_t newshape[CATERVA_MAX_DIM];
@@ -1033,7 +1023,7 @@ int caterva_blosc_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *a
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) {
+int caterva_blosc_array_squeeze(caterva_ctx_t *ctx, caterva_array_t *array) {
     CATERVA_UNUSED_PARAM(ctx);
     int32_t newblockshape[CATERVA_MAX_DIM];
     bool index[CATERVA_MAX_DIM];
@@ -1050,7 +1040,7 @@ int caterva_blosc_array_squeeze(caterva_context_t *ctx, caterva_array_t *array) 
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
+int caterva_blosc_array_copy(caterva_ctx_t *ctx, caterva_params_t *params,
                              caterva_storage_t *storage, caterva_array_t *src,
                              caterva_array_t **dest) {
     CATERVA_UNUSED_PARAM(params);
@@ -1058,20 +1048,6 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
     bool equals = true;
     if (src->storage == CATERVA_STORAGE_PLAINBUFFER) {
         equals = false;
-    } else {
-        if (ctx->cfg->compcodec != src->sc->compcode || ctx->cfg->complevel != src->sc->clevel) {
-            equals = false;
-        }
-        for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
-            if (ctx->cfg->filters[i] != src->sc->filters[i]) {
-                equals = false;
-                break;
-            }
-            if (ctx->cfg->filtersmeta[i] != src->sc->filters_meta[i]) {
-                equals = false;
-                break;
-            }
-        }
     }
     for (int i = 0; i < src->ndim; ++i) {
         if (src->chunkshape[i] != storage->properties.blosc.chunkshape[i]) {
@@ -1085,33 +1061,11 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
     }
 
     if (equals) {
-        CATERVA_ERROR(caterva_array_empty(ctx, params, storage, dest));
+        CATERVA_ERROR(caterva_empty(ctx, params, storage, dest));
 
-        for (int nmetalayer = 0; nmetalayer < src->sc->nmetalayers; ++nmetalayer) {
-            blosc2_metalayer *metalayer = src->sc->metalayers[nmetalayer];
-            if (blosc2_has_metalayer((*dest)->sc, metalayer->name) < 0) {
-                if (blosc2_add_metalayer((*dest)->sc, metalayer->name, metalayer->content,
-                                     metalayer->content_len) < 0) {
-                    CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-                }
-            }
-        }
-
-        for (int nchunk = 0; nchunk < src->nchunks; ++nchunk) {
-            uint8_t *chunk;
-            bool needs_free;
-            if (blosc2_schunk_get_chunk(src->sc, nchunk, &chunk, &needs_free) < 0) {
-                CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-            }
-            if (blosc2_schunk_append_chunk((*dest)->sc, chunk, !needs_free) < 0) {
-                CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-            }
-        }
-
-        if (blosc2_update_usermeta((*dest)->sc, src->sc->usermeta, src->sc->usermeta_len,
-                               *src->sc->storage->cparams) < 0) {
-            CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-        }
+        blosc2_schunk *new_sc = blosc2_schunk_copy(src->sc, *(*dest)->sc->storage);
+        blosc2_schunk_free((*dest)->sc);
+        (*dest)->sc = new_sc;
 
         src->empty = false;
         src->filled = true;
@@ -1122,13 +1076,13 @@ int caterva_blosc_array_copy(caterva_context_t *ctx, caterva_params_t *params,
         for (int i = 0; i < src->ndim; ++i) {
             stop[i] = src->shape[i];
         }
-        CATERVA_ERROR(caterva_array_get_slice(ctx, src, start, stop, storage, dest));
+        CATERVA_ERROR(caterva_get_slice(ctx, src, start, stop, storage, dest));
     }
 
     return CATERVA_SUCCEED;
 }
 
-int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
+int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
                               caterva_storage_t *storage, caterva_array_t **array) {
     /* Create a caterva_array_t buffer */
     (*array) = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
@@ -1218,7 +1172,7 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
     b_storage.cparams = &cparams;
     b_storage.dparams = &dparams;
 
-    if (storage->properties.blosc.enforceframe) {
+    if (storage->properties.blosc.sequencial) {
         b_storage.sequential = true;
     }
     if (storage->properties.blosc.urlpath != NULL) {
@@ -1232,9 +1186,9 @@ int caterva_blosc_array_empty(caterva_context_t *ctx, caterva_params_t *params,
         return CATERVA_ERR_BLOSC_FAILED;
     }
 
-    // Serialize the dimension info in the associated frame
+    // Serialize the dimension info
     if (sc->nmetalayers >= BLOSC2_MAX_METALAYERS) {
-        DEBUG_PRINT("the number of metalayers for this frame has been exceeded");
+        DEBUG_PRINT("the number of metalayers for this schunk has been exceeded");
         return CATERVA_ERR_BLOSC_FAILED;
     }
     uint8_t *smeta = NULL;

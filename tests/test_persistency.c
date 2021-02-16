@@ -28,7 +28,7 @@ typedef struct {
 
 
 CUTEST_TEST_DATA(persistency) {
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
 };
 
 
@@ -36,7 +36,7 @@ CUTEST_TEST_SETUP(persistency) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
-    caterva_context_new(&cfg, &data->ctx);
+    caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(1, 2, 4, 8));
@@ -78,7 +78,7 @@ CUTEST_TEST_TEST(persistency) {
     if (backend.persistent) {
         storage.properties.blosc.urlpath = urlpath;
     }
-    storage.properties.blosc.enforceframe = backend.sequential;
+    storage.properties.blosc.sequencial = backend.sequential;
     for (int i = 0; i < params.ndim; ++i) {
         storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
         storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
@@ -95,15 +95,15 @@ CUTEST_TEST_TEST(persistency) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
-                                                  &src));
+    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
+                                            &src));
 
     caterva_array_t *dest;
-    CATERVA_TEST_ASSERT(caterva_array_from_file(data->ctx, urlpath, true, &dest));
+    CATERVA_TEST_ASSERT(caterva_open(data->ctx, urlpath, &dest));
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);
-    CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, dest, buffer_dest, buffersize));
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, dest, buffer_dest, buffersize));
 
     /* Testing */
     if (dest->nitems != 0) {
@@ -116,8 +116,8 @@ CUTEST_TEST_TEST(persistency) {
     /* Free mallocs */
     free(buffer);
     free(buffer_dest);
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &dest));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
 
     if (FILE_EXISTS(urlpath) != -1) {
         remove(urlpath);
@@ -127,7 +127,7 @@ CUTEST_TEST_TEST(persistency) {
 
 
 CUTEST_TEST_TEARDOWN(persistency) {
-    caterva_context_free(&data->ctx);
+    caterva_ctx_free(&data->ctx);
 }
 
 int main() {
