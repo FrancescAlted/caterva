@@ -217,7 +217,7 @@ caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_arr
     // Deserialize the caterva metalayer
     uint8_t *smeta;
     uint32_t smeta_len;
-    if (blosc2_get_metalayer(schunk, "caterva", &smeta, &smeta_len) < 0) {
+    if (blosc2_meta_get(schunk, "caterva", &smeta, &smeta_len) < 0) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
@@ -289,7 +289,7 @@ caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_arr
 
 int caterva_blosc_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
                                      caterva_array_t **array) {
-    blosc2_schunk *sc = blosc2_schunk_open_sframe(serial_schunk, len);
+    blosc2_schunk *sc = blosc2_schunk_from_buffer(serial_schunk, len, true);
     if (sc == NULL) {
         DEBUG_PRINT("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
@@ -301,17 +301,10 @@ int caterva_blosc_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk,
 }
 
 int caterva_blosc_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array) {
-    blosc2_storage storage = BLOSC2_STORAGE_DEFAULTS;
-    storage.urlpath = strdup(urlpath);
-    blosc2_schunk *sc = blosc2_schunk_open(storage);
-    free(storage.urlpath);
+    blosc2_schunk *sc = blosc2_schunk_open(urlpath);
 
-    if (sc == NULL) {
-        DEBUG_PRINT("Blosc error");
-        return CATERVA_ERR_BLOSC_FAILED;
-    }
     // ...and create a caterva array out of it
-    CATERVA_ERROR(caterva_blosc_from_schunk(ctx, sc, array));
+    CATERVA_ERROR(caterva_from_schunk(ctx, sc, array));
 
     return CATERVA_SUCCEED;
 }
@@ -973,12 +966,12 @@ int caterva_blosc_update_shape(caterva_array_t *array, int8_t ndim, int64_t *sha
         return -1;
     }
     // ... and update it in its metalayer
-    if (blosc2_has_metalayer(array->sc, "caterva") < 0) {
-        if (blosc2_add_metalayer(array->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
+    if (blosc2_meta_exists(array->sc, "caterva") < 0) {
+        if (blosc2_meta_add(array->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
             CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
         }
     } else {
-        if (blosc2_update_metalayer(array->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
+        if (blosc2_meta_update(array->sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
             CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
         }
     }
@@ -1062,11 +1055,9 @@ int caterva_blosc_array_copy(caterva_ctx_t *ctx, caterva_params_t *params,
 
     if (equals) {
         CATERVA_ERROR(caterva_empty(ctx, params, storage, dest));
-
-        blosc2_schunk *new_sc = blosc2_schunk_copy(src->sc, *(*dest)->sc->storage);
+        blosc2_schunk *new_sc = blosc2_schunk_copy(src->sc, (*dest)->sc->storage);
         blosc2_schunk_free((*dest)->sc);
         (*dest)->sc = new_sc;
-
         src->empty = false;
         src->filled = true;
     } else {
@@ -1173,13 +1164,13 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
     b_storage.dparams = &dparams;
 
     if (storage->properties.blosc.sequencial) {
-        b_storage.sequential = true;
+        b_storage.contiguous = true;
     }
     if (storage->properties.blosc.urlpath != NULL) {
         b_storage.urlpath = storage->properties.blosc.urlpath;
     }
 
-    blosc2_schunk *sc = blosc2_schunk_new(b_storage);
+    blosc2_schunk *sc = blosc2_schunk_new(&b_storage);
 
     if (sc == NULL) {
         DEBUG_PRINT("Pointer is NULL");
@@ -1199,7 +1190,7 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
     }
 
     // And store it in caterva metalayer
-    if (blosc2_add_metalayer(sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
+    if (blosc2_meta_add(sc, "caterva", smeta, (uint32_t) smeta_len) < 0) {
         return CATERVA_ERR_BLOSC_FAILED;
     }
 
@@ -1209,7 +1200,7 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
         char *name = storage->properties.blosc.metalayers[i].name;
         uint8_t *data = storage->properties.blosc.metalayers[i].sdata;
         int32_t size = storage->properties.blosc.metalayers[i].size;
-        blosc2_add_metalayer(sc, name, data, size);
+        blosc2_meta_add(sc, name, data, size);
     }
     (*array)->sc = sc;
 

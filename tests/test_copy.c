@@ -119,12 +119,12 @@ CUTEST_TEST_TEST(copy) {
 
     /* Assert the metalayers creation */
     if (storage.backend == CATERVA_STORAGE_BLOSC) {
-        if (blosc2_has_metalayer(src->sc, "random") < 0) {
+        if (blosc2_meta_exists(src->sc, "random") < 0) {
             CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
         }
         double *serializeddata;
         uint32_t len;
-        blosc2_get_metalayer(src->sc, "random", (uint8_t **) &serializeddata, &len);
+        blosc2_meta_get(src->sc, "random", (uint8_t **) &serializeddata, &len);
         if (*serializeddata != datatoserialize) {
             CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
         }

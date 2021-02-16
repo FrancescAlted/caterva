@@ -73,8 +73,11 @@ CUTEST_TEST_TEST(serialize) {
     CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
                                             &src));
 
-    uint8_t *sframe = src->sc->frame->sdata;
-    int64_t slen = src->sc->frame->len;
+    uint8_t *sframe;
+    bool needs_free;
+    blosc2_schunk_to_buffer(src->sc, &sframe, &needs_free);
+
+    int64_t slen = blosc2_schunk_frame_len(src->sc);
 
     caterva_array_t *dest;
     caterva_from_serial_schunk(data->ctx, sframe, slen, &dest);
