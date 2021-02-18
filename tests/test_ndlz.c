@@ -76,7 +76,8 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
 
     /* Create a context for compression */
     cparams.typesize = typesize;
-    cparams.compcode = BLOSC_NDLZ;
+    cparams.compcode = BLOSC_ZLIB;
+    cparams.filters[BLOSC2_MAX_FILTERS - 2] = BLOSC_NDCELL;
     cparams.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_SHUFFLE;
     cparams.clevel = 5;
     cparams.nthreads = 1;
@@ -95,7 +96,11 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     blosc2_context *dctx;
     cctx = blosc2_create_cctx(cparams);
     dctx = blosc2_create_dctx(dparams);
-    /*
+    dctx->ndim = 2;
+    dctx->blockshape = blockshape;
+    dctx->typesize = typesize;
+
+/*
     printf("\n data \n");
     for (int i = 0; i < nbytes; i++) {
     printf("%u, ", data2[i]);
@@ -127,12 +132,6 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
     }
     printf("\n output \n");
     for (int i = 0; i < osize; i++) {
-      if ((i - 16) % 65 == 0) {
-        printf("\n");
-      }
-      if (data_out[i - 52] == 137) {
-        printf("\n");
-      }
       printf("%u, ", data_out[i]);
     }
     /* Decompress  */
@@ -1056,7 +1055,7 @@ int main(void) {
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
 */
-    printf("TEST NDLZ-ZLIB \n");
+    printf("TEST BLOSCLZ");
  /*   result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
     result = image2();
