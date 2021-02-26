@@ -34,7 +34,6 @@
 
 #include <stdio.h>
 #include <blosc2.h>
-#include <ndlz4x4.h>
 #include "test_common.h"
 
 #define SHAPE1 32

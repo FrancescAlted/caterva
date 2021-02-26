@@ -34,7 +34,6 @@
 
 #include <stdio.h>
 #include <blosc2.h>
-#include <ndlz4x4.h>
 #include "test_common.h"
 
 #define SHAPE1 32
@@ -49,6 +48,11 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
     caterva_array_t *array;
     caterva_context_t *ctx;
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
+    cfg.nthreads = 2;
+    cfg.compcodec = BLOSC_ZLIB;
+    cfg.filters[BLOSC2_MAX_FILTERS - 2] = BLOSC_NDCELL;
+    cfg.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_SHUFFLE;
+    cfg.filtersmeta[BLOSC2_MAX_FILTERS - 2] = BLOSC2_NDCELL_8;
     caterva_context_new(&cfg, &ctx);
     CATERVA_ERROR(caterva_array_from_buffer(ctx, data2, nbytes, &params, &storage, &array));
 
@@ -65,41 +69,11 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
       }
     }
 
-    int32_t *blockshape = storage.properties.blosc.blockshape;
     int osize = isize + BLOSC_MAX_OVERHEAD;
     int dsize = isize;
     int csize;
     uint8_t *data_out = malloc(osize);
     uint8_t *data_dest = malloc(dsize);
-    blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
-    blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
-
-    /* Create a context for compression */
-    cparams.typesize = typesize;
-    cparams.compcode = BLOSC_ZLIB;
-    cparams.filters[BLOSC2_MAX_FILTERS - 2] = BLOSC_NDCELL;
-    cparams.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_SHUFFLE;
-    cparams.filters_meta[BLOSC2_MAX_FILTERS - 2] = BLOSC2_NDCELL_8;
-    cparams.clevel = 5;
-    cparams.nthreads = 1;
-    cparams.ndim = ndim;
-    cparams.blockshape = blockshape;
-    cparams.blocksize = blockshape[0] * blockshape[1] * typesize;
-    if (cparams.blocksize < BLOSC_MIN_BUFFERSIZE) {
-        printf("\n Blocksize is letter than min \n");
-    }
-
-    /* Create a context for decompression */
-    dparams.nthreads = 1;
-    dparams.schunk = NULL;
-
-    blosc2_context *cctx;
-    blosc2_context *dctx;
-    cctx = blosc2_create_cctx(cparams);
-    dctx = blosc2_create_dctx(dparams);
-    dctx->ndim = 2;
-    dctx->blockshape = blockshape;
-    dctx->typesize = typesize;
 
 /*
     printf("\n data \n");
@@ -114,7 +88,7 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
     blosc_set_timestamp(&start);
 
   /* Compress with clevel=5 and shuffle active  */
-    csize = blosc2_compress_ctx(cctx, data_in, isize, data_out, osize);
+    csize = blosc2_compress_ctx(array->sc->cctx, data_in, isize, data_out, osize);
     if (csize == 0) {
         printf("Buffer is uncompressible.  Giving up.\n");
         return 0;
@@ -136,7 +110,7 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
       printf("%u, ", data_out[i]);
     }
     /* Decompress  */
-    dsize = blosc2_decompress_ctx(dctx, data_out, osize, data_dest, dsize);
+    dsize = blosc2_decompress_ctx(array->sc->dctx, data_out, osize, data_dest, dsize);
     if (dsize <= 0) {
         printf("Decompression error.  Error code: %d\n", dsize);
         return dsize;
@@ -162,8 +136,6 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
 
     caterva_array_free(ctx, &array);
     caterva_context_free(&ctx);
-    blosc2_free_ctx(cctx);
-    blosc2_free_ctx(dctx);
     free(data_in);
     free(data_out);
     free(data_dest);
