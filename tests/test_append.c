@@ -30,7 +30,7 @@ typedef struct {
 } test_append_shapes;
 
 CUTEST_TEST_DATA(append) {
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
 };
 
 
@@ -38,7 +38,7 @@ CUTEST_TEST_SETUP(append) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
-    caterva_context_new(&cfg, &data->ctx);
+    caterva_ctx_new(&cfg, &data->ctx);
 
 
     // Add parametrizations
@@ -79,11 +79,11 @@ CUTEST_TEST_TEST(append) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.filename = "test_append.b2frame";
+                storage.properties.blosc.urlpath = "test_append.b2frame";
             } else {
-                storage.properties.blosc.filename = NULL;
+                storage.properties.blosc.urlpath = NULL;
             }
-            storage.properties.blosc.enforceframe = backend.sequential;
+            storage.properties.blosc.sequencial = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
                 storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
@@ -94,7 +94,7 @@ CUTEST_TEST_TEST(append) {
     }
 
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_array_empty(data->ctx, &params, &storage, &src));
+    CATERVA_TEST_ASSERT(caterva_empty(data->ctx, &params, &storage, &src));
 
     /* Fill empty caterva_array_t with blocks */
     int nextsize = 0;
@@ -114,14 +114,14 @@ CUTEST_TEST_TEST(append) {
             buffer[i] = (double) ind;
             ind ++;
         }
-        CATERVA_TEST_ASSERT(caterva_array_append(data->ctx, src, buffer, nextsize * src->itemsize));
+        CATERVA_TEST_ASSERT(caterva_append(data->ctx, src, buffer, nextsize * src->itemsize));
     }
     data->ctx->cfg->free(buffer);
 
     /* Fill dest array with caterva_array_t data */
     buffersize = (size_t) (src->nitems * src->itemsize);
     double *buffer_dest = data->ctx->cfg->alloc(buffersize);
-    CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, src, buffer_dest, buffersize));
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, src, buffer_dest, buffersize));
     if (src->nitems != 0) {
         int len = src->ndim == 0 ? 1 : 10;
         for (int i = 0; i < len; ++i) {
@@ -132,12 +132,12 @@ CUTEST_TEST_TEST(append) {
     data->ctx->cfg->free(buffer_dest);
 
     /* Free array  */
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
     return 0;
 }
 
 CUTEST_TEST_TEARDOWN(append) {
-    caterva_context_free(&data->ctx);
+    caterva_ctx_free(&data->ctx);
 }
 
 int main() {

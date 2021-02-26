@@ -22,7 +22,7 @@ typedef struct {
 
 
 CUTEST_TEST_DATA(copy) {
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
 };
 
 
@@ -30,7 +30,7 @@ CUTEST_TEST_SETUP(copy) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
-    caterva_context_new(&cfg, &data->ctx);
+    caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(1, 2, 4, 8));
@@ -85,11 +85,11 @@ CUTEST_TEST_TEST(copy) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.filename = "test_copy.b2frame";
+                storage.properties.blosc.urlpath = "test_copy.b2frame";
             } else {
-                storage.properties.blosc.filename = NULL;
+                storage.properties.blosc.urlpath = NULL;
             }
-            storage.properties.blosc.enforceframe = backend.sequential;
+            storage.properties.blosc.sequencial = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
                 storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
                 storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
@@ -114,17 +114,17 @@ CUTEST_TEST_TEST(copy) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_array_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
-                                                  &src));
+    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
+                                            &src));
 
     /* Assert the metalayers creation */
     if (storage.backend == CATERVA_STORAGE_BLOSC) {
-        if (blosc2_has_metalayer(src->sc, "random") < 0) {
+        if (blosc2_meta_exists(src->sc, "random") < 0) {
             CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
         }
         double *serializeddata;
         uint32_t len;
-        blosc2_get_metalayer(src->sc, "random", (uint8_t **) &serializeddata, &len);
+        blosc2_meta_get(src->sc, "random", (uint8_t **) &serializeddata, &len);
         if (*serializeddata != datatoserialize) {
             CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
         }
@@ -139,14 +139,14 @@ CUTEST_TEST_TEST(copy) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend2.persistent) {
-                storage2.properties.blosc.filename = "test_copy2.b2frame";
+                storage2.properties.blosc.urlpath = "test_copy2.b2frame";
             } else {
-                storage2.properties.blosc.filename = NULL;
+                storage2.properties.blosc.urlpath = NULL;
             }
-            storage2.properties.blosc.enforceframe = backend2.sequential;
+            storage2.properties.blosc.sequencial = backend2.sequential;
             for (int i = 0; i < shapes.ndim; ++i) {
                 storage2.properties.blosc.chunkshape[i] = shapes.chunkshape2[i];
-                storage2.properties.blosc.blockshape[i] = shapes.chunkshape2[i];
+                storage2.properties.blosc.blockshape[i] = shapes.blockshape2[i];
             }
             break;
         default:
@@ -154,10 +154,10 @@ CUTEST_TEST_TEST(copy) {
     }
 
     caterva_array_t *dest;
-    CATERVA_TEST_ASSERT(caterva_array_copy(data->ctx, src, &storage2, &dest));
+    CATERVA_TEST_ASSERT(caterva_copy(data->ctx, src, &storage2, &dest));
 
     uint8_t *buffer_dest = malloc(buffersize);
-    CATERVA_TEST_ASSERT(caterva_array_to_buffer(data->ctx, dest, buffer_dest, buffersize));
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, dest, buffer_dest, buffersize));
 
     /* Testing */
     CATERVA_TEST_ASSERT_BUFFER(buffer, buffer_dest, (int) buffersize);
@@ -165,14 +165,14 @@ CUTEST_TEST_TEST(copy) {
     /* Free mallocs */
     free(buffer);
     free(buffer_dest);
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &src));
-    CATERVA_TEST_ASSERT(caterva_array_free(data->ctx, &dest));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
 
     return 0;
 }
 
 CUTEST_TEST_TEARDOWN(copy) {
-    caterva_context_free(&data->ctx);
+    caterva_ctx_free(&data->ctx);
 }
 
 int main() {

@@ -143,14 +143,14 @@ static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
 typedef struct {
     caterva_config_t *cfg;
     //!< The configuration paramters.
-} caterva_context_t;
+} caterva_ctx_t;
 
 /**
  * @brief The backends available to store the data of the caterva array.
  */
 typedef enum {
     CATERVA_STORAGE_BLOSC,
-    //!< Indicates that the data is stored using a Blosc superchunk.
+    //!< Indicates that the data is stored using a Blosc super-chunk.
     CATERVA_STORAGE_PLAINBUFFER,
     //!< Indicates that the data is stored using a plain buffer.
 } caterva_storage_backend_t;
@@ -168,17 +168,17 @@ typedef struct {
 } caterva_metalayer_t;
 
 /**
- * @brief The storage properties for an array backed by a Blosc superchunk.
+ * @brief The storage properties for an array backed by a Blosc super-chunk.
  */
 typedef struct {
     int32_t chunkshape[CATERVA_MAX_DIM];
     //!< The shape of each chunk of Blosc.
     int32_t blockshape[CATERVA_MAX_DIM];
     //!< The shape of each block of Blosc.
-    bool enforceframe;
-    //!< Flag to indicate if the superchunk is stored as a frame.
-    char *filename;
-    //!< The superchunk/frame name. If @p filename is not @p NULL, the superchunk will be stored on
+    bool sequencial;
+    //!< Flag to indicate if the super-chunk is stored sequentially or sparsely.
+    char *urlpath;
+    //!< The super-chunk name. If @p urlpath is not @p NULL, the super-chunk will be stored on
     //!< disk.
     caterva_metalayer_t metalayers[CATERVA_MAX_METALAYERS];
     //!< List with the metalayers desired.
@@ -190,8 +190,8 @@ typedef struct {
  * @brief The storage properties that have a caterva array backed by a plain buffer.
  */
 typedef struct {
-    char *filename;
-    //!< The plain buffer name. If @p filename is not @p NULL, the plain buffer will be stored on
+    char *urlpath;
+    //!< The plain buffer name. If @p urlpath is not @p NULL, the plain buffer will be stored on
     //!< disk. (Not implemented yet).
 } caterva_storage_properties_plainbuffer_t;
 
@@ -200,7 +200,7 @@ typedef struct {
  */
 typedef union {
     caterva_storage_properties_blosc_t blosc;
-    //!< The storage properties when the array is backed by a Blosc superchunk.
+    //!< The storage properties when the array is backed by a Blosc super-chunk.
     caterva_storage_properties_plainbuffer_t plainbuffer;
     //!< The storage properties when the array is backed by a plain buffer.
 } caterva_storage_properties_t;
@@ -247,7 +247,7 @@ typedef struct {
     caterva_storage_backend_t storage;
     //!< Storage type.
     blosc2_schunk *sc;
-    //!< Pointer to a Blosc superchunk
+    //!< Pointer to a Blosc super-chunk
     //!< Only is used if \p storage equals to @p CATERVA_STORAGE_BLOSC.
     uint8_t *buf;
     //!< Pointer to a plain buffer where data is stored.
@@ -299,7 +299,7 @@ typedef struct {
  *
  * @return An error code.
  */
-int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx);
+int caterva_ctx_new(caterva_config_t *cfg, caterva_ctx_t **ctx);
 
 /**
  * @brief Free a context.
@@ -308,7 +308,7 @@ int caterva_context_new(caterva_config_t *cfg, caterva_context_t **ctx);
  *
  * @return An error code.
  */
-int caterva_context_free(caterva_context_t **ctx);
+int caterva_ctx_free(caterva_ctx_t **ctx);
 
 /**
  * @brief Create an empty array.
@@ -320,8 +320,8 @@ int caterva_context_free(caterva_context_t **ctx);
  *
  * @return An error code.
  */
-int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params,
-                        caterva_storage_t *storage, caterva_array_t **array);
+int caterva_empty(caterva_ctx_t *ctx, caterva_params_t *params,
+                  caterva_storage_t *storage, caterva_array_t **array);
 
 /**
  * @brief Free an array.
@@ -331,7 +331,7 @@ int caterva_array_empty(caterva_context_t *ctx, caterva_params_t *params,
  *
  * @return An error code.
  */
-int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
+int caterva_free(caterva_ctx_t *ctx, caterva_array_t **array);
 
 /**
  * Append a chunk to a caterva array (until it is completely filled).
@@ -343,53 +343,46 @@ int caterva_array_free(caterva_context_t *ctx, caterva_array_t **array);
  *
  * @return An error code.
  */
-int caterva_array_append(caterva_context_t *ctx, caterva_array_t *array, void *chunk,
-                         int64_t chunksize);
+int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *chunk,
+                   int64_t chunksize);
 
 /**
- * @brief Create a caterva array from a frame. It can only be used if the array
+ * @brief Create a caterva array from a super-chunk. It can only be used if the array
  * is backed by a blosc super-chunk.
  *
  * @param ctx Pointer to the caterva context to be used.
- * @param frame The blosc frame where the caterva array is stored.
- * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
- * created (i.e. no copies are made).
+ * @param schunk The blosc super-chunk where the caterva array is stored.
  * @param array Pointer to the memory pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_array_from_frame(caterva_context_t *ctx, blosc2_frame *frame, bool copy,
-                             caterva_array_t **array);
+int
+caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
 
 /**
- * @brief Create a caterva array from a serialized frame. It can only be used if the array
+ * @brief Create a caterva array from a serialized super-chunk. It can only be used if the array
  * is backed by a blosc super-chunk.
  *
  * @param ctx Pointer to the caterva context to be used.
- * @param sframe The serialized frame where the caterva array is stored.
- * @param len The size (in bytes) of the serialized frame.
- * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
- * created (i.e. no copies are made).
+ * @param serial_schunk The serialized super-chunk where the caterva array is stored.
+ * @param len The size (in bytes) of the serialized super-chunk.
  * @param array Pointer to the memory pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_array_from_sframe(caterva_context_t *ctx, uint8_t *sframe, int64_t len, bool copy,
-                              caterva_array_t **array);
+int caterva_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
+                               caterva_array_t **array);
 
 /**
  * @brief Read a caterva array from disk.
  *
  * @param ctx Pointer to the caterva context to be used.
- * @param filename The filename of the caterva array on disk.
- * @param copy If true, a new, sparse in-memory super-chunk is created. Else, a frame-backed one is
- * created (i.e. no copies are made).
+ * @param urlpath The urlpath of the caterva array on disk.
  * @param array Pointer to the memory pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool copy,
-                            caterva_array_t **array);
+int caterva_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array);
 
 /**
  * @brief Create a caterva array from the data stored in a buffer.
@@ -403,9 +396,9 @@ int caterva_array_from_file(caterva_context_t *ctx, const char *filename, bool c
  *
  * @return An error code.
  */
-int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize,
-                              caterva_params_t *params, caterva_storage_t *storage,
-                              caterva_array_t **array);
+int caterva_from_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
+                        caterva_params_t *params, caterva_storage_t *storage,
+                        caterva_array_t **array);
 
 /**
  * @brief Extract the data into a C buffer from a caterva array.
@@ -417,8 +410,8 @@ int caterva_array_from_buffer(caterva_context_t *ctx, void *buffer, int64_t buff
  *
  * @return An error code.
  */
-int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void *buffer,
-                            int64_t buffersize);
+int caterva_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer,
+                      int64_t buffersize);
 
 /**
  * @brief Get a slice from an array and store it into a new array.
@@ -432,8 +425,8 @@ int caterva_array_to_buffer(caterva_context_t *ctx, caterva_array_t *array, void
  *
  * @return An error code.
  */
-int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
-                            int64_t *stop, caterva_storage_t *storage, caterva_array_t **array);
+int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
+                      int64_t *stop, caterva_storage_t *storage, caterva_array_t **array);
 
 /**
  * @brief Squeeze a caterva array
@@ -447,8 +440,8 @@ int caterva_array_get_slice(caterva_context_t *ctx, caterva_array_t *src, int64_
  *
  * @return An error code
  */
-int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array,
-                                bool *index);
+int caterva_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *array,
+                          bool *index);
 
 /**
  * @brief Squeeze a caterva array
@@ -460,7 +453,7 @@ int caterva_array_squeeze_index(caterva_context_t *ctx, caterva_array_t *array,
  *
  * @return An error code
  */
-int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
+int caterva_squeeze(caterva_ctx_t *ctx, caterva_array_t *array);
 
 /**
  * @brief Get a slice from an array and store it into a C buffer.
@@ -475,8 +468,8 @@ int caterva_array_squeeze(caterva_context_t *ctx, caterva_array_t *array);
  *
  * @return An error code.
  */
-int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src, int64_t *start,
-                                   int64_t *stop, int64_t *shape, void *buffer, int64_t buffersize);
+int caterva_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
+                             int64_t *stop, int64_t *shape, void *buffer, int64_t buffersize);
 
 /**
  * @brief Set a slice into a caterva array from a C buffer. It can only be used if the array
@@ -491,8 +484,8 @@ int caterva_array_get_slice_buffer(caterva_context_t *ctx, caterva_array_t *src,
  *
  * @return An error code.
  */
-int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t buffersize,
-                                   int64_t *start, int64_t *stop, caterva_array_t *array);
+int caterva_set_slice_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
+                             int64_t *start, int64_t *stop, caterva_array_t *array);
 
 /**
  * @brief Make a copy of the array data. The copy is done into a new caterva array.
@@ -504,7 +497,7 @@ int caterva_array_set_slice_buffer(caterva_context_t *ctx, void *buffer, int64_t
  *
  * @return An error code
  */
-int caterva_array_copy(caterva_context_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
-                       caterva_array_t **array);
+int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
+                 caterva_array_t **array);
 
 #endif  // CATERVA_CATERVA_H_

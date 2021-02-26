@@ -1,6 +1,6 @@
 Context
 =======
-..  doxygenstruct:: caterva_context_t
+..  doxygenstruct:: caterva_ctx_t
 
 
 Configuration parameters
@@ -12,10 +12,10 @@ Configuration parameters
 
 Creation
 ++++++++
-..  doxygenfunction:: caterva_context_new
+..  doxygenfunction:: caterva_ctx_new
 
 
 Destruction
 +++++++++++
 
-..  doxygenfunction:: caterva_context_free
+..  doxygenfunction:: caterva_ctx_free
