@@ -46,15 +46,15 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
 
     uint8_t *data2 = (uint8_t*) data;
     caterva_array_t *array;
-    caterva_context_t *ctx;
+    caterva_ctx_t *ctx;
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_ZLIB;
     cfg.filters[BLOSC2_MAX_FILTERS - 2] = BLOSC_NDCELL;
     cfg.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_SHUFFLE;
     cfg.filtersmeta[BLOSC2_MAX_FILTERS - 2] = BLOSC2_NDCELL_8;
-    caterva_context_new(&cfg, &ctx);
-    CATERVA_ERROR(caterva_array_from_buffer(ctx, data2, nbytes, &params, &storage, &array));
+    caterva_ctx_new(&cfg, &ctx);
+    CATERVA_ERROR(caterva_from_buffer(ctx, data2, nbytes, &params, &storage, &array));
 
     int nchunks = array->nchunks;
     int chunksize = (int) array->extchunknitems * typesize;
@@ -134,8 +134,8 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
         }
     }
 
-    caterva_array_free(ctx, &array);
-    caterva_context_free(&ctx);
+    caterva_free(ctx, &array);
+    caterva_ctx_free(&ctx);
     free(data_in);
     free(data_out);
     free(data_dest);
