@@ -48,17 +48,17 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
     caterva_array_t *array;
     caterva_ctx_t *ctx;
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
-    cfg.nthreads = 2;
+    cfg.nthreads = 1;
     cfg.compcodec = BLOSC_ZLIB;
     cfg.filters[BLOSC2_MAX_FILTERS - 2] = BLOSC_NDCELL;
     cfg.filters[BLOSC2_MAX_FILTERS - 1] = BLOSC_SHUFFLE;
-    cfg.filtersmeta[BLOSC2_MAX_FILTERS - 2] = BLOSC2_NDCELL_8;
+    cfg.filtersmeta[BLOSC2_MAX_FILTERS - 2] = BLOSC2_NDCELL_4;
     caterva_ctx_new(&cfg, &ctx);
     CATERVA_ERROR(caterva_from_buffer(ctx, data2, nbytes, &params, &storage, &array));
 
-    int nchunks = array->nchunks;
-    int chunksize = (int) array->extchunknitems * typesize;
-    int isize = nchunks * chunksize;
+    int nchunks = (int) array->nchunks;
+    int chunksize = (int) (array->extchunknitems * typesize);
+    size_t isize = (size_t) nchunks * chunksize;
     uint8_t *data_in = malloc(isize);
     int decompressed;
     for (int ci = 0; ci < nchunks; ci++) {
@@ -69,8 +69,8 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
       }
     }
 
-    int osize = isize + BLOSC_MAX_OVERHEAD;
-    int dsize = isize;
+    size_t osize = (size_t) (isize + BLOSC_MAX_OVERHEAD);
+    size_t dsize = isize;
     int csize;
     uint8_t *data_out = malloc(osize);
     uint8_t *data_dest = malloc(dsize);
@@ -146,12 +146,12 @@ static int test_ndcell(void *data, int nbytes, int typesize, int ndim, caterva_p
 }
 
 int no_matches() {
-    int ndim = 2;
+    int ndim = 3;
     int typesize = 1;
-    int32_t shape[8] = {1024, 512};
-    int32_t chunkshape[8] = {32, 32};
-    int32_t blockshape[8] = {32, 32};
-    int isize = (int)(shape[0] * shape[1]);
+    int32_t shape[8] = {32, 32, 32};
+    int32_t chunkshape[8] = {32, 32, 32};
+    int32_t blockshape[8] = {16, 16, 16};
+    int isize = (int)(shape[0] * shape[1] * shape[2]);
     int nbytes = typesize * isize;
     uint8_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i++) {
@@ -178,12 +178,12 @@ int no_matches() {
 }
 
 int no_matches_pad() {
-    int ndim = 2;
+    int ndim = 3;
     int typesize = 4;
-    int32_t shape[8] = {19, 21};
-    int32_t chunkshape[8] = {14, 16};
-    int32_t blockshape[8] = {11, 13};
-    int isize = (int)(shape[0] * shape[1]);
+    int32_t shape[8] = {441, 439, 452};
+    int32_t chunkshape[8] = {322, 398, 337};
+    int32_t blockshape[8] = {145, 137, 184};
+    int isize = (int)(shape[0] * shape[1] * shape[2]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i++) {
@@ -274,12 +274,15 @@ int all_elem_pad() {
 }
 
 int same_cells() {
-    int ndim = 2;
+    int ndim = 3;
     int typesize = 4;
-    int32_t shape[8] = {32, 32};
-    int32_t chunkshape[8] = {24, 24};
-    int32_t blockshape[8] = {16, 16};
-    int isize = (int)(shape[0] * shape[1]);
+    int32_t shape[8] = {441, 439, 452};
+    int32_t chunkshape[8] = {322, 398, 337};
+    int32_t blockshape[8] = {157, 137, 184};
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i += 4) {
@@ -310,12 +313,15 @@ int same_cells() {
 }
 
 int same_cells_pad() {
-    int ndim = 2;
+    int ndim = 4;
     int typesize = 4;
-    int32_t shape[8] = {26, 27};
-    int32_t chunkshape[8] = {26, 22};
-    int32_t blockshape[8] = {13, 11};
-    int isize = (int)(shape[0] * shape[1]);
+    int32_t shape[8] = {154, 167, 173, 133};
+    int32_t chunkshape[8] = {88, 48, 38, 22};
+    int32_t blockshape[8] = {67, 17, 33, 22};
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     for (int i = 0; i < (isize / 4); i++) {
@@ -349,8 +355,10 @@ int same_cells_pad_tam1() {
     int32_t shape[8] = {30, 24};
     int32_t chunkshape[8] = {26, 22};
     int32_t blockshape[8] = {13, 11};
-    int isize = (int)(shape[0] * shape[1]);
-    int nbytes = typesize * isize;
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }    int nbytes = typesize * isize;
     uint8_t *data = malloc(nbytes);
     for (int i = 0; i < (isize / 4); i++) {
         data[i * 4] = (uint32_t *) 111;
@@ -378,12 +386,15 @@ int same_cells_pad_tam1() {
 }
 
 int matches_2_rows() {
-    int ndim = 2;
+    int ndim = 4;
     int typesize = 4;
-    int32_t shape[8] = {13, 13};
-    int32_t chunkshape[8] = {13, 13};
-    int32_t blockshape[8] = {13, 13};
-    int isize = (int)(shape[0] * shape[1]);
+    int32_t shape[8] = {143, 163, 157, 134};
+    int32_t chunkshape[8] = {42, 43, 53, 66};
+    int32_t blockshape[8] = {23, 31, 13, 66};
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     for (int i = 0; i < isize; i += 4) {
@@ -423,15 +434,18 @@ int matches_2_rows() {
 }
 
 int matches_3_rows() {
-    int ndim = 2;
+    int ndim = 4;
     int typesize = 4;
-    int32_t shape[8] = {32, 32};
-    int32_t chunkshape[8] = {32, 32};
-    int32_t blockshape[8] = {16, 16};
-    int isize = (int)(shape[0] * shape[1]);
+    int32_t shape[8] = {151, 145, 163, 125};
+    int32_t chunkshape[8] = {50, 38, 42, 25};
+    int32_t blockshape[8] = {25, 24, 16, 18};
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    for (int i = 0; i < isize; i += 4) {
+    for (int i = 0; i < isize - 4; i += 4) {
         if ((i % 12 == 0) && (i != 0)) {
             data[i] = 1111111;
             data[i + 1] = 3;
@@ -466,13 +480,15 @@ int matches_3_rows() {
 }
 
 int matches_2_couples() {
-    int ndim = 2;
+    int ndim = 4;
     int typesize = 1;
-    int32_t shape[8] = {12, 12};
-    int32_t chunkshape[8] = {12, 12};
-    int32_t blockshape[8] = {12, 12};
-    int isize = (int)(shape[0] * shape[1]);
-    int nbytes = typesize * isize;
+    int32_t shape[8] = {142, 155, 162, 88};
+    int32_t chunkshape[8] = {42, 53, 41, 33};
+    int32_t blockshape[8] = {13, 39, 28, 11};
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }    int nbytes = typesize * isize;
     uint8_t *data = malloc(nbytes);
     for (int i = 0; i < isize / 4; i++) {
         if (i % 4 == 0) {
@@ -519,13 +535,15 @@ int matches_2_couples() {
 }
 
 int some_matches() {
-    int ndim = 2;
+    int ndim = 4;
     int typesize = 4;
-    int32_t shape[8] = {256, 256};
-    int32_t chunkshape[8] = {128, 128};
-    int32_t blockshape[8] = {64, 64};
-    int isize = (int)(shape[0] * shape[1]);
-    int nbytes = typesize * isize;
+    int32_t shape[8] = {156, 146, 135, 156};
+    int32_t chunkshape[8] = {48, 32, 42, 33};
+    int32_t blockshape[8] = {14, 18, 26, 33};
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }    int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     for (int i = 0; i < (isize / 2); i++) {
         data[i] = i;
@@ -555,13 +573,15 @@ int some_matches() {
 }
 
 int padding_some() {
-    int ndim = 2;
+    int ndim = 4;
     int typesize = 4;
-    int32_t shape[8] = {215, 233};
-    int32_t chunkshape[8] = {128, 128};
-    int32_t blockshape[8] = {64, 64};
-    int isize = (int)(shape[0] * shape[1]);
-    int nbytes = typesize * isize;
+    int32_t shape[8] = {145, 153, 142, 88};
+    int32_t chunkshape[8] = {32, 38, 48, 33};
+    int32_t blockshape[8] = {16, 26, 17, 11};
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }    int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     for (int i = 0; i < 2 * isize / 3; i++) {
         data[i] = 0;
@@ -596,8 +616,10 @@ int pad_some_32() {
     int32_t shape[8] = {37, 29};
     int32_t chunkshape[8] = {18, 24};
     int32_t blockshape[8] = {12, 12};
-    int isize = (int)(shape[0] * shape[1]);
-    int nbytes = typesize * isize;
+    int isize = 1;
+    for (int i = 0; i < ndim; ++i) {
+      isize *= (int)(shape[i]);
+    }    int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
     for (int i = 0; i < 2 * isize / 3; i++) {
         data[i] = 0;
@@ -1003,15 +1025,15 @@ int main(void) {
 /*
     result = no_matches();
     printf("no_matches: %d obtained \n \n", result);
-    result = no_matches_pad();
+ */   result = no_matches_pad();
     printf("no_matches_pad: %d obtained \n \n", result);
-    result = all_elem_eq();
+   /* result = all_elem_eq();
     printf("all_elem_eq: %d obtained \n \n", result);
     result = all_elem_pad();
     printf("all_elem_pad: %d obtained \n \n", result);
-    result = same_cells();
+ /   result = same_cells();
     printf("same_cells: %d obtained \n \n", result);
-    result = same_cells_pad();
+ /*   result = same_cells_pad();
     printf("same_cells_pad: %d obtained \n \n", result);
     result = same_cells_pad_tam1();
     printf("same_cells_pad_tam1: %d obtained \n \n", result);
@@ -1027,7 +1049,7 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-*/
+/*
     printf("TEST BLOSCLZ \n");
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
@@ -1049,5 +1071,5 @@ int main(void) {
     printf("image9 with NO padding: %d obtained \n \n", result);
     result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
-
+*/
 }
