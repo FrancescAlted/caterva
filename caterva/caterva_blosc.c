@@ -450,10 +450,10 @@ int caterva_blosc_array_append(caterva_ctx_t *ctx, caterva_array_t *array, void 
             }
             ind_dest += c_pshape[7];
         }
-        CATERVA_ERROR (caterva_blosc_array_repart_chunk(rchunk, size_rep, paddedchunk, size_chunk, array));
+        CATERVA_ERROR(caterva_blosc_array_repart_chunk(rchunk, size_rep, paddedchunk, size_chunk, array));
         ctx->cfg->free(paddedchunk);
     } else {
-        CATERVA_ERROR (caterva_blosc_array_repart_chunk(rchunk, size_rep, bchunk, chunksize, array));
+        CATERVA_ERROR(caterva_blosc_array_repart_chunk(rchunk, size_rep, bchunk, chunksize, array));
     }
     if (blosc2_schunk_append_buffer(array->sc, rchunk, (size_t) size_rep) < 0) {
         return CATERVA_ERR_BLOSC_FAILED;
@@ -572,7 +572,7 @@ int caterva_blosc_array_from_buffer(caterva_ctx_t *ctx, caterva_array_t *array, 
                 memcpy(chunk + d_coord_f * typesize, bbuffer + s_coord_f * typesize, seq_copylen);
             }
             // Copy each chunk from rchunk to dest
-            CATERVA_ERROR (caterva_blosc_array_repart_chunk(rchunk, (int32_t) array->extchunknitems * typesize,
+            CATERVA_ERROR(caterva_blosc_array_repart_chunk(rchunk, (int32_t) array->extchunknitems * typesize,
                                                  chunk, array->chunknitems * typesize, array));
 
             if (blosc2_schunk_append_buffer(array->sc, rchunk,
@@ -1089,7 +1089,7 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
                               caterva_storage_t *storage, caterva_array_t **array) {
     /* Create a caterva_array_t buffer */
     (*array) = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
-    CATERVA_ERROR_NULL(*array) ;
+    CATERVA_ERROR_NULL(*array);
 
     (*array)->storage = storage->backend;
     (*array)->ndim = params->ndim;
