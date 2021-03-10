@@ -72,6 +72,7 @@ static int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunks
     int32_t max_smeta_len = 1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) +
                             (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t)));
     *smeta = malloc((size_t) max_smeta_len);
+    CATERVA_ERROR_NULL(smeta);
     uint8_t *pmeta = *smeta;
 
     // Build an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
@@ -195,6 +196,7 @@ int caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva
     }
     /* Create a caterva_array_t buffer */
     *array = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
+    CATERVA_ERROR_NULL(array);
 
     if (schunk == NULL) {
         DEBUG_PRINT("Schunk is null");
@@ -401,6 +403,7 @@ int caterva_blosc_array_append(caterva_ctx_t *ctx, caterva_array_t *array, void 
     int64_t typesize = array->itemsize;
     int32_t size_rep = (int32_t)(array->extchunknitems * typesize);
     int8_t *rchunk = ctx->cfg->alloc((size_t) size_rep);
+    CATERVA_ERROR_NULL(rchunk);
     int64_t c_pshape[CATERVA_MAX_DIM];
     int8_t c_ndim = array->ndim;
 
@@ -412,6 +415,7 @@ int caterva_blosc_array_append(caterva_ctx_t *ctx, caterva_array_t *array, void 
 
     if (padding) {
         uint8_t *paddedchunk = ctx->cfg->alloc(size_chunk);
+        CATERVA_ERROR_NULL(paddedchunk);
         memset(paddedchunk, 0, size_chunk);
         int32_t next_pshape[CATERVA_MAX_DIM];
         for (int i = 0; i < CATERVA_MAX_DIM; ++i) {
@@ -649,6 +653,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *ar
     int typesize = array->itemsize;
     int nblocks = ((int) array->extchunknitems) / array->blocknitems;
     bool *block_maskout = ctx->cfg->alloc(nblocks);
+    CATERVA_ERROR_NULL(block_maskout);
 
     uint8_t *chunk;
     bool local_cache;
@@ -1084,10 +1089,7 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
                               caterva_storage_t *storage, caterva_array_t **array) {
     /* Create a caterva_array_t buffer */
     (*array) = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
-    if ((*array) == NULL) {
-        DEBUG_PRINT("Pointer is null");
-        return CATERVA_ERR_NULL_POINTER;
-    }
+    CATERVA_ERROR_NULL(*array) ;
 
     (*array)->storage = storage->backend;
     (*array)->ndim = params->ndim;
