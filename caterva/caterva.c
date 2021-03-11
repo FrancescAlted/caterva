@@ -19,12 +19,14 @@ int caterva_ctx_new(caterva_config_t *cfg, caterva_ctx_t **ctx) {
     CATERVA_ERROR_NULL(ctx);
 
     (*ctx) = (caterva_ctx_t *) cfg->alloc(sizeof(caterva_ctx_t));
+    CATERVA_ERROR_NULL(ctx);
     if (!(*ctx)) {
         DEBUG_PRINT("Allocation fails");
         return CATERVA_ERR_NULL_POINTER;
     }
 
     (*ctx)->cfg = (caterva_config_t *) cfg->alloc(sizeof(caterva_config_t));
+    CATERVA_ERROR_NULL((*ctx)->cfg);
     if (!(*ctx)->cfg) {
         DEBUG_PRINT("Allocation fails");
         return CATERVA_ERR_NULL_POINTER;
