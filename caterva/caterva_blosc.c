@@ -641,7 +641,7 @@ int caterva_blosc_array_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *ar
         // In case of an aligned read, decompress directly in destination
         if (blosc2_schunk_decompress_chunk(array->sc, nchunk, bbuffer,
                                            (size_t) array->chunknitems * array->sc->typesize) < 0) {
-            return CATERVA_ERR_BLOSC_FAILED;
+            CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
         }
         return CATERVA_SUCCEED;
     }
