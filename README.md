@@ -20,4 +20,4 @@ For more info, check out the
 [Caterva documentation](https://caterva.readthedocs.io).
   
 Here are slides of a gentle
-[introductory talk to Caterva](http://blosc.org/docs/Caterva-HDF5-Workshop.pdf).
+[introductory talk to Caterva](https://www.hdfgroup.org/wp-content/uploads/2019/09/Caterva-HDF5-Workshop_v3.pdf).
