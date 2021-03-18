@@ -120,6 +120,8 @@ typedef struct {
     //!< Defines the function that is applied to the data before compressing it.
     blosc2_prefilter_params *pparams;
     //!< Indicates the parameters of the prefilter function.
+    blosc2_btune *udbtune;
+    //!< Indicates user-defined parameters for btune.
 } caterva_config_t;
 
 /**
@@ -134,7 +136,9 @@ static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
                                                          .filters = {0, 0, 0, 0, 0, BLOSC_SHUFFLE},
                                                          .filtersmeta = {0, 0, 0, 0, 0, 0},
                                                          .prefilter = NULL,
-                                                         .pparams = NULL};
+                                                         .pparams = NULL,
+                                                         .udbtune = NULL,
+                                                         };
 
 /**
  * @brief Context for caterva arrays that specifies the functions used to manage memory and
