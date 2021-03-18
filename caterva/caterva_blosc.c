@@ -1154,7 +1154,7 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
     cparams.schunk = NULL;
     cparams.typesize = params->itemsize;
     cparams.prefilter = ctx->cfg->prefilter;
-    cparams.pparams = ctx->cfg->pparams;
+    cparams.preparams = ctx->cfg->pparams;
     cparams.use_dict = ctx->cfg->usedict;
     cparams.nthreads = (int16_t) ctx->cfg->nthreads;
     cparams.clevel = (uint8_t) ctx->cfg->complevel;
@@ -1163,6 +1163,7 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
         cparams.filters[i] = ctx->cfg->filters[i];
         cparams.filters_meta[i] = ctx->cfg->filtersmeta[i];
     }
+    cparams.udbtune = ctx->cfg->udbtune;
 
     blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
     dparams.schunk = NULL;
