@@ -37,6 +37,6 @@ Outreaching
 
 * **Improve the main Caterva README:** this should allow a better overview at first glance of all the features that Caterva offers right now.
 
-* **Attend to meetings and conferences:** it is very important to plan going to conferences for advertising Caterva and meeting people in-person.  We need to decide which meetings to attend.  As there are not that much conferences about C libraries, it is important to leverage the `cat4py <https://github.com/Blosc/cat4py`_ wrapper so as to try to promote Caterva on Python conferences too.
+* **Attend to meetings and conferences:** it is very important to plan going to conferences for advertising Caterva and meeting people in-person.  We need to decide which meetings to attend.  As there are not that much conferences about C libraries, it is important to leverage the `cat4py <https://github.com/Blosc/cat4py>`_ wrapper so as to try to promote Caterva on Python conferences too.
   
 * Other outreaching activities would be to produce videos of the kind 'Caterva in 10 minutes', or producing compelling tutorials (preferably based on Jupyter notebook, and using services like `binder <https://mybinder.org>`_ that allows a low entry level for quick trials).
