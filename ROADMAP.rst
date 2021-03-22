@@ -1,7 +1,10 @@
 Roadmap
 =======
 
-This document lists the main goals for the upcoming Caterva releases.
+Caterva is a multidimensional container for binary data.  It is a pure C library, allowing for better interoperatibility between different languages (although Python stands out high in the list).
+
+This document lists the goals for a production release of Caterva.
+
 
 Existing features
 -----------------
