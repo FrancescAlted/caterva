@@ -17,8 +17,7 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
 
 int caterva_blosc_array_free(caterva_ctx_t *ctx, caterva_array_t **array);
 
-int
-caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
+int caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
 
 int caterva_blosc_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
                                      caterva_array_t **array);

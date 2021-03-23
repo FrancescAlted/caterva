@@ -10,19 +10,7 @@
  */
 
 #include <caterva.h>
-
-static void index_unidim_to_multidim(int8_t ndim, int64_t *shape, int64_t i, int64_t *index) {
-    int64_t strides[CATERVA_MAX_DIM];
-    strides[ndim - 1] = 1;
-    for (int j = ndim - 2; j >= 0; --j) {
-        strides[j] = shape[j + 1] * strides[j + 1];
-    }
-
-    index[0] = i / strides[0];
-    for (int j = 1; j < ndim; ++j) {
-        index[j] = (i % strides[j - 1]) / strides[j];
-    }
-}
+#include <caterva_utilities.h>
 
 int caterva_plainbuffer_array_free(caterva_ctx_t *ctx, caterva_array_t **array) {
     if ((*array)->buf != NULL) {

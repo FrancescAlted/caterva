@@ -32,6 +32,8 @@ int main() {
     int8_t *data = malloc(size);
 
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
+    cfg.filters[4] = BLOSC_UDFILTER;
+    cfg.filtersmeta[4] = 128;
 
     caterva_ctx_t *ctx;
     caterva_ctx_new(&cfg, &ctx);

@@ -72,7 +72,7 @@ file(GLOB SRC_FILES ${CATERVA_SRC}/*.c)
 
 if (SHARED_LIB)
     message(STATUS "Building caterva shared lib")
-    add_library(caterva_shared SHARED ${SRC_FILES})
+    add_library(caterva_shared SHARED ${SRC_FILES} caterva/ndcell.h caterva/caterva_utilities.h)
     if (ENABLE_COVERAGE)
         target_compile_options(caterva_shared PRIVATE -fprofile-arcs -ftest-coverage)
         target_link_libraries(caterva_shared blosc2_static -fprofile-arcs)

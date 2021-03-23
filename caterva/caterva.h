@@ -96,6 +96,8 @@ static char *print_error(int rc) {
 /* The maximum number of metalayers for caterva arrays */
 #define CATERVA_MAX_METALAYERS BLOSC2_MAX_METALAYERS - 1
 
+/* The maximum number of udfilters for caterva arrays */
+#define CATERVA_MAX_UDFILTERS BLOSC2_MAX_UDFILTERS - 1
 /**
  * @brief Configuration parameters used to create a caterva context.
  */
@@ -116,6 +118,8 @@ typedef struct {
     //!< Defines the filters used in compression.
     uint8_t filtersmeta[BLOSC2_MAX_FILTERS];
     //!< Indicates the meta filters used in Blosc.
+    blosc2_udfilter udfilters[CATERVA_MAX_UDFILTERS];
+
     blosc2_prefilter_fn prefilter;
     //!< Defines the function that is applied to the data before compressing it.
     blosc2_prefilter_params *pparams;
@@ -133,6 +137,7 @@ static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
                                                          .nthreads = 1,
                                                          .filters = {0, 0, 0, 0, 0, BLOSC_SHUFFLE},
                                                          .filtersmeta = {0, 0, 0, 0, 0, 0},
+                                                         .udfilters = {0},
                                                          .prefilter = NULL,
                                                          .pparams = NULL};
 
@@ -175,6 +180,8 @@ typedef struct {
     //!< The shape of each chunk of Blosc.
     int32_t blockshape[CATERVA_MAX_DIM];
     //!< The shape of each block of Blosc.
+    int32_t cellshape[CATERVA_MAX_DIM];
+    //!< The shape of each cell of Blosc when using ndcell filter.
     bool sequencial;
     //!< Flag to indicate if the super-chunk is stored sequentially or sparsely.
     char *urlpath;
