@@ -29,6 +29,8 @@ Actions to be done
 
 * **Support for multidimensional filters:** this will improve the in-memory spatial locally for data that is **n-dim closer** in the array; by n-dim closer we mean that the multidimensional norm (in an Euclidean space) between two different positions of elements is shorter.  This may led to better compression opportunities when spatial locality (Euclidean space) is high.
 
+* **Support for multidimensional codecs:** this is the equivalent for multidim filters, but for codecs.  Multidim codecs can leverage n-dim spatial locality in order to compress better/faster.  Such codecs could be used in combination with others, uni-dim codecs (e.g. LZ4), so as to get better ratios.
+
 * **Provide wheels:** this will make the installation much more easier for the user.
 
 
