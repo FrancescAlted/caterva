@@ -11,7 +11,7 @@ Existing features
 
 * **Built on top of Blosc2:** besides transparent compression, this allows to store large compressed datasets either in-memory or on-disk. In addition, Caterva inherits all the improvements that are being introduced in Blosc2 (see https://github.com/Blosc/c-blosc2/blob/master/ROADMAP.md).
 
-* **Two-level multidimensional partitions:** like other libraries, Caterva stores the data into multidimensional chunks for efficient slicing. But in addition, Caterva introduces a new level of partitioning.  Within each chunk, the data is re-chunked into smaller multidimensional sets called blocks, leading to more fine-grained, and hence, to `even more efficient slicing capabilities <https://github.com/Blosc/cat4py/blob/master/notebooks/slicing-performance.ipynb>`_.
+* **Two-level multidimensional chunking:** like other libraries, Caterva stores the data into multidimensional chunks for efficient slicing. But in addition, Caterva introduces a new level of chunking.  Within each chunk, the data is re-chunked into smaller multidimensional sets called blocks, leading to more fine-grained, and hence, to `even more efficient slicing capabilities <https://github.com/Blosc/cat4py/blob/master/notebooks/slicing-performance.ipynb>`_.
 
 * **Plainbuffer support:** Caterva also allows to store data in a contiguous buffer. In this way, it facilitates the interoperability with other libraries like NumPy.
 
