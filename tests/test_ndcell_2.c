@@ -98,7 +98,7 @@ static int test_ndcell(void *data, int64_t nbytes, int typesize, int ndim, cater
         blosc_set_timestamp(&comp);
 //        printf("Compression: %d -> %d (%.1fx)\n", chunksize, csize, (1. * chunksize) / csize);
         /* Decompress  */
-        dsize = blosc2_decompress_ctx(array->sc->dctx, data_out, chunksize, data_dest, chunksize);
+        dsize = blosc2_decompress_ctx(array->sc->dctx, data_out, chunksize + BLOSC_MAX_OVERHEAD, data_dest, chunksize );
         if (dsize <= 0) {
             printf("Decompression error.  Error code: %d\n", dsize);
             return dsize;
@@ -728,7 +728,7 @@ int image1() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -769,7 +769,7 @@ int image2() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res2.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res2.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -810,7 +810,7 @@ int image3() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res3.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res3.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -851,7 +851,7 @@ int image4() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res4.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res4.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -892,7 +892,7 @@ int image5() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res5.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res5.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -933,7 +933,7 @@ int image6() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res6.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res6.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -974,7 +974,7 @@ int image7() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res7.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res7.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -1015,7 +1015,7 @@ int image8() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res8.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res8.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -1056,7 +1056,7 @@ int image9() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint32_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res9.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res9.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -1097,7 +1097,7 @@ int image10() {
     int isize = (int)(shape[0] * shape[1]);
     int nbytes = typesize * isize;
     uint8_t *data = malloc(nbytes);
-    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/examples/res10.bin", "rb");
+    FILE *f = fopen("/mnt/c/Users/sosca/CLionProjects/Caterva/files/res10.bin", "rb");
     int err = (int) fread(data, 1, nbytes, f);
     if (err != nbytes) {
       printf("\n read error");
@@ -1162,7 +1162,7 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-*/
+
     printf("TEST BLOSCLZ \n");
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
