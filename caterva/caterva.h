@@ -106,6 +106,8 @@ typedef struct {
     //!< The memory release function used internally.
     int compcodec;
     //!< Defines the codec used in compression.
+    int compcodecmeta;
+    //!< The metadata for the compressor codec.
     int complevel;
     //!< Determines the compression level used in Blosc.
     int usedict;
@@ -122,6 +124,8 @@ typedef struct {
     //!< Indicates the parameters of the prefilter function.
     blosc2_btune *udbtune;
     //!< Indicates user-defined parameters for btune.
+    blosc2_codec udcodecs[BLOSC2_MAX_UDCODECS];
+
 } caterva_config_t;
 
 /**
@@ -130,6 +134,7 @@ typedef struct {
 static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
                                                          .free = free,
                                                          .compcodec = BLOSC_ZSTD,
+                                                         .compcodecmeta = 0,
                                                          .complevel = 5,
                                                          .usedict = 0,
                                                          .nthreads = 1,
@@ -138,6 +143,7 @@ static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
                                                          .prefilter = NULL,
                                                          .pparams = NULL,
                                                          .udbtune = NULL,
+                                                         .udcodecs = {0},
                                                          };
 
 /**
