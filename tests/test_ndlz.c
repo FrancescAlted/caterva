@@ -123,7 +123,7 @@ static int test_ndlz(void *data, int nbytes, int typesize, int ndim, caterva_par
         }
 
         printf("Compression: %d -> %d (%.1fx)\n", chunksize, csize, (1. * chunksize) / csize);
-
+/*
         printf("data_in: \n");
         for (int i = 0; i < chunksize; i++) {
             printf("%u, ", data_in[i]);

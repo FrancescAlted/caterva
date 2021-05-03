@@ -1165,16 +1165,10 @@ int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
         cparams.filters_meta[i] = ctx->cfg->filtersmeta[i];
     }
     cparams.udbtune = ctx->cfg->udbtune;
-    for (int i = 0; i < BLOSC2_MAX_UDCODECS; ++i) {
-        cparams.udcodecs[i] = ctx->cfg->udcodecs[i];
-    }
 
     blosc2_dparams dparams = BLOSC2_DPARAMS_DEFAULTS;
     dparams.schunk = NULL;
     dparams.nthreads = ctx->cfg->nthreads;
-    for (int i = 0; i < BLOSC2_MAX_UDCODECS; ++i) {
-        dparams.udcodecs[i] = ctx->cfg->udcodecs[i];
-    }
 
     blosc2_storage b_storage = BLOSC2_STORAGE_DEFAULTS;
     b_storage.cparams = &cparams;
