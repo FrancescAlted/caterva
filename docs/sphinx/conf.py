@@ -1,21 +1,20 @@
 import subprocess
+import datetime
+
 
 subprocess.call('cd ../doxygen && doxygen Doxyfile && cd ../sphinx', shell=True)
 
 project = 'Caterva'
-copyright = '2019-2020, Blosc Developers'
+author = 'The Blosc Developers'
+now = datetime.datetime.now()
 
-import git
-repo = git.Repo('./../..')
-tags = sorted(repo.tags, key=lambda t: t.commit.committed_datetime)
-latest_tag = str(tags[-1])[1:]
-release = latest_tag
-version = latest_tag
+copyright = f'2019-{now.year}, {author}'
 
 extensions = ["sphinx.ext.mathjax",
-              "breathe"]
+              "breathe",
+              "myst_parser"]
 
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
 language = None
@@ -26,18 +25,17 @@ pygments_style = None
 highlight_language = 'none'
 
 html_static_path = ["_static"]
-html_theme = 'sphinx_rtd_theme'
+html_theme = "pydata_sphinx_theme"
 html_logo = "_static/caterva.svg"
 html_favicon = "_static/caterva-logo.svg"
 html_show_sourcelink = False
 
 html_theme_options = {
-    "logo_only": True,
 }
+
+html_css_files = [
+    'css/custom.css',
+]
 
 breathe_projects = {"caterva": "../doxygen/xml/"}
 breathe_default_project = "caterva"
-
-
-def setup(app):
-    app.add_css_file('custom.css')

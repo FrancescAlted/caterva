@@ -8,25 +8,8 @@ versions is the same.
 
 ..  toctree::
     :maxdepth: 1
-    :caption: Getting Started
+    :caption: Contents
 
-    getting-started/description
-    getting-started/installation
-
-
-..  toctree::
-    :maxdepth: 1
-    :caption: API Reference
-
-    reference/api
-    reference/wrappers
-
-
-..  toctree::
-    :maxdepth: 1
-    :caption: Development
-
-    development/contributing
-    development/roadmap
-    development/release-notes
-
+    Getting Started <getting-started/index>
+    API Reference <reference/index>
+    Development <development/index>
