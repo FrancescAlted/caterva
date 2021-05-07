@@ -6,7 +6,7 @@ read, in an incredibly efficient way, slices of it. To achieve this, a new
 chunking-based data layout has been created.
 
 .. image:: overview.png
-   :width: 40%
+   :width: 90%
    :align: center
 
 Like other libraries like zarr, HDF5 or TileDB, Caterva stores the data into

@@ -2,8 +2,8 @@ Caterva metalayer
 +++++++++++++++++
 
 Caterva is created by specifying a metalayer on top of a Blosc2 container for storing
-multidimensional information. This metalayer can be modified so that the shapes can be updated
-(e.g. an array can grow or shrink). Specifically, Caterva metalayer follows the msgpack format::
+multidimensional information.
+Specifically, Caterva metalayer follows the msgpack format::
 
     |-0-|-1-|-2-|-3-|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|---|~~~~~~~~~~~~~~~~|
     | 9X| n | n | 9X| shape          | 9X| chunkshape     | 9X| blockshape     |
