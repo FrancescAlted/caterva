@@ -65,6 +65,9 @@ CUTEST_TEST_TEST(append) {
     CUTEST_GET_PARAMETER(shapes, test_append_shapes);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
+    char *urlpath = "test_append.b2frame";
+    remove(urlpath);
+
     caterva_params_t params;
     params.itemsize = itemsize;
     params.ndim = shapes.ndim;
@@ -79,7 +82,7 @@ CUTEST_TEST_TEST(append) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.urlpath = "test_append.b2frame";
+                storage.properties.blosc.urlpath = urlpath;
             } else {
                 storage.properties.blosc.urlpath = NULL;
             }
@@ -133,6 +136,8 @@ CUTEST_TEST_TEST(append) {
 
     /* Free array  */
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
+    remove(urlpath);
+
     return 0;
 }
 

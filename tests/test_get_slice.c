@@ -86,6 +86,10 @@ CUTEST_TEST_TEST(get_slice) {
     CUTEST_GET_PARAMETER(backend2, _test_backend);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
+    char* urlpath = "test_get_slice.b2frame";
+    char* urlpath2 = "test_get_slice2.b2frame";
+    remove(urlpath);
+
     caterva_params_t params;
     params.itemsize = itemsize;
     params.ndim = shapes.ndim;
@@ -100,7 +104,7 @@ CUTEST_TEST_TEST(get_slice) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.urlpath = "test_get_slice.b2frame";
+                storage.properties.blosc.urlpath = urlpath;
             }
             storage.properties.blosc.sequencial = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
@@ -135,7 +139,7 @@ CUTEST_TEST_TEST(get_slice) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend2.persistent) {
-                storage2.properties.blosc.urlpath = "test_get_slice2.b2frame";
+                storage2.properties.blosc.urlpath = urlpath2;
             }
             storage2.properties.blosc.sequencial = backend2.sequential;
             for (int i = 0; i < params.ndim; ++i) {
@@ -168,7 +172,9 @@ CUTEST_TEST_TEST(get_slice) {
     data->ctx->cfg->free(buffer_dest);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
-    
+    remove(urlpath);
+    remove(urlpath2);
+
     return 0;
 }
 

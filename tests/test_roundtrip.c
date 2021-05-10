@@ -33,6 +33,9 @@ CUTEST_TEST_TEST(roundtrip) {
     CUTEST_GET_PARAMETER(shapes, _test_shapes);
     CUTEST_GET_PARAMETER(itemsize, bool);
 
+    char *urlpath = "test_roundtrip.b2frame";
+    remove(urlpath);
+
     caterva_params_t params;
     params.itemsize = itemsize;
     params.ndim = shapes.ndim;
@@ -47,7 +50,7 @@ CUTEST_TEST_TEST(roundtrip) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.urlpath = "test_roundtrip.b2frame";
+                storage.properties.blosc.urlpath = urlpath;
             }
             storage.properties.blosc.sequencial = backend.sequential;
             for (int i = 0; i < shapes.ndim; ++i) {
@@ -84,7 +87,9 @@ CUTEST_TEST_TEST(roundtrip) {
     free(buffer);
     free(buffer_dest);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
-    return 0;
+    remove(urlpath);
+
+    return CATERVA_SUCCEED;
 }
 
 

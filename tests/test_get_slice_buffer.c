@@ -73,12 +73,12 @@ CUTEST_TEST_SETUP(get_slice_buffer) {
 
     CUTEST_PARAMETRIZE(shapes, test_squeeze_shapes_t, CUTEST_DATA(
             {0, {0}, {0}, {0}, {0}, {0}, {0}, {0}, result0}, // 0-dim
-//            {1, {10}, {7}, {2}, {6}, {2}, {2}, {9}, result1}, // 1-idim
-//            {2, {14, 10}, {8, 5}, {2, 2}, {4, 4}, {2, 3}, {5, 3}, {9, 10}, result2}, // general,
-//            {3, {10, 10, 10}, {3, 5, 9}, {3, 4, 4}, {3, 7, 7}, {2, 5, 5}, {3, 0, 3}, {6, 7, 10},
-//             result3}, // general
-//            {2, {20, 0}, {7, 0}, {3, 0}, {5, 0}, {2, 0}, {2, 0}, {8, 0}, result4}, // 0-shape
-//            {2, {20, 10}, {7, 5}, {3, 5}, {5, 5}, {2, 2}, {2, 0}, {18, 0}, result5}, // 0-shape
+            {1, {10}, {7}, {2}, {6}, {2}, {2}, {9}, result1}, // 1-idim
+            {2, {14, 10}, {8, 5}, {2, 2}, {4, 4}, {2, 3}, {5, 3}, {9, 10}, result2}, // general,
+            {3, {10, 10, 10}, {3, 5, 9}, {3, 4, 4}, {3, 7, 7}, {2, 5, 5}, {3, 0, 3}, {6, 7, 10},
+             result3}, // general
+            {2, {20, 0}, {7, 0}, {3, 0}, {5, 0}, {2, 0}, {2, 0}, {8, 0}, result4}, // 0-shape
+            {2, {20, 10}, {7, 5}, {3, 5}, {5, 5}, {2, 2}, {2, 0}, {18, 0}, result5}, // 0-shape
     ));
 }
 
@@ -87,6 +87,9 @@ CUTEST_TEST_TEST(get_slice_buffer) {
     CUTEST_GET_PARAMETER(shapes, test_squeeze_shapes_t);
     CUTEST_GET_PARAMETER(backend2, _test_backend);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
+
+    char *urlpath = "test_get_slice_buffer.b2frame";
+    remove(urlpath);
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -102,7 +105,7 @@ CUTEST_TEST_TEST(get_slice_buffer) {
             break;
         case CATERVA_STORAGE_BLOSC:
             if (backend.persistent) {
-                storage.properties.blosc.urlpath = "test_get_slice.b2frame";
+                storage.properties.blosc.urlpath = urlpath;
             }
             storage.properties.blosc.sequencial = backend.sequential;
             for (int i = 0; i < params.ndim; ++i) {
@@ -153,6 +156,7 @@ CUTEST_TEST_TEST(get_slice_buffer) {
     data->ctx->cfg->free(buffer);
     data->ctx->cfg->free(destbuffer);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
+    remove(urlpath);
 
     return 0;
 }
