@@ -260,7 +260,6 @@ int caterva_create_blosc_params(caterva_ctx_t *ctx,
                                 blosc2_cparams *cparams,
                                 blosc2_dparams *dparams,
                                 blosc2_storage *b_storage) {
-
     int32_t blocknitems = 1;
     for (int i = 0; i < params->ndim; ++i) {
         blocknitems *= storage->properties.blosc.blockshape[i];
@@ -303,12 +302,11 @@ int caterva_create_blosc_params(caterva_ctx_t *ctx,
 
 int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
                               caterva_storage_t *storage, caterva_array_t **array) {
-
-    caterva_blosc_array_without_schunk(ctx, params, storage, array);
+    CATERVA_ERROR(caterva_blosc_array_without_schunk(ctx, params, storage, array));
     blosc2_storage b_storage;
     blosc2_cparams cparams;
     blosc2_dparams dparams;
-    caterva_create_blosc_params(ctx, params, storage, &cparams, &dparams, &b_storage);
+    CATERVA_ERROR(caterva_create_blosc_params(ctx, params, storage, &cparams, &dparams, &b_storage));
 
     blosc2_schunk *sc = blosc2_schunk_new(&b_storage);
     if (sc == NULL) {
