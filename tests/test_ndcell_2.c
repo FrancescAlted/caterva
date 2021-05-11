@@ -1133,7 +1133,7 @@ int image10() {
 int main(void) {
 
     int result;
-/*
+
     result = rand_();
     printf("rand: %d obtained \n \n", result);
     result = no_matches();
@@ -1162,7 +1162,7 @@ int main(void) {
     printf("pad_some: %d obtained \n \n", result);
     result = pad_some_32();
     printf("pad_some_32: %d obtained \n \n", result);
-
+/*
     printf("TEST BLOSCLZ \n");
     result = image1();
     printf("image1 with padding: %d obtained \n \n", result);
@@ -1184,5 +1184,5 @@ int main(void) {
     printf("image9 with NO padding: %d obtained \n \n", result);
     result = image10();
     printf("image10 with NO padding: %d obtained \n \n", result);
-
+*/
 }
