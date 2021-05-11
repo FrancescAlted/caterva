@@ -6,3 +6,4 @@ Getting Started
 
     overview
     installation
+    Tutorials <tutorials/index>

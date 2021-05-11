@@ -2,3 +2,5 @@ breathe>=4.30.0
 sphinx>=3.5.4
 pydata-sphinx-theme
 myst-parser
+sphinx-inline-tabs
+sphinx-panels

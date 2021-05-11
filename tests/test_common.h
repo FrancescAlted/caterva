@@ -22,22 +22,22 @@ static bool fill_buf(void *buf, uint8_t itemsize, size_t buf_size) CATERVA_TEST_
     switch (itemsize) {
         case 8:
             for (size_t i = 0; i < buf_size; ++i) {
-                ((double *) buf)[i] = (double) i;
+                ((uint64_t *) buf)[i] = (uint64_t) i + 1;
             }
             break;
         case 4:
             for (size_t i = 0; i < buf_size; ++i) {
-                ((float *) buf)[i] = (float) i;
+                ((uint32_t *) buf)[i] = (uint32_t) i + 1;
             }
             break;
         case 2:
             for (size_t i = 0; i < buf_size; ++i) {
-                ((uint16_t *) buf)[i] = (uint16_t ) i;
+                ((uint16_t *) buf)[i] = (uint16_t ) i + 1;
             }
             break;
         case 1:
             for (size_t i = 0; i < buf_size; ++i) {
-                ((uint8_t *) buf)[i] = (uint8_t ) i;
+                ((uint8_t *) buf)[i] = (uint8_t ) i + 1;
             }
             break;
         default:
@@ -65,7 +65,7 @@ typedef struct {
 
 
 void caterva_default_parameters() {
-    CUTEST_PARAMETRIZE(itemsize, bool, CUTEST_DATA(1, 2, 4, 8));
+    CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(1, 2, 4, 8));
     CUTEST_PARAMETRIZE(shapes, _test_shapes, CUTEST_DATA(
         {2, {100, 100}, {20, 20}, {10, 10}},
         {3, {100, 55, 123}, {31, 5, 22}, {4, 4, 4}},
@@ -84,7 +84,7 @@ void caterva_default_parameters() {
 
 
 #define CATERVA_TEST_ASSERT_BUFFER(buffer1, buffer2, buffersize) \
-    for (int i = 0; i < (buffersize); ++i) { \
+    for (int i = 0; i < (buffersize); ++i) {                     \
         CUTEST_ASSERT("elements are not equals!", (buffer1)[i] == (buffer2)[i]); \
     }
 

@@ -24,7 +24,7 @@ typedef struct {
     int64_t shape[CATERVA_MAX_DIM];
     int32_t chunkshape[CATERVA_MAX_DIM];
     int32_t blockshape[CATERVA_MAX_DIM];
-} test_squeeze_shapes_t;
+} test_shapes_t;
 
 
 CUTEST_TEST_DATA(persistency) {
@@ -40,7 +40,7 @@ CUTEST_TEST_SETUP(persistency) {
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(1, 2, 4, 8));
-    CUTEST_PARAMETRIZE(shapes, test_squeeze_shapes_t, CUTEST_DATA(
+    CUTEST_PARAMETRIZE(shapes, test_shapes_t, CUTEST_DATA(
             {0, {0}, {0}, {0}}, // 0-dim
             {1, {10}, {7}, {2}}, // 1-idim
             {2, {100, 100}, {20, 20}, {10, 10}},
@@ -58,7 +58,7 @@ CUTEST_TEST_SETUP(persistency) {
 
 CUTEST_TEST_TEST(persistency) {
     CUTEST_GET_PARAMETER(backend, _test_backend);
-    CUTEST_GET_PARAMETER(shapes, test_squeeze_shapes_t);
+    CUTEST_GET_PARAMETER(shapes, test_shapes_t);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
     char* urlpath = "test_persistency.b2frame";

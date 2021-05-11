@@ -9,6 +9,7 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
+
 #include "test_common.h"
 
 typedef struct {
@@ -16,22 +17,20 @@ typedef struct {
     int64_t shape[CATERVA_MAX_DIM];
     int32_t chunkshape[CATERVA_MAX_DIM];
     int32_t blockshape[CATERVA_MAX_DIM];
-    int32_t chunkshape2[CATERVA_MAX_DIM];
-    int32_t blockshape2[CATERVA_MAX_DIM];
     int64_t start[CATERVA_MAX_DIM];
     int64_t stop[CATERVA_MAX_DIM];
 } test_shapes_t;
 
 
-CUTEST_TEST_DATA(squeeze) {
+CUTEST_TEST_DATA(set_slice_buffer) {
     caterva_ctx_t *ctx;
 };
 
 
-CUTEST_TEST_SETUP(squeeze) {
+CUTEST_TEST_SETUP(set_slice_buffer) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
-    cfg.compcodec = BLOSC_BLOSCLZ;
+    cfg.compcodec = BLOSC_ZSTD;
     caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
@@ -39,15 +38,10 @@ CUTEST_TEST_SETUP(squeeze) {
             1,
             2,
             4,
-            8
+            8,
     ));
+
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
-            {CATERVA_STORAGE_PLAINBUFFER, false, false},
-            {CATERVA_STORAGE_BLOSC, false, false},
-            {CATERVA_STORAGE_BLOSC, true, false},
-            {CATERVA_STORAGE_BLOSC, true, true},
-    ));
-    CUTEST_PARAMETRIZE(backend2, _test_backend, CUTEST_DATA(
             {CATERVA_STORAGE_PLAINBUFFER, false, false},
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
@@ -56,24 +50,23 @@ CUTEST_TEST_SETUP(squeeze) {
 
 
     CUTEST_PARAMETRIZE(shapes, test_shapes_t, CUTEST_DATA(
-            {0, {0}, {0}, {0}, {0}, {0}, {0}, {0}}, // 0-dim
-            {1, {10}, {7}, {2}, {1}, {1}, {2}, {3}}, // 1-idim
-            {2, {14, 10}, {8, 5}, {2, 2}, {4, 1}, {2, 1}, {5, 3}, {9, 4}}, // general,
-            {3, {10, 10, 10}, {3, 5, 9}, {3, 4, 4}, {1, 7, 1}, {1, 5, 1}, {3, 0, 9}, {4, 7, 10}},
-            {2, {20, 0}, {7, 0}, {3, 0}, {1, 0}, {1, 0}, {1, 0}, {2, 0}}, // 0-shape
-            {2, {20, 10}, {7, 5}, {3, 5}, {1, 0}, {1, 0}, {17, 0}, {18, 0}}, // 0-shape
+            {0, {0}, {0}, {0}, {0}, {0}}, // 0-dim
+            {1, {5}, {3}, {2}, {2}, {5}}, // 1-idim
+            {2, {20, 0}, {7, 0}, {3, 0}, {2, 0}, {8, 0}}, // 0-shape
+            {2, {20, 10}, {7, 5}, {3, 5}, {2, 0}, {18, 0}}, // 0-shape
+            {2, {14, 10}, {8, 5}, {2, 2}, {5, 3}, {9, 10}}, // general,
+            {3, {12, 10, 14}, {3, 5, 9}, {3, 4, 4}, {3, 0, 3}, {6, 7, 10}}, // general
+            {3, {10, 21, 30, 55}, {8, 7, 15, 3}, {5, 5, 10, 1}, {5, 4, 3, 3}, {10, 8, 8, 34}}, // general,
     ));
 }
 
-
-CUTEST_TEST_TEST(squeeze) {
+CUTEST_TEST_TEST(set_slice_buffer) {
     CUTEST_GET_PARAMETER(backend, _test_backend);
     CUTEST_GET_PARAMETER(shapes, test_shapes_t);
-    CUTEST_GET_PARAMETER(backend2, _test_backend);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
-    char *urlpath = "test_squeeze.b2frame";
-    char *urlpath2 = "test_squeeze2.b2frame";
+    char *urlpath = "test_set_slice_buffer.b2frame";
+    remove(urlpath);
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -101,64 +94,70 @@ CUTEST_TEST_TEST(squeeze) {
             CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
     }
 
-    /* Create original data */
-    size_t buffersize = itemsize;
+    /* Create dest buffer */
+    int64_t shape[CATERVA_MAX_DIM] = {0};
+    int64_t buffersize = itemsize;
     for (int i = 0; i < params.ndim; ++i) {
-        buffersize *= (size_t) params.shape[i];
+        shape[i] = shapes.stop[i] - shapes.start[i];
+        buffersize *= shape[i];
     }
-    uint8_t *buffer = malloc(buffersize);
+
+    uint8_t *buffer = data->ctx->cfg->alloc(buffersize);
     CUTEST_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
-                                            &src));
+    CATERVA_ERROR(caterva_empty(data->ctx, &params, &storage, &src));
 
 
-    /* Create storage for dest container */
+    CATERVA_ERROR(caterva_set_slice_buffer(data->ctx, buffer, shape, buffersize,
+                                           shapes.start, shapes.stop, src));
 
-    caterva_storage_t storage2 = {0};
-    storage2.backend = backend2.backend;
-    switch (storage2.backend) {
-        case CATERVA_STORAGE_PLAINBUFFER:
-            break;
-        case CATERVA_STORAGE_BLOSC:
-            if (backend2.persistent) {
-                storage2.properties.blosc.urlpath = urlpath2;
-            }
-            storage2.properties.blosc.sequencial = backend2.sequential;
-            for (int i = 0; i < params.ndim; ++i) {
-                storage2.properties.blosc.chunkshape[i] = shapes.chunkshape2[i];
-                storage2.properties.blosc.blockshape[i] = shapes.blockshape2[i];
-            }
-            break;
-        default:
-            CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
+
+    uint8_t *destbuffer = data->ctx->cfg->alloc((size_t) buffersize);
+
+    /* Fill dest buffer with a slice*/
+    CATERVA_TEST_ASSERT(caterva_get_slice_buffer(data->ctx, src, shapes.start, shapes.stop,
+                                                 destbuffer,
+                                                 shape, buffersize));
+
+    for (uint64_t i = 0; i < (uint64_t) buffersize / itemsize; ++i) {
+        uint64_t k = i + 1;
+        switch (itemsize) {
+            case 8:
+                CUTEST_ASSERT("Elements are not equals!",
+                              (uint64_t) k == ((uint64_t *) destbuffer)[i]);
+                break;
+            case 4:
+                CUTEST_ASSERT("Elements are not equals!",
+                              (uint32_t) k == ((uint32_t *) destbuffer)[i]);
+                break;
+            case 2:
+                CUTEST_ASSERT("Elements are not equals!",
+                              (uint16_t) k == ((uint16_t *) destbuffer)[i]);
+                break;
+            case 1:
+                CUTEST_ASSERT("Elements are not equals!",
+                              (uint8_t) k == ((uint8_t *) destbuffer)[i]);
+                break;
+            default:
+                CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_ARGUMENT);
+        }
     }
 
-    caterva_array_t *dest;
-    CATERVA_TEST_ASSERT(caterva_get_slice(data->ctx, src, shapes.start, shapes.stop,
-                                          &storage2, &dest));
-
-    CATERVA_TEST_ASSERT(caterva_squeeze(data->ctx, dest));
-
-    if (params.ndim != 0) {
-        CUTEST_ASSERT("dims are equal", src->ndim != dest->ndim);
-    }
-
-    free(buffer);
+    /* Free mallocs */
+    data->ctx->cfg->free(buffer);
+    data->ctx->cfg->free(destbuffer);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
-    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
     remove(urlpath);
-    remove(urlpath2);
 
-    return CATERVA_SUCCEED;
+    return 0;
 }
 
-CUTEST_TEST_TEARDOWN(squeeze) {
+CUTEST_TEST_TEARDOWN(set_slice_buffer) {
     caterva_ctx_free(&data->ctx);
 }
 
 int main() {
-    CUTEST_TEST_RUN(squeeze);
+    CUTEST_TEST_RUN(set_slice_buffer);
 }

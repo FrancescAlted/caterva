@@ -7,5 +7,3 @@ Development
     contributing
     roadmap
     code_of_conduct
-    release-notes
-
