@@ -12,28 +12,45 @@
 #include "test_common.h"
 
 
-CUTEST_TEST_DATA(roundtrip) {
+CUTEST_TEST_DATA(zeros) {
     caterva_ctx_t *ctx;
 };
 
 
-CUTEST_TEST_SETUP(roundtrip) {
+CUTEST_TEST_SETUP(zeros) {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 2;
     cfg.compcodec = BLOSC_BLOSCLZ;
     caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
-    caterva_default_parameters();
+    CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(
+            1, 2, 4, 7
+    ));
+    CUTEST_PARAMETRIZE(shapes, _test_shapes, CUTEST_DATA(
+            {0, {0}, {0}, {0}}, // 0-dim
+            {1, {5}, {3}, {2}}, // 1-idim
+            {2, {20, 0}, {7, 0}, {3, 0}}, // 0-shape
+            {2, {20, 10}, {7, 5}, {3, 5}}, // 0-shape
+            {2, {14, 10}, {8, 5}, {2, 2}}, // general,
+            {3, {12, 10, 14}, {3, 5, 9}, {3, 4, 4}}, // general
+            {3, {10, 21, 30, 55}, {8, 7, 15, 3}, {5, 5, 10, 1}}, // general,
+    ));
+    CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
+            {CATERVA_STORAGE_PLAINBUFFER, false, false},
+            {CATERVA_STORAGE_BLOSC, false, false},
+            {CATERVA_STORAGE_BLOSC, true, false},
+            {CATERVA_STORAGE_BLOSC, true, true},
+    ));
 }
 
 
-CUTEST_TEST_TEST(roundtrip) {
+CUTEST_TEST_TEST(zeros) {
     CUTEST_GET_PARAMETER(backend, _test_backend);
     CUTEST_GET_PARAMETER(shapes, _test_shapes);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
-    char *urlpath = "test_roundtrip.b2frame";
+    char *urlpath = "test_zeros.b2frame";
     remove(urlpath);
 
     caterva_params_t params;
@@ -63,28 +80,25 @@ CUTEST_TEST_TEST(roundtrip) {
     }
 
     /* Create original data */
-    size_t buffersize = (size_t) itemsize;
+    int64_t buffersize = itemsize;
     for (int i = 0; i < shapes.ndim; ++i) {
-        buffersize *= (size_t) shapes.shape[i];
+        buffersize *= shapes.shape[i];
     }
-    uint8_t *buffer = malloc(buffersize);
-    CUTEST_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params,
-                                            &storage,
-                                            &src));
+    CATERVA_TEST_ASSERT(caterva_zeros(data->ctx, &params, &storage, &src));
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc( buffersize);
     CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, src, buffer_dest, buffersize));
 
     /* Testing */
-    CATERVA_TEST_ASSERT_BUFFER(buffer, buffer_dest, (int) buffersize);
+    for (int i = 0; i < buffersize; ++i) {
+        CUTEST_ASSERT("Elements are not equals", buffer_dest[i] == 0);
+    }
 
     /* Free mallocs */
-    free(buffer);
     free(buffer_dest);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
     remove(urlpath);
@@ -93,10 +107,10 @@ CUTEST_TEST_TEST(roundtrip) {
 }
 
 
-CUTEST_TEST_TEARDOWN(roundtrip) {
+CUTEST_TEST_TEARDOWN(zeros) {
     caterva_ctx_free(&data->ctx);
 }
 
 int main() {
-    CUTEST_TEST_RUN(roundtrip);
+    CUTEST_TEST_RUN(zeros);
 }

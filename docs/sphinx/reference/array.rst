@@ -37,12 +37,14 @@ Storage parameters
 Creation
 --------
 
+Fast constructors
++++++++++++++++++
 
-Chunk by chunk
-++++++++++++++
 .. doxygenfunction:: caterva_empty
 
-.. doxygenfunction:: caterva_append
+.. doxygenfunction:: caterva_zeros
+
+.. doxygenfunction:: caterva_full
 
 
 From/To buffer
@@ -52,18 +54,20 @@ From/To buffer
 .. doxygenfunction:: caterva_to_buffer
 
 
-From/To frame
-+++++++++++++
+From Blosc object
++++++++++++++++++
+
 .. doxygenfunction:: caterva_from_schunk
 
 .. doxygenfunction:: caterva_from_serial_schunk
 
-From/To file
+From file
 ++++++++++++
+
 .. doxygenfunction:: caterva_open
 
 Copying
--------
++++++++
 
 .. doxygenfunction:: caterva_copy
 
@@ -71,11 +75,11 @@ Copying
 Slicing
 -------
 
-.. doxygenfunction:: caterva_get_slice
-
 .. doxygenfunction:: caterva_get_slice_buffer
 
 .. doxygenfunction:: caterva_set_slice_buffer
+
+.. doxygenfunction:: caterva_get_slice
 
 .. doxygenfunction:: caterva_squeeze
 

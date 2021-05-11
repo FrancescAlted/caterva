@@ -9,6 +9,8 @@ Configuration parameters
 ..  doxygenstruct:: caterva_config_t
     :members:
 
+.. doxygenvariable:: CATERVA_CONFIG_DEFAULTS
+
 
 Creation
 ++++++++

@@ -1,4 +1,4 @@
-Package overview
+What is caterva?
 ================
 
 Caterva is a container for multidimensional data that is specially designed to

@@ -116,4 +116,51 @@
     --pst-icon-admonition-tip: var(--pst-icon-lightbulb);
     --pst-icon-admonition-important: var(--pst-icon-exclamation-circle);
 
+    --tabs--label-text: rgb(var(--pst-color-primary));
+    --tabs--label-text--active: rgb(var(--pst-color-secondary));
+    --tabs--label-text--hover: rgb(var(--pst-color-secondary));
+    --tabs--label-background--active: transparent;
+    --tabs--label-background--hover: transparent;
+    --tabs--border: transparent;
+}
+
+/* Main index page overview cards */
+
+.intro-card {
+    background: #fff;
+    border-radius: 0;
+    padding: 30px 10px 20px 10px;
+    margin: 10px 0px;
+}
+
+.intro-card p.card-text {
+    margin: 0px;
+}
+
+.intro-card .card-img-top {
+    margin: 10px;
+    height: 52px;
+}
+
+.intro-card .card-header {
+    border: none;
+    background-color: white;
+    font-size: var(--pst-font-size-h5);
+    font-weight: bold;
+    padding: 2.5rem 0rem 0.5rem 0rem;
+}
+
+.intro-card .card-header .card-text {
+    color: rgb(var(--pst-color-primary));
+}
+
+.intro-card .card-footer {
+    border: none;
+    background-color:white;
+}
+
+.intro-card .card-footer p.card-text{
+    max-width: 220px;
+    margin-left: auto;
+    margin-right: auto;
 }
