@@ -57,6 +57,10 @@ CUTEST_TEST_SETUP(set_slice_buffer) {
             {2, {14, 10}, {8, 5}, {2, 2}, {5, 3}, {9, 10}}, // general,
             {3, {12, 10, 14}, {3, 5, 9}, {3, 4, 4}, {3, 0, 3}, {6, 7, 10}}, // general
             {3, {10, 21, 30, 55}, {8, 7, 15, 3}, {5, 5, 10, 1}, {5, 4, 3, 3}, {10, 8, 8, 34}}, // general,
+            {2, {50, 50}, {25, 13}, {8, 8}, {0, 0}, {10, 10}}, // general,
+            {2, {143, 41}, {18, 13}, {7, 7}, {4, 2}, {6, 5}}, // general,
+            {2, {10, 10}, {5, 7}, {2, 2}, {0, 0}, {5, 5}},
+
     ));
 }
 
@@ -107,7 +111,7 @@ CUTEST_TEST_TEST(set_slice_buffer) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    CATERVA_ERROR(caterva_empty(data->ctx, &params, &storage, &src));
+    CATERVA_ERROR(caterva_zeros(data->ctx, &params, &storage, &src));
 
 
     CATERVA_ERROR(caterva_set_slice_buffer(data->ctx, buffer, shape, buffersize,
