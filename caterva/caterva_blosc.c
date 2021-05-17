@@ -408,7 +408,7 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
             // Check if all the chunk is going to be updated and avoid the decompression
             bool decompress_chunk = false;
             for (int i = 0; i < ndim; ++i) {
-                decompress_chunk |= (chunk_start[i] < buffer_start[i] && chunk_stop[i] > buffer_stop[i]);
+                decompress_chunk |= (chunk_start[i] < buffer_start[i] || chunk_stop[i] > buffer_stop[i]);
             }
 
             if (decompress_chunk) {
@@ -484,7 +484,10 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
                     block_stop[i] = chunk_stop[i];
                 }
             }
-
+            int64_t block_shape[CATERVA_MAX_DIM] = {0};
+            for (int i = 0; i < ndim; ++i) {
+                block_shape[i] = block_stop[i] - block_start[i];
+            }
             bool block_empty = false;
             for (int i = 0; i < ndim; ++i) {
                 block_empty |= (block_stop[i] <= start[i] || block_start[i] >= stop[i]);
@@ -506,8 +509,9 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
 
             int64_t slice_stop[CATERVA_MAX_DIM] = {0};
             for (int i = 0; i < ndim; ++i) {
+                // TODO: Fix issue
                 if (block_stop[i] > buffer_stop[i]) {
-                    slice_stop[i] = array->blockshape[i] - (block_stop[i] - buffer_stop[i]);
+                    slice_stop[i] = block_shape[i] - (block_stop[i] - buffer_stop[i]);
                 } else {
                     slice_stop[i] = block_stop[i] - block_start[i];
                 }
