@@ -34,10 +34,11 @@ int caterva_plainbuffer_array_get_slice_buffer(caterva_ctx_t *ctx, caterva_array
     CATERVA_UNUSED_PARAM(ctx);
     CATERVA_UNUSED_PARAM(buffersize);
 
+    uint8_t *buffer_b = (uint8_t *) buffer;
     int64_t buffer_start[CATERVA_MAX_DIM] = {0};
 
     if (array->ndim == 0) {
-        memcpy(&buffer[0], &array->buf[0], array->itemsize);
+        memcpy(&buffer_b[0], &array->buf[0], array->itemsize);
         return CATERVA_SUCCEED;
     }
 
@@ -55,10 +56,11 @@ int caterva_plainbuffer_array_set_slice_buffer(caterva_ctx_t *ctx, void *buffer,
     CATERVA_UNUSED_PARAM(ctx);
     CATERVA_UNUSED_PARAM(buffersize);
 
+    uint8_t *buffer_b = (uint8_t *) buffer;
     int64_t buffer_start[CATERVA_MAX_DIM] = {0};
 
     if (array->ndim == 0) {
-        memcpy(&array->buf[0], &buffer[0], array->itemsize);
+        memcpy(&array->buf[0], &buffer_b[0], array->itemsize);
         return CATERVA_SUCCEED;
     }
     int64_t buffer_stop[CATERVA_MAX_DIM] = {0};
@@ -77,7 +79,6 @@ int caterva_plainbuffer_array_set_slice_buffer(caterva_ctx_t *ctx, void *buffer,
 int caterva_plainbuffer_array_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
                                         int64_t *stop, caterva_storage_t *storage,
                                         caterva_array_t **array) {
-
     caterva_params_t params;
     params.ndim = src->ndim;
     params.itemsize = src->itemsize;

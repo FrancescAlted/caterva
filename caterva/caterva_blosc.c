@@ -233,7 +233,6 @@ int caterva_blosc_array_zeros(caterva_ctx_t *ctx, caterva_params_t *params,
 
 int caterva_blosc_array_full(caterva_ctx_t *ctx, caterva_params_t *params,
                               caterva_storage_t *storage, void *fill_value, caterva_array_t **array) {
-
     CATERVA_ERROR(caterva_empty(ctx, params, storage, array));
 
     int64_t chunkbytes = (*array)->extchunknitems * (*array)->itemsize;
@@ -344,6 +343,8 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
         DEBUG_PRINT("buffersize is < 0");
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
+
+    uint8_t *buffer_b = (uint8_t *) buffer;
     int64_t *buffer_start = start;
     int64_t *buffer_stop = stop;
     int64_t *buffer_shape = shape;
@@ -356,10 +357,10 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
         if (set_slice) {
             uint32_t chunk_size = array->itemsize + BLOSC_MAX_OVERHEAD;
             uint8_t *chunk = malloc(chunk_size);
-            blosc2_compress_ctx(array->sc->cctx, buffer, array->itemsize, chunk, chunk_size);
+            blosc2_compress_ctx(array->sc->cctx, buffer_b, array->itemsize, chunk, chunk_size);
             blosc2_schunk_update_chunk(array->sc, 0, chunk, false);
         } else {
-            blosc2_schunk_decompress_chunk(array->sc, 0, buffer, array->itemsize);
+            blosc2_schunk_decompress_chunk(array->sc, 0, buffer_b, array->itemsize);
         }
         return CATERVA_SUCCEED;
     }
@@ -519,7 +520,7 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
             }
 
 
-            uint8_t *src = &buffer[0];
+            uint8_t *src = &buffer_b[0];
             int64_t *src_pad_shape = buffer_shape;
 
             int64_t src_start[CATERVA_MAX_DIM] = {0};
@@ -595,7 +596,6 @@ int caterva_blosc_array_get_slice_buffer(caterva_ctx_t *ctx, caterva_array_t *ar
 
 int caterva_blosc_array_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer,
                                   int64_t buffersize) {
-
     int64_t start[CATERVA_MAX_DIM] = {0};
     int64_t *stop = array->shape;
     CATERVA_ERROR(caterva_get_slice_buffer(ctx, array, start, stop,
@@ -607,7 +607,6 @@ int caterva_blosc_array_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, vo
 int caterva_blosc_array_get_slice(caterva_ctx_t *ctx, caterva_array_t *src,
                                   int64_t *start, int64_t *stop,
                                   caterva_storage_t *storage, caterva_array_t **array) {
-
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(src);
     CATERVA_ERROR_NULL(start);

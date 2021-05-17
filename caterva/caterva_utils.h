@@ -9,8 +9,8 @@
  * You may select, at your option, one of the above-listed licenses.
  */
 
-#ifndef CATERVA_CATERVA_UTILS_H
-#define CATERVA_CATERVA_UTILS_H
+#ifndef CATERVA_CATERVA_UTILS_H_
+#define CATERVA_CATERVA_UTILS_H_
 
 #include <caterva.h>
 
@@ -31,4 +31,4 @@ int caterva_copy_buffer(uint8_t ndim,
                         void *dst, int64_t *dst_pad_shape,
                         int64_t *dst_start);
 
-#endif //CATERVA_CATERVA_UTILS_H
+#endif  // CATERVA_CATERVA_UTILS_H_
