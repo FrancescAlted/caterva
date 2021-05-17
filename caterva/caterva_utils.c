@@ -11,7 +11,6 @@
 #include <caterva_utils.h>
 
 void index_unidim_to_multidim(int8_t ndim, int64_t *shape, int64_t i, int64_t *index) {
-
     int64_t strides[CATERVA_MAX_DIM];
     if (ndim == 0) {
         return;
@@ -198,11 +197,13 @@ int caterva_copy_buffer(uint8_t ndim,
     // Align the buffers removing unnecessary data
     int64_t src_start_n;
     index_multidim_to_unidim(src_start, ndim, src_strides, &src_start_n);
-    uint8_t *bsrc = &src[src_start_n * itemsize];
+    uint8_t *bsrc = (uint8_t *) src;
+    bsrc = &bsrc[src_start_n * itemsize];
 
     int64_t dst_start_n;
     index_multidim_to_unidim(dst_start, ndim, dst_strides, &dst_start_n);
-    uint8_t *bdst = &dst[dst_start_n * itemsize];
+    uint8_t *bdst = (uint8_t *) dst;
+    bdst = &bdst[dst_start_n * itemsize];
 
     // Compute the shape of the copy
     int64_t copy_shape[CATERVA_MAX_DIM] = {0};
