@@ -6,15 +6,15 @@ Changes from 0.4.0 to 0.4.1
 
 * Redesign the caterva guts and perform a code refactorization in order
   to simplify the code. This includes API renaming. A performance improvement
-  is obtained as can be seen in
+  is obtained as can be seen in https://github.com/Blosc/caterva/pull/69#issuecomment-843835622
 
 * Implement a set_slice for arrays backed by Blosc. This allows users to
-  update the values in the array whenever they want.
+  update the values in the array whenever and wherever they want.
 
 * Implement constructors (empty, zeros, full) using the special-values
   features introduced in Blosc.
 
-* Use the pydata_sphinx_theme in the documentation.
+* Use the `pydata_sphinx_theme` in the documentation.
 
 
 Changes from 0.3.3 to 0.4.0
