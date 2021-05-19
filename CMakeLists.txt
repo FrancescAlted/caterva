@@ -21,6 +21,7 @@ option(SHARED_LIB "Create shared library" ON)
 option(STATIC_LIB "Create static library" ON)
 option(CATERVA_BUILD_TESTS "Build tests" ON)
 option(CATERVA_BUILD_EXAMPLES "Build examples" ON)
+option(CATERVA_BUILD_BENCH "Build benchmarks" ON)
 
 if (MSVC)
     # warning level 4 and all warnings as errors
@@ -106,6 +107,11 @@ install(FILES ${CATERVA_SRC}/caterva.h DESTINATION include)
 if(CATERVA_BUILD_EXAMPLES)
     message(STATUS "Adding Caterva examples")
     add_subdirectory(examples)
+endif()
+
+if(CATERVA_BUILD_BENCH)
+    message(STATUS "Adding Caterva benchmarks")
+    add_subdirectory(bench)
 endif()
 
 if (CATERVA_BUILD_TESTS)

@@ -509,7 +509,6 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
 
             int64_t slice_stop[CATERVA_MAX_DIM] = {0};
             for (int i = 0; i < ndim; ++i) {
-                // TODO: Fix issue
                 if (block_stop[i] > buffer_stop[i]) {
                     slice_stop[i] = block_shape[i] - (block_stop[i] - buffer_stop[i]);
                 } else {
