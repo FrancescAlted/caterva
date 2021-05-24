@@ -373,14 +373,44 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
         chunks_in_array[i] = array->extshape[i] / array->chunkshape[i];
     }
 
+    int64_t chunks_in_array_strides[CATERVA_MAX_DIM];
+    chunks_in_array_strides[ndim - 1] = 1;
+    for (int i = ndim - 2; i >= 0; --i) {
+        chunks_in_array_strides[i] = chunks_in_array_strides[i + 1] * chunks_in_array[i + 1];
+    }
+
     int64_t blocks_in_chunk[CATERVA_MAX_DIM] = {0};
     for (int i = 0; i < ndim; ++i) {
         blocks_in_chunk[i] = array->extchunkshape[i] / array->blockshape[i];
     }
 
-    for (int nchunk = 0; nchunk < nchunks; ++nchunk) {
+    // Compute the number of chunks to update
+    int64_t update_start[CATERVA_MAX_DIM];
+    int64_t update_shape[CATERVA_MAX_DIM];
+
+    int64_t update_nchunks = 1;
+    for (int i = 0; i < ndim; ++i) {
+        int64_t pos = 0;
+        while (pos <= buffer_start[i]) {
+            pos += array->chunkshape[i];
+        }
+        update_start[i] = pos / array->chunkshape[i] - 1;
+        while (pos < buffer_stop[i]) {
+            pos += array->chunkshape[i];
+        }
+        update_shape[i] = pos / array->chunkshape[i] - update_start[i];
+        update_nchunks *= update_shape[i];
+    }
+
+
+    for (int update_nchunk = 0; update_nchunk < update_nchunks; ++update_nchunk) {
         int64_t nchunk_ndim[CATERVA_MAX_DIM] = {0};
-        index_unidim_to_multidim(ndim, chunks_in_array, nchunk, nchunk_ndim);
+        index_unidim_to_multidim(ndim, update_shape, update_nchunk, nchunk_ndim);
+        for (int i = 0; i < ndim; ++i) {
+            nchunk_ndim[i] += update_start[i];
+        }
+        int64_t nchunk;
+        index_multidim_to_unidim(nchunk_ndim, ndim, chunks_in_array_strides, &nchunk);
 
         // check if the chunk needs to be updated
         int64_t chunk_start[CATERVA_MAX_DIM] = {0};
