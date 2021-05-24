@@ -104,13 +104,17 @@ typedef struct {
     //!< The memory allocation function used internally.
     void (*free)(void *);
     //!< The memory release function used internally.
-    int compcodec;
+    uint8_t compcodec;
     //!< Defines the codec used in compression.
-    int complevel;
+    uint8_t compmeta;
+    //!< The metadata for the compressor codec.
+    uint8_t complevel;
     //!< Determines the compression level used in Blosc.
+    int32_t splitmode;
+    //!< Whether the blocks should be split or not.
     int usedict;
     //!< Indicates whether a dict is used to compress data or not.
-    int nthreads;
+    int16_t nthreads;
     //!< Determines the maximum number of threads that can be used.
     uint8_t filters[BLOSC2_MAX_FILTERS];
     //!< Defines the filters used in compression.
@@ -130,7 +134,9 @@ typedef struct {
 static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
                                                          .free = free,
                                                          .compcodec = BLOSC_ZSTD,
+                                                         .compmeta = 0,
                                                          .complevel = 5,
+                                                         .splitmode = BLOSC_AUTO_SPLIT,
                                                          .usedict = 0,
                                                          .nthreads = 1,
                                                          .filters = {0, 0, 0, 0, 0, BLOSC_SHUFFLE},
