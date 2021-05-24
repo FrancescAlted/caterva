@@ -130,12 +130,13 @@ int caterva_create_blosc_params(caterva_ctx_t *ctx,
     cparams->nthreads = (int16_t) ctx->cfg->nthreads;
     cparams->clevel = (uint8_t) ctx->cfg->complevel;
     cparams->compcode = (uint8_t) ctx->cfg->compcodec;
+    cparams->compcode_meta = (uint8_t) ctx->cfg->compmeta;
     for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
         cparams->filters[i] = ctx->cfg->filters[i];
         cparams->filters_meta[i] = ctx->cfg->filtersmeta[i];
     }
     cparams->udbtune = ctx->cfg->udbtune;
-    cparams->splitmode = BLOSC_AUTO_SPLIT;
+    cparams->splitmode = ctx->cfg->splitmode;
 
     memcpy(dparams, &BLOSC2_DPARAMS_DEFAULTS, sizeof(blosc2_dparams));
     dparams->schunk = NULL;
