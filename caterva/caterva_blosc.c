@@ -220,7 +220,10 @@ int caterva_blosc_array_new(caterva_ctx_t *ctx, caterva_params_t *params,
 
 int caterva_blosc_array_empty(caterva_ctx_t *ctx, caterva_params_t *params,
                               caterva_storage_t *storage, caterva_array_t **array) {
-    CATERVA_ERROR(caterva_blosc_array_new(ctx, params, storage, BLOSC2_SPECIAL_UNINIT, array));
+    // CATERVA_ERROR(caterva_blosc_array_new(ctx, params, storage, BLOSC2_SPECIAL_UNINIT, array));
+    // Avoid variable cratios
+    CATERVA_ERROR(caterva_blosc_array_new(ctx, params, storage, BLOSC2_SPECIAL_ZERO, array));
+
     return CATERVA_SUCCEED;
 }
 
