@@ -53,9 +53,10 @@
 
 #define CATERVA_ERROR(rc)                 \
     do {                                  \
-        if (rc != CATERVA_SUCCEED) {      \
-            DEBUG_PRINT(print_error(rc)); \
-            return rc;                    \
+        int rc_ = rc;\
+        if (rc_ != CATERVA_SUCCEED) {      \
+            DEBUG_PRINT(print_error(rc_)); \
+            return rc_;                    \
         }                                 \
     } while (0)
 #define CATERVA_ERROR_NULL(pointer)                             \

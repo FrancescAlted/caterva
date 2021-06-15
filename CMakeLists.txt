@@ -62,7 +62,8 @@ set(BUILD_TESTS OFF CACHE BOOL "Build test programs form the blosc compression l
 set(BUILD_BENCHMARKS OFF CACHE BOOL "Build benchmark programs form the blosc compression library")
 set(BUILD_EXAMPLES OFF CACHE BOOL "Build benchmark programs form the blosc compression library")
 add_subdirectory(contribs/c-blosc2)
-include_directories(contribs/c-blosc2/blosc)
+include_directories(contribs/c-blosc2/include)
+
 set(BLOSC_LIB blosc2_static)
 
 include_directories(${CATERVA_SRC})

@@ -106,6 +106,12 @@ int caterva_blosc_array_without_schunk(caterva_ctx_t *ctx, caterva_params_t *par
     (*array)->chunk_cache.data = NULL;
     (*array)->chunk_cache.nchunk = -1;  // means no valid cache yet
 
+    if ((*array)->nitems != 0) {
+        (*array)->nchunks = (*array)->extnitems / (*array)->chunknitems;
+    } else {
+        (*array)->nchunks = 0;
+    }
+
     return CATERVA_SUCCEED;
 }
 
@@ -405,7 +411,6 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
         update_shape[i] = pos / array->chunkshape[i] - update_start[i];
         update_nchunks *= update_shape[i];
     }
-
 
     for (int update_nchunk = 0; update_nchunk < update_nchunks; ++update_nchunk) {
         int64_t nchunk_ndim[CATERVA_MAX_DIM] = {0};
