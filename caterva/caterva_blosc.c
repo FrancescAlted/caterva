@@ -261,6 +261,29 @@ int caterva_blosc_array_full(caterva_ctx_t *ctx, caterva_params_t *params,
 }
 
 
+int caterva_config_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *sc, caterva_config_t *cfg) {
+    cfg->alloc = ctx->cfg->alloc;
+    cfg->free = ctx->cfg->free;
+
+    cfg->complevel = sc->storage->cparams->clevel;
+    cfg->compcodec = sc->storage->cparams->compcode;
+    cfg->compmeta = sc->storage->cparams->compcode_meta;
+    cfg->usedict = sc->storage->cparams->use_dict;
+    cfg->splitmode = sc->storage->cparams->splitmode;
+    cfg->nthreads = ctx->cfg->nthreads;
+    for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
+        cfg->filters[i] = sc->storage->cparams->filters[i];
+        cfg->filtersmeta[i] = sc->storage->cparams->filters_meta[i];
+    }
+
+    cfg->prefilter = ctx->cfg->prefilter;
+    cfg->pparams = ctx->cfg->pparams;
+    cfg->udbtune = ctx->cfg->udbtune;
+
+    return CATERVA_SUCCEED;
+}
+
+
 int caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array) {
     if (ctx == NULL) {
         DEBUG_PRINT("Context is null");
@@ -299,7 +322,16 @@ int caterva_blosc_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva
                      storage.properties.blosc.blockshape);
     free(smeta);
 
-    caterva_blosc_array_without_schunk(ctx, &params, &storage, array);
+    caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
+    caterva_config_from_schunk(ctx, schunk, &cfg);
+
+    caterva_ctx_t *ctx_sc;
+    caterva_ctx_new(&cfg, &ctx_sc);
+
+    caterva_blosc_array_without_schunk(ctx_sc, &params, &storage, array);
+
+    caterva_ctx_free(&ctx_sc);
+
     (*array)->sc = schunk;
 
     return CATERVA_SUCCEED;
