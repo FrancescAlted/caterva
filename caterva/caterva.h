@@ -257,6 +257,8 @@ struct chunk_cache_s {
 typedef struct {
     caterva_storage_backend_t storage;
     //!< Storage type.
+    caterva_config_t *cfg;
+    //!< Array configuration.
     blosc2_schunk *sc;
     //!< Pointer to a Blosc super-chunk
     //!< Only is used if \p storage equals to @p CATERVA_STORAGE_BLOSC.

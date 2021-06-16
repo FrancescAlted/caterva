@@ -181,6 +181,8 @@ int caterva_plainbuffer_array_empty(caterva_ctx_t *ctx, caterva_params_t *params
         DEBUG_PRINT("Pointer is null");
         return CATERVA_ERR_NULL_POINTER;
     }
+    (*array)->cfg = (caterva_config_t *) ctx->cfg->alloc(sizeof(caterva_config_t));
+    memcpy((*array)->cfg, ctx->cfg, sizeof(caterva_config_t));
 
     (*array)->storage = storage->backend;
     (*array)->ndim = params->ndim;
