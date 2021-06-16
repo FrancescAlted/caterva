@@ -133,8 +133,9 @@ int caterva_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **arra
 int caterva_free(caterva_ctx_t *ctx, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
+    void (*free)(void *) = (*array)->cfg->free;
 
-    ctx->cfg->free((*array)->cfg);
+    free((*array)->cfg);
     if (*array) {
         switch ((*array)->storage) {
             case CATERVA_STORAGE_BLOSC:
@@ -144,7 +145,7 @@ int caterva_free(caterva_ctx_t *ctx, caterva_array_t **array) {
                 caterva_plainbuffer_array_free(ctx, array);
                 break;
         }
-        ctx->cfg->free(*array);
+        free(*array);
     }
     return CATERVA_SUCCEED;
 }
