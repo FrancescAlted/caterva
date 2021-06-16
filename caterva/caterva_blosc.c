@@ -89,6 +89,9 @@ int caterva_blosc_array_without_schunk(caterva_ctx_t *ctx, caterva_params_t *par
     (*array) = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
     CATERVA_ERROR_NULL(*array);
 
+    (*array)->cfg = (caterva_config_t *) ctx->cfg->alloc(sizeof(caterva_config_t));
+    memcpy((*array)->cfg, ctx->cfg, sizeof(caterva_config_t));
+
     (*array)->buf = NULL;
     (*array)->sc = NULL;
 
