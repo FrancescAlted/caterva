@@ -9,9 +9,9 @@
 
 file(GLOB SOURCES example_*.c)
 
-foreach (source ${SOURCES})
+foreach(source ${SOURCES})
     get_filename_component(target_name ${source} NAME_WE)
     set(target caterva_${target_name})
     add_executable(${target} ${target_name}.c)
     target_link_libraries(${target} caterva_static ${LIBS})
-endforeach (source)
+endforeach(source)
