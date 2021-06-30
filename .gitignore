@@ -1,0 +1,10 @@
+# Clion IDE
+.idea/
+# CMake
+cmake-build-*/
+build*/
+# macOS
+.DS_Store
+# Caterva
+docs/doxygen/xml/
+docs/sphinx/_build/
