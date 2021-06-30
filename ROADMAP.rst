@@ -15,11 +15,11 @@ Existing features
 
 * **Plainbuffer support:** Caterva also allows to store data in a contiguous buffer. In this way, it facilitates the interoperability with other libraries like NumPy.
 
+* **Update values:** it allows to populate an array in any order.
+
 
 Actions to be done
 ------------------
-
-* **Update values:** this will make array creation more flexible, since the process of populating an array will not necessarily need to follow a row-wise order (it can actually be any order).
 
 * **Resize array dimensions:** this will allow to increase or decrease in size any dimension of the arrays.
 
