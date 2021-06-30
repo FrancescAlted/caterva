@@ -850,3 +850,10 @@ int caterva_blosc_array_squeeze(caterva_ctx_t *ctx, caterva_array_t *array) {
 
     return CATERVA_SUCCEED;
 }
+
+
+int caterva_blosc_remove(caterva_ctx_t *ctx, char *urlpath) {
+    blosc2_remove_dir(urlpath);
+    remove(urlpath);
+    return CATERVA_SUCCEED;
+}

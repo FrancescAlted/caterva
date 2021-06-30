@@ -382,3 +382,13 @@ int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *st
 
     return CATERVA_SUCCEED;
 }
+
+
+int caterva_remove(caterva_ctx_t *ctx, char *urlpath) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(urlpath);
+
+    CATERVA_ERROR(caterva_blosc_remove(ctx, urlpath));
+
+    return CATERVA_SUCCEED;
+}

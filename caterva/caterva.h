@@ -537,4 +537,13 @@ int caterva_set_slice_buffer(caterva_ctx_t *ctx,
 int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *storage,
                  caterva_array_t **array);
 
+
+/**
+ * @brief Remove Caterva file.
+ *
+ * @param ctx The caterva context to be used.
+ * @param urlpath The urlpath of the array to be removed.
+ */
+int caterva_remove(caterva_ctx_t *ctx, char *urlpath);
+
 #endif  // CATERVA_CATERVA_H_
