@@ -41,6 +41,7 @@ CUTEST_TEST_SETUP(full) {
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
             {CATERVA_STORAGE_BLOSC, true, true},
+            {CATERVA_STORAGE_BLOSC, false, true},
     ));
     CUTEST_PARAMETRIZE(fill_value, int8_t, CUTEST_DATA(
             3, 113, 33, -5
@@ -56,7 +57,7 @@ CUTEST_TEST_TEST(full) {
 
 
     char *urlpath = "test_full.b2frame";
-    remove(urlpath);
+    caterva_remove(data->ctx, urlpath);
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -142,7 +143,7 @@ CUTEST_TEST_TEST(full) {
     free(buffer_dest);
     free(value);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
-    remove(urlpath);
+    caterva_remove(data->ctx, urlpath);
 
     return CATERVA_SUCCEED;
 }

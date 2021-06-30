@@ -46,12 +46,14 @@ CUTEST_TEST_SETUP(squeeze) {
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
             {CATERVA_STORAGE_BLOSC, true, true},
+            {CATERVA_STORAGE_BLOSC, false, true},
     ));
     CUTEST_PARAMETRIZE(backend2, _test_backend, CUTEST_DATA(
             {CATERVA_STORAGE_PLAINBUFFER, false, false},
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
             {CATERVA_STORAGE_BLOSC, true, true},
+            {CATERVA_STORAGE_BLOSC, false, true},
     ));
 
 
@@ -74,6 +76,9 @@ CUTEST_TEST_TEST(squeeze) {
 
     char *urlpath = "test_squeeze.b2frame";
     char *urlpath2 = "test_squeeze2.b2frame";
+
+    caterva_remove(data->ctx, urlpath);
+    caterva_remove(data->ctx, urlpath2);
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -149,8 +154,8 @@ CUTEST_TEST_TEST(squeeze) {
     free(buffer);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
-    remove(urlpath);
-    remove(urlpath2);
+    caterva_remove(data->ctx, urlpath);
+    caterva_remove(data->ctx, urlpath2);
 
     return CATERVA_SUCCEED;
 }

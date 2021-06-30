@@ -41,6 +41,7 @@ CUTEST_TEST_SETUP(zeros) {
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
             {CATERVA_STORAGE_BLOSC, true, true},
+            {CATERVA_STORAGE_BLOSC, false, true},
     ));
 }
 
@@ -51,7 +52,7 @@ CUTEST_TEST_TEST(zeros) {
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
 
     char *urlpath = "test_zeros.b2frame";
-    remove(urlpath);
+    caterva_remove(data->ctx, urlpath);
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -101,7 +102,7 @@ CUTEST_TEST_TEST(zeros) {
     /* Free mallocs */
     free(buffer_dest);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
-    remove(urlpath);
+    caterva_remove(data->ctx, urlpath);
 
     return CATERVA_SUCCEED;
 }

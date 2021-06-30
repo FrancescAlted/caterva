@@ -60,12 +60,14 @@ CUTEST_TEST_SETUP(get_slice) {
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
             {CATERVA_STORAGE_BLOSC, true, true},
+            {CATERVA_STORAGE_BLOSC, false, true},
     ));
     CUTEST_PARAMETRIZE(backend2, _test_backend, CUTEST_DATA(
             {CATERVA_STORAGE_PLAINBUFFER, false, false},
             {CATERVA_STORAGE_BLOSC, false, false},
             {CATERVA_STORAGE_BLOSC, true, false},
             {CATERVA_STORAGE_BLOSC, true, true},
+            {CATERVA_STORAGE_BLOSC, false, true},
     ));
 
 
@@ -87,7 +89,9 @@ CUTEST_TEST_TEST(get_slice) {
 
     char* urlpath = "test_get_slice.b2frame";
     char* urlpath2 = "test_get_slice2.b2frame";
-    remove(urlpath);
+
+    caterva_remove(data->ctx, urlpath);
+    caterva_remove(data->ctx, urlpath2);
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -173,8 +177,8 @@ CUTEST_TEST_TEST(get_slice) {
     data->ctx->cfg->free(buffer_dest);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &dest));
-    remove(urlpath);
-    remove(urlpath2);
+    caterva_remove(data->ctx, urlpath);
+    caterva_remove(data->ctx, urlpath2);
 
     return 0;
 }
