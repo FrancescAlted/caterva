@@ -539,7 +539,7 @@ int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *st
 
 
 /**
- * @brief Remove Caterva file.
+ * @brief Remove a Caterva file from the filesystem. Both backends are supported.
  *
  * @param ctx The caterva context to be used.
  * @param urlpath The urlpath of the array to be removed.

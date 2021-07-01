@@ -88,3 +88,5 @@ Destruction
 -----------
 
 .. doxygenfunction:: caterva_free
+
+.. doxygenfunction:: caterva_remove
