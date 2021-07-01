@@ -1,8 +1,7 @@
 # Caterva
 
-[![Build Status](https://dev.azure.com/blosc/caterva/_apis/build/status/caterva?branchName=master)](https://dev.azure.com/blosc/caterva/_build/latest?definitionId=3&branchName=master)
+[![CI CMake](https://github.com/Blosc/caterva/actions/workflows/cmake.yml/badge.svg)](https://github.com/Blosc/caterva/actions/workflows/cmake.yml)
 [![Documentation Status](https://readthedocs.org/projects/caterva/badge/?version=latest)](https://caterva.readthedocs.io/en/latest/?badge=latest)
-[![Azure DevOps coverage](https://img.shields.io/azure-devops/coverage/blosc/caterva/5)](https://dev.azure.com/blosc/caterva/_build/latest?definitionId=5&branchName=master)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md)
 ## What it is
 
@@ -20,4 +19,4 @@ For more info, check out the
 [Caterva documentation](https://caterva.readthedocs.io).
   
 Here are slides of a gentle
-[introductory talk to Caterva](http://blosc.org/docs/Caterva-HDF5-Workshop.pdf).
+[introductory talk to Caterva](https://blosc.github.io/caterva-scipy21).
