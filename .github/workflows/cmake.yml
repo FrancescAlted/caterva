@@ -1,0 +1,87 @@
+name: CI CMake
+on: [push, pull_request]
+jobs:
+  ci-cmake:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu GCC
+            os: ubuntu-latest
+            compiler: gcc
+
+          - name: Ubuntu Clang
+            os: ubuntu-latest
+            compiler: clang
+
+          - name: Windows MSVC Win32
+            os: windows-latest
+            compiler: cl
+            cmake-args: -A Win32
+
+          - name: Windows MSVC Win64
+            os: windows-latest
+            compiler: cl
+            cmake-args: -A x64
+
+          - name: Windows GCC Ninja
+            os: windows-latest
+            compiler: gcc
+            cmake-args: -G Ninja
+
+          - name: Windows GCC MinGW
+            os: windows-latest
+            compiler: gcc
+            cmake-args:  -G "MinGW Makefiles"
+
+          - name: macOS Clang
+            os: macOS-latest
+            compiler: clang
+
+          - name: macOS GCC
+            os: macOS-latest
+            compiler: gcc
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+
+    - name: Install packages (Ubuntu)
+      if: runner.os == 'Linux' && matrix.packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ${{ matrix.packages }}
+
+    - name: Install packages (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install ninja ${{ matrix.packages }}
+
+    - name: Install packages (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install ninja ${{ matrix.packages }}
+
+    - name: Generate project files
+      run: |
+        mkdir ${{ matrix.build-dir || '.not-used' }}
+        cd ${{ matrix.build-dir || '.' }}
+        cmake ${{ matrix.build-src-dir || '.' }} ${{ matrix.cmake-args }} -DCMAKE_BUILD_TYPE=${{ matrix.build-config || 'Release' }}
+      env:
+        CC: ${{ matrix.compiler }}
+        CFLAGS: ${{ matrix.cflags }}
+        LDFLAGS: ${{ matrix.ldflags }}
+        CI: true
+
+    - name: Compile source code
+      run: |
+        cd ${{ matrix.build-dir || '.' }}
+        cmake --build . --config ${{ matrix.build-config || 'Release' }}
+
+    - name: Run test cases
+      run: |
+        cd ${{ matrix.build-dir || '.' }}
+        ctest -C Release -L caterva --output-on-failure --max-width 120
