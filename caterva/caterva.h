@@ -543,7 +543,63 @@ int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *st
  *
  * @param ctx The caterva context to be used.
  * @param urlpath The urlpath of the array to be removed.
+ *
+ * @return An error code
  */
 int caterva_remove(caterva_ctx_t *ctx, char *urlpath);
 
+
+/**
+ * @brief Add a vl-metalayer to the Caterva array.
+ *
+ * @param ctx The context to be used.
+ * @param array The array where the metalayer will be added.
+ * @param name The vl-metalayer to add.
+ *
+ * @return An error code
+ */
+int caterva_vlmeta_add(caterva_ctx_t *ctx, caterva_array_t *array, caterva_metalayer_t *vlmeta);
+
+
+/**
+ *
+ * @brief Get a vl-metalayer from a Caterva array.
+ *
+ * @param ctx The context to be used.
+ * @param array The array where the vl-metalayer will be added.
+ * @param name The vl-metalayer name.
+ * @param vlmeta Pointer to the metalayer where the data will be stored.
+ *
+ * @warning The contents of `vlmeta` are allocated inside the function.
+ * Therefore, they must be released with a `free`.
+ *
+ * @return An error code
+ */
+int caterva_vlmeta_get(caterva_ctx_t *ctx, caterva_array_t *array,
+                       const char *name, caterva_metalayer_t *vlmeta);
+
+/**
+ * @brief Check if a vl-metalayer exists or not.
+ *
+ * @param ctx The context ot be used.
+ * @param array The array where the check will be done.
+ * @param name The name of the vl-metalayer to check.
+ * @param exists Pointer where the result will be stored.
+ *
+ * @return An error code
+ */
+int caterva_vlmeta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
+                          const char *name, bool *exists);
+
+/**
+ * @brief Update a vl-metalayer content in a Caterva array.
+ *
+ * @param ctx The context to be used.
+ * @param array The array where the vl-metalayer will be updated.
+ * @param vlmeta The vl-metalayer to update.
+ *
+ * @return An error code
+ */
+int caterva_vlmeta_update(caterva_ctx_t *ctx, caterva_array_t *array,
+                          caterva_metalayer_t *vlmeta);
 #endif  // CATERVA_CATERVA_H_
