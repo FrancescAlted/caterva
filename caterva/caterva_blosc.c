@@ -878,3 +878,46 @@ int caterva_blosc_remove(caterva_ctx_t *ctx, char *urlpath) {
     }
     return CATERVA_SUCCEED;
 }
+
+
+// VLMetalayers
+
+int caterva_blosc_vlmeta_add(caterva_ctx_t *ctx, caterva_array_t *array,
+                             const char *name, uint8_t *content, uint32_t content_len) {
+    CATERVA_UNUSED_PARAM(ctx);
+    blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+    if (blosc2_vlmeta_add(array->sc, name, content, content_len, &cparams) < 0) {
+        CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+    }
+    return CATERVA_SUCCEED;
+}
+
+int caterva_blosc_vlmeta_get(caterva_ctx_t *ctx, caterva_array_t *array,
+                             const char *name, uint8_t **content, int32_t *content_len) {
+    CATERVA_UNUSED_PARAM(ctx);
+    if (blosc2_vlmeta_get(array->sc, name, content, content_len) < 0) {
+        CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+    }
+    return CATERVA_SUCCEED;
+}
+
+int caterva_blosc_vlmeta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
+                                const char *name, bool *exists) {
+    CATERVA_UNUSED_PARAM(ctx);
+    if (blosc2_vlmeta_exists(array->sc, name)) {
+        *exists = true;
+    } else {
+        *exists = false;
+    }
+    return CATERVA_SUCCEED;
+}
+
+int caterva_blosc_vlmeta_update(caterva_ctx_t *ctx, caterva_array_t *array,
+                                const char *name, uint8_t *content, uint32_t content_len) {
+    CATERVA_UNUSED_PARAM(ctx);
+    blosc2_cparams cparams = BLOSC2_CPARAMS_DEFAULTS;
+    if (blosc2_vlmeta_update(array->sc, name, content, content_len, &cparams) < 0) {
+        CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+    }
+    return CATERVA_SUCCEED;
+}
