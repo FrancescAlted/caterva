@@ -383,6 +383,24 @@ int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *st
     return CATERVA_SUCCEED;
 }
 
+int caterva_save(caterva_ctx_t *ctx, caterva_array_t *array, char *urlpath) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(urlpath);
+
+    switch(array->storage) {
+        case CATERVA_STORAGE_BLOSC:
+            CATERVA_ERROR(caterva_blosc_save(ctx, array, urlpath));
+            break;
+        case CATERVA_STORAGE_PLAINBUFFER:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+            break;
+        default:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+    }
+
+    return CATERVA_SUCCEED;
+}
 
 int caterva_remove(caterva_ctx_t *ctx, char *urlpath) {
     CATERVA_ERROR_NULL(ctx);

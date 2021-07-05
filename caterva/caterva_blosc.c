@@ -879,6 +879,25 @@ int caterva_blosc_remove(caterva_ctx_t *ctx, char *urlpath) {
     return CATERVA_SUCCEED;
 }
 
+int caterva_blosc_save(caterva_ctx_t *ctx, caterva_array_t *array, char *urlpath) {
+    caterva_array_t *tmp;
+    caterva_storage_t storage;
+    storage.backend = CATERVA_STORAGE_BLOSC;
+    caterva_storage_properties_blosc_t *blosc_prop = &storage.properties.blosc;
+    blosc_prop->urlpath = urlpath;
+    blosc_prop->sequencial = array->sc->storage->contiguous;
+
+    for (int i = 0; i < array->ndim; ++i) {
+        blosc_prop->chunkshape[i] = array->chunkshape[i];
+        blosc_prop->blockshape[i] = array->blockshape[i];
+    }
+
+    caterva_copy(ctx, array, &storage, &tmp);
+    caterva_free(ctx, &tmp);
+
+    return CATERVA_SUCCEED;
+}
+
 
 // VLMetalayers
 
