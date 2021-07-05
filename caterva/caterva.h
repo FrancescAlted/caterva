@@ -602,4 +602,47 @@ int caterva_vlmeta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
  */
 int caterva_vlmeta_update(caterva_ctx_t *ctx, caterva_array_t *array,
                           caterva_metalayer_t *vlmeta);
+
+/**
+ *
+ * @brief Get a metalayer from a Caterva array.
+ *
+ * @param ctx The context to be used.
+ * @param array The array where the metalayer will be added.
+ * @param name The vl-metalayer name.
+ * @param meta Pointer to the metalayer where the data will be stored.
+ *
+ * @warning The contents of `meta` are allocated inside the function.
+ * Therefore, they must be released with a `free`.
+ *
+ * @return An error code
+ */
+int caterva_meta_get(caterva_ctx_t *ctx, caterva_array_t *array,
+                       const char *name, caterva_metalayer_t *meta);
+
+/**
+ * @brief Check if a metalayer exists or not.
+ *
+ * @param ctx The context ot be used.
+ * @param array The array where the check will be done.
+ * @param name The name of the metalayer to check.
+ * @param exists Pointer where the result will be stored.
+ *
+ * @return An error code
+ */
+int caterva_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
+                          const char *name, bool *exists);
+
+/**
+ * @brief Update a metalayer content in a Caterva array.
+ *
+ * @param ctx The context to be used.
+ * @param array The array where the metalayer will be updated.
+ * @param meta The metalayer to update.
+ *
+ * @return An error code
+ */
+int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
+                          caterva_metalayer_t *meta);
+
 #endif  // CATERVA_CATERVA_H_

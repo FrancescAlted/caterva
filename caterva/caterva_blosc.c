@@ -921,3 +921,32 @@ int caterva_blosc_vlmeta_update(caterva_ctx_t *ctx, caterva_array_t *array,
     }
     return CATERVA_SUCCEED;
 }
+
+int caterva_blosc_meta_get(caterva_ctx_t *ctx, caterva_array_t *array,
+                             const char *name, uint8_t **content, int32_t *content_len) {
+    CATERVA_UNUSED_PARAM(ctx);
+    if (blosc2_meta_get(array->sc, name, content, content_len) < 0) {
+        CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+    }
+    return CATERVA_SUCCEED;
+}
+
+int caterva_blosc_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
+                                const char *name, bool *exists) {
+    CATERVA_UNUSED_PARAM(ctx);
+    if (blosc2_meta_exists(array->sc, name)) {
+        *exists = true;
+    } else {
+        *exists = false;
+    }
+    return CATERVA_SUCCEED;
+}
+
+int caterva_blosc_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
+                                const char *name, uint8_t *content, int32_t content_len) {
+    CATERVA_UNUSED_PARAM(ctx);
+    if (blosc2_meta_update(array->sc, name, content, content_len) < 0) {
+        CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+    }
+    return CATERVA_SUCCEED;
+}
