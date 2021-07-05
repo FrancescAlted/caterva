@@ -69,4 +69,13 @@ int caterva_blosc_vlmeta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
 int caterva_blosc_vlmeta_update(caterva_ctx_t *ctx, caterva_array_t *array,
                                 const char *name, uint8_t *content, int32_t content_len);
 
+int caterva_blosc_meta_get(caterva_ctx_t *ctx, caterva_array_t *array,
+                             const char *name, uint8_t **content, int32_t *content_len);
+
+int caterva_blosc_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
+                                const char *name, bool *exists);
+
+int caterva_blosc_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
+                                const char *name, uint8_t *content, int32_t content_len);
+
 #endif  // CATERVA_CATERVA_BLOSC_H_

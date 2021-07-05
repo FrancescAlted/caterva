@@ -483,3 +483,69 @@ int caterva_vlmeta_update(caterva_ctx_t *ctx, caterva_array_t *array,
     }
     return CATERVA_SUCCEED;
 }
+
+int caterva_meta_get(caterva_ctx_t *ctx, caterva_array_t *array,
+                       const char *name, caterva_metalayer_t *meta) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(name);
+    CATERVA_ERROR_NULL(meta);
+    switch (array->storage) {
+        case CATERVA_STORAGE_BLOSC:
+            CATERVA_ERROR(caterva_blosc_meta_get(ctx, array, name, &meta->sdata, &meta->size));
+            break;
+        case CATERVA_STORAGE_PLAINBUFFER:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+            break;
+        default:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+    }
+    meta->name = strdup(name);
+    return CATERVA_SUCCEED;
+}
+
+int caterva_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
+                          const char *name, bool *exists) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(name);
+    CATERVA_ERROR_NULL(exists);
+    switch (array->storage) {
+        case CATERVA_STORAGE_BLOSC:
+            CATERVA_ERROR(caterva_blosc_meta_exists(ctx, array, name, exists));
+            break;
+        case CATERVA_STORAGE_PLAINBUFFER:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+            break;
+        default:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+    }
+    return CATERVA_SUCCEED;
+}
+
+
+int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
+                          caterva_metalayer_t *meta) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(meta);
+    CATERVA_ERROR_NULL(meta->name);
+    CATERVA_ERROR_NULL(meta->sdata);
+    if (meta->size < 0) {
+        DEBUG_PRINT("metalayer size must be hgreater than 0");
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+
+    switch (array->storage) {
+        case CATERVA_STORAGE_BLOSC:
+            CATERVA_ERROR(caterva_blosc_meta_update(ctx, array,
+                                                      meta->name, meta->sdata, meta->size));
+            break;
+        case CATERVA_STORAGE_PLAINBUFFER:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+            break;
+        default:
+            CATERVA_ERROR(CATERVA_ERR_INVALID_STORAGE);
+    }
+    return CATERVA_SUCCEED;
+}
