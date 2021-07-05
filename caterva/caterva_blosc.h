@@ -30,6 +30,8 @@ int caterva_blosc_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk,
 
 int caterva_blosc_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array);
 
+int caterva_blosc_save(caterva_ctx_t *ctx, caterva_array_t *array, char *urlpath);
+
 int caterva_blosc_array_set_slice_buffer(caterva_ctx_t *ctx,
                                          void *buffer, int64_t buffersize,
                                          int64_t *start, int64_t *stop, int64_t *shape,

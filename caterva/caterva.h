@@ -420,6 +420,17 @@ int caterva_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64
 int caterva_open(caterva_ctx_t *ctx, const char *urlpath, caterva_array_t **array);
 
 /**
+ * @brief Save caterva array into a specific urlpath.
+ *
+ * @param ctx The context to be used.
+ * @param array The array to be saved.
+ * @param urlpath The urlpath where the array will be stored.
+ *
+ * @return An error code.
+ */
+int caterva_save(caterva_ctx_t *ctx, caterva_array_t *array, char *urlpath);
+
+/**
  * @brief Create a caterva array from the data stored in a buffer.
  *
  * @param ctx The caterva context to be used.

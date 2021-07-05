@@ -54,6 +54,13 @@ From/To buffer
 .. doxygenfunction:: caterva_to_buffer
 
 
+From/To file
+++++++++++++
+
+.. doxygenfunction:: caterva_open
+.. doxygenfunction:: caterva_save
+
+
 From Blosc object
 +++++++++++++++++
 
@@ -61,10 +68,6 @@ From Blosc object
 
 .. doxygenfunction:: caterva_from_serial_schunk
 
-From file
-++++++++++++
-
-.. doxygenfunction:: caterva_open
 
 Copying
 +++++++
