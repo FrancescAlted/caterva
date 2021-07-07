@@ -713,6 +713,7 @@ int caterva_blosc_array_get_slice(caterva_ctx_t *ctx, caterva_array_t *src,
         params.shape[i] = stop[i] - start[i];
     }
 
+    // Add data
     CATERVA_ERROR(caterva_empty(ctx, &params, storage, array));
 
     if ((*array)->nitems == 0) {
@@ -806,7 +807,43 @@ int caterva_blosc_array_copy(caterva_ctx_t *ctx, caterva_params_t *params,
         for (int i = 0; i < src->ndim; ++i) {
             stop[i] = src->shape[i];
         }
-        CATERVA_ERROR(caterva_get_slice(ctx, src, start, stop, storage, dest));
+        // Copy metalayers
+        caterva_storage_t storage_meta;
+        memcpy(&storage_meta, storage, sizeof(storage_meta));
+        int j = 0;
+        if (src->storage == CATERVA_STORAGE_BLOSC) {
+            for (int i = 0; i < src->sc->nmetalayers; ++i) {
+                if (strcmp(src->sc->metalayers[i]->name, "caterva") == 0) {
+                    continue;
+                }
+                caterva_metalayer_t *meta = &storage_meta.properties.blosc.metalayers[j];
+                meta->name = src->sc->metalayers[i]->name;
+                meta->sdata = src->sc->metalayers[i]->content;
+                meta->size = src->sc->metalayers[i]->content_len;
+                j++;
+            }
+            storage_meta.properties.blosc.nmetalayers = j;
+        }
+        // Copy data
+        CATERVA_ERROR(caterva_get_slice(ctx, src, start, stop, &storage_meta, dest));
+
+        // Copy vlmetayers
+        if (src->storage == CATERVA_STORAGE_BLOSC) {
+            for (int i = 0; i < src->sc->nvlmetalayers; ++i) {
+                uint8_t *content;
+                uint32_t content_len;
+                if (blosc2_vlmeta_get(src->sc, src->sc->vlmetalayers[i]->name, &content,
+                                      &content_len) < 0) {
+                    CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+                }
+                caterva_metalayer_t vlmeta;
+                vlmeta.name = src->sc->vlmetalayers[i]->name;
+                vlmeta.sdata = content;
+                vlmeta.size = (int32_t) content_len;
+                CATERVA_ERROR(caterva_vlmeta_add(ctx, *dest, &vlmeta));
+                free(content);
+            }
+        }
     }
 
     return CATERVA_SUCCEED;
@@ -923,10 +960,10 @@ int caterva_blosc_vlmeta_get(caterva_ctx_t *ctx, caterva_array_t *array,
 int caterva_blosc_vlmeta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
                                 const char *name, bool *exists) {
     CATERVA_UNUSED_PARAM(ctx);
-    if (blosc2_vlmeta_exists(array->sc, name)) {
-        *exists = true;
-    } else {
+    if (blosc2_vlmeta_exists(array->sc, name) < 0) {
         *exists = false;
+    } else {
+        *exists = true;
     }
     return CATERVA_SUCCEED;
 }
@@ -953,10 +990,10 @@ int caterva_blosc_meta_get(caterva_ctx_t *ctx, caterva_array_t *array,
 int caterva_blosc_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
                                 const char *name, bool *exists) {
     CATERVA_UNUSED_PARAM(ctx);
-    if (blosc2_meta_exists(array->sc, name)) {
-        *exists = true;
-    } else {
+    if (blosc2_meta_exists(array->sc, name) < 0) {
         *exists = false;
+    } else {
+        *exists = true;
     }
     return CATERVA_SUCCEED;
 }

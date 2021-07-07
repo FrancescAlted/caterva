@@ -89,9 +89,9 @@ CUTEST_TEST_TEST(metalayers) {
 
     bool exists = false;
     CATERVA_TEST_ASSERT(caterva_vlmeta_exists(data->ctx, src, "vlmeta2", &exists));
-    CATERVA_TEST_ASSERT(exists == false);
+    CUTEST_ASSERT("", exists == false);
     CATERVA_TEST_ASSERT(caterva_vlmeta_exists(data->ctx, src, vlmeta1.name, &exists));
-    CATERVA_TEST_ASSERT(exists == true);
+    CUTEST_ASSERT("", exists == true);
 
     caterva_metalayer_t vlmeta2;
     CATERVA_TEST_ASSERT(caterva_vlmeta_get(data->ctx, src, vlmeta1.name, &vlmeta2));
