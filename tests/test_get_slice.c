@@ -132,7 +132,17 @@ CUTEST_TEST_TEST(get_slice) {
     CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
                                             &src));
 
+    /* Add vlmeta */
 
+    caterva_metalayer_t vlmeta;
+    vlmeta.name = "test_get_slice";
+    double sdata = 2.3;
+    vlmeta.sdata = (uint8_t *) &sdata;
+    vlmeta.size = sizeof(double);
+
+    if (backend.backend == CATERVA_STORAGE_BLOSC) {
+        CATERVA_TEST_ASSERT(caterva_vlmeta_add(data->ctx, src, &vlmeta));
+    }
     /* Create storage for dest container */
 
     caterva_storage_t storage2 = {0};
@@ -157,6 +167,18 @@ CUTEST_TEST_TEST(get_slice) {
     caterva_array_t *dest;
     CATERVA_TEST_ASSERT(caterva_get_slice(data->ctx, src, shapes.start, shapes.stop,
                                           &storage2, &dest));
+
+    /* Check metalayers */
+
+    bool exists;
+    if (backend2.backend == CATERVA_STORAGE_BLOSC) {
+        CATERVA_TEST_ASSERT(caterva_meta_exists(data->ctx, dest, "caterva", &exists));
+        CUTEST_ASSERT("metalayer not exists", exists == true);
+        if (backend.backend == CATERVA_STORAGE_BLOSC) {
+            CATERVA_TEST_ASSERT(caterva_vlmeta_exists(data->ctx, dest, vlmeta.name, &exists));
+            CUTEST_ASSERT("vlmetalayer not exists", exists == false);
+        }
+    }
 
     int64_t destbuffersize = itemsize;
     for (int i = 0; i < src->ndim; ++i) {

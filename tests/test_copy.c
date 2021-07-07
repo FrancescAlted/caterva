@@ -33,7 +33,10 @@ CUTEST_TEST_SETUP(copy) {
     caterva_ctx_new(&cfg, &data->ctx);
 
     // Add parametrizations
-    CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(1, 2, 4, 8));
+    CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(
+            2,
+            4,
+    ));
     CUTEST_PARAMETRIZE(shapes, test_shapes_t, CUTEST_DATA(
             {2, {100, 100}, {20, 20}, {10, 10},
                 {20, 20}, {10, 10}},
@@ -58,7 +61,7 @@ CUTEST_TEST_SETUP(copy) {
     ));
 
     CUTEST_PARAMETRIZE(backend2, _test_backend, CUTEST_DATA(
-            {CATERVA_STORAGE_PLAINBUFFER, false, false},
+             {CATERVA_STORAGE_PLAINBUFFER, false, false},
              {CATERVA_STORAGE_BLOSC, false, false},
              {CATERVA_STORAGE_BLOSC, true, false},
              {CATERVA_STORAGE_BLOSC, false, true},
@@ -128,16 +131,21 @@ CUTEST_TEST_TEST(copy) {
 
     /* Assert the metalayers creation */
     if (storage.backend == CATERVA_STORAGE_BLOSC) {
-        if (blosc2_meta_exists(src->sc, "random") < 0) {
+        bool exists;
+        CATERVA_TEST_ASSERT(caterva_meta_exists(data->ctx, src, "random", &exists));
+        if (!exists) {
             CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
         }
-        double *serializeddata;
-        uint32_t len;
-        blosc2_meta_get(src->sc, "random", (uint8_t **) &serializeddata, &len);
-        if (*serializeddata != datatoserialize) {
+        caterva_metalayer_t meta;
+        CATERVA_TEST_ASSERT(caterva_meta_get(data->ctx, src, "random", &meta));
+        double serializeddata = *((double *) meta.sdata);
+        if (serializeddata != datatoserialize) {
             CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
         }
-        free(serializeddata);
+
+        CATERVA_TEST_ASSERT(caterva_vlmeta_add(data->ctx, src, &meta));
+        free(meta.sdata);
+        free(meta.name);
     }
 
     /* Create storage for dest container */
@@ -164,6 +172,27 @@ CUTEST_TEST_TEST(copy) {
 
     caterva_array_t *dest;
     CATERVA_TEST_ASSERT(caterva_copy(data->ctx, src, &storage2, &dest));
+
+    /* Assert the metalayers creation */
+    if (storage.backend == CATERVA_STORAGE_BLOSC && storage2.backend == CATERVA_STORAGE_BLOSC) {
+        caterva_metalayer_t meta;
+        CATERVA_TEST_ASSERT(caterva_meta_get(data->ctx, dest, "random", &meta));
+        double serializeddata = *((double *) meta.sdata);
+        if (serializeddata != datatoserialize) {
+            CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
+        }
+        free(meta.sdata);
+        free(meta.name);
+
+        caterva_metalayer_t vlmeta;
+        CATERVA_TEST_ASSERT(caterva_vlmeta_get(data->ctx, dest, "random", &vlmeta));
+        serializeddata = *((double *) vlmeta.sdata);
+        if (serializeddata != datatoserialize) {
+            CATERVA_TEST_ASSERT(CATERVA_ERR_BLOSC_FAILED);
+        }
+        free(vlmeta.sdata);
+        free(vlmeta.name);
+    }
 
     uint8_t *buffer_dest = malloc(buffersize);
     CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, dest, buffer_dest, buffersize));
