@@ -2,14 +2,14 @@ What is caterva?
 ================
 
 Caterva is a container for multidimensional data that is specially designed to
-read, in an incredibly efficient way, slices of it. To achieve this, a new
+read, in an incredibly efficient way, datasets slices. To achieve this, a new
 chunking-based data layout has been created.
 
 .. image:: overview.png
    :width: 90%
    :align: center
 
-Like other libraries like zarr, HDF5 or TileDB, Caterva stores the data into
+Like other libraries like Zarr, HDF5 or TileDB, Caterva stores the data into
 multidimensional chunks (yellow cubes). These chunks can then be read
 individually, improving performance when reading slices of the dataset. But
 also, Caterva introduces a new level of chunking. Within each chunk, the data is
@@ -19,7 +19,7 @@ of chunks.
 
 These partition levels allow to access data efficiently with a larger set of
 data access patterns. This is due to obtain the desired slice, instead of
-reading the data using the chunks, data are obtained using the blocks.
+reading the data using the chunks, data is obtained using the blocks.
 
 Blosc
 -----
@@ -37,7 +37,7 @@ cannot be persisted. It is critical to find a way to store and retrieve data
 efficiently. Also, it is important to adopt open formats for reducing the
 maintenance burden and facilitate its adoption more quickly. Blosc2 brings such
 an efficient and open format for `persistency <https://github
-.com/Blosc/c-blosc2/blob/master/README_FRAME_FORMAT.rst>`__.
+.com/Blosc/c-blosc2/blob/main/README_CFRAME_FORMAT.rst>`__.
 
 An aditional feature that introduces Blosc2 is the concept of metalayers. They
 are small metadata for informing about the kind of data that is stored on a

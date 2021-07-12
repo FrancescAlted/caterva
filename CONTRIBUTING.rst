@@ -46,7 +46,7 @@ Contributing to code
 --------------------
 
 We actively welcome your code contributions. By contributing to Caterva, you
-agree that your contributions will be licensed under the `<LICENSE>`_ file of
+agree that your contributions will be licensed under the `<LICENSE> <https://github.com/Blosc/Caterva/blob/master/LICENSE>`_ file of
 the project.
 
 Fork the repo

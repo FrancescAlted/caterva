@@ -114,7 +114,7 @@ typedef struct {
     int32_t splitmode;
     //!< Whether the blocks should be split or not.
     int usedict;
-    //!< Indicates whether a dict is used to compress data or not.
+    //!< Indicates whether a dictionary is used to compress data or not.
     int16_t nthreads;
     //!< Determines the maximum number of threads that can be used.
     uint8_t filters[BLOSC2_MAX_FILTERS];
@@ -171,7 +171,7 @@ typedef enum {
  */
 typedef struct {
     char *name;
-    //!< The name of the metalater
+    //!< The name of the metalayer
     uint8_t *sdata;
     //!< The serialized data to store
     int32_t size;
@@ -550,7 +550,7 @@ int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *st
 
 
 /**
- * @brief Remove a Caterva file from the filesystem. Both backends are supported.
+ * @brief Remove a Caterva file from the file system. Both backends are supported.
  *
  * @param ctx The caterva context to be used.
  * @param urlpath The urlpath of the array to be removed.
@@ -592,7 +592,7 @@ int caterva_vlmeta_get(caterva_ctx_t *ctx, caterva_array_t *array,
 /**
  * @brief Check if a vl-metalayer exists or not.
  *
- * @param ctx The context ot be used.
+ * @param ctx The context to be used.
  * @param array The array where the check will be done.
  * @param name The name of the vl-metalayer to check.
  * @param exists Pointer where the result will be stored.
@@ -634,7 +634,7 @@ int caterva_meta_get(caterva_ctx_t *ctx, caterva_array_t *array,
 /**
  * @brief Check if a metalayer exists or not.
  *
- * @param ctx The context ot be used.
+ * @param ctx The context to be used.
  * @param array The array where the check will be done.
  * @param name The name of the metalayer to check.
  * @param exists Pointer where the result will be stored.
