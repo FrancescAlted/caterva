@@ -9,9 +9,9 @@ This document lists the goals for a production release of Caterva.
 Existing features
 -----------------
 
-* **Built on top of Blosc2:** besides transparent compression, this allows to store large compressed datasets either in-memory or on-disk. In addition, Caterva inherits all the improvements that are being introduced in Blosc2 (see https://github.com/Blosc/c-blosc2/blob/master/ROADMAP.md).
+* **Built on top of Blosc2:** besides transparent compression, this allows to store large compressed datasets either in-memory or on-disk. In addition, Caterva inherits all the improvements that are being introduced in Blosc2 (see https://github.com/Blosc/c-blosc2/blob/main/ROADMAP.rst).
 
-* **Two-level multidimensional chunking:** like other libraries, Caterva stores the data into multidimensional chunks for efficient slicing. But in addition, Caterva introduces a new level of chunking.  Within each chunk, the data is re-chunked into smaller multidimensional sets called blocks, leading to more fine-grained, and hence, to `even more efficient slicing capabilities <https://github.com/Blosc/cat4py/blob/master/notebooks/slicing-performance.ipynb>`_.
+* **Two-level multidimensional chunking:** like other libraries, Caterva stores the data into multidimensional chunks for efficient slicing. But in addition, Caterva introduces a new level of chunking.  Within each chunk, the data is re-chunked into smaller multidimensional sets called blocks, leading to more fine-grained, and hence, to `even more efficient slicing capabilities <https://github.com/Blosc/python-caterva/blob/master/notebooks/slicing-performance.ipynb>`_.
 
 * **Plainbuffer support:** Caterva also allows to store data in a contiguous buffer. In this way, it facilitates the interoperability with other libraries like NumPy.
 
@@ -31,7 +31,7 @@ Actions to be done
 
 * **Support for multidimensional codecs:** this is the equivalent for multidim filters, but for codecs.  Multidim codecs can leverage n-dim spatial locality in order to compress better/faster.  Such codecs could be used in combination with others, uni-dim codecs (e.g. LZ4), so as to get better ratios.
 
-* **Provide wheels:** this will make the installation much more easier for the user.
+* **Provide wheels:** this will make the installation much easier for the user.
 
 
 Outreaching
@@ -39,6 +39,6 @@ Outreaching
 
 * **Improve the main Caterva README:** this should allow a better overview at first glance of all the features that Caterva offers right now.
 
-* **Attend to meetings and conferences:** it is very important to plan going to conferences for advertising Caterva and meeting people in-person.  We need to decide which meetings to attend.  As there are not that much conferences about C libraries, it is important to leverage the `cat4py <https://github.com/Blosc/cat4py>`_ wrapper so as to try to promote Caterva on Python conferences too.
+* **Attend to meetings and conferences:** it is very important to plan going to conferences for advertising Caterva and meeting people in-person.  We need to decide which meetings to attend.  As there are not that much conferences about C libraries, it is important to leverage the `python-caterva <https://github.com/Blosc/python-caterva>`_ wrapper so as to try to promote Caterva on Python conferences too.
   
 * Other outreaching activities would be to produce videos of the kind 'Caterva in 10 minutes', or producing compelling tutorials (preferably based on Jupyter notebook, and using services like `binder <https://mybinder.org>`_ that allows a low entry level for quick trials).

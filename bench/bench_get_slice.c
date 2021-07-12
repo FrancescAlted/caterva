@@ -8,6 +8,7 @@
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
  */
+
 #define DATA_TYPE int64_t
 
 # include <caterva.h>

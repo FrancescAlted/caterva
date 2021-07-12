@@ -1,6 +1,13 @@
-//
-// Created by Aleix Alcacer Sales on 07/06/2020.
-//
+/*
+ * Copyright (C) 2018 Francesc Alted, Aleix Alcacer.
+ * Copyright (C) 2019-present Blosc Development team <blosc@blosc.org>
+ * All rights reserved.
+ *
+ * This source code is licensed under both the BSD-style license (found in the
+ * LICENSE file in the root directory of this source tree) and the GPLv2 (found
+ * in the COPYING file in the root directory of this source tree).
+ * You may select, at your option, one of the above-listed licenses.
+ */
 
 #ifndef CATERVA_TEST_COMMON_H
 #define CATERVA_TEST_COMMON_H
