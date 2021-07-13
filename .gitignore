@@ -6,5 +6,5 @@ build*/
 # macOS
 .DS_Store
 # Caterva
-docs/doxygen/xml/
-docs/sphinx/_build/
+doc/doxygen/xml/
+doc/sphinx/_build/
