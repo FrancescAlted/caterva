@@ -8,7 +8,7 @@ Preliminaries
 
     git checkout master
 
-- Make sure that ``RELEASE_NOTES.rst`` and ``ANNOUNCE.rst`` are up to
+- Make sure that ``RELEASE_NOTES.rst`` and ``ANNOUNCE.md`` are up to
   date with the latest news in the release.
 
 - Check that *VERSION* symbols in caterva/caterva.h contains the correct info.

@@ -1,14 +1,17 @@
-# Announcing Caterva 0.4.0: a simple multidimensional container for compressed data
+# Announcing Caterva 0.5.0: a simple multidimensional container for compressed data
 
 
 ## What is new?
 
-An API renaming has been done to adapt some Caterva variable names to those
-used by the general community.
+A redesign of the caterva guts and a code refactorization have been performed
+in order to simplify the code. This includes API renaming.
 
-Also, a new level of multi-dimensionality has been introduced. As a result,
-unlike other libraries, Caterva supports two levels of multi-dimensional
-chunking (chunks and blocks).
+Also a set_slice function for arrays backed by Blosc has been implemented.
+This allows users to  update the values in the array whenever and wherever
+they want.
+
+Finally, some constructors (empty, zeros, full) have been introduced using the
+special-values features introduced in Blosc.
 
 For more info, please see the release notes in:
 

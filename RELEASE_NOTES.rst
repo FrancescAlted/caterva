@@ -1,7 +1,7 @@
 Release notes
 =============
 
-Changes from 0.4.0 to 0.4.1
+Changes from 0.4.0 to 0.5.0
 ---------------------------
 
 * Redesign the caterva guts and perform a code refactorization in order
