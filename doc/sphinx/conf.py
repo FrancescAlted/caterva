@@ -29,8 +29,8 @@ pygments_style = "sphinx"
 
 html_static_path = ["_static"]
 html_theme = "pydata_sphinx_theme"
-html_logo = "_static/caterva.svg"
-html_favicon = "_static/caterva-logo.svg"
+html_logo = "_static/caterva-logo.png"
+html_favicon = "_static/caterva-icon.png"
 html_show_sourcelink = False
 
 html_theme_options = {
