@@ -252,7 +252,7 @@ struct chunk_cache_s {
 };
 
 /**
- * @brief A multidimensional array of data that can be compressed data.
+ * @brief A multidimensional array of data that can be compressed.
  */
 typedef struct {
     caterva_storage_backend_t storage;
