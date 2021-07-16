@@ -1,5 +1,7 @@
 Array
 =====
+A Caterva array is a digital, ordered and multidimensional dataset (compressed or not) easy to handle using the Caterva functions.
+Furthermore, these functions let us to perform oprations with Caterva arrays like copying them, slicing them or converting them into buffers or files and vice versa.
 
 .. doxygenstruct:: caterva_array_t
 
