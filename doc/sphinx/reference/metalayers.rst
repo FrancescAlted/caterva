@@ -1,7 +1,7 @@
 Metalayers
 ==========
 Metalayers are metadata for informing about the properties of data that is stored on a container. Caterva implements its own metalayer on top of C-Blosc2 for storing multidimensional information.
-In general, you can use metalayers for adapting Blosc2 containers (and in particular, Caterva arrays) to your own needs, but they are only supported for Blosc backend.
+In general, you can use metalayers for adapting Blosc2 containers (and in particular, Caterva arrays) to your own needs.
 
 Fixed-length metalayers
 -----------------------

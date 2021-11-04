@@ -50,10 +50,9 @@ int main() {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = CATERVA_STORAGE_BLOSC;
     for (int i = 0; i < ndim; ++i) {
-        storage.properties.blosc.chunkshape[i] = chunkshape[i];
-        storage.properties.blosc.blockshape[i] = blockshape[i];
+        storage.chunkshape[i] = chunkshape[i];
+        storage.blockshape[i] = blockshape[i];
     }
 
     caterva_array_t *arr;
