@@ -21,14 +21,14 @@ int caterva_ctx_new(caterva_config_t *cfg, caterva_ctx_t **ctx) {
     (*ctx) = (caterva_ctx_t *) cfg->alloc(sizeof(caterva_ctx_t));
     CATERVA_ERROR_NULL(ctx);
     if (!(*ctx)) {
-        DEBUG_PRINT("Allocation fails");
+        CATERVA_TRACE_ERROR("Allocation fails");
         return CATERVA_ERR_NULL_POINTER;
     }
 
     (*ctx)->cfg = (caterva_config_t *) cfg->alloc(sizeof(caterva_config_t));
     CATERVA_ERROR_NULL((*ctx)->cfg);
     if (!(*ctx)->cfg) {
-        DEBUG_PRINT("Allocation fails");
+        CATERVA_TRACE_ERROR("Allocation fails");
         return CATERVA_ERR_NULL_POINTER;
     }
     memcpy((*ctx)->cfg, cfg, sizeof(caterva_config_t));
@@ -102,7 +102,7 @@ caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t *
 
     CATERVA_ERROR(caterva_blosc_from_schunk(ctx, schunk, array));
     if ((*array) == NULL) {
-        DEBUG_PRINT("Error creating a caterva container from a frame");
+        CATERVA_TRACE_ERROR("Error creating a caterva container from a frame");
         return CATERVA_ERR_NULL_POINTER;
     }
 
@@ -162,6 +162,8 @@ int caterva_from_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
     CATERVA_ERROR(caterva_empty(ctx, params, storage, array));
 
     if (buffersize < (int64_t)(*array)->nitems * (*array)->itemsize) {
+        CATERVA_TRACE_ERROR("The buffersize (%lld) is smaller than the array size (%lld)",
+                            buffersize, (int64_t)(*array)->nitems * (*array)->itemsize);
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
@@ -219,7 +221,7 @@ int caterva_get_slice_buffer(caterva_ctx_t *ctx,
     int64_t size = array->itemsize;
     for (int i = 0; i < array->ndim; ++i) {
         if (stop[i] - start[i] > buffershape[i]) {
-            DEBUG_PRINT("The buffer shape can not be smaller than the slice shape");
+            CATERVA_TRACE_ERROR("The buffer shape can not be smaller than the slice shape");
             return CATERVA_ERR_INVALID_ARGUMENT;
         }
         size *= buffershape[i];
@@ -419,7 +421,7 @@ int caterva_vlmeta_add(caterva_ctx_t *ctx, caterva_array_t *array, caterva_metal
     CATERVA_ERROR_NULL(vlmeta->name);
     CATERVA_ERROR_NULL(vlmeta->sdata);
     if (vlmeta->size < 0) {
-        DEBUG_PRINT("metalayer size must be hgreater than 0");
+        CATERVA_TRACE_ERROR("metalayer size must be hgreater than 0");
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
     switch (array->storage) {
@@ -484,7 +486,7 @@ int caterva_vlmeta_update(caterva_ctx_t *ctx, caterva_array_t *array,
     CATERVA_ERROR_NULL(vlmeta->name);
     CATERVA_ERROR_NULL(vlmeta->sdata);
     if (vlmeta->size < 0) {
-        DEBUG_PRINT("metalayer size must be hgreater than 0");
+        CATERVA_TRACE_ERROR("metalayer size must be hgreater than 0");
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
@@ -550,7 +552,7 @@ int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
     CATERVA_ERROR_NULL(meta->name);
     CATERVA_ERROR_NULL(meta->sdata);
     if (meta->size < 0) {
-        DEBUG_PRINT("metalayer size must be hgreater than 0");
+        CATERVA_TRACE_ERROR("metalayer size must be hgreater than 0");
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 

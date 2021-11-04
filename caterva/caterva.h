@@ -40,31 +40,35 @@
 #define CATERVA_ERR_NULL_POINTER 5
 #define CATERVA_ERR_INVALID_INDEX  5
 
-#ifdef NDEBUG
-#define DEBUG_PRINT(...) \
-    do {                 \
-    } while (0)
-#else
-#define DEBUG_PRINT(...)                                                         \
-    do {                                                                         \
-        fprintf(stderr, "ERROR: %s (%s:%d)\n", __VA_ARGS__, __FILE__, __LINE__); \
-    } while (0)
-#endif
 
-#define CATERVA_ERROR(rc)                 \
-    do {                                  \
-        int rc_ = rc;\
-        if (rc_ != CATERVA_SUCCEED) {      \
-            DEBUG_PRINT(print_error(rc_)); \
-            return rc_;                    \
-        }                                 \
+/* Tracing macros */
+#define CATERVA_TRACE_ERROR(fmt, ...) CATERVA_TRACE(error, fmt, ##__VA_ARGS__)
+#define CATERVA_TRACE_WARNING(fmt, ...) CATERVA_TRACE(warning, fmt, ##__VA_ARGS__)
+
+#define CATERVA_TRACE(cat, msg, ...)                                 \
+    do {                                                             \
+         const char *__e = getenv("CATERVA_TRACE");                  \
+         if (!__e) { break; }                                        \
+         fprintf(stderr, "[%s] - %s:%d\n    " msg "\n", #cat, __FILE__, __LINE__, ##__VA_ARGS__);   \
+    } while(0)
+
+#define CATERVA_ERROR(rc)                           \
+    do {                                            \
+        int rc_ = rc;                               \
+        if (rc_ != CATERVA_SUCCEED) {               \
+            char *error_msg = print_error(rc_);     \
+            CATERVA_TRACE_ERROR("%s", error_msg); \
+            return rc_;                             \
+        }                                           \
     } while (0)
-#define CATERVA_ERROR_NULL(pointer)                             \
-    do {                                                        \
-        if (pointer == NULL) {                                  \
-            DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); \
-            return CATERVA_ERR_NULL_POINTER;                    \
-        }                                                       \
+
+#define CATERVA_ERROR_NULL(pointer)                                 \
+    do {                                                            \
+        char *error_msg = print_error(CATERVA_ERR_NULL_POINTER);    \
+        if ((pointer) == NULL) {                                    \
+            CATERVA_TRACE_ERROR("%s", error_msg);                   \
+            return CATERVA_ERR_NULL_POINTER;                        \
+        }                                                           \
     } while (0)
 
 #define CATERVA_UNUSED_PARAM(x) ((void) (x))
@@ -83,6 +87,8 @@ static char *print_error(int rc) {
             return "Pointer is null";
         case CATERVA_ERR_BLOSC_FAILED:
             return "Blosc failed";
+        case CATERVA_ERR_INVALID_ARGUMENT:
+            return "Invalid argument";
         default:
             return "Unknown error";
     }
@@ -95,7 +101,7 @@ static char *print_error(int rc) {
 #define CATERVA_MAX_DIM 8
 
 /* The maximum number of metalayers for caterva arrays */
-#define CATERVA_MAX_METALAYERS BLOSC2_MAX_METALAYERS - 1
+#define CATERVA_MAX_METALAYERS (BLOSC2_MAX_METALAYERS - 1)
 
 /**
  * @brief Configuration parameters used to create a caterva context.
