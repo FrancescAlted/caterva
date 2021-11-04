@@ -178,7 +178,7 @@ int caterva_plainbuffer_array_empty(caterva_ctx_t *ctx, caterva_params_t *params
     /* Create a caterva_array_t buffer */
     (*array) = (caterva_array_t *) ctx->cfg->alloc(sizeof(caterva_array_t));
     if ((*array) == NULL) {
-        DEBUG_PRINT("Pointer is null");
+        CATERVA_TRACE_ERROR("Pointer is null");
         return CATERVA_ERR_NULL_POINTER;
     }
     (*array)->cfg = (caterva_config_t *) ctx->cfg->alloc(sizeof(caterva_config_t));

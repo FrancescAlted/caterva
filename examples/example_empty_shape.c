@@ -15,14 +15,14 @@ int main() {
 
     int8_t ndim = 2;
     int64_t shape[] = {10, 10};
-    int64_t chunkshape[] = {4, 4};
-    int64_t blockshape[] = {2, 2};
+    int32_t chunkshape[] = {4, 4};
+    int32_t blockshape[] = {2, 2};
     int8_t itemsize = 8;
 
     int64_t slice_start[] = {2, 5};
     int64_t slice_stop[] = {2, 6};
-    int64_t slice_chunkshape[] = {0, 1};
-    int64_t slice_blockshape[] = {0, 1};
+    int32_t slice_chunkshape[] = {0, 1};
+    int32_t slice_blockshape[] = {0, 1};
 
     int64_t nelem = 1;
     for (int i = 0; i < ndim; ++i) {
