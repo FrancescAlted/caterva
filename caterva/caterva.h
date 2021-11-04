@@ -162,15 +162,6 @@ typedef struct {
     //!< The configuration paramters.
 } caterva_ctx_t;
 
-/**
- * @brief The backends available to store the data of the caterva array.
- */
-typedef enum {
-    CATERVA_STORAGE_BLOSC,
-    //!< Indicates that the data is stored using a Blosc super-chunk.
-    CATERVA_STORAGE_PLAINBUFFER,
-    //!< Indicates that the data is stored using a plain buffer.
-} caterva_storage_backend_t;
 
 /**
  * @brief The metalayer data needed to store it on an array
@@ -180,7 +171,7 @@ typedef struct {
     //!< The name of the metalayer
     uint8_t *sdata;
     //!< The serialized data to store
-    int32_t size;
+    uint32_t size;
     //!< The size of the serialized data
 } caterva_metalayer_t;
 
@@ -201,35 +192,6 @@ typedef struct {
     //!< List with the metalayers desired.
     int32_t nmetalayers;
     //!< The number of metalayers.
-} caterva_storage_properties_blosc_t;
-
-/**
- * @brief The storage properties that have a caterva array backed by a plain buffer.
- */
-typedef struct {
-    char *urlpath;
-    //!< The plain buffer name. If @p urlpath is not @p NULL, the plain buffer will be stored on
-    //!< disk. (Not implemented yet).
-} caterva_storage_properties_plainbuffer_t;
-
-/**
- * @brief The storage properties for an array.
- */
-typedef union {
-    caterva_storage_properties_blosc_t blosc;
-    //!< The storage properties when the array is backed by a Blosc super-chunk.
-    caterva_storage_properties_plainbuffer_t plainbuffer;
-    //!< The storage properties when the array is backed by a plain buffer.
-} caterva_storage_properties_t;
-
-/**
- * @brief Storage parameters needed for the creation of a caterva array.
- */
-typedef struct {
-    caterva_storage_backend_t backend;
-    //!< The backend storage.
-    caterva_storage_properties_t properties;
-    //!< The specific properties for the selected @p backend.
 } caterva_storage_t;
 
 /**
@@ -261,21 +223,14 @@ struct chunk_cache_s {
  * @brief A multidimensional array of data that can be compressed.
  */
 typedef struct {
-    caterva_storage_backend_t storage;
-    //!< Storage type.
     caterva_config_t *cfg;
     //!< Array configuration.
     blosc2_schunk *sc;
     //!< Pointer to a Blosc super-chunk
-    //!< Only is used if \p storage equals to @p CATERVA_STORAGE_BLOSC.
-    uint8_t *buf;
-    //!< Pointer to a plain buffer where data is stored.
-    //!< Only is used if \p storage equals to @p CATERVA_STORAGE_PLAINBUFFER.
     int64_t shape[CATERVA_MAX_DIM];
     //!< Shape of original data.
     int32_t chunkshape[CATERVA_MAX_DIM];
-    //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to
-    //!< @p shape.
+    //!< Shape of each chunk.
     int64_t extshape[CATERVA_MAX_DIM];
     //!< Shape of padded data.
     int32_t blockshape[CATERVA_MAX_DIM];

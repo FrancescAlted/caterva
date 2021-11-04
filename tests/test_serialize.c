@@ -50,12 +50,11 @@ CUTEST_TEST_TEST(serialize) {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = CATERVA_STORAGE_BLOSC;
-    storage.properties.blosc.urlpath = NULL;
-    storage.properties.blosc.sequencial = true;
+    storage.urlpath = NULL;
+    storage.sequencial = true;
     for (int i = 0; i < params.ndim; ++i) {
-        storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
-        storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
+        storage.chunkshape[i] = shapes.chunkshape[i];
+        storage.blockshape[i] = shapes.blockshape[i];
     }
 
     /* Create original data */

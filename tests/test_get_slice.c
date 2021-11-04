@@ -56,20 +56,17 @@ CUTEST_TEST_SETUP(get_slice) {
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(8));
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
-            {CATERVA_STORAGE_PLAINBUFFER, false, false},
-            {CATERVA_STORAGE_BLOSC, false, false},
-            {CATERVA_STORAGE_BLOSC, true, false},
-            {CATERVA_STORAGE_BLOSC, true, true},
-            {CATERVA_STORAGE_BLOSC, false, true},
+            {false, false},
+            {true, false},
+            {true, true},
+            {false, true},
     ));
     CUTEST_PARAMETRIZE(backend2, _test_backend, CUTEST_DATA(
-            {CATERVA_STORAGE_PLAINBUFFER, false, false},
-            {CATERVA_STORAGE_BLOSC, false, false},
-            {CATERVA_STORAGE_BLOSC, true, false},
-            {CATERVA_STORAGE_BLOSC, true, true},
-            {CATERVA_STORAGE_BLOSC, false, true},
+            {false, false},
+            {true, false},
+            {true, true},
+            {false, true},
     ));
-
 
     CUTEST_PARAMETRIZE(shapes, test_shapes_t, CUTEST_DATA(
             {0, {0}, {0}, {0}, {0}, {0}, {0}, {0}, result0}, // 0-dim
@@ -101,22 +98,13 @@ CUTEST_TEST_TEST(get_slice) {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = backend.backend;
-    switch (storage.backend) {
-        case CATERVA_STORAGE_PLAINBUFFER:
-            break;
-        case CATERVA_STORAGE_BLOSC:
-            if (backend.persistent) {
-                storage.properties.blosc.urlpath = urlpath;
-            }
-            storage.properties.blosc.sequencial = backend.sequential;
-            for (int i = 0; i < params.ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
-                storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
-            }
-            break;
-        default:
-            CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
+    if (backend.persistent) {
+        storage.urlpath = urlpath;
+    }
+    storage.sequencial = backend.sequential;
+    for (int i = 0; i < params.ndim; ++i) {
+        storage.chunkshape[i] = shapes.chunkshape[i];
+        storage.blockshape[i] = shapes.blockshape[i];
     }
 
     /* Create original data */
@@ -140,28 +128,18 @@ CUTEST_TEST_TEST(get_slice) {
     vlmeta.sdata = (uint8_t *) &sdata;
     vlmeta.size = sizeof(double);
 
-    if (backend.backend == CATERVA_STORAGE_BLOSC) {
-        CATERVA_TEST_ASSERT(caterva_vlmeta_add(data->ctx, src, &vlmeta));
-    }
+    CATERVA_TEST_ASSERT(caterva_vlmeta_add(data->ctx, src, &vlmeta));
+
     /* Create storage for dest container */
 
     caterva_storage_t storage2 = {0};
-    storage2.backend = backend2.backend;
-    switch (backend2.backend) {
-        case CATERVA_STORAGE_PLAINBUFFER:
-            break;
-        case CATERVA_STORAGE_BLOSC:
-            if (backend2.persistent) {
-                storage2.properties.blosc.urlpath = urlpath2;
-            }
-            storage2.properties.blosc.sequencial = backend2.sequential;
-            for (int i = 0; i < params.ndim; ++i) {
-                storage2.properties.blosc.chunkshape[i] = shapes.chunkshape2[i];
-                storage2.properties.blosc.blockshape[i] = shapes.blockshape2[i];
-            }
-            break;
-        default:
-            CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
+    if (backend2.persistent) {
+        storage2.urlpath = urlpath2;
+    }
+    storage2.sequencial = backend2.sequential;
+    for (int i = 0; i < params.ndim; ++i) {
+        storage2.chunkshape[i] = shapes.chunkshape2[i];
+        storage2.blockshape[i] = shapes.blockshape2[i];
     }
 
     caterva_array_t *dest;
@@ -171,14 +149,10 @@ CUTEST_TEST_TEST(get_slice) {
     /* Check metalayers */
 
     bool exists;
-    if (backend2.backend == CATERVA_STORAGE_BLOSC) {
-        CATERVA_TEST_ASSERT(caterva_meta_exists(data->ctx, dest, "caterva", &exists));
-        CUTEST_ASSERT("metalayer not exists", exists == true);
-        if (backend.backend == CATERVA_STORAGE_BLOSC) {
-            CATERVA_TEST_ASSERT(caterva_vlmeta_exists(data->ctx, dest, vlmeta.name, &exists));
-            CUTEST_ASSERT("vlmetalayer not exists", exists == false);
-        }
-    }
+    CATERVA_TEST_ASSERT(caterva_meta_exists(data->ctx, dest, "caterva", &exists));
+    CUTEST_ASSERT("metalayer not exists", exists == true);
+    CATERVA_TEST_ASSERT(caterva_vlmeta_exists(data->ctx, dest, vlmeta.name, &exists));
+    CUTEST_ASSERT("vlmetalayer not exists", exists == false);
 
     int64_t destbuffersize = itemsize;
     for (int i = 0; i < src->ndim; ++i) {

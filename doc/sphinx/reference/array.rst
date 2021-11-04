@@ -23,17 +23,7 @@ Storage parameters
 .. doxygenstruct:: caterva_storage_t
    :members:
 
-.. doxygenenum:: caterva_storage_backend_t
-
-.. doxygenunion:: caterva_storage_properties_t
-
-.. doxygenstruct:: caterva_storage_properties_blosc_t
-   :members:
-
 .. doxygenstruct:: caterva_metalayer_t
-   :members:
-
-.. doxygenstruct:: caterva_storage_properties_plainbuffer_t
    :members:
 
 
@@ -88,6 +78,8 @@ Slicing
 .. doxygenfunction:: caterva_get_slice
 
 .. doxygenfunction:: caterva_squeeze
+
+.. doxygenfunction:: caterva_squeeze_index
 
 
 Destruction

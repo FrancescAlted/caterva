@@ -44,22 +44,13 @@ CUTEST_TEST_TEST(roundtrip) {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = backend.backend;
-    switch (backend.backend) {
-        case CATERVA_STORAGE_PLAINBUFFER:
-            break;
-        case CATERVA_STORAGE_BLOSC:
-            if (backend.persistent) {
-                storage.properties.blosc.urlpath = urlpath;
-            }
-            storage.properties.blosc.sequencial = backend.sequential;
-            for (int i = 0; i < shapes.ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
-                storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
-            }
-            break;
-        default:
-            CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
+    if (backend.persistent) {
+        storage.urlpath = urlpath;
+    }
+    storage.sequencial = backend.sequential;
+    for (int i = 0; i < shapes.ndim; ++i) {
+        storage.chunkshape[i] = shapes.chunkshape[i];
+        storage.blockshape[i] = shapes.blockshape[i];
     }
 
     /* Create original data */
