@@ -171,7 +171,7 @@ typedef struct {
     //!< The name of the metalayer
     uint8_t *sdata;
     //!< The serialized data to store
-    uint32_t size;
+    int32_t size;
     //!< The size of the serialized data
 } caterva_metalayer_t;
 
