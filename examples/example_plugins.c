@@ -53,7 +53,8 @@ int main() {
     cfg.nthreads = 1;
     cfg.compcodec = BLOSC_CODEC_NDLZ;       // use the NDLZ codec trough its plugin
     cfg.splitmode = BLOSC_ALWAYS_SPLIT;     // needed to work correctly with NDLZ codec
-    cfg.compmeta = 4;                       // needed to work correctly with NDLZ codec
+    cfg.compmeta = 4;                       // NDLZ metainformation: - it calls the 4x4 version if meta == 4
+                                            //                       - it calls the 8x8 version if meta == 8
     cfg.complevel = 5;
                                             // we could use a filter plugin by accessing cfg.filters[]
     caterva_ctx_t *ctx;
