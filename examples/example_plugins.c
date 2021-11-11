@@ -16,8 +16,8 @@
 * To run:
 * $ ./example_plugins
 *
-* from_buffer: 0.2656 s
-* to_buffer: 0.0228 s
+* from_buffer: 0.0668 s
+* to_buffer: 0.0068 s
 * Process finished with exit code 0
 */
 
@@ -60,7 +60,7 @@ int main() {
     caterva_ctx_t *ctx;
     caterva_ctx_new(&cfg, &ctx);
 
-    caterva_params_t params;
+    caterva_params_t params = {0};
     params.itemsize = itemsize;
     params.ndim = ndim;
     for (int i = 0; i < ndim; ++i) {
@@ -68,10 +68,9 @@ int main() {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = CATERVA_STORAGE_BLOSC;
     for (int i = 0; i < ndim; ++i) {
-        storage.properties.blosc.chunkshape[i] = chunkshape[i];
-        storage.properties.blosc.blockshape[i] = blockshape[i];
+        storage.chunkshape[i] = chunkshape[i];
+        storage.blockshape[i] = blockshape[i];
     }
 
     caterva_array_t *arr;
