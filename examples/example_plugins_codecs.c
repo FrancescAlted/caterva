@@ -11,10 +11,10 @@
 * Example program demonstrating use of the Blosc plugins from C code.
 *
 * To compile this program:
-* $ gcc example_plugins.c -o example_plugins -lblosc2
+* $ gcc example_plugins_codecs.c -o example_plugins_codecs -lblosc2
 *
 * To run:
-* $ ./example_plugins
+* $ ./example_plugins_codecs
 *
 * from_buffer: 0.0668 s
 * to_buffer: 0.0068 s
@@ -51,12 +51,17 @@ int main() {
 
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 1;
-    cfg.compcodec = BLOSC_CODEC_NDLZ;       // use the NDLZ codec trough its plugin
-    cfg.splitmode = BLOSC_ALWAYS_SPLIT;     // needed to work correctly with NDLZ codec
-    cfg.compmeta = 4;                       // NDLZ metainformation: - it calls the 4x4 version if meta == 4
-                                            //                       - it calls the 8x8 version if meta == 8
+    /*
+     * Use the NDLZ codec trough its plugin.
+     * NDLZ metainformation: - it calls the 4x4 version if meta == 4
+                             - it calls the 8x8 version if meta == 8
+    */
+    cfg.compcodec = BLOSC_CODEC_NDLZ;
+    cfg.splitmode = BLOSC_ALWAYS_SPLIT;
+    cfg.compmeta = 4;
     cfg.complevel = 5;
-                                            // we could use a filter plugin by accessing cfg.filters[]
+    // We could use a filter plugin by setting cfg.filters[].
+
     caterva_ctx_t *ctx;
     caterva_ctx_new(&cfg, &ctx);
 
