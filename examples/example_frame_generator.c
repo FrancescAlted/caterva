@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2018 Francesc Alted, Aleix Alcacer.
  * Copyright (C) 2019-present Blosc Development team <blosc@blosc.org>
  * All rights reserved.
  *
