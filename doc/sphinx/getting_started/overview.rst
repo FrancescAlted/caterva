@@ -39,7 +39,7 @@ maintenance burden and facilitate its adoption more quickly. Blosc2 brings such
 an efficient and open format for `persistency <https://github
 .com/Blosc/c-blosc2/blob/main/README_CFRAME_FORMAT.rst>`__.
 
-An aditional feature that introduces Blosc2 is the concept of metalayers. They
+An additional feature that introduces Blosc2 is the concept of metalayers. They
 are small metadata for informing about the kind of data that is stored on a
 Blosc2 container. They are handy for defining layers with different specs: data
 types, geo-spatial...
