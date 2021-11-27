@@ -53,7 +53,7 @@ int main() {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 1;
     /*
-     * Use the NDCELL filter trough its plugin.
+     * Use the NDCELL filter through its plugin.
      * NDCELL metainformation: user must specify the parameter meta as the cellshape, so
      * if in a 3-dim dataset user specifies meta = 4, then cellshape will be 4x4x4.
     */

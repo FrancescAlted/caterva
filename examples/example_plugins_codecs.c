@@ -53,7 +53,7 @@ int main() {
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
     cfg.nthreads = 1;
     /*
-     * Use the NDLZ codec trough its plugin.
+     * Use the NDLZ codec through its plugin.
      * NDLZ metainformation: - it calls the 4x4 version if meta == 4
                              - it calls the 8x8 version if meta == 8
     */
