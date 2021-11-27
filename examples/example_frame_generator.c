@@ -26,7 +26,7 @@ int frame_generator(int8_t *data, int8_t ndim, int64_t shape[8], int32_t chunksh
 
     caterva_storage_t storage = {0};
     storage.urlpath = urlpath;
-    storage.sequencial = true;
+    storage.sequential = true;
     for (int i = 0; i < ndim; ++i) {
         storage.chunkshape[i] = chunkshape[i];
         storage.blockshape[i] = blockshape[i];

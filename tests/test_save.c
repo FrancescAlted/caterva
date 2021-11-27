@@ -71,7 +71,7 @@ CUTEST_TEST_TEST(save) {
 
     caterva_storage_t storage = {0};
     storage.urlpath = NULL;
-    storage.sequencial = backend.sequential;
+    storage.sequential = backend.sequential;
     for (int i = 0; i < params.ndim; ++i) {
         storage.chunkshape[i] = shapes.chunkshape[i];
         storage.blockshape[i] = shapes.blockshape[i];

@@ -183,7 +183,7 @@ typedef struct {
     //!< The shape of each chunk of Blosc.
     int32_t blockshape[CATERVA_MAX_DIM];
     //!< The shape of each block of Blosc.
-    bool sequencial;
+    bool sequential;
     //!< Flag to indicate if the super-chunk is stored sequentially or sparsely.
     char *urlpath;
     //!< The super-chunk name. If @p urlpath is not @p NULL, the super-chunk will be stored on

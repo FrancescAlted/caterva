@@ -89,7 +89,7 @@ CUTEST_TEST_TEST(squeeze) {
     if (backend.persistent) {
         storage.urlpath = urlpath;
     }
-    storage.sequencial = backend.sequential;
+    storage.sequential = backend.sequential;
     for (int i = 0; i < params.ndim; ++i) {
         storage.chunkshape[i] = shapes.chunkshape[i];
         storage.blockshape[i] = shapes.blockshape[i];
@@ -115,7 +115,7 @@ CUTEST_TEST_TEST(squeeze) {
     if (backend2.persistent) {
         storage2.urlpath = urlpath2;
     }
-    storage2.sequencial = backend2.sequential;
+    storage2.sequential = backend2.sequential;
     for (int i = 0; i < params.ndim; ++i) {
         storage2.chunkshape[i] = shapes.chunkshape2[i];
         storage2.blockshape[i] = shapes.blockshape2[i];

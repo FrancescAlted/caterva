@@ -64,7 +64,7 @@ CUTEST_TEST_TEST(zeros) {
     if (backend.persistent) {
         storage.urlpath = urlpath;
     }
-    storage.sequencial = backend.sequential;
+    storage.sequential = backend.sequential;
     for (int i = 0; i < shapes.ndim; ++i) {
         storage.chunkshape[i] = shapes.chunkshape[i];
         storage.blockshape[i] = shapes.blockshape[i];

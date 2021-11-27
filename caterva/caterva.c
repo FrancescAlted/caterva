@@ -297,7 +297,7 @@ int caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array
     params.itemsize = itemsize;
     caterva_storage_t storage = {0};
     storage.urlpath = schunk->storage->urlpath;
-    storage.sequencial = schunk->storage->contiguous;
+    storage.sequential = schunk->storage->contiguous;
 
     // Deserialize the caterva metalayer
     uint8_t *smeta;
@@ -996,7 +996,7 @@ int caterva_save(caterva_ctx_t *ctx, caterva_array_t *array, char *urlpath) {
     caterva_array_t *tmp;
     caterva_storage_t storage;
     storage.urlpath = urlpath;
-    storage.sequencial = array->sc->storage->contiguous;
+    storage.sequential = array->sc->storage->contiguous;
 
     for (int i = 0; i < array->ndim; ++i) {
         storage.chunkshape[i] = array->chunkshape[i];
