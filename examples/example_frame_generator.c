@@ -9,7 +9,8 @@
  */
 
 # include <caterva.h>
-#include <stdlib.h>
+# include <stdlib.h>
+
 
 int frame_generator(int8_t *data, int8_t ndim, int64_t shape[8], int32_t chunkshape[8],
                     int32_t blockshape[8], int8_t itemsize, int64_t size, char *urlpath) {
@@ -242,9 +243,9 @@ int item_prices() {
 }
 
 
+
 int main() {
     int err;
- /*
     err = all_eq();
     if (err != CATERVA_SUCCEED) {
         printf("\n All_eq error: %d", err);
@@ -265,24 +266,18 @@ int main() {
     if (err != CATERVA_SUCCEED) {
         printf("\n Double_same_cells error: %d", err);
     }
-    err = image1();
-    if (err != CATERVA_SUCCEED) {
-        printf("\n Image1 error: %d", err);
-    }
-
     err = big_float_frame();
     if (err != CATERVA_SUCCEED) {
         printf("\n Double_same_cells error: %d", err);
     }
-*/
     err = day_month_temp();
     if (err != CATERVA_SUCCEED) {
         printf("\n Day_month_temp error: %d", err);
     }
-
     err = item_prices();
     if (err != CATERVA_SUCCEED) {
         printf("\n Item_prices error: %d", err);
     }
+
     return err;
 }
