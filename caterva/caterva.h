@@ -608,11 +608,11 @@ int caterva_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
 /**
  * @brief Print metalayer parameters.
  *
- * @param urlpath The urlpath of the caterva array on disk.
+ * @param array The array where the metalayer is stored.
  *
  * @return An error code
  */
-int caterva_meta_print(const char* urlpath);
+int caterva_print_meta(caterva_array_t *array);
 
 /**
  * @brief Update a metalayer content in a Caterva array.

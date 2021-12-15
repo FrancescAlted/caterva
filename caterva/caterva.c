@@ -1121,30 +1121,35 @@ int caterva_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
     return CATERVA_SUCCEED;
 }
 
-int caterva_meta_print(const char* urlpath){
-    CATERVA_ERROR_NULL(urlpath);
-    blosc2_schunk *schunk = blosc2_schunk_open(urlpath);
+int caterva_print_meta(caterva_array_t *array){
+    CATERVA_ERROR_NULL(array);
     uint8_t ndim;
-    int64_t *shape = malloc(8 * sizeof(int64_t));
-    int32_t *chunkshape = malloc(8 * sizeof(int32_t));
-    int32_t *blockshape = malloc(8 * sizeof(int32_t));
+    int64_t shape[8];
+    int32_t chunkshape[8];
+    int32_t blockshape[8];
     uint8_t *smeta;
     uint32_t smeta_len;
-    if (blosc2_meta_get(schunk, "caterva", &smeta, &smeta_len) < 0) {
+    if (blosc2_meta_get(array->sc, "caterva", &smeta, &smeta_len) < 0) {
         printf("Blosc error");
         return -1;
     }
     deserialize_meta(smeta, smeta_len, &ndim, shape, chunkshape, blockshape);
     free(smeta);
-    printf("Caterva metalayer parameters: \nNdim: %d \nShape:      %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld \nChunkshape: %d, %d, %d, %d, %d, %d, %d, %d \nBlockshape: %d, %d, %d, %d, %d, %d, %d, %d \n\n",
-           ndim, shape[0], shape[1], shape[2], shape[3], shape[4], shape[5], shape[6], shape[7],
-           chunkshape[0], chunkshape[1], chunkshape[2], chunkshape[3], chunkshape[4], chunkshape[5], chunkshape[6], chunkshape[7],
-           blockshape[0], blockshape[1], blockshape[2], blockshape[3], blockshape[4], blockshape[5], blockshape[6], blockshape[7]);
 
-    blosc2_schunk_free(schunk);
-    free(shape);
-    free(chunkshape);
-    free(blockshape);
+    printf("Caterva metalayer parameters: \n Ndim:       %d", ndim);
+    printf("\n Shape:      %ld", shape[0]);
+    for (int i = 1; i < ndim; ++i) {
+        printf(", %ld", shape[i]);
+    }
+    printf("\n Chunkshape: %d", chunkshape[0]);
+    for (int i = 1; i < ndim; ++i) {
+        printf(", %d", chunkshape[i]);
+    }
+    printf("\n Blockshape: %d", blockshape[0]);
+    for (int i = 1; i < ndim; ++i) {
+        printf(", %d", blockshape[i]);
+    }
+    printf("\n");
     return CATERVA_SUCCEED;
 }
 

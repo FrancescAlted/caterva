@@ -34,7 +34,7 @@ int frame_generator(int8_t *data, int8_t ndim, int64_t shape[8], int32_t chunksh
 
     caterva_array_t *arr;
     CATERVA_ERROR(caterva_from_buffer(ctx, data, size, &params, &storage, &arr));
-    caterva_meta_print(urlpath);
+    caterva_print_meta(arr);
 
     return 0;
 }
