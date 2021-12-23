@@ -6,7 +6,18 @@
  * LICENSE file in the root directory of this source tree) and the GPLv2 (found
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
- */
+ * Test program demonstrating use of the Blosc codec from C code.
+ * To compile this program:
+ *
+ * $ gcc -O example_print_meta.c -o example_print_meta -lblosc2
+ * $ <urlpath>
+ *
+ * Caterva metalayer parameters:
+ * Ndim:       _
+ * Shape:      _, _, _
+ * Chunkshape: _, _, _
+ * Blockshape: _, _, _
+*/
 
 # include <caterva.h>
 
@@ -24,7 +35,11 @@ int print_meta(char *urlpath) {
     return 0;
 }
 
-int main() {
-    print_meta(NULL);   // here you must introduce the frame urlpath
+int main(int argc, char *argv[]) {
+    char* urlpath;                      // you can build frames using example_frame_generator.c
+    for( int i = 0; i < argc; ++i ) {
+        urlpath = argv[i];
+        print_meta(urlpath);
+    }
     return 0;
 }
