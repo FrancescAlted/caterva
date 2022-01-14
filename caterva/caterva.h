@@ -159,7 +159,7 @@ static const caterva_config_t CATERVA_CONFIG_DEFAULTS = {.alloc = malloc,
  */
 typedef struct {
     caterva_config_t *cfg;
-    //!< The configuration paramters.
+    //!< The configuration parameters.
 } caterva_ctx_t;
 
 
