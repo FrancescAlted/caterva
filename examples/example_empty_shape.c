@@ -15,14 +15,14 @@ int main() {
 
     int8_t ndim = 2;
     int64_t shape[] = {10, 10};
-    int64_t chunkshape[] = {4, 4};
-    int64_t blockshape[] = {2, 2};
+    int32_t chunkshape[] = {4, 4};
+    int32_t blockshape[] = {2, 2};
     int8_t itemsize = 8;
 
     int64_t slice_start[] = {2, 5};
     int64_t slice_stop[] = {2, 6};
-    int64_t slice_chunkshape[] = {0, 1};
-    int64_t slice_blockshape[] = {0, 1};
+    int32_t slice_chunkshape[] = {0, 1};
+    int32_t slice_blockshape[] = {0, 1};
 
     int64_t nelem = 1;
     for (int i = 0; i < ndim; ++i) {
@@ -44,10 +44,9 @@ int main() {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = CATERVA_STORAGE_BLOSC;
     for (int i = 0; i < ndim; ++i) {
-        storage.properties.blosc.chunkshape[i] = chunkshape[i];
-        storage.properties.blosc.blockshape[i] = blockshape[i];
+        storage.chunkshape[i] = chunkshape[i];
+        storage.blockshape[i] = blockshape[i];
     }
 
     caterva_array_t *arr;
@@ -55,11 +54,10 @@ int main() {
 
 
     caterva_storage_t slice_storage = {0};
-    slice_storage.backend = CATERVA_STORAGE_BLOSC;
-    slice_storage.properties.blosc.urlpath = "example_hola.b2frame";
+    slice_storage.urlpath = "example_hola.b2frame";
     for (int i = 0; i < ndim; ++i) {
-        slice_storage.properties.blosc.chunkshape[i] = slice_chunkshape[i];
-        slice_storage.properties.blosc.blockshape[i] = slice_blockshape[i];
+        slice_storage.chunkshape[i] = slice_chunkshape[i];
+        slice_storage.blockshape[i] = slice_blockshape[i];
     }
 
     caterva_array_t *slice;

@@ -65,7 +65,6 @@ typedef struct {
 
 
 typedef struct {
-    caterva_storage_backend_t backend;
     bool sequential;
     bool persistent;
 } _test_backend;
@@ -82,10 +81,10 @@ void caterva_default_parameters() {
         {6, {5, 1, 200, 3, 1, 2}, {5, 1, 50, 2, 1, 2}, {2, 1, 20, 2, 1, 2}},
     ));
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
-        {CATERVA_STORAGE_PLAINBUFFER, false, false},
-        {CATERVA_STORAGE_BLOSC, false, false},
-        {CATERVA_STORAGE_BLOSC, true, false},
-        {CATERVA_STORAGE_BLOSC, true, true},
+        {false, false},
+        {true, false},
+        {false, true},
+        {true, true},
     ));
 }
 

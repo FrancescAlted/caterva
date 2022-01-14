@@ -40,31 +40,35 @@
 #define CATERVA_ERR_NULL_POINTER 5
 #define CATERVA_ERR_INVALID_INDEX  5
 
-#ifdef NDEBUG
-#define DEBUG_PRINT(...) \
-    do {                 \
-    } while (0)
-#else
-#define DEBUG_PRINT(...)                                                         \
-    do {                                                                         \
-        fprintf(stderr, "ERROR: %s (%s:%d)\n", __VA_ARGS__, __FILE__, __LINE__); \
-    } while (0)
-#endif
 
-#define CATERVA_ERROR(rc)                 \
-    do {                                  \
-        int rc_ = rc;\
-        if (rc_ != CATERVA_SUCCEED) {      \
-            DEBUG_PRINT(print_error(rc_)); \
-            return rc_;                    \
-        }                                 \
+/* Tracing macros */
+#define CATERVA_TRACE_ERROR(fmt, ...) CATERVA_TRACE(error, fmt, ##__VA_ARGS__)
+#define CATERVA_TRACE_WARNING(fmt, ...) CATERVA_TRACE(warning, fmt, ##__VA_ARGS__)
+
+#define CATERVA_TRACE(cat, msg, ...)                                 \
+    do {                                                             \
+         const char *__e = getenv("CATERVA_TRACE");                  \
+         if (!__e) { break; }                                        \
+         fprintf(stderr, "[%s] - %s:%d\n    " msg "\n", #cat, __FILE__, __LINE__, ##__VA_ARGS__);   \
+    } while(0)
+
+#define CATERVA_ERROR(rc)                           \
+    do {                                            \
+        int rc_ = rc;                               \
+        if (rc_ != CATERVA_SUCCEED) {               \
+            char *error_msg = print_error(rc_);     \
+            CATERVA_TRACE_ERROR("%s", error_msg); \
+            return rc_;                             \
+        }                                           \
     } while (0)
-#define CATERVA_ERROR_NULL(pointer)                             \
-    do {                                                        \
-        if (pointer == NULL) {                                  \
-            DEBUG_PRINT(print_error(CATERVA_ERR_NULL_POINTER)); \
-            return CATERVA_ERR_NULL_POINTER;                    \
-        }                                                       \
+
+#define CATERVA_ERROR_NULL(pointer)                                 \
+    do {                                                            \
+        char *error_msg = print_error(CATERVA_ERR_NULL_POINTER);    \
+        if ((pointer) == NULL) {                                    \
+            CATERVA_TRACE_ERROR("%s", error_msg);                   \
+            return CATERVA_ERR_NULL_POINTER;                        \
+        }                                                           \
     } while (0)
 
 #define CATERVA_UNUSED_PARAM(x) ((void) (x))
@@ -83,6 +87,8 @@ static char *print_error(int rc) {
             return "Pointer is null";
         case CATERVA_ERR_BLOSC_FAILED:
             return "Blosc failed";
+        case CATERVA_ERR_INVALID_ARGUMENT:
+            return "Invalid argument";
         default:
             return "Unknown error";
     }
@@ -95,7 +101,7 @@ static char *print_error(int rc) {
 #define CATERVA_MAX_DIM 8
 
 /* The maximum number of metalayers for caterva arrays */
-#define CATERVA_MAX_METALAYERS BLOSC2_MAX_METALAYERS - 1
+#define CATERVA_MAX_METALAYERS (BLOSC2_MAX_METALAYERS - 1)
 
 /**
  * @brief Configuration parameters used to create a caterva context.
@@ -156,15 +162,6 @@ typedef struct {
     //!< The configuration paramters.
 } caterva_ctx_t;
 
-/**
- * @brief The backends available to store the data of the caterva array.
- */
-typedef enum {
-    CATERVA_STORAGE_BLOSC,
-    //!< Indicates that the data is stored using a Blosc super-chunk.
-    CATERVA_STORAGE_PLAINBUFFER,
-    //!< Indicates that the data is stored using a plain buffer.
-} caterva_storage_backend_t;
 
 /**
  * @brief The metalayer data needed to store it on an array
@@ -195,35 +192,6 @@ typedef struct {
     //!< List with the metalayers desired.
     int32_t nmetalayers;
     //!< The number of metalayers.
-} caterva_storage_properties_blosc_t;
-
-/**
- * @brief The storage properties that have a caterva array backed by a plain buffer.
- */
-typedef struct {
-    char *urlpath;
-    //!< The plain buffer name. If @p urlpath is not @p NULL, the plain buffer will be stored on
-    //!< disk. (Not implemented yet).
-} caterva_storage_properties_plainbuffer_t;
-
-/**
- * @brief The storage properties for an array.
- */
-typedef union {
-    caterva_storage_properties_blosc_t blosc;
-    //!< The storage properties when the array is backed by a Blosc super-chunk.
-    caterva_storage_properties_plainbuffer_t plainbuffer;
-    //!< The storage properties when the array is backed by a plain buffer.
-} caterva_storage_properties_t;
-
-/**
- * @brief Storage parameters needed for the creation of a caterva array.
- */
-typedef struct {
-    caterva_storage_backend_t backend;
-    //!< The backend storage.
-    caterva_storage_properties_t properties;
-    //!< The specific properties for the selected @p backend.
 } caterva_storage_t;
 
 /**
@@ -255,21 +223,14 @@ struct chunk_cache_s {
  * @brief A multidimensional array of data that can be compressed.
  */
 typedef struct {
-    caterva_storage_backend_t storage;
-    //!< Storage type.
     caterva_config_t *cfg;
     //!< Array configuration.
     blosc2_schunk *sc;
     //!< Pointer to a Blosc super-chunk
-    //!< Only is used if \p storage equals to @p CATERVA_STORAGE_BLOSC.
-    uint8_t *buf;
-    //!< Pointer to a plain buffer where data is stored.
-    //!< Only is used if \p storage equals to @p CATERVA_STORAGE_PLAINBUFFER.
     int64_t shape[CATERVA_MAX_DIM];
     //!< Shape of original data.
     int32_t chunkshape[CATERVA_MAX_DIM];
-    //!< Shape of each chunk. If @p storage equals to @p CATERVA_STORAGE_PLAINBUFFER, it is equal to
-    //!< @p shape.
+    //!< Shape of each chunk.
     int64_t extshape[CATERVA_MAX_DIM];
     //!< Shape of padded data.
     int32_t blockshape[CATERVA_MAX_DIM];
@@ -643,6 +604,15 @@ int caterva_meta_get(caterva_ctx_t *ctx, caterva_array_t *array,
  */
 int caterva_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
                           const char *name, bool *exists);
+
+/**
+ * @brief Print metalayer parameters.
+ *
+ * @param array The array where the metalayer is stored.
+ *
+ * @return An error code
+ */
+int caterva_print_meta(caterva_array_t *array);
 
 /**
  * @brief Update a metalayer content in a Caterva array.

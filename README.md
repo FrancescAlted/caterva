@@ -22,11 +22,11 @@ Here are slides of a gentle
 [introductory talk to Caterva](https://blosc.github.io/caterva-scipy21).
 
 ## Credits
-* Aleix Alcacer: original creator
+* Aleix Alcacer: original code creator
 * Oscar Griñón: contributed the code for the second partitioning
-* Francesc Alted: ideas, code and guidance in general
+* Francesc Alted: direction, ideas and support code
 
 This library has received the support from [a donation from Huawei to the Blosc project](https://www.blosc.org/posts/blosc-donation/).
 Also, [ironArray SL](https://ironarray.io) has generously donated to the Blosc project, and Caterva in particular.
-We are always grateful for donations that help the development of projects under the umbrella
+We are always grateful for donations that help the development of libraries under the umbrella
 of Blosc.  Thanks!

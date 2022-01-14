@@ -30,14 +30,17 @@ CUTEST_TEST_SETUP(metalayers) {
             {1, {10}, {7}, {2}}, // 1-idim
             {2, {100, 100}, {20, 20}, {10, 10}},
     ));
-    CUTEST_PARAMETRIZE(sequencial, bool, CUTEST_DATA(true, false));
+    CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
+            {true, true},
+            {false, true},
+    ));
 }
 
 
 CUTEST_TEST_TEST(metalayers) {
     CUTEST_GET_PARAMETER(shapes, _test_shapes);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
-    CUTEST_GET_PARAMETER(sequencial, bool);
+    CUTEST_GET_PARAMETER(backend, _test_backend);
 
     char *urlpath = "test_metalayers.caterva";
     caterva_remove(data->ctx, urlpath);
@@ -49,15 +52,16 @@ CUTEST_TEST_TEST(metalayers) {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = CATERVA_STORAGE_BLOSC;
-    storage.properties.blosc.urlpath = urlpath;
-    storage.properties.blosc.sequencial = sequencial;
-    for (int i = 0; i < params.ndim; ++i) {
-        storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
-        storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
+    if (backend.persistent) {
+        storage.urlpath = urlpath;
     }
-    storage.properties.blosc.nmetalayers = 1;
-    caterva_metalayer_t *meta0 = &storage.properties.blosc.metalayers[0];
+    storage.sequencial = backend.sequential;
+    for (int i = 0; i < params.ndim; ++i) {
+        storage.chunkshape[i] = shapes.chunkshape[i];
+        storage.blockshape[i] = shapes.blockshape[i];
+    }
+    storage.nmetalayers = 1;
+    caterva_metalayer_t *meta0 = &storage.metalayers[0];
     meta0->name = "test_meta";
     meta0->size = 3;
     double sdata0 = 5.789;

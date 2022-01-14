@@ -48,8 +48,8 @@ CUTEST_TEST_SETUP(save) {
              {3, {100, 0, 12}, {31, 0, 12}, {10, 0, 12}},
     ));
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
-            {CATERVA_STORAGE_BLOSC, true, false},
-            {CATERVA_STORAGE_BLOSC, false, false},
+            {true, false},
+            {false, false},
     ));
 }
 
@@ -70,19 +70,17 @@ CUTEST_TEST_TEST(save) {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = backend.backend;
-    storage.properties.blosc.urlpath = NULL;
-    storage.properties.blosc.sequencial = backend.sequential;
+    storage.urlpath = NULL;
+    storage.sequencial = backend.sequential;
     for (int i = 0; i < params.ndim; ++i) {
-        storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
-        storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
+        storage.chunkshape[i] = shapes.chunkshape[i];
+        storage.blockshape[i] = shapes.blockshape[i];
     }
-
 
     /* Create original data */
     int64_t buffersize = itemsize;
     for (int i = 0; i < params.ndim; ++i) {
-        buffersize *= (size_t) shapes.shape[i];
+        buffersize *= shapes.shape[i];
     }
     uint8_t *buffer = malloc(buffersize);
     CUTEST_ASSERT("Buffer filled incorrectly", fill_buf(buffer, itemsize, buffersize / itemsize));

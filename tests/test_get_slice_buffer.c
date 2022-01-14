@@ -58,11 +58,10 @@ CUTEST_TEST_SETUP(get_slice_buffer) {
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(8));
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
-            {CATERVA_STORAGE_PLAINBUFFER, false, false},
-            {CATERVA_STORAGE_BLOSC, false, false},
-            {CATERVA_STORAGE_BLOSC, true, false},
-            {CATERVA_STORAGE_BLOSC, true, true},
-            {CATERVA_STORAGE_BLOSC, false, true},
+            {false, false},
+            {true, false},
+            {true, true},
+            {false, true},
     ));
 
     CUTEST_PARAMETRIZE(shapes, test_shapes_t, CUTEST_DATA(
@@ -91,22 +90,13 @@ CUTEST_TEST_TEST(get_slice_buffer) {
     }
 
     caterva_storage_t storage = {0};
-    storage.backend = backend.backend;
-    switch (storage.backend) {
-        case CATERVA_STORAGE_PLAINBUFFER:
-            break;
-        case CATERVA_STORAGE_BLOSC:
-            if (backend.persistent) {
-                storage.properties.blosc.urlpath = urlpath;
-            }
-            storage.properties.blosc.sequencial = backend.sequential;
-            for (int i = 0; i < params.ndim; ++i) {
-                storage.properties.blosc.chunkshape[i] = shapes.chunkshape[i];
-                storage.properties.blosc.blockshape[i] = shapes.blockshape[i];
-            }
-            break;
-        default:
-            CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_STORAGE);
+    if (backend.persistent) {
+        storage.urlpath = urlpath;
+    }
+    storage.sequencial = backend.sequential;
+    for (int i = 0; i < params.ndim; ++i) {
+        storage.chunkshape[i] = shapes.chunkshape[i];
+        storage.blockshape[i] = shapes.blockshape[i];
     }
 
     /* Create original data */

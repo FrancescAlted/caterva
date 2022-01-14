@@ -238,3 +238,74 @@ int caterva_copy_buffer(uint8_t ndim,
 
     return CATERVA_SUCCEED;
 }
+
+
+int create_blosc_params(caterva_ctx_t *ctx,
+                        caterva_params_t *params,
+                        caterva_storage_t *storage,
+                        blosc2_cparams *cparams,
+                        blosc2_dparams *dparams,
+                        blosc2_storage *b_storage) {
+    int32_t blocknitems = 1;
+    for (int i = 0; i < params->ndim; ++i) {
+        blocknitems *= storage->blockshape[i];
+    }
+
+    memcpy(cparams, &BLOSC2_CPARAMS_DEFAULTS, sizeof(blosc2_cparams));
+    cparams->blocksize = blocknitems * params->itemsize;
+    cparams->schunk = NULL;
+    cparams->typesize = params->itemsize;
+    cparams->prefilter = ctx->cfg->prefilter;
+    cparams->preparams = ctx->cfg->pparams;
+    cparams->use_dict = ctx->cfg->usedict;
+    cparams->nthreads = (int16_t) ctx->cfg->nthreads;
+    cparams->clevel = (uint8_t) ctx->cfg->complevel;
+    cparams->compcode = (uint8_t) ctx->cfg->compcodec;
+    cparams->compcode_meta = (uint8_t) ctx->cfg->compmeta;
+    for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
+        cparams->filters[i] = ctx->cfg->filters[i];
+        cparams->filters_meta[i] = ctx->cfg->filtersmeta[i];
+    }
+    cparams->udbtune = ctx->cfg->udbtune;
+    cparams->splitmode = ctx->cfg->splitmode;
+
+    memcpy(dparams, &BLOSC2_DPARAMS_DEFAULTS, sizeof(blosc2_dparams));
+    dparams->schunk = NULL;
+    dparams->nthreads = ctx->cfg->nthreads;
+
+    memcpy(b_storage, &BLOSC2_STORAGE_DEFAULTS, sizeof(blosc2_storage));
+    b_storage->cparams = cparams;
+    b_storage->dparams = dparams;
+
+    if (storage->sequencial) {
+        b_storage->contiguous = true;
+    }
+    if (storage->urlpath != NULL) {
+        b_storage->urlpath = storage->urlpath;
+    }
+
+    return CATERVA_SUCCEED;
+}
+
+
+int caterva_config_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *sc, caterva_config_t *cfg) {
+    cfg->alloc = ctx->cfg->alloc;
+    cfg->free = ctx->cfg->free;
+
+    cfg->complevel = sc->storage->cparams->clevel;
+    cfg->compcodec = sc->storage->cparams->compcode;
+    cfg->compmeta = sc->storage->cparams->compcode_meta;
+    cfg->usedict = sc->storage->cparams->use_dict;
+    cfg->splitmode = sc->storage->cparams->splitmode;
+    cfg->nthreads = ctx->cfg->nthreads;
+    for (int i = 0; i < BLOSC2_MAX_FILTERS; ++i) {
+        cfg->filters[i] = sc->storage->cparams->filters[i];
+        cfg->filtersmeta[i] = sc->storage->cparams->filters_meta[i];
+    }
+
+    cfg->prefilter = ctx->cfg->prefilter;
+    cfg->pparams = ctx->cfg->pparams;
+    cfg->udbtune = ctx->cfg->udbtune;
+
+    return CATERVA_SUCCEED;
+}
