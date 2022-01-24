@@ -1178,7 +1178,7 @@ int caterva_extend_shape(caterva_array_t *array,
     CATERVA_ERROR_NULL(new_shape);
 
     uint8_t ndim = array->ndim;
-    int64_t diffs_shape[ndim];
+    int64_t diffs_shape[CATERVA_MAX_DIM];
     int64_t diffs_sum = 0;
     for (int i = 0; i < ndim; i++) {
         diffs_shape[i] = new_shape[i] - array->shape[i];
