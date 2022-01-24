@@ -552,7 +552,7 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
                     CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
                 }
             } else {
-                // Avoid writing non zero padding from latter chunk
+                // Avoid writing non zero padding from previous chunk
                 memset(data, 0, data_nbytes);
             }
         } else {
@@ -1212,7 +1212,7 @@ int caterva_extend_shape(caterva_array_t *array,
         void* chunk;
         int csize;
         int nchunks_;
-        for(int i = old_nchunks; i < nchunks; ++i) {
+        for (int i = old_nchunks; i < nchunks; ++i) {
             chunk = malloc(BLOSC_EXTENDED_HEADER_LENGTH);
             nchunks_ = blosc2_chunk_zeros(*cparams, array->sc->chunksize, chunk, BLOSC_EXTENDED_HEADER_LENGTH);
             if (nchunks_ < 0) {
@@ -1270,7 +1270,7 @@ int caterva_extend_shape(caterva_array_t *array,
         }
     }
 
-    // Copy offsets to int
+    // Cast offsets back to int
     int *int_offsets = malloc(sizeof(int) * nchunks);
     for (int i = 0; i < nchunks; ++i) {
         int_offsets[i] = (int)new_offsets[i];

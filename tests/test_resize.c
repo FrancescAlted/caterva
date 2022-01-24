@@ -34,15 +34,15 @@ CUTEST_TEST_SETUP(extend_shape) {
 
     // Add parametrizations
     CUTEST_PARAMETRIZE(itemsize, uint8_t, CUTEST_DATA(
-          1,
-           2,
-           4,
-                                              8,
+            1,
+            2,
+            4,
+            8,
     ));
 
     CUTEST_PARAMETRIZE(backend, _test_backend, CUTEST_DATA(
             {false, false},
-           {true, false},
+            {true, false},
             {true, true},
             {false, true},
     ));
