@@ -552,7 +552,8 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
                     CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
                 }
             } else {
-                // memset(data, 0, data_nbytes);
+                // Avoid writing non zero padding from latter chunk
+                memset(data, 0, data_nbytes);
             }
         } else {
             bool *block_maskout = ctx->cfg->alloc(nblocks);
