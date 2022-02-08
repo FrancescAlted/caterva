@@ -629,12 +629,13 @@ int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
 /**
  * @brief Resize the shape of an array
  *
+ * @param ctx The context to be used.
  * @param array The array to be resized.
  * @param new_shape The new shape from the array.
  *
  * @return An error code
  */
-int caterva_resize(caterva_array_t *array,
+int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array,
                          int64_t *new_shape);
 
 #endif  // CATERVA_CATERVA_H_
