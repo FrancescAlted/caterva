@@ -635,7 +635,6 @@ int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
  *
  * @return An error code
  */
-int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array,
-                         int64_t *new_shape);
+int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shape);
 
 #endif  // CATERVA_CATERVA_H_
