@@ -87,7 +87,7 @@ CUTEST_TEST_TEST(resize_shape) {
         storage.blockshape[i] = shapes.blockshape[i];
     }
 
-    // Create dest buffer, get shrinked shape  and extended shape
+    // Create dest buffer, get shrinked shape and extended shape
     int64_t buffersize = itemsize;
     int64_t shrink_shape[CATERVA_MAX_DIM] = {0};
     int64_t shrink_size = itemsize;
@@ -116,7 +116,7 @@ CUTEST_TEST_TEST(resize_shape) {
     caterva_array_t *src;
     CATERVA_ERROR(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage, &src));
 
-    // Get shrink slice previous to resize
+    // Get original values in shrinked slice
     uint8_t *original_buffer = data->ctx->cfg->alloc(shrink_size);
     int64_t start_shape[CATERVA_MAX_DIM] = {0};
 
