@@ -276,6 +276,21 @@ int caterva_ctx_new(caterva_config_t *cfg, caterva_ctx_t **ctx);
  */
 int caterva_ctx_free(caterva_ctx_t **ctx);
 
+
+/**
+ * @brief Create an uninitialized array.
+ *
+ * @param ctx The caterva context to be used.
+ * @param params The general params of the array desired.
+ * @param storage The storage params of the array desired.
+ * @param array The memory pointer where the array will be created.
+ *
+ * @return An error code.
+ */
+int caterva_uninit(caterva_ctx_t *ctx, caterva_params_t *params,
+                   caterva_storage_t *storage, caterva_array_t **array);
+
+
 /**
  * @brief Create an empty array.
  *
