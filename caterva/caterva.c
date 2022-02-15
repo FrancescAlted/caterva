@@ -212,6 +212,18 @@ int caterva_blosc_array_new(caterva_ctx_t *ctx, caterva_params_t *params,
     return CATERVA_SUCCEED;
 }
 
+int caterva_uninit(caterva_ctx_t *ctx, caterva_params_t *params,
+                  caterva_storage_t *storage, caterva_array_t **array) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(params);
+    CATERVA_ERROR_NULL(storage);
+    CATERVA_ERROR_NULL(array);
+
+    CATERVA_ERROR(caterva_blosc_array_new(ctx, params, storage, BLOSC2_SPECIAL_UNINIT, array));
+
+    return CATERVA_SUCCEED;
+}
+
 int caterva_empty(caterva_ctx_t *ctx, caterva_params_t *params,
                   caterva_storage_t *storage, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
