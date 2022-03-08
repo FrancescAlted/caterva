@@ -14,6 +14,10 @@
 
 #include <caterva.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void index_unidim_to_multidim(int8_t ndim, int64_t *shape, int64_t i, int64_t *index);
 void index_multidim_to_unidim(int64_t *index, int8_t ndim, int64_t *strides, int64_t *i);
 
@@ -39,5 +43,9 @@ int create_blosc_params(caterva_ctx_t *ctx,
                         blosc2_storage *b_storage);
 
 int caterva_config_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *sc, caterva_config_t *cfg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // CATERVA_CATERVA_UTILS_H_
