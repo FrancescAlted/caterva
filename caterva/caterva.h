@@ -86,15 +86,15 @@ static char *print_error(int rc) CATERVA_ATTRIBUTE_UNUSED;
 static char *print_error(int rc) {
     switch (rc) {
         case CATERVA_ERR_INVALID_STORAGE:
-            return "Invalid storage";
+            return (char*)"Invalid storage";
         case CATERVA_ERR_NULL_POINTER:
-            return "Pointer is null";
+            return (char*)"Pointer is null";
         case CATERVA_ERR_BLOSC_FAILED:
-            return "Blosc failed";
+            return (char*)"Blosc failed";
         case CATERVA_ERR_INVALID_ARGUMENT:
-            return "Invalid argument";
+            return (char*)"Invalid argument";
         default:
-            return "Unknown error";
+            return (char*)"Unknown error";
     }
 }
 
