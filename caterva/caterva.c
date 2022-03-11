@@ -313,7 +313,7 @@ int caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array
 
     // Deserialize the caterva metalayer
     uint8_t *smeta;
-    uint32_t smeta_len;
+    int32_t smeta_len;
     if (blosc2_meta_get(schunk, "caterva", &smeta, &smeta_len) < 0) {
         CATERVA_TRACE_ERROR("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
@@ -402,7 +402,7 @@ int caterva_from_buffer(caterva_ctx_t *ctx, void *buffer, int64_t buffersize,
 
     if (buffersize < (int64_t)(*array)->nitems * (*array)->itemsize) {
         CATERVA_TRACE_ERROR("The buffersize (%lld) is smaller than the array size (%lld)",
-                            buffersize, (int64_t)(*array)->nitems * (*array)->itemsize);
+                            (long long)buffersize, (long long)(*array)->nitems * (*array)->itemsize);
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
@@ -984,7 +984,7 @@ int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *st
         // Copy vlmetayers
         for (int i = 0; i < src->sc->nvlmetalayers; ++i) {
             uint8_t *content;
-            uint32_t content_len;
+            int32_t content_len;
             if (blosc2_vlmeta_get(src->sc, src->sc->vlmetalayers[i]->name, &content,
                                   &content_len) < 0) {
                 CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
@@ -992,7 +992,7 @@ int caterva_copy(caterva_ctx_t *ctx, caterva_array_t *src, caterva_storage_t *st
             caterva_metalayer_t vlmeta;
             vlmeta.name = src->sc->vlmetalayers[i]->name;
             vlmeta.sdata = content;
-            vlmeta.size = (int32_t) content_len;
+            vlmeta.size = content_len;
             CATERVA_ERROR(caterva_vlmeta_add(ctx, *array, &vlmeta));
             free(content);
         }
@@ -1141,7 +1141,7 @@ int caterva_print_meta(caterva_array_t *array){
     int32_t chunkshape[8];
     int32_t blockshape[8];
     uint8_t *smeta;
-    uint32_t smeta_len;
+    int32_t smeta_len;
     if (blosc2_meta_get(array->sc, "caterva", &smeta, &smeta_len) < 0) {
         printf("Blosc error");
         return -1;
