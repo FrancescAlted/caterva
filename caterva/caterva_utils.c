@@ -181,13 +181,13 @@ void copy8dim(const uint8_t itemsize, const int64_t* copy_shape,
 uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[7] * itemsize;
     int64_t copy_start[7] = {0};
-    while(copy_start[0] < copy_shape[0]) {
-    while(copy_start[1] < copy_shape[1]) {
-    while(copy_start[2] < copy_shape[2]) {
-    while(copy_start[3] < copy_shape[3]) {
-    while(copy_start[4] < copy_shape[4]) {
-    while(copy_start[5] < copy_shape[5]) {
-    while(copy_start[6] < copy_shape[6]) {
+    do {
+    do {
+    do {
+    do {
+    do {
+    do {
+    do {
         int64_t src_copy_start = 0;
         int64_t dst_copy_start = 0;
         for (int j = 0; j < 7; ++j) {
@@ -196,25 +196,25 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
         }
 
         memcpy(&bdst[dst_copy_start * itemsize], &bsrc[src_copy_start * itemsize], copy_nbytes);
-    ++copy_start[6]; }
-    ++copy_start[5]; copy_start[6] = 0; }
-    ++copy_start[4]; copy_start[5] = 0; copy_start[6] = 0; }
-    ++copy_start[3]; copy_start[4] = 0; copy_start[5] = 0; copy_start[6] = 0; }
-    ++copy_start[2]; copy_start[3] = 0; copy_start[4] = 0; copy_start[5] = 0; copy_start[6] = 0; }
-    ++copy_start[1]; copy_start[2] = 0; copy_start[3] = 0; copy_start[4] = 0; copy_start[5] = 0; copy_start[6] = 0; }
-    ++copy_start[0]; copy_start[1] = 0; copy_start[2] = 0; copy_start[3] = 0; copy_start[4] = 0; copy_start[5] = 0; copy_start[6] = 0; }
+    ++copy_start[6]; } while(copy_start[6] < copy_shape[6]);
+    ++copy_start[5]; copy_start[6] = 0; } while(copy_start[5] < copy_shape[5]);
+    ++copy_start[4]; copy_start[5] = 0; } while(copy_start[4] < copy_shape[4]);
+    ++copy_start[3]; copy_start[4] = 0; } while(copy_start[3] < copy_shape[3]);
+    ++copy_start[2]; copy_start[3] = 0; } while(copy_start[2] < copy_shape[2]);
+    ++copy_start[1]; copy_start[2] = 0; } while(copy_start[1] < copy_shape[1]);
+    ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
 void copy7dim(const uint8_t itemsize, const int64_t* copy_shape,
 uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[6] * itemsize;
     int64_t copy_start[6] = {0};
-    while(copy_start[0] < copy_shape[0]) {
-    while(copy_start[1] < copy_shape[1]) {
-    while(copy_start[2] < copy_shape[2]) {
-    while(copy_start[3] < copy_shape[3]) {
-    while(copy_start[4] < copy_shape[4]) {
-    while(copy_start[5] < copy_shape[5]) {
+    do {
+    do {
+    do {
+    do {
+    do {
+    do {
         int64_t src_copy_start = 0;
         int64_t dst_copy_start = 0;
         for (int j = 0; j < 6; ++j) {
@@ -223,23 +223,23 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
         }
 
         memcpy(&bdst[dst_copy_start * itemsize], &bsrc[src_copy_start * itemsize], copy_nbytes);
-    ++copy_start[5]; }
-    ++copy_start[4]; copy_start[5] = 0; }
-    ++copy_start[3]; copy_start[4] = 0; copy_start[5] = 0; }
-    ++copy_start[2]; copy_start[3] = 0; copy_start[4] = 0; copy_start[5] = 0; }
-    ++copy_start[1]; copy_start[2] = 0; copy_start[3] = 0; copy_start[4] = 0; copy_start[5] = 0; }
-    ++copy_start[0]; copy_start[1] = 0; copy_start[2] = 0; copy_start[3] = 0; copy_start[4] = 0; copy_start[5] = 0; }
+    ++copy_start[5]; } while(copy_start[5] < copy_shape[5]);
+    ++copy_start[4]; copy_start[5] = 0; } while(copy_start[4] < copy_shape[4]);
+    ++copy_start[3]; copy_start[4] = 0; } while(copy_start[3] < copy_shape[3]);
+    ++copy_start[2]; copy_start[3] = 0; } while(copy_start[2] < copy_shape[2]);
+    ++copy_start[1]; copy_start[2] = 0; } while(copy_start[1] < copy_shape[1]);
+    ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
 void copy6dim(const uint8_t itemsize, const int64_t* copy_shape,
 uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[5] * itemsize;
     int64_t copy_start[5] = {0};
-    while(copy_start[0] < copy_shape[0]) {
-    while(copy_start[1] < copy_shape[1]) {
-    while(copy_start[2] < copy_shape[2]) {
-    while(copy_start[3] < copy_shape[3]) {
-    while(copy_start[4] < copy_shape[4]) {
+    do {
+    do {
+    do {
+    do {
+    do {
         int64_t src_copy_start = 0;
         int64_t dst_copy_start = 0;
         for (int j = 0; j < 5; ++j) {
@@ -248,21 +248,21 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
         }
 
         memcpy(&bdst[dst_copy_start * itemsize], &bsrc[src_copy_start * itemsize], copy_nbytes);
-    ++copy_start[4]; }
-    ++copy_start[3]; copy_start[4] = 0; }
-    ++copy_start[2]; copy_start[3] = 0; copy_start[4] = 0; }
-    ++copy_start[1]; copy_start[2] = 0; copy_start[3] = 0; copy_start[4] = 0; }
-    ++copy_start[0]; copy_start[1] = 0; copy_start[2] = 0; copy_start[3] = 0; copy_start[4] = 0; }
+    ++copy_start[4]; } while(copy_start[4] < copy_shape[4]);
+    ++copy_start[3]; copy_start[4] = 0; } while(copy_start[3] < copy_shape[3]);
+    ++copy_start[2]; copy_start[3] = 0; } while(copy_start[2] < copy_shape[2]);
+    ++copy_start[1]; copy_start[2] = 0; } while(copy_start[1] < copy_shape[1]);
+    ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
 void copy5dim(const uint8_t itemsize, const int64_t* copy_shape,
 uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[4] * itemsize;
     int64_t copy_start[4] = {0};
-    while(copy_start[0] < copy_shape[0]) {
-    while(copy_start[1] < copy_shape[1]) {
-    while(copy_start[2] < copy_shape[2]) {
-    while(copy_start[3] < copy_shape[3]) {
+    do {
+    do {
+    do {
+    do {
         int64_t src_copy_start = 0;
         int64_t dst_copy_start = 0;
         for (int j = 0; j < 4; ++j) {
@@ -271,19 +271,19 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
         }
 
         memcpy(&bdst[dst_copy_start * itemsize], &bsrc[src_copy_start * itemsize], copy_nbytes);
-    ++copy_start[3]; }
-    ++copy_start[2]; copy_start[3] = 0; }
-    ++copy_start[1]; copy_start[2] = 0; copy_start[3] = 0; }
-    ++copy_start[0]; copy_start[1] = 0; copy_start[2] = 0; copy_start[3] = 0; }
+    ++copy_start[3]; } while(copy_start[3] < copy_shape[3]);
+    ++copy_start[2]; copy_start[3] = 0; } while(copy_start[2] < copy_shape[2]);
+    ++copy_start[1]; copy_start[2] = 0; } while(copy_start[1] < copy_shape[1]);
+    ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
 void copy4dim(const uint8_t itemsize, const int64_t* copy_shape,
 uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[3] * itemsize;
     int64_t copy_start[3] = {0};
-    while(copy_start[0] < copy_shape[0]) {
-    while(copy_start[1] < copy_shape[1]) {
-    while(copy_start[2] < copy_shape[2]) {
+    do {
+    do {
+    do {
         int64_t src_copy_start = 0;
         int64_t dst_copy_start = 0;
         for (int j = 0; j < 3; ++j) {
@@ -292,17 +292,17 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
         }
 
         memcpy(&bdst[dst_copy_start * itemsize], &bsrc[src_copy_start * itemsize], copy_nbytes);
-    ++copy_start[2]; }
-    ++copy_start[1]; copy_start[2] = 0; }
-    ++copy_start[0]; copy_start[1] = 0; copy_start[2] = 0; }
+    ++copy_start[2]; } while(copy_start[2] < copy_shape[2]);
+    ++copy_start[1]; copy_start[2] = 0; } while(copy_start[1] < copy_shape[1]);
+    ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
 void copy3dim(const uint8_t itemsize, const int64_t* copy_shape,
 uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[2] * itemsize;
     int64_t copy_start[2] = {0};
-    while(copy_start[0] < copy_shape[0]) {
-    while(copy_start[1] < copy_shape[1]) {
+    do {
+    do {
         int64_t src_copy_start = 0;
         int64_t dst_copy_start = 0;
         for (int j = 0; j < 2; ++j) {
@@ -311,19 +311,19 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
         }
 
         memcpy(&bdst[dst_copy_start * itemsize], &bsrc[src_copy_start * itemsize], copy_nbytes);
-    ++copy_start[1]; }
-    ++copy_start[0]; copy_start[1] = 0; }
+    ++copy_start[1]; } while(copy_start[1] < copy_shape[1]);
+    ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
 void copy2dim(const uint8_t itemsize, const int64_t* copy_shape,
 uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[1] * itemsize;
     int64_t copy_start = 0;
-    while(copy_start < copy_shape[0]) {
+    do {
         int64_t src_copy_start = copy_start * src_strides[0];
         int64_t dst_copy_start = copy_start * dst_strides[0];
         memcpy(&bdst[dst_copy_start * itemsize], &bsrc[src_copy_start * itemsize], copy_nbytes);
-    ++copy_start; }
+    ++copy_start; } while(copy_start < copy_shape[0]);
 }
 
 int caterva_copy_buffer(uint8_t ndim,
@@ -332,6 +332,15 @@ int caterva_copy_buffer(uint8_t ndim,
                         int64_t *src_start, int64_t *src_stop,
                         void *dst, int64_t *dst_pad_shape,
                         int64_t *dst_start) {
+    // Compute the shape of the copy
+    int64_t copy_shape[CATERVA_MAX_DIM] = {0};
+    for (int i = 0; i < ndim; ++i) {
+        copy_shape[i] = src_stop[i] - src_start[i];
+        if(copy_shape[i] == 0) {
+            return CATERVA_SUCCEED;
+        }
+    }
+
     // Compute the strides
     int64_t src_strides[CATERVA_MAX_DIM];
     src_strides[ndim - 1] = 1;
@@ -356,11 +365,6 @@ int caterva_copy_buffer(uint8_t ndim,
     uint8_t *bdst = (uint8_t *) dst;
     bdst = &bdst[dst_start_n * itemsize];
 
-    // Compute the shape of the copy
-    int64_t copy_shape[CATERVA_MAX_DIM] = {0};
-    for (int i = 0; i < ndim; ++i) {
-        copy_shape[i] = src_stop[i] - src_start[i];
-    }
 switch(ndim) {
     case 1:
         memcpy(&bdst[0], &bsrc[0], copy_shape[0] * itemsize);
@@ -390,7 +394,7 @@ switch(ndim) {
         return CATERVA_ERR_INVALID_INDEX; // guard against potential future increase to CATERVA_MAX_DIM
     break;
     }
-
+    
     return CATERVA_SUCCEED;
 }
 
