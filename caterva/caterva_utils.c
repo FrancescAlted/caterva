@@ -177,8 +177,10 @@ int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, uint8_t *ndim, int6
 // copyNdim where N = {2-8} - specializations of copy loops to be used by caterva_copy_buffer
 // since we don't have c++ templates, substitute manual specializations for up to known CATERVA_MAX_DIM (8)
 // it's not pretty, but it substantially reduces overhead vs. the generic method
-void copy8dim(const uint8_t itemsize, const int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
+void copy8dim(const uint8_t itemsize,
+              const int64_t* copy_shape,
+              const uint8_t *bsrc, const int64_t* src_strides,
+              uint8_t *bdst, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[7] * itemsize;
     int64_t copy_start[7] = {0};
     do {
@@ -205,8 +207,10 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
     ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
-void copy7dim(const uint8_t itemsize, const int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
+void copy7dim(const uint8_t itemsize,
+              const int64_t* copy_shape,
+              const uint8_t *bsrc, const int64_t* src_strides,
+              uint8_t *bdst, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[6] * itemsize;
     int64_t copy_start[6] = {0};
     do {
@@ -231,8 +235,10 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
     ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
-void copy6dim(const uint8_t itemsize, const int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
+void copy6dim(const uint8_t itemsize,
+              const int64_t* copy_shape,
+              const uint8_t *bsrc, const int64_t* src_strides,
+              uint8_t *bdst, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[5] * itemsize;
     int64_t copy_start[5] = {0};
     do {
@@ -255,8 +261,10 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
     ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
-void copy5dim(const uint8_t itemsize, const int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
+void copy5dim(const uint8_t itemsize,
+              const int64_t* copy_shape,
+              const uint8_t *bsrc, const int64_t* src_strides,
+              uint8_t *bdst, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[4] * itemsize;
     int64_t copy_start[4] = {0};
     do {
@@ -277,8 +285,10 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
     ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
-void copy4dim(const uint8_t itemsize, const int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
+void copy4dim(const uint8_t itemsize,
+              const int64_t* copy_shape,
+              const uint8_t *bsrc, const int64_t* src_strides,
+              uint8_t *bdst, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[3] * itemsize;
     int64_t copy_start[3] = {0};
     do {
@@ -297,8 +307,10 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
     ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
-void copy3dim(const uint8_t itemsize, const int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
+void copy3dim(const uint8_t itemsize,
+              const int64_t* copy_shape,
+              const uint8_t *bsrc, const int64_t* src_strides,
+              uint8_t *bdst, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[2] * itemsize;
     int64_t copy_start[2] = {0};
     do {
@@ -315,8 +327,10 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
     ++copy_start[0]; copy_start[1] = 0; } while(copy_start[0] < copy_shape[0]);
 }
 
-void copy2dim(const uint8_t itemsize, const int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* dst_strides) {
+void copy2dim(const uint8_t itemsize,
+              const int64_t* copy_shape,
+              const uint8_t *bsrc, const int64_t* src_strides,
+              uint8_t *bdst, const int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[1] * itemsize;
     int64_t copy_start = 0;
     do {
@@ -327,8 +341,11 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
 }
 
 
-void copy_ndim_fallback(const uint8_t ndim, const uint8_t itemsize, int64_t* copy_shape,
-uint8_t *bdst, const uint8_t *bsrc, int64_t* src_strides, int64_t* dst_strides) {
+void copy_ndim_fallback(const uint8_t ndim,
+                        const uint8_t itemsize,
+                        int64_t* copy_shape,
+                        const uint8_t *bsrc, int64_t* src_strides,
+                        uint8_t *bdst, int64_t* dst_strides) {
     int64_t copy_nbytes = copy_shape[ndim - 1] * itemsize;
     int64_t number_of_copies = 1;
     for (int i = 0; i < ndim - 1; ++i) {
@@ -398,29 +415,29 @@ switch(ndim) {
         memcpy(&bdst[0], &bsrc[0], copy_shape[0] * itemsize);
     break;
     case 2:
-        copy2dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy2dim(itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     case 3:
-        copy3dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy3dim(itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     case 4:
-        copy4dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy4dim(itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     case 5:
-        copy5dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy5dim(itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     case 6:
-        copy6dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy6dim(itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     case 7:
-        copy7dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy7dim(itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     case 8:
-        copy8dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy8dim(itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     default:
         // guard against potential future increase to CATERVA_MAX_DIM
-        copy_ndim_fallback(ndim, itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
+        copy_ndim_fallback(ndim, itemsize, copy_shape, bsrc, src_strides, bdst, dst_strides);
     break;
     }
     
