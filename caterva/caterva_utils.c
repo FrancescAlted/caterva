@@ -326,6 +326,34 @@ uint8_t *bdst, const uint8_t *bsrc, const int64_t* src_strides, const int64_t* d
     ++copy_start; } while(copy_start < copy_shape[0]);
 }
 
+
+void copy_ndim_fallback(const uint8_t ndim, const uint8_t itemsize, int64_t* copy_shape,
+uint8_t *bdst, const uint8_t *bsrc, int64_t* src_strides, int64_t* dst_strides) {
+    int64_t copy_nbytes = copy_shape[ndim - 1] * itemsize;
+    int64_t number_of_copies = 1;
+    for (int i = 0; i < ndim - 1; ++i) {
+        number_of_copies *= copy_shape[i];
+    }
+    for (int ncopy = 0; ncopy < number_of_copies; ++ncopy) {
+        // Compute the start of the copy
+        int64_t copy_start[CATERVA_MAX_DIM] = {0};
+        index_unidim_to_multidim(ndim - 1, copy_shape, ncopy, copy_start);
+
+        // Translate this index to the src buffer
+        int64_t src_copy_start;
+        index_multidim_to_unidim(copy_start, ndim - 1, src_strides, &src_copy_start);
+
+        // Translate this index to the dst buffer
+        int64_t dst_copy_start;
+        index_multidim_to_unidim(copy_start, ndim - 1, dst_strides, &dst_copy_start);
+
+        // Perform the copy
+        memcpy(&bdst[dst_copy_start * itemsize],
+               &bsrc[src_copy_start * itemsize],
+               copy_nbytes);
+    }
+}
+
 int caterva_copy_buffer(uint8_t ndim,
                         uint8_t itemsize,
                         void *src, int64_t *src_pad_shape,
@@ -391,7 +419,8 @@ switch(ndim) {
         copy8dim(itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
     break;
     default:
-        return CATERVA_ERR_INVALID_INDEX; // guard against potential future increase to CATERVA_MAX_DIM
+        // guard against potential future increase to CATERVA_MAX_DIM
+        copy_ndim_fallback(ndim, itemsize, copy_shape, bdst, bsrc, src_strides, dst_strides);
     break;
     }
     
