@@ -93,7 +93,7 @@ CUTEST_TEST_TEST(get_slice_buffer) {
     if (backend.persistent) {
         storage.urlpath = urlpath;
     }
-    storage.sequencial = backend.sequential;
+    storage.contiguous = backend.contiguous;
     for (int i = 0; i < params.ndim; ++i) {
         storage.chunkshape[i] = shapes.chunkshape[i];
         storage.blockshape[i] = shapes.blockshape[i];

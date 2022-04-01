@@ -95,7 +95,7 @@ CUTEST_TEST_TEST(copy) {
     } else {
         storage.urlpath = NULL;
     }
-    storage.sequencial = backend.sequential;
+    storage.contiguous = backend.contiguous;
     for (int i = 0; i < params.ndim; ++i) {
         storage.chunkshape[i] = shapes.chunkshape[i];
         storage.blockshape[i] = shapes.blockshape[i];
@@ -145,7 +145,7 @@ CUTEST_TEST_TEST(copy) {
     } else {
         storage2.urlpath = NULL;
     }
-    storage2.sequencial = backend2.sequential;
+    storage2.contiguous = backend2.contiguous;
     for (int i = 0; i < shapes.ndim; ++i) {
         storage2.chunkshape[i] = shapes.chunkshape2[i];
         storage2.blockshape[i] = shapes.blockshape2[i];

@@ -482,7 +482,7 @@ int create_blosc_params(caterva_ctx_t *ctx,
     b_storage->cparams = cparams;
     b_storage->dparams = dparams;
 
-    if (storage->sequencial) {
+    if (storage->contiguous) {
         b_storage->contiguous = true;
     }
     if (storage->urlpath != NULL) {
