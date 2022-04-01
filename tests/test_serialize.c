@@ -51,7 +51,7 @@ CUTEST_TEST_TEST(serialize) {
 
     caterva_storage_t storage = {0};
     storage.urlpath = NULL;
-    storage.sequencial = true;
+    storage.contiguous = true;
     for (int i = 0; i < params.ndim; ++i) {
         storage.chunkshape[i] = shapes.chunkshape[i];
         storage.blockshape[i] = shapes.blockshape[i];

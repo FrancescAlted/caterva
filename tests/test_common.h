@@ -65,7 +65,7 @@ typedef struct {
 
 
 typedef struct {
-    bool sequential;
+    bool contiguous;
     bool persistent;
 } _test_backend;
 
