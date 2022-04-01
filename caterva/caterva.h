@@ -206,7 +206,7 @@ typedef struct {
     //!< The size of each item of the array.
     int64_t shape[CATERVA_MAX_DIM];
     //!< The array shape.
-    uint8_t ndim;
+    int8_t ndim;
     //!< The array dimensions.
 } caterva_params_t;
 
@@ -251,7 +251,7 @@ typedef struct {
     //!< Number of items in each block.
     int64_t extchunknitems;
     //!< Number of items in a padded chunk.
-    uint8_t ndim;
+    int8_t ndim;
     //!< Data dimensions.
     uint8_t itemsize;
     //!< Size of each item.
@@ -451,8 +451,8 @@ int caterva_to_buffer(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer,
  *
  * @return An error code.
  */
-int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
-                      int64_t *stop, caterva_storage_t *storage, caterva_array_t **array);
+int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, const int64_t *start,
+                      const int64_t *stop, caterva_storage_t *storage, caterva_array_t **array);
 
 /**
  * @brief Squeeze a caterva array
@@ -467,7 +467,7 @@ int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
  * @return An error code
  */
 int caterva_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *array,
-                          bool *index);
+                          const bool *index);
 
 /**
  * @brief Squeeze a caterva array

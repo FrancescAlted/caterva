@@ -47,8 +47,8 @@ int caterva_ctx_free(caterva_ctx_t **ctx) {
 }
 
 // Only for internal use
-int caterva_update_shape(caterva_array_t *array, int8_t ndim, int64_t *shape,
-                               int32_t *chunkshape, int32_t *blockshape) {
+int caterva_update_shape(caterva_array_t *array, int8_t ndim, const int64_t *shape,
+                               const int32_t *chunkshape, const int32_t *blockshape) {
     array->ndim = ndim;
     array->nitems = 1;
     array->extnitems = 1;
@@ -791,8 +791,8 @@ int caterva_set_slice_buffer(caterva_ctx_t *ctx,
     return CATERVA_SUCCEED;
 }
 
-int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
-                      int64_t *stop, caterva_storage_t *storage, caterva_array_t **array) {
+int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, const int64_t *start,
+                      const int64_t *stop, caterva_storage_t *storage, caterva_array_t **array) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(storage);
     CATERVA_ERROR_NULL(src);
@@ -814,7 +814,7 @@ int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, int64_t *start,
         return CATERVA_SUCCEED;
     }
 
-    uint8_t ndim = (*array)->ndim;
+    int8_t ndim = (*array)->ndim;
     int64_t chunks_in_array[CATERVA_MAX_DIM] = {0};
     for (int i = 0; i < ndim; ++i) {
         chunks_in_array[i] = (*array)->extshape[i] / (*array)->chunkshape[i];
@@ -876,7 +876,7 @@ int caterva_squeeze(caterva_ctx_t *ctx, caterva_array_t *array) {
     return CATERVA_SUCCEED;
 }
 
-int caterva_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *array, bool *index) {
+int caterva_squeeze_index(caterva_ctx_t *ctx, caterva_array_t *array, const bool *index) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
 
@@ -1136,7 +1136,7 @@ int caterva_meta_exists(caterva_ctx_t *ctx, caterva_array_t *array,
 
 int caterva_print_meta(caterva_array_t *array){
     CATERVA_ERROR_NULL(array);
-    uint8_t ndim;
+    int8_t ndim;
     int64_t shape[8];
     int32_t chunkshape[8];
     int32_t blockshape[8];
@@ -1150,9 +1150,9 @@ int caterva_print_meta(caterva_array_t *array){
     free(smeta);
 
     printf("Caterva metalayer parameters: \n Ndim:       %d", ndim);
-    printf("\n Shape:      %ld", shape[0]);
+    printf("\n Shape:      %lld", shape[0]);
     for (int i = 1; i < ndim; ++i) {
-        printf(", %ld", shape[i]);
+        printf(", %lld", shape[i]);
     }
     printf("\n Chunkshape: %d", chunkshape[0]);
     for (int i = 1; i < ndim; ++i) {
@@ -1188,7 +1188,7 @@ int extend_shape(caterva_array_t *array, int64_t *new_shape) {
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(new_shape);
 
-    uint8_t ndim = array->ndim;
+    int8_t ndim = array->ndim;
     int64_t diffs_shape[CATERVA_MAX_DIM];
     int64_t diffs_sum = 0;
     for (int i = 0; i < ndim; i++) {

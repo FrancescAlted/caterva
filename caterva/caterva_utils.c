@@ -10,7 +10,7 @@
  */
 #include <caterva_utils.h>
 
-void index_unidim_to_multidim(int8_t ndim, int64_t *shape, int64_t i, int64_t *index) {
+void index_unidim_to_multidim(int8_t ndim, const int64_t *shape, int64_t i, int64_t *index) {
     int64_t strides[CATERVA_MAX_DIM];
     if (ndim == 0) {
         return;
@@ -26,7 +26,7 @@ void index_unidim_to_multidim(int8_t ndim, int64_t *shape, int64_t i, int64_t *i
     }
 }
 
-void index_multidim_to_unidim(int64_t *index, int8_t ndim, int64_t *strides, int64_t *i) {
+void index_multidim_to_unidim(const int64_t *index, int8_t ndim, const int64_t *strides, int64_t *i) {
     *i = 0;
     for (int j = 0; j < ndim; ++j) {
         *i += index[j] * strides[j];
@@ -74,11 +74,11 @@ void swap_store(void *dest, const void *pa, int size) {
     free(pa2_);
 }
 
-int32_t serialize_meta(uint8_t ndim, int64_t *shape, const int32_t *chunkshape,
+int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape,
                               const int32_t *blockshape, uint8_t **smeta) {
     // Allocate space for Caterva metalayer
-    int32_t max_smeta_len = 1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) +
-                            (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t)));
+    int32_t max_smeta_len = (int32_t) (1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) +
+                            (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t))));
     *smeta = malloc((size_t) max_smeta_len);
     CATERVA_ERROR_NULL(smeta);
     uint8_t *pmeta = *smeta;
@@ -120,7 +120,7 @@ int32_t serialize_meta(uint8_t ndim, int64_t *shape, const int32_t *chunkshape,
     return slen;
 }
 
-int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, uint8_t *ndim, int64_t *shape,
+int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim, int64_t *shape,
                                 int32_t *chunkshape, int32_t *blockshape) {
     uint8_t *pmeta = smeta;
     CATERVA_UNUSED_PARAM(smeta_len);
@@ -341,7 +341,7 @@ void copy2dim(const uint8_t itemsize,
 }
 
 
-void copy_ndim_fallback(const uint8_t ndim,
+void copy_ndim_fallback(const int8_t ndim,
                         const uint8_t itemsize,
                         int64_t* copy_shape,
                         const uint8_t *bsrc, int64_t* src_strides,
@@ -371,11 +371,11 @@ void copy_ndim_fallback(const uint8_t ndim,
     }
 }
 
-int caterva_copy_buffer(uint8_t ndim,
+int caterva_copy_buffer(int8_t ndim,
                         uint8_t itemsize,
-                        void *src, int64_t *src_pad_shape,
-                        int64_t *src_start, int64_t *src_stop,
-                        void *dst, int64_t *dst_pad_shape,
+                        void *src, const int64_t *src_pad_shape,
+                        int64_t *src_start, const int64_t *src_stop,
+                        void *dst, const int64_t *dst_pad_shape,
                         int64_t *dst_start) {
     // Compute the shape of the copy
     int64_t copy_shape[CATERVA_MAX_DIM] = {0};
