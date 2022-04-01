@@ -1194,7 +1194,7 @@ int extend_shape(caterva_array_t *array, int64_t *new_shape) {
     for (int i = 0; i < ndim; i++) {
         diffs_shape[i] = new_shape[i] - array->shape[i];
         diffs_sum += diffs_shape[i];
-        if (diffs_shape < 0) {
+        if (diffs_shape[i] < 0) {
             CATERVA_TRACE_ERROR("The new shape must be greater than the old one");
             CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
         }
