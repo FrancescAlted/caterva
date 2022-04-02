@@ -8,9 +8,12 @@
  * in the COPYING file in the root directory of this source tree).
  * You may select, at your option, one of the above-listed licenses.
  *
- * To get the used frames (air1.cat, precip1.cat, precip2.cat, precip3.cat, snow1.cat...)
- * you must use the following script "fecth_data.py":
+ * Benchmark to measure the retrieval time of a number of elements in random positions
+ * in caterva arrays. To get the necessary arrays (air1.cat, precip1.cat, snow1.cat...)
+ * you can use the following script:
 
+8<---snip---- "fecth_data.py"
+#!/usr/bin/env python
 import os
 import sys
 import xarray as xr
@@ -42,10 +45,11 @@ cat_precip0 = cat.empty(m_shape, itemsize=4, chunks=m_chunks, blocks=m_blocks,
 print("Fetching and storing 1st month...")
 values = precip_m0.values
 cat_precip0[:] = values
+8<---snip----
 
  * To call this script, you can run the following commands:
- * pip install caterva
- * python fetch_data.py
+ * $ pip install caterva
+ * $ python fetch_data.py
  *
  */
 
