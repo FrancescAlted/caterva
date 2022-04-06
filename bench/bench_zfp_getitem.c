@@ -10,9 +10,10 @@
  *
  * Benchmark to measure the retrieval time of a number of elements in random positions
  * in caterva arrays. To get the necessary arrays (air1.cat, precip1.cat, snow1.cat...)
- * you can use the following script:
+ * you can use the following script, changing the dataset by your preference (see
+ * https://docs.digitalearthafrica.org/fr/latest/sandbox/notebooks/Datasets/Climate_Data_ERA5_AWS.html):
 
-8<---snip---- "fecth_data.py"
+8<---snip---- "fetch_data.py"
 #!/usr/bin/env python
 import os
 import sys
