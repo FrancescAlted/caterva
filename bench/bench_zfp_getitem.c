@@ -42,7 +42,7 @@ m_shape = precip_m0.shape
 m_chunks = (128, 128, 256)
 m_blocks = (32, 32, 32)
 cat_precip0 = cat.empty(m_shape, itemsize=4, chunks=m_chunks, blocks=m_blocks,
-                        urlpath="precip1.cat", sequential=True)
+                        urlpath="precip1.cat", contiguous=True)
 print("Fetching and storing 1st month...")
 values = precip_m0.values
 cat_precip0[:] = values
