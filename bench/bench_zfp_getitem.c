@@ -72,16 +72,15 @@ int comp(const char* urlpath) {
     blosc2_remove_urlpath("schunk.cat");
 
     // Get multidimensional parameters and configure Caterva array
-    uint8_t ndim;
+    int8_t ndim;
     int32_t shape[4];
     int64_t *shape_aux = malloc(8 * sizeof(int64_t));
     int32_t *chunkshape = malloc(8 * sizeof(int32_t));
     int32_t *blockshape = malloc(8 * sizeof(int32_t));
     uint8_t *smeta;
-    uint32_t smeta_len;
+    int32_t smeta_len;
     if (blosc2_meta_get(schunk, "caterva", &smeta, &smeta_len) < 0) {
         printf("This benchmark only supports Caterva datasets");
-        free(shape);
         free(chunkshape);
         free(blockshape);
         return -1;
@@ -118,7 +117,6 @@ int comp(const char* urlpath) {
     copied = caterva_copy(ctx_zfp, arr, &storage, &arr_rate);
     if (copied != 0) {
         printf("Error BLOSC_CODEC_ZFP_FIXED_RATE \n");
-        free(shape);
         free(chunkshape);
         free(blockshape);
         caterva_free(ctx_zfp, &arr);
@@ -126,8 +124,9 @@ int comp(const char* urlpath) {
     }
     printf("ZFP_FIXED_RATE comp ratio: %f \n",(float) arr_rate->sc->nbytes / (float) arr_rate->sc->cbytes);
 
-    int nelems = arr_rate->nitems;
-    int index, dsize_zfp, dsize_blosc;
+    int64_t nelems = arr_rate->nitems;
+    int dsize_zfp, dsize_blosc;
+    int64_t index;
     float item_zfp, item_blosc;
     blosc_timestamp_t t0, t1;
     double zfp_time, blosc_time;
@@ -135,7 +134,8 @@ int comp(const char* urlpath) {
     int64_t index_ndim[ZFP_MAX_DIM];
     int64_t index_chunk_ndim[ZFP_MAX_DIM];
     int64_t ind_ndim[ZFP_MAX_DIM];
-    int stride_chunk, nchunk, ind_chunk;
+    int stride_chunk, ind_chunk;
+    int64_t nchunk;
     bool needs_free_blosc, needs_free_zfp;
     uint8_t *chunk_blosc, *chunk_zfp;
     int32_t chunk_nbytes_zfp, chunk_cbytes_zfp, chunk_nbytes_lossy, chunk_cbytes_lossy;
@@ -150,7 +150,7 @@ int comp(const char* urlpath) {
         }
         stride_chunk = (shape[1] - 1) / chunkshape[1] + 1;
         nchunk = index_chunk_ndim[0] * stride_chunk + index_chunk_ndim[1];
-        ind_chunk = ind_ndim[0] * chunkshape[1] + ind_ndim[1];
+        ind_chunk = (int32_t)(ind_ndim[0] * chunkshape[1] + ind_ndim[1]);
         blosc2_schunk_get_lazychunk(arr->sc, nchunk, &chunk_blosc, &needs_free_blosc);
         blosc2_cbuffer_sizes(chunk_blosc, &chunk_nbytes_lossy, &chunk_cbytes_lossy, NULL);
         blosc_set_timestamp(&t0);

@@ -127,7 +127,7 @@ int float_cyclic() {
        data[i + 1] = (2 + j / 10 + j / 1000);
     }
     char *urlpath = "example_float_cyclic.caterva";
-    CATERVA_ERROR(frame_generator(data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
+    CATERVA_ERROR(frame_generator((int8_t *)data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
 
     return 0;
 }
@@ -152,7 +152,7 @@ int double_same_cells() {
        data[i + 3] = 3.2;
     }
     char *urlpath = "example_double_same_cells.caterva";
-    CATERVA_ERROR(frame_generator(data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
+    CATERVA_ERROR(frame_generator((int8_t *)data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
 
     return 0;
 }
@@ -178,7 +178,7 @@ int big_float_frame() {
        data[i + 3] = (11 + j / 100 - j / 1000);
     }
     char *urlpath = "example_big_float_frame.caterva";
-    CATERVA_ERROR(frame_generator(data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
+    CATERVA_ERROR(frame_generator((int8_t *)data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
 
     return 0;
 }
@@ -206,7 +206,7 @@ int day_month_temp() {
        i += 3;
     }
     char *urlpath = "example_day_month_temp.caterva";
-    CATERVA_ERROR(frame_generator(data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
+    CATERVA_ERROR(frame_generator((int8_t *)data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
 
     return 0;
 }
@@ -238,7 +238,7 @@ int item_prices() {
        }
     }
     char *urlpath = "example_item_prices.caterva";
-    CATERVA_ERROR(frame_generator(data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
+    CATERVA_ERROR(frame_generator((int8_t *)data, ndim, shape, chunkshape, blockshape, itemsize, size, urlpath));
 
     return 0;
 }

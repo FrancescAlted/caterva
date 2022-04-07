@@ -129,13 +129,13 @@ int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim, int64
     pmeta += 1;
 
     // version entry
-    int8_t version = pmeta[0];  // positive fixnum (7-bit positive integer)
+    int8_t version = (int8_t)pmeta[0];  // positive fixnum (7-bit positive integer)
     CATERVA_UNUSED_PARAM(version);
 
     pmeta += 1;
 
     // ndim entry
-    *ndim = pmeta[0];
+    *ndim = (int8_t)pmeta[0];
     int8_t ndim_aux = *ndim;  // positive fixnum (7-bit positive integer)
     pmeta += 1;
 
@@ -354,15 +354,15 @@ void copy_ndim_fallback(const int8_t ndim,
     for (int ncopy = 0; ncopy < number_of_copies; ++ncopy) {
         // Compute the start of the copy
         int64_t copy_start[CATERVA_MAX_DIM] = {0};
-        index_unidim_to_multidim(ndim - 1, copy_shape, ncopy, copy_start);
+        index_unidim_to_multidim((int8_t)(ndim -1), copy_shape, ncopy, copy_start);
 
         // Translate this index to the src buffer
         int64_t src_copy_start;
-        index_multidim_to_unidim(copy_start, ndim - 1, src_strides, &src_copy_start);
+        index_multidim_to_unidim(copy_start, (int8_t)(ndim - 1), src_strides, &src_copy_start);
 
         // Translate this index to the dst buffer
         int64_t dst_copy_start;
-        index_multidim_to_unidim(copy_start, ndim - 1, dst_strides, &dst_copy_start);
+        index_multidim_to_unidim(copy_start, (int8_t)(ndim - 1), dst_strides, &dst_copy_start);
 
         // Perform the copy
         memcpy(&bdst[dst_copy_start * itemsize],
