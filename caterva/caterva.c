@@ -12,6 +12,7 @@
 #include <caterva.h>
 
 #include "caterva_utils.h"
+#include <inttypes.h>
 
 
 int caterva_ctx_new(caterva_config_t *cfg, caterva_ctx_t **ctx) {
@@ -1149,9 +1150,9 @@ int caterva_print_meta(caterva_array_t *array){
     free(smeta);
 
     printf("Caterva metalayer parameters: \n Ndim:       %d", ndim);
-    printf("\n Shape:      %lld", shape[0]);
+    printf("\n Shape:      %" PRId64 "", shape[0]);
     for (int i = 1; i < ndim; ++i) {
-        printf(", %lld", shape[i]);
+        printf(", %" PRId64 "", shape[i]);
     }
     printf("\n Chunkshape: %d", chunkshape[0]);
     for (int i = 1; i < ndim; ++i) {
