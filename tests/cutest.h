@@ -1,13 +1,11 @@
 /*
- * Copyright (C) 2018 Francesc Alted, Aleix Alcacer.
- * Copyright (C) 2019-present Blosc Development team <blosc@blosc.org>
- * All rights reserved.
- *
- * This source code is licensed under both the BSD-style license (found in the
- * LICENSE file in the root directory of this source tree) and the GPLv2 (found
- * in the COPYING file in the root directory of this source tree).
- * You may select, at your option, one of the above-listed licenses.
- */
+  Copyright (C) 2021 Aleix Alcacer
+  Copyright (C) 2021 The Blosc Developers
+  http://blosc.org
+  License: BSD (see LICENSE.txt)
+
+  See LICENSE.txt for details about copyright and rights to use.
+*/
 
 #ifndef CUTEST_CUTEST_H
 #define CUTEST_CUTEST_H
@@ -38,7 +36,7 @@
 
 #define CUTEST_PARAMETRIZE2(name, type, params_len, params)                                      \
     do {                                                                         \
-        type *cutest_##name = params;                                    \
+        (type) *cutest_##name = params;                                    \
         _cutest_parametrize(#name, cutest_##name, params_len, sizeof(type)); \
     } while(0)
 
@@ -82,7 +80,6 @@
     } while(0)
 
 
-
 #define CUTEST_PARAMS_MAX 16
 #define MAXLEN_TESTNAME 1024
 
@@ -95,12 +92,12 @@ typedef struct {
 } cutest_param_t;
 
 static cutest_param_t cutest_params[CUTEST_PARAMS_MAX] = {0};
-static int32_t cutest_params_ind[CUTEST_PARAMS_MAX] = {0};
+static int8_t cutest_params_ind[CUTEST_PARAMS_MAX] = {0};
 
 
-void _cutest_parametrize(char* name, void *params, int32_t params_len, int32_t param_size) {
+void _cutest_parametrize(char *name, void *params, int32_t params_len, int32_t param_size) {
     int i = 0;
-    while(cutest_params[i].name != NULL) {
+    while (cutest_params[i].name != NULL) {
         i++;
     }
     uint8_t *new_params = malloc(param_size * params_len);
@@ -114,7 +111,7 @@ void _cutest_parametrize(char* name, void *params, int32_t params_len, int32_t p
 
 uint8_t *_cutest_get_parameter(char *name) {
     int i = 0;
-    while(strcmp(cutest_params[i].name, name) != 0) {
+    while (strcmp(cutest_params[i].name, name) != 0) {
         i++;
     }
     return cutest_params[i].params + cutest_params_ind[i] * cutest_params[i].param_size;
@@ -130,7 +127,7 @@ void _cutest_setup() {
 
 void _cutest_teardown() {
     int i = 0;
-    while(cutest_params[i].name != NULL) {
+    while (cutest_params[i].name != NULL) {
         free(cutest_params[i].params);
         free(cutest_params[i].name);
         i++;
@@ -147,7 +144,7 @@ int _cutest_run(int (*test)(void *), void *test_data, char *name) {
     int cutest_total = 0;
 
     int nparams = 0;
-    while(cutest_params[nparams].name != NULL) {
+    while (cutest_params[nparams].name != NULL) {
         nparams++;
     }
 
@@ -163,19 +160,22 @@ int _cutest_run(int (*test)(void *), void *test_data, char *name) {
     }
 
     char test_name[MAXLEN_TESTNAME];
-    int count = 0;
+    uint8_t count = 0;
     int num = niters;
-    do { count++; num /= 10;} while(num != 0);
+    do {
+        count++;
+        num /= 10;
+    } while (num != 0);
     for (int niter = 0; niter < niters; ++niter) {
         sprintf(test_name, "[%0*d/%d] %s(", count, niter + 1, niters, name);
         for (int i = 0; i < nparams; ++i) {
-            cutest_params_ind[i] = niter / params_strides[i] % cutest_params[i].params_len;
+            cutest_params_ind[i] = (int8_t) (niter / params_strides[i] %
+                                             cutest_params[i].params_len);
             snprintf(test_name, MAXLEN_TESTNAME, "%s%s[%d], ", test_name, cutest_params[i].name,
                      cutest_params_ind[i]);
         }
         test_name[strlen(test_name) - 1] = 0;
-        test_name[strlen(test_name) - 1] = 0;
-        sprintf(test_name, "%s)", test_name);
+        strncpy(&test_name[strlen(test_name) - 1], ")", 1);
         if (nparams == 0) {
             test_name[strlen(test_name) - 1] = 0;
         }
