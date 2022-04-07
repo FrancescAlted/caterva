@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <blosc2.h>
 #include "../contribs/c-blosc2/plugins/filters/filters-registry.c"
+#include <inttypes.h>
 
 int main() {
     blosc_timestamp_t t0, t1;
@@ -94,7 +95,7 @@ int main() {
     for (int i = 0; i < buffer_size / itemsize; i++) {
         if (src[i] != buffer[i]) {
             printf("\n Decompressed data differs from original!\n");
-            printf("i: %d, data %lld, dest %lld", i, src[i], buffer[i]);
+            printf("i: %d, data %" PRId64 ", dest %" PRId64 "", i, src[i], buffer[i]);
             return -1;
         }
     }
