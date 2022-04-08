@@ -219,7 +219,7 @@ typedef struct {
 struct chunk_cache_s {
     uint8_t *data;
     //!< The chunk data.
-    int32_t nchunk;
+    int64_t nchunk;
     //!< The chunk number in cache. If @p nchunk equals to -1, it means that the cache is empty.
 };
 
