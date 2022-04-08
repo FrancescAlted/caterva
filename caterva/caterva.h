@@ -691,6 +691,15 @@ int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int
 int caterva_delete(caterva_ctx_t *ctx, caterva_array_t *array, const int8_t axis,
                    int64_t delete_start, int64_t delete_len);
 
+
+
+// Indexing section
+int caterva_get_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
+                                     int64_t **selection, int64_t *selection_size,
+                                     void *buffer, int64_t *buffershape,
+                                     int64_t buffersize);
+
+
 #ifdef __cplusplus
 }
 #endif
