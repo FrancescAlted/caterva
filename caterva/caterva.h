@@ -349,19 +349,6 @@ int caterva_full(caterva_ctx_t *ctx, caterva_params_t *params,
 int caterva_free(caterva_ctx_t *ctx, caterva_array_t **array);
 
 /**
- * Append a chunk to a caterva array (until it is completely filled).
- *
- * @param ctx The caterva context to be used.
- * @param array The caterva array.
- * @param chunk The buffer where the chunk data is stored.
- * @param chunksize Size (in bytes) of the buffer.
- *
- * @return An error code.
- */
-int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *chunk,
-                   int64_t chunksize);
-
-/**
  * @brief Create a caterva array from a super-chunk. It can only be used if the array
  * is backed by a blosc super-chunk.
  *
@@ -651,10 +638,57 @@ int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
  * @param ctx The context to be used.
  * @param array The array to be resized.
  * @param new_shape The new shape from the array.
+ * @param start The position in which the array will be extended or shrinked.
  *
  * @return An error code
  */
-int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shape);
+int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shape, const int64_t *start);
+
+
+/**
+ * @brief Insert given buffer in an array extending the given axis.
+ *
+ * @param ctx The context to be used.
+ * @param array The array to insert the data.
+ * @param buffer The buffer data to be inserted.
+ * @param buffersize The size (in bytes) of the buffer.
+ * @param axis The axis that will be extended.
+ * @param insert_start The position inside the axis to start inserting the data.
+ * @return An error code.
+ */
+int caterva_insert(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize,
+                   const int8_t axis, int64_t insert_start);
+
+/**
+ * Append a buffer at the end of a caterva array.
+ *
+ * @param ctx The caterva context to be used.
+ * @param array The caterva array.
+ * @param buffer The buffer where the data is stored.
+ * @param buffersize Size (in bytes) of the buffer.
+ * @param axis The axis that will be extended to append the data.
+ *
+ *
+ * @return An error code.
+ */
+int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize,
+                   const int8_t axis);
+
+/**
+ * @brief Insert given buffer in an array extending the given axis.
+ *
+ * @param ctx The context to be used.
+ * @param array The array to shrink.
+ * @param axis The axis to shrink.
+ * @param delete_start The start position from the axis to start deleting chunks.
+ * @param delete_len The number of items to delete to the array->shape[axis].
+ * The newshape[axis] will be the old array->shape[axis] - delete_len
+ * @return An error code.
+ *
+ * @note See also caterva_resize
+ */
+int caterva_delete(caterva_ctx_t *ctx, caterva_array_t *array, const int8_t axis,
+                   int64_t delete_start, int64_t delete_len);
 
 #ifdef __cplusplus
 }
