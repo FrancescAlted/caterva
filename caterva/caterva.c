@@ -1184,7 +1184,7 @@ int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
     return CATERVA_SUCCEED;
 }
 
-int extend_shape(caterva_array_t *array, int64_t *new_shape) {
+int extend_shape(caterva_array_t *array, int64_t *new_shape, const int64_t *start) {
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(new_shape);
 
@@ -1217,84 +1217,57 @@ int extend_shape(caterva_array_t *array, int64_t *new_shape) {
     CATERVA_ERROR(caterva_update_shape(array, ndim, new_shape, array->chunkshape, array->blockshape));
 
     int64_t nchunks = array->extnitems / array->chunknitems;
+    int64_t nchunks_;
+    int64_t nchunk_ndim[CATERVA_MAX_DIM];
+    blosc2_cparams *cparams;
+    blosc2_schunk_get_cparams(array->sc, &cparams);
+    void* chunk;
+    int64_t csize;
     if (nchunks != old_nchunks) {
-        blosc2_cparams *cparams;
-        blosc2_schunk_get_cparams(array->sc, &cparams);
-        void* chunk;
-        int64_t csize;
-        int64_t nchunks_;
-        for (int64_t i = old_nchunks; i < nchunks; ++i) {
-            chunk = malloc(BLOSC_EXTENDED_HEADER_LENGTH);
-            nchunks_ = blosc2_chunk_zeros(*cparams, array->sc->chunksize, chunk, BLOSC_EXTENDED_HEADER_LENGTH);
-            if (nchunks_ < 0) {
-                free(aux);
-                free(cparams);
-                CATERVA_TRACE_ERROR("Blosc error");
-                return CATERVA_ERR_BLOSC_FAILED;
-            }
-            csize = blosc2_schunk_append_chunk(array->sc, chunk, false);
-            if (csize < 0) {
-                free(aux);
-                free(cparams);
-                CATERVA_TRACE_ERROR("Blosc error");
-                return CATERVA_ERR_BLOSC_FAILED;
+        if (start == NULL) {
+            start = aux->shape;
+        }
+        int64_t chunks_in_array[CATERVA_MAX_DIM] = {0};
+        for (int i = 0; i < ndim; ++i) {
+            chunks_in_array[i] = array->extshape[i] / array->chunkshape[i];
+        }
+        for (int i = 0; i < nchunks; ++i) {
+            index_unidim_to_multidim(ndim, chunks_in_array, i, nchunk_ndim);
+            for (int j = 0; j < ndim; ++j) {
+                if (start[j] <= (array->chunkshape[j] * nchunk_ndim[j])
+                    && (array->chunkshape[j] * nchunk_ndim[j]) < (start[j] + new_shape[j] - aux->shape[j])) {
+                    chunk = malloc(BLOSC_EXTENDED_HEADER_LENGTH);
+                    csize = blosc2_chunk_zeros(*cparams, array->sc->chunksize, chunk, BLOSC_EXTENDED_HEADER_LENGTH);
+                    if (csize < 0) {
+                        free(aux);
+                        free(cparams);
+                        CATERVA_TRACE_ERROR("Blosc error when creating a chunk");
+                        return CATERVA_ERR_BLOSC_FAILED;
+                    }
+                    nchunks_ = blosc2_schunk_insert_chunk(array->sc, i, chunk, false);
+                    if (nchunks_ < 0) {
+                        free(aux);
+                        free(cparams);
+                        CATERVA_TRACE_ERROR("Blosc error when inserting a chunk");
+                        return CATERVA_ERR_BLOSC_FAILED;
+                    }
+                    break;
+                }
             }
         }
-        free(cparams);
-        array->nchunks = array->sc->nchunks;
     }
-
-    // Get new order
-    int64_t chunks_in_array[CATERVA_MAX_DIM] = {0};
-    for (int i = 0; i < ndim; ++i) {
-        chunks_in_array[i] = array->extshape[i] / array->chunkshape[i];
-    }
-    int64_t chunks_in_array_old[CATERVA_MAX_DIM] = {0};
-    for (int i = 0; i < ndim; ++i) {
-        chunks_in_array_old[i] = aux->extshape[i] / aux->chunkshape[i];
-    }
-    int64_t chunks_in_array_strides_old[CATERVA_MAX_DIM];
-    chunks_in_array_strides_old[ndim - 1] = 1;
-    for (int i = ndim - 2; i >= 0; --i) {
-        chunks_in_array_strides_old[i] = chunks_in_array_strides_old[i + 1] * chunks_in_array_old[i + 1];
-    }
+    array->nchunks = array->sc->nchunks;
     free(aux);
-
-    int64_t nchunk_ndim[CATERVA_MAX_DIM] = {0};
-    int chunk_index = (int)old_nchunks;
-    // Avoid problems related with index_multidim_to_unidim signature
-    int64_t *new_offsets = malloc(sizeof(int64_t) * nchunks);
-    for (int i = 0; i < nchunks; ++i) {
-        index_unidim_to_multidim(ndim, chunks_in_array, i, nchunk_ndim);
-        bool old = true;
-        for (int j = 0; j < ndim; ++j) {
-            if ((chunks_in_array_old[j] - nchunk_ndim[j]) <= 0) {
-                new_offsets[i] = chunk_index;
-                chunk_index++;
-                old = false;
-                break;
-            }
-        }
-        if (old) {
-            index_multidim_to_unidim(nchunk_ndim, ndim, chunks_in_array_strides_old, &new_offsets[i]);
-        }
-    }
-
-    int rc = blosc2_schunk_reorder_offsets(array->sc, new_offsets);
-    free(new_offsets);
-    if (rc < 0) {
-        CATERVA_TRACE_ERROR("Blosc error");
-        return CATERVA_ERR_BLOSC_FAILED;
-    }
+    free(cparams);
 
     return CATERVA_SUCCEED;
 }
 
-int shrink_shape(caterva_array_t *array, int64_t *new_shape) {
+int shrink_shape(caterva_array_t *array, int64_t *new_shape, const int64_t *start) {
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(new_shape);
 
-    int8_t ndim = (int8_t)array->ndim;
+    int8_t ndim = array->ndim;
     int64_t diffs_shape[CATERVA_MAX_DIM];
     int64_t diffs_sum = 0;
     for (int i = 0; i < ndim; i++) {
@@ -1323,41 +1296,61 @@ int shrink_shape(caterva_array_t *array, int64_t *new_shape) {
     CATERVA_ERROR(caterva_update_shape(array, ndim, new_shape, array->chunkshape, array->blockshape));
 
     // Delete chunks if needed
-    int64_t chunks_in_array[CATERVA_MAX_DIM] = {0};
-    for (int i = 0; i < ndim; ++i) {
-        chunks_in_array[i] = array->extshape[i] / array->chunkshape[i];
-    }
     int64_t chunks_in_array_old[CATERVA_MAX_DIM] = {0};
     for (int i = 0; i < ndim; ++i) {
         chunks_in_array_old[i] = aux->extshape[i] / aux->chunkshape[i];
     }
-    free(aux);
+    if (start == NULL) {
+        start = new_shape;
+    }
+
     int64_t nchunk_ndim[CATERVA_MAX_DIM] = {0};
     int64_t nchunks_;
     for (int i = (int)old_nchunks - 1; i >= 0; --i) {
         index_unidim_to_multidim(ndim, chunks_in_array_old, i, nchunk_ndim);
         for (int j = 0; j < ndim; ++j) {
-            if ((chunks_in_array[j] - nchunk_ndim[j]) <= 0) {
+            if (start[j] <= (array->chunkshape[j] * nchunk_ndim[j])
+                && (array->chunkshape[j] * nchunk_ndim[j]) < (start[j] + aux->shape[j] - new_shape[j])) {
                 nchunks_ = blosc2_schunk_delete_chunk(array->sc, i);
                 if (nchunks_ < 0) {
-                    CATERVA_TRACE_ERROR("Blosc error");
+                    free(aux);
+                    CATERVA_TRACE_ERROR("Blosc error when deleting a chunk");
                     return CATERVA_ERR_BLOSC_FAILED;
                 }
                 break;
             }
         }
     }
-
     array->nchunks = array->sc->nchunks;
+    free(aux);
 
     return CATERVA_SUCCEED;
 }
 
 
-int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shape) {
+int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shape,
+                   const int64_t *start) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(new_shape);
+
+    if (start != NULL) {
+        for (int i = 0; i < array->ndim; ++i) {
+            if (start[i] % array->chunkshape[i] != 0) {
+                // Chunks cannot be cut
+                CATERVA_TRACE_ERROR("start must be a multiple of chunkshape in all dims");
+                CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+            }
+            if ((new_shape[i] - array->shape[i]) % array->chunkshape[i] != 0) {
+                CATERVA_TRACE_ERROR("The (new_shape - shape) must be multiple of chunkshape in all dims");
+                CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+            }
+            if (start[i] > array->shape[i]) {
+                CATERVA_TRACE_ERROR("start must be lower or equal than old array shape in all dims");
+                CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+            }
+        }
+    }
 
     // Get shrinked shape
     int64_t shrinked_shape[CATERVA_MAX_DIM] = {0};
@@ -1369,9 +1362,95 @@ int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shap
         }
     }
 
-    CATERVA_ERROR(shrink_shape(array, shrinked_shape));
+    CATERVA_ERROR(shrink_shape(array, shrinked_shape, start));
+    CATERVA_ERROR(extend_shape(array, new_shape, start));
 
-    CATERVA_ERROR(extend_shape(array, new_shape));
+    return CATERVA_SUCCEED;
+}
+
+int caterva_insert(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize,
+                   const int8_t axis, int64_t insert_start) {
+
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(buffer);
+
+    if (axis >= array->ndim) {
+        CATERVA_TRACE_ERROR("axis cannot be greater than the number of dimensions");
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+
+    int64_t axis_size = array->itemsize;
+    int64_t buffershape[CATERVA_MAX_DIM];
+    for (int i = 0; i < array->ndim; ++i) {
+        if (i != axis) {
+            axis_size *= array->shape[i];
+            buffershape[i] = array->shape[i];
+        }
+    }
+    if (buffersize % axis_size != 0) {
+        CATERVA_TRACE_ERROR("buffersize must be multiple of the array");
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+    int64_t newshape[CATERVA_MAX_DIM];
+    memcpy(newshape, array->shape, array->ndim * sizeof(int64_t));
+    newshape[axis] += buffersize / axis_size;
+    buffershape[axis] = newshape[axis] - array->shape[axis];
+    int64_t start[CATERVA_MAX_DIM] = {0};
+    start[axis] = insert_start;
+
+    if (insert_start == array->shape[axis]) {
+        CATERVA_ERROR(caterva_resize(ctx, array, newshape, NULL));
+    }
+    else {
+        CATERVA_ERROR(caterva_resize(ctx, array, newshape, start));
+    }
+
+    int64_t stop[CATERVA_MAX_DIM];
+    memcpy(stop, array->shape, sizeof(int64_t) * array->ndim);
+    stop[axis] = start[axis] + buffershape[axis];
+    CATERVA_ERROR(caterva_set_slice_buffer(ctx, buffer, buffershape, buffersize, start, stop, array));
+
+    return CATERVA_SUCCEED;
+}
+
+
+int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize,
+                   const int8_t axis) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(buffer);
+
+    CATERVA_ERROR(caterva_insert(ctx, array, buffer, buffersize, axis, array->shape[axis]));
+
+    return CATERVA_SUCCEED;
+}
+
+
+int caterva_delete(caterva_ctx_t *ctx, caterva_array_t *array, const int8_t axis,
+                   int64_t delete_start, int64_t delete_len) {
+
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(array);
+
+    if (axis >= array->ndim) {
+        CATERVA_TRACE_ERROR("axis cannot be greater than the number of dimensions");
+        CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+    }
+
+
+    int64_t newshape[CATERVA_MAX_DIM];
+    memcpy(newshape, array->shape, array->ndim * sizeof(int64_t));
+    newshape[axis] -= delete_len;
+    int64_t start[CATERVA_MAX_DIM] = {0};
+    start[axis] = delete_start;
+
+    if (delete_start == array->shape[axis] - delete_len) {
+        CATERVA_ERROR(caterva_resize(ctx, array, newshape, NULL));
+    }
+    else {
+        CATERVA_ERROR(caterva_resize(ctx, array, newshape, start));
+    }
 
     return CATERVA_SUCCEED;
 }
