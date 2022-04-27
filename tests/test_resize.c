@@ -102,8 +102,25 @@ CUTEST_TEST_TEST(resize_shape) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    int value = 1;
-    CATERVA_ERROR(caterva_full(data->ctx, &params, &storage, &value, &src));
+    uint8_t *value = malloc(itemsize);
+    int8_t fill_value = 1;
+    switch (itemsize) {
+        case 8:
+            ((int64_t *) value)[0] = (int64_t) fill_value;
+            break;
+        case 4:
+            ((int32_t *) value)[0] = (int32_t) fill_value;
+            break;
+        case 2:
+            ((int16_t *) value)[0] = (int16_t) fill_value;
+            break;
+        case 1:
+            ((int8_t *) value)[0] = fill_value;
+            break;
+        default:
+            break;
+    }
+    CATERVA_ERROR(caterva_full(data->ctx, &params, &storage, value, &src));
 
     if (shapes.given_pos) {
         CATERVA_ERROR(caterva_resize(data->ctx, src, shapes.newshape, shapes.start_resize));
@@ -126,7 +143,7 @@ CUTEST_TEST_TEST(resize_shape) {
         aux_storage.chunkshape[i] = shapes.chunkshape[i];
         aux_storage.blockshape[i] = shapes.blockshape[i];
     }
-    CATERVA_ERROR(caterva_full(data->ctx, &aux_params, &aux_storage, &value, &aux));
+    CATERVA_ERROR(caterva_full(data->ctx, &aux_params, &aux_storage, value, &aux));
     if (!only_shrink) {
         for (int i = 0; i < shapes.ndim; ++i) {
             if (shapes.newshape[i] <= shapes.shape[i]) {
@@ -155,23 +172,18 @@ CUTEST_TEST_TEST(resize_shape) {
             }
             slice_stop[i] = slice_start[i] + slice_shape[i];
             buffer_len *= slice_shape[i];
-            uint8_t *buffer = calloc(buffersize, itemsize);
+            uint8_t *buffer = calloc((size_t) buffer_len, (size_t) itemsize);
             CATERVA_ERROR(caterva_set_slice_buffer(data->ctx, buffer, slice_shape, buffer_len * itemsize,
                                      slice_start, slice_stop, aux));
             free(buffer);
         }
     }
-    uint8_t *src_buffer = data->ctx->cfg->alloc((size_t) buffersize);
-    uint8_t *aux_buffer = data->ctx->cfg->alloc((size_t) buffersize);
 
     /* Fill buffers with whole arrays */
-    int64_t start_shape[CATERVA_MAX_DIM] = {0};
-    CATERVA_ERROR(caterva_get_slice_buffer(data->ctx, src, start_shape, shapes.newshape,
-                                           src_buffer, shapes.newshape,
-                                           buffersize));
-    CATERVA_ERROR(caterva_get_slice_buffer(data->ctx, aux, start_shape, shapes.newshape,
-                                           aux_buffer, shapes.newshape,
-                                           buffersize));
+    uint8_t *src_buffer = data->ctx->cfg->alloc((size_t) buffersize);
+    uint8_t *aux_buffer = data->ctx->cfg->alloc((size_t) buffersize);
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, src, src_buffer, buffersize));
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, aux, aux_buffer, buffersize));
     for (uint64_t i = 0; i < (uint64_t) buffersize / itemsize; ++i) {
         switch (itemsize) {
             case 8:
@@ -195,6 +207,7 @@ CUTEST_TEST_TEST(resize_shape) {
         }
     }
     /* Free mallocs */
+    free(value);
     data->ctx->cfg->free(src_buffer);
     data->ctx->cfg->free(aux_buffer);
 

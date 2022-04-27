@@ -90,8 +90,25 @@ CUTEST_TEST_TEST(append) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    int value = 1;
-    CATERVA_ERROR(caterva_full(data->ctx, &params, &storage, &value, &src));
+    uint8_t *value = malloc(itemsize);
+    int8_t fill_value = 1;
+    switch (itemsize) {
+        case 8:
+            ((int64_t *) value)[0] = (int64_t) fill_value;
+            break;
+        case 4:
+            ((int32_t *) value)[0] = (int32_t) fill_value;
+            break;
+        case 2:
+            ((int16_t *) value)[0] = (int16_t) fill_value;
+            break;
+        case 1:
+            ((int8_t *) value)[0] = fill_value;
+            break;
+        default:
+            break;
+    }
+    CATERVA_ERROR(caterva_full(data->ctx, &params, &storage, value, &src));
 
     uint8_t *buffer = data->ctx->cfg->alloc(buffersize);
     fill_buf(buffer, itemsize, buffersize / itemsize);
@@ -133,6 +150,7 @@ CUTEST_TEST_TEST(append) {
         }
     }
     /* Free mallocs */
+    free(value);
     data->ctx->cfg->free(buffer);
     data->ctx->cfg->free(res_buffer);
 

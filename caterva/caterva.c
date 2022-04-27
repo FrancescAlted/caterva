@@ -1445,7 +1445,7 @@ int caterva_delete(caterva_ctx_t *ctx, caterva_array_t *array, const int8_t axis
     int64_t start[CATERVA_MAX_DIM] = {0};
     start[axis] = delete_start;
 
-    if (delete_start == array->shape[axis] - delete_len) {
+    if (delete_start == (array->shape[axis] - delete_len)) {
         CATERVA_ERROR(caterva_resize(ctx, array, newshape, NULL));
     }
     else {
