@@ -86,8 +86,25 @@ CUTEST_TEST_TEST(delete) {
 
     /* Create caterva_array_t with original data */
     caterva_array_t *src;
-    int value = 1;
-    CATERVA_ERROR(caterva_full(data->ctx, &params, &storage, &value, &src));
+    uint8_t *value = malloc(itemsize);
+    int8_t fill_value = 1;
+    switch (itemsize) {
+        case 8:
+            ((int64_t *) value)[0] = (int64_t) fill_value;
+            break;
+        case 4:
+            ((int32_t *) value)[0] = (int32_t) fill_value;
+            break;
+        case 2:
+            ((int16_t *) value)[0] = (int16_t) fill_value;
+            break;
+        case 1:
+            ((int8_t *) value)[0] = fill_value;
+            break;
+        default:
+            break;
+    }
+    CATERVA_ERROR(caterva_full(data->ctx, &params, &storage, value, &src));
 
     int64_t bufferlen = 1;
     int64_t stop[CATERVA_MAX_DIM];
@@ -107,7 +124,7 @@ CUTEST_TEST_TEST(delete) {
     // Set future deleted values to 0
     int64_t start[CATERVA_MAX_DIM] = {0};
     start[shapes.axis] = shapes.start;
-    uint8_t *buffer = calloc(bufferlen, itemsize);
+    uint8_t *buffer = calloc((size_t) bufferlen, (size_t) itemsize);
     CATERVA_ERROR(caterva_set_slice_buffer(data->ctx, buffer, buffer_shape, bufferlen * itemsize, start, stop, src));
 
     CATERVA_ERROR(caterva_delete(data->ctx, src, shapes.axis, shapes.start, shapes.delete_len));
@@ -132,47 +149,43 @@ CUTEST_TEST_TEST(delete) {
         aux_storage.chunkshape[i] = shapes.chunkshape[i];
         aux_storage.blockshape[i] = shapes.blockshape[i];
     }
-    CATERVA_ERROR(caterva_full(data->ctx, &aux_params, &aux_storage, &value, &aux));
+    CATERVA_ERROR(caterva_full(data->ctx, &aux_params, &aux_storage, value, &aux));
 
 
     /* Fill buffer with whole array data */
-    stop[shapes.axis] = shapes.shape[shapes.axis] - shapes.delete_len;
-    int64_t start_[CATERVA_MAX_DIM] = {0};
-    uint8_t *src_buffer = data->ctx->cfg->alloc(src->nitems * itemsize);
-    uint8_t *aux_buffer = data->ctx->cfg->alloc(aux->nitems * itemsize);
-    CATERVA_ERROR(caterva_get_slice_buffer(data->ctx, src, start_, stop, src_buffer,
-                                           newshape, src->nitems * itemsize));
-    CATERVA_ERROR(caterva_get_slice_buffer(data->ctx, aux, start_, stop, aux_buffer,
-                                           newshape, aux->nitems * itemsize));
+    uint8_t *src_buffer = data->ctx->cfg->alloc((size_t) (src->nitems * itemsize));
+    CATERVA_TEST_ASSERT(caterva_to_buffer(data->ctx, src, src_buffer, src->nitems * itemsize));
 
-    for (uint64_t i = 0; i < (uint64_t) bufferlen / itemsize; ++i) {
+    for (uint64_t i = 0; i < (uint64_t) src->nitems; ++i) {
         switch (itemsize) {
             case 8:
                 CUTEST_ASSERT("Elements are not equal!",
-                              ((uint64_t *) src_buffer)[i] == ((uint64_t *) aux_buffer)[i]);
+                              ((uint64_t *) src_buffer)[i] == (uint64_t) fill_value);
                 break;
             case 4:
                 CUTEST_ASSERT("Elements are not equal!",
-                              ((uint32_t *) src_buffer)[i] == ((uint32_t *) aux_buffer)[i]);
+                              ((uint32_t *) src_buffer)[i] == (uint32_t) fill_value);
                 break;
             case 2:
                 CUTEST_ASSERT("Elements are not equal!",
-                              ((uint16_t *) src_buffer)[i] == ((uint16_t *) aux_buffer)[i]);
+                              ((uint16_t *) src_buffer)[i] == (uint16_t) fill_value);
                 break;
             case 1:
                 CUTEST_ASSERT("Elements are not equal!",
-                              ((uint8_t *) src_buffer)[i] == ((uint8_t *) aux_buffer)[i]);
+                              ((uint8_t *) src_buffer)[i] == (uint8_t) fill_value);
                 break;
             default:
                 CATERVA_TEST_ASSERT(CATERVA_ERR_INVALID_ARGUMENT);
         }
     }
     /* Free mallocs */
+    free(value);
     free(buffer);
     data->ctx->cfg->free(src_buffer);
-    data->ctx->cfg->free(aux_buffer);
 
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));
+    CATERVA_TEST_ASSERT(caterva_free(data->ctx, &aux));
+
     caterva_remove(data->ctx, urlpath);
 
     return 0;

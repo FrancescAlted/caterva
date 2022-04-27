@@ -675,7 +675,7 @@ int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int
                    const int8_t axis);
 
 /**
- * @brief Insert given buffer in an array extending the given axis.
+ * @brief Delete shrinking the given axis delete_len items.
  *
  * @param ctx The context to be used.
  * @param array The array to shrink.
