@@ -259,6 +259,18 @@ typedef struct {
     //!< Number of chunks in the array.
     struct chunk_cache_s chunk_cache;
     //!< A partition cache.
+    int64_t item_array_strides[CATERVA_MAX_DIM];
+    //!< Item - shape strides.
+    int64_t item_chunk_strides[CATERVA_MAX_DIM];
+    //!< Item - shape strides.
+    int64_t item_extchunk_strides[CATERVA_MAX_DIM];
+    //!< Item - shape strides.
+    int64_t item_block_strides[CATERVA_MAX_DIM];
+    //!< Item - shape strides.
+    int64_t block_chunk_strides[CATERVA_MAX_DIM];
+    //!< Item - shape strides.
+    int64_t chunk_array_strides[CATERVA_MAX_DIM];
+    //!< Item - shape strides.
 } caterva_array_t;
 
 /**
