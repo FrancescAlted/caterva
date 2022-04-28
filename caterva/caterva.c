@@ -1184,7 +1184,7 @@ int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
     return CATERVA_SUCCEED;
 }
 
-int extend_shape(caterva_array_t *array, int64_t *new_shape, const int64_t *start) {
+int extend_shape(caterva_array_t *array, const int64_t *new_shape, const int64_t *start) {
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(new_shape);
 
@@ -1263,7 +1263,7 @@ int extend_shape(caterva_array_t *array, int64_t *new_shape, const int64_t *star
     return CATERVA_SUCCEED;
 }
 
-int shrink_shape(caterva_array_t *array, int64_t *new_shape, const int64_t *start) {
+int shrink_shape(caterva_array_t *array, const int64_t *new_shape, const int64_t *start) {
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(new_shape);
 
@@ -1328,7 +1328,7 @@ int shrink_shape(caterva_array_t *array, int64_t *new_shape, const int64_t *star
 }
 
 
-int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shape,
+int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, const int64_t *new_shape,
                    const int64_t *start) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
@@ -1336,18 +1336,24 @@ int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shap
 
     if (start != NULL) {
         for (int i = 0; i < array->ndim; ++i) {
-            if (start[i] % array->chunkshape[i] != 0) {
-                // Chunks cannot be cut
-                CATERVA_TRACE_ERROR("start must be a multiple of chunkshape in all dims");
-                CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
-            }
-            if ((new_shape[i] - array->shape[i]) % array->chunkshape[i] != 0) {
-                CATERVA_TRACE_ERROR("The (new_shape - shape) must be multiple of chunkshape in all dims");
-                CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
-            }
             if (start[i] > array->shape[i]) {
-                CATERVA_TRACE_ERROR("start must be lower or equal than old array shape in all dims");
+                CATERVA_TRACE_ERROR("`start` must be lower or equal than old array shape in all dims");
                 CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+            }
+            if ((new_shape[i] > array->shape[i] && start[i] != array->shape[i])
+                || (new_shape[i] < array->shape[i]
+                    && (start[i] + array->shape[i] - new_shape[i]) != array->shape[i])) {
+                // Chunks cannot be cut unless they are in the last position
+                if (start[i] % array->chunkshape[i] != 0) {
+                    CATERVA_TRACE_ERROR("If array end is not being modified "
+                        "`start` must be a multiple of chunkshape in all dims");
+                    CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+                }
+                if ((new_shape[i] - array->shape[i]) % array->chunkshape[i] != 0) {
+                    CATERVA_TRACE_ERROR("If array end is not being modified "
+                        "`(new_shape - shape)` must be multiple of chunkshape in all dims");
+                    CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
+                }
             }
         }
     }
@@ -1376,7 +1382,7 @@ int caterva_insert(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int
     CATERVA_ERROR_NULL(buffer);
 
     if (axis >= array->ndim) {
-        CATERVA_TRACE_ERROR("axis cannot be greater than the number of dimensions");
+        CATERVA_TRACE_ERROR("`axis` cannot be greater than the number of dimensions");
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
 
@@ -1389,7 +1395,7 @@ int caterva_insert(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int
         }
     }
     if (buffersize % axis_size != 0) {
-        CATERVA_TRACE_ERROR("buffersize must be multiple of the array");
+        CATERVA_TRACE_ERROR("`buffersize` must be multiple of the array");
         CATERVA_ERROR(CATERVA_ERR_INVALID_ARGUMENT);
     }
     int64_t newshape[CATERVA_MAX_DIM];
