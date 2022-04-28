@@ -642,7 +642,7 @@ int caterva_meta_update(caterva_ctx_t *ctx, caterva_array_t *array,
  *
  * @return An error code
  */
-int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shape, const int64_t *start);
+int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, const int64_t *new_shape, const int64_t *start);
 
 
 /**
@@ -654,6 +654,7 @@ int caterva_resize(caterva_ctx_t *ctx, caterva_array_t *array, int64_t *new_shap
  * @param buffersize The size (in bytes) of the buffer.
  * @param axis The axis that will be extended.
  * @param insert_start The position inside the axis to start inserting the data.
+ *
  * @return An error code.
  */
 int caterva_insert(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int64_t buffersize,
@@ -667,7 +668,6 @@ int caterva_insert(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int
  * @param buffer The buffer where the data is stored.
  * @param buffersize Size (in bytes) of the buffer.
  * @param axis The axis that will be extended to append the data.
- *
  *
  * @return An error code.
  */
@@ -683,6 +683,7 @@ int caterva_append(caterva_ctx_t *ctx, caterva_array_t *array, void *buffer, int
  * @param delete_start The start position from the axis to start deleting chunks.
  * @param delete_len The number of items to delete to the array->shape[axis].
  * The newshape[axis] will be the old array->shape[axis] - delete_len
+ *
  * @return An error code.
  *
  * @note See also caterva_resize
