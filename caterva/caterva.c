@@ -99,14 +99,27 @@ int caterva_update_shape(caterva_array_t *array, int8_t ndim, const int64_t *sha
     array->block_chunk_strides[ndim - 1] = 1;
     array->chunk_array_strides[ndim - 1] = 1;
     for (int i = ndim - 2; i >= 0; --i) {
-        array->item_array_strides[i] = array->item_array_strides[i + 1] * array->shape[i + 1];
-        array->item_extchunk_strides[i] = array->item_extchunk_strides[i + 1] * array->extchunkshape[i + 1];
-        array->item_chunk_strides[i] = array->item_chunk_strides[i + 1] * array->chunkshape[i + 1];
-        array->item_block_strides[i] = array->item_block_strides[i + 1] * array->blockshape[i + 1];
-        array->block_chunk_strides[i] = array->block_chunk_strides[i + 1] *
-                (array->extchunkshape[i + 1] / array->blockshape[i + 1]);
-        array->chunk_array_strides[i] = array->chunk_array_strides[i + 1] *
-                (array->extshape[i + 1] * array->chunkshape[i + 1]);
+        if (shape[i + 1] != 0) {
+            array->item_array_strides[i] = array->item_array_strides[i + 1] * array->shape[i + 1];
+            array->item_extchunk_strides[i] =
+                    array->item_extchunk_strides[i + 1] * array->extchunkshape[i + 1];
+            array->item_chunk_strides[i] =
+                    array->item_chunk_strides[i + 1] * array->chunkshape[i + 1];
+            array->item_block_strides[i] =
+                    array->item_block_strides[i + 1] * array->blockshape[i + 1];
+            array->block_chunk_strides[i] = array->block_chunk_strides[i + 1] *
+                                            (array->extchunkshape[i + 1] /
+                                             array->blockshape[i + 1]);
+            array->chunk_array_strides[i] = array->chunk_array_strides[i + 1] *
+                                            (array->extshape[i + 1] * array->chunkshape[i + 1]);
+        } else {
+            array->item_array_strides[i] = 0;
+            array->item_extchunk_strides[i] = 0;
+            array->item_chunk_strides[i] = 0;
+            array->item_block_strides[i] = 0;
+            array->block_chunk_strides[i] = 0;
+            array->chunk_array_strides[i] = 0;
+        }
     }
     if (array->sc) {
         uint8_t *smeta = NULL;
