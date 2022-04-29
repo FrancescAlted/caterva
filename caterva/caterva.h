@@ -711,6 +711,10 @@ int caterva_get_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
                                      void *buffer, int64_t *buffershape,
                                      int64_t buffersize);
 
+int caterva_set_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
+                                     int64_t **selection, int64_t *selection_size,
+                                     void *buffer, int64_t *buffershape,
+                                     int64_t buffersize);
 
 #ifdef __cplusplus
 }
