@@ -1509,7 +1509,8 @@ int caterva_copy_block_buffer_data(caterva_array_t *array,
                                    uint8_t *block,
                                    uint8_t *buffer,
                                    int64_t *buffershape,
-                                   int64_t *bufferstrides) {
+                                   int64_t *bufferstrides,
+                                   bool get) {
     p_block_selection_0[ndim] = chunk_selection[ndim];
     p_block_selection_1[ndim] = chunk_selection[ndim];
     while (p_block_selection_1[ndim] - p_block_selection_0[ndim] < block_selection_size[ndim]) {
@@ -1537,14 +1538,20 @@ int caterva_copy_block_buffer_data(caterva_array_t *array,
             for (int i = 0; i < array->ndim; ++i) {
                 index_in_buffer += index_in_buffer_n[i] * bufferstrides[i];
             }
-            memcpy(&buffer[index_in_buffer * array->itemsize],
-                   &block[index_in_block * array->itemsize],
-                   array->itemsize);
+            if (get) {
+                memcpy(&buffer[index_in_buffer * array->itemsize],
+                       &block[index_in_block * array->itemsize],
+                       array->itemsize);
+            } else {
+                memcpy(&block[index_in_block * array->itemsize],
+                       &buffer[index_in_buffer * array->itemsize],
+                       array->itemsize);
+            }
         } else {
             caterva_copy_block_buffer_data(array, (int8_t) (ndim + 1), block_selection_size,
                                            chunk_selection,
                                            p_block_selection_0, p_block_selection_1, block,
-                                           buffer, buffershape, bufferstrides);
+                                           buffer, buffershape, bufferstrides, get);
         }
         p_block_selection_1[ndim]++;
     }
@@ -1559,7 +1566,8 @@ int caterva_iterate_over_block_copy(caterva_array_t *array, int8_t ndim,
                                     uint8_t *data,
                                     uint8_t *buffer,
                                     int64_t *buffershape,
-                                    int64_t *bufferstrides) {
+                                    int64_t *bufferstrides,
+                                    bool get) {
     chunk_selection_0[ndim] = ordered_selection[ndim];
     chunk_selection_1[ndim] = ordered_selection[ndim];
     while(chunk_selection_1[ndim] - ordered_selection[ndim] < chunk_selection_size[ndim]) {
@@ -1603,12 +1611,15 @@ int caterva_iterate_over_block_copy(caterva_array_t *array, int8_t ndim,
                                            &data[nblock * array->blocknitems * array->itemsize],
                                            buffer,
                                            buffershape,
-                                           bufferstrides);
-
+                                           bufferstrides,
+                                           get);
+            free(p_block_selection_0);
+            free(p_block_selection_1);
+            free(block_selection_size);
         } else {
             caterva_iterate_over_block_copy(array, (int8_t) (ndim + 1), chunk_selection_size,
                                             ordered_selection, chunk_selection_0, chunk_selection_1,
-                                            data, buffer, buffershape, bufferstrides);
+                                            data, buffer, buffershape, bufferstrides, get);
         }
         chunk_selection_0[ndim] = chunk_selection_1[ndim];
 
@@ -1671,7 +1682,8 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
                                caterva_selection_t **p_ordered_selection_1,
                                uint8_t *buffer,
                                int64_t *buffershape,
-                               int64_t *bufferstrides) {
+                               int64_t *bufferstrides,
+                               bool get) {
     p_ordered_selection_0[ndim] = ordered_selection[ndim];
     p_ordered_selection_1[ndim] = ordered_selection[ndim];
     while(p_ordered_selection_1[ndim] - ordered_selection[ndim] < selection_size[ndim]) {
@@ -1685,7 +1697,8 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
             int64_t chunk_array_strides[CATERVA_MAX_DIM];
             chunk_array_strides[array->ndim - 1] = 1;
             for (int i = array->ndim - 2; i >= 0; --i) {
-                chunk_array_strides[i] = chunk_array_strides[i + 1] * (array->extshape[i + 1] / array->chunkshape[i + 1]);
+                chunk_array_strides[i] = chunk_array_strides[i + 1] *
+                                         (array->extshape[i + 1] / array->chunkshape[i + 1]);
             }
             int64_t chunk_index[CATERVA_MAX_DIM];
             for (int i = 0; i < array->ndim; ++i) {
@@ -1702,37 +1715,43 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
             // printf("\n");
 
             int64_t nblocks = array->extchunknitems / array->blocknitems;
-            bool *maskout = calloc(nblocks, sizeof(bool));
-            for (int i = 0; i < nblocks; ++i) {
-                maskout[i] = true;
-            }
-            caterva_selection_t **p_chunk_selection_0 = malloc(array->ndim * sizeof(caterva_selection_t *));
-            caterva_selection_t **p_chunk_selection_1 = malloc(array->ndim * sizeof(caterva_selection_t *));
+            caterva_selection_t **p_chunk_selection_0 = malloc(
+                    array->ndim * sizeof(caterva_selection_t *));
+            caterva_selection_t **p_chunk_selection_1 = malloc(
+                    array->ndim * sizeof(caterva_selection_t *));
             int64_t *chunk_selection_size = malloc(array->ndim * sizeof(int64_t));
             for (int i = 0; i < array->ndim; ++i) {
                 chunk_selection_size[i] = p_ordered_selection_1[i] - p_ordered_selection_0[i];
             }
-            CATERVA_ERROR(caterva_iterate_over_block_maskout(array, (int8_t) 0,
-                                                             chunk_selection_size,
-                                                             p_ordered_selection_0,
-                                                             p_chunk_selection_0,
-                                                             p_chunk_selection_1,
-                                                             maskout));
 
+            if (get) {
+                bool *maskout = calloc(nblocks, sizeof(bool));
+                for (int i = 0; i < nblocks; ++i) {
+                    maskout[i] = true;
+                }
+
+                CATERVA_ERROR(caterva_iterate_over_block_maskout(array, (int8_t) 0,
+                                                                 chunk_selection_size,
+                                                                 p_ordered_selection_0,
+                                                                 p_chunk_selection_0,
+                                                                 p_chunk_selection_1,
+                                                                 maskout));
+
+                // printf("- Maskout: ");
+                for (int i = 0; i < nblocks; ++i) {
+                    // printf(" %d ", maskout[i]);
+                }
+                // printf("\n");
+                if (blosc2_set_maskout(array->sc->dctx, maskout, (int) nblocks) !=
+                    BLOSC2_ERROR_SUCCESS) {
+                    CATERVA_TRACE_ERROR("Error setting the maskout");
+                    CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+                }
+                free(maskout);
+            }
             int data_nitems = (int) array->extchunknitems;
             int data_nbytes = data_nitems * array->itemsize;
-            uint8_t *data = calloc(data_nitems, array->itemsize);
-
-            // printf("- Maskout: ");
-            for (int i = 0; i < nblocks; ++i) {
-                // printf(" %d ", maskout[i]);
-            }
-            // printf("\n");
-            if (blosc2_set_maskout(array->sc->dctx, maskout, (int) nblocks) != BLOSC2_ERROR_SUCCESS) {
-                CATERVA_TRACE_ERROR("Error setting the maskout");
-                CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
-            }
-
+            uint8_t *data = malloc(data_nitems * array->itemsize);
             int err = blosc2_schunk_decompress_chunk(array->sc, nchunk, data, data_nbytes);
             if (err < 0) {
                 CATERVA_TRACE_ERROR("Error decompressing chunk");
@@ -1755,17 +1774,31 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
                                             data,
                                             buffer,
                                             buffershape,
-                                            bufferstrides);
+                                            bufferstrides,
+                                            get);
 
+            if (!get) {
+                int32_t chunk_size = data_nbytes + BLOSC_EXTENDED_HEADER_LENGTH;
+                uint8_t *chunk = malloc(chunk_size);
+                err = blosc2_compress_ctx(array->sc->cctx, data, data_nbytes, chunk, chunk_size);
+                if (err < 0) {
+                    CATERVA_TRACE_ERROR("Error compressing data");
+                    CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+                }
+                err = (int) blosc2_schunk_update_chunk(array->sc, nchunk, chunk, false);
+                if (err < 0) {
+                    CATERVA_TRACE_ERROR("Error updating chunk");
+                    CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
+                }
+            }
             free(data);
             free(chunk_selection_size);
             free(p_chunk_selection_0);
             free(p_chunk_selection_1);
-            free(maskout);
         } else {
             CATERVA_ERROR(caterva_iterate_over_chunk(array, (int8_t) (ndim + 1), selection_size,
                                                      ordered_selection, p_ordered_selection_0, p_ordered_selection_1,
-                                                     buffer, buffershape, bufferstrides));
+                                                     buffer, buffershape, bufferstrides, get));
         }
 
         p_ordered_selection_0[ndim] = p_ordered_selection_1[ndim];
@@ -1773,10 +1806,10 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
     return CATERVA_SUCCEED;
 }
 
-int
-caterva_get_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array, int64_t **selection,
-                                 int64_t *selection_size, void *buffer, int64_t *buffershape,
-                                 int64_t buffersize) {
+int caterva_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
+                                     int64_t **selection, int64_t *selection_size,
+                                     void *buffer, int64_t *buffershape, int64_t buffersize,
+                                     bool get) {
     CATERVA_ERROR_NULL(ctx);
     CATERVA_ERROR_NULL(array);
     CATERVA_ERROR_NULL(selection);
@@ -1840,7 +1873,7 @@ caterva_get_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array, int
                                              selection_size, ordered_selection,
                                              p_ordered_selection_0,
                                              p_ordered_selection_1,
-                                             buffer, buffershape, bufferstrides));
+                                             buffer, buffershape, bufferstrides, get));
 
     // Free allocated memory
     free(p_ordered_selection_0);
@@ -1851,4 +1884,20 @@ caterva_get_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array, int
     free(ordered_selection);
 
     return CATERVA_SUCCEED;
+}
+
+int caterva_get_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
+                                     int64_t **selection, int64_t *selection_size,
+                                     void *buffer, int64_t *buffershape, int64_t buffersize) {
+
+    return caterva_orthogonal_selection(ctx, array, selection, selection_size,
+                                        buffer, buffershape, buffersize, true);
+}
+
+int caterva_set_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
+                                     int64_t **selection, int64_t *selection_size,
+                                     void *buffer, int64_t *buffershape, int64_t buffersize) {
+
+    return caterva_orthogonal_selection(ctx, array, selection, selection_size,
+                                        buffer, buffershape, buffersize, false);
 }

@@ -14,9 +14,9 @@
 int main() {
 
     int8_t ndim = 2;
-    int64_t shape[] = {10, 10, 10};
-    int32_t chunkshape[] = {4, 8, 4};
-    int32_t blockshape[] = {3, 3, 2};
+    int64_t shape[] = {10, 10};
+    int32_t chunkshape[] = {4, 4};
+    int32_t blockshape[] = {2, 2};
     int8_t itemsize = 8;
 
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
@@ -47,9 +47,12 @@ int main() {
     }
     caterva_array_t *arr;
     CATERVA_ERROR(caterva_from_buffer(ctx, data, datasize, &params, &storage, &arr));
+    free(data);
 
     int64_t sel0[] = {3, 1, 2};
     int64_t sel1[] = {2, 5};
+    int64_t *sel1_ = malloc(shape[1] * sizeof(int64_t));
+
     int64_t sel2[] = {3, 3, 3, 9,3, 1, 0};
     int64_t *selection[] = {sel0, sel1, sel2};
     int64_t selection_size[] = {sizeof(sel0)/sizeof(int64_t), sizeof(sel1)/(sizeof(int64_t)), sizeof(sel2)/(sizeof(int64_t))};
@@ -59,7 +62,8 @@ int main() {
         nitems *= buffershape[i];
     }
     int64_t buffersize = nitems * arr->itemsize;
-    double *buffer = malloc(buffersize);
+    double *buffer = calloc(nitems, arr->itemsize);
+    CATERVA_ERROR(caterva_set_orthogonal_selection(ctx, arr, selection, selection_size, buffer, buffershape, buffersize));
     CATERVA_ERROR(caterva_get_orthogonal_selection(ctx, arr, selection, selection_size, buffer, buffershape, buffersize));
 
     printf("Results: \n");
