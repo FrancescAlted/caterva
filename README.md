@@ -24,6 +24,7 @@ Here are slides of a gentle
 ## Credits
 * Aleix Alcacer: original code creator
 * Oscar Griñón: contributed the code for the second partitioning
+* Marta Iborra: contributed the resizing operations for arrays
 * Francesc Alted: direction, ideas and support code
 
 This library has received the support from [a donation from Huawei to the Blosc project](https://www.blosc.org/posts/blosc-donation/).
