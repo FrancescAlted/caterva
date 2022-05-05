@@ -1497,7 +1497,11 @@ typedef struct {
 } caterva_selection_t;
 
 int caterva_compare_selection(const void * a, const void * b) {
-    return (int) (((caterva_selection_t *) a)->value - ((caterva_selection_t *) b)->value);
+    int res = (int) (((caterva_selection_t *) a)->value - ((caterva_selection_t *) b)->value);
+    if (res == 0) {
+        res = (int) (((caterva_selection_t *) a)->index - ((caterva_selection_t *) b)->index);
+    }
+    return res;
 }
 
 int caterva_copy_block_buffer_data(caterva_array_t *array,
