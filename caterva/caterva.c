@@ -1498,6 +1498,7 @@ typedef struct {
 
 int caterva_compare_selection(const void * a, const void * b) {
     int res = (int) (((caterva_selection_t *) a)->value - ((caterva_selection_t *) b)->value);
+    // In case values are equal, sort by index
     if (res == 0) {
         res = (int) (((caterva_selection_t *) a)->index - ((caterva_selection_t *) b)->index);
     }
@@ -1519,11 +1520,6 @@ int caterva_copy_block_buffer_data(caterva_array_t *array,
     p_block_selection_1[ndim] = chunk_selection[ndim];
     while (p_block_selection_1[ndim] - p_block_selection_0[ndim] < block_selection_size[ndim]) {
         if (ndim == array->ndim - 1) {
-            // printf("    - Item: ");
-            for (int i = 0; i < array->ndim; ++i) {
-                // printf(" %lld ", p_block_selection_1[i]->value);
-            }
-            // printf("\n");
 
             int64_t index_in_block_n[CATERVA_MAX_DIM];
             for (int i = 0; i < array->ndim; ++i) {
@@ -1601,11 +1597,6 @@ int caterva_iterate_over_block_copy(caterva_array_t *array, int8_t ndim,
                 block_selection_size[i] = chunk_selection_1[i] - chunk_selection_0[i];
             }
 
-            // printf("    - Block: ");
-            for (int i = 0; i < array->blocknitems; ++i) {
-                // printf(" %f ", ((double *) &data[nblock * array->blocknitems * array->itemsize])[i]);
-            }
-            // printf("\n");
             caterva_copy_block_buffer_data(array,
                                            (int8_t) 0,
                                            block_selection_size,
@@ -1661,12 +1652,6 @@ int caterva_iterate_over_block_maskout(caterva_array_t *array, int8_t ndim,
                 nblock += block_index[i] * block_chunk_strides[i];
             }
             maskout[nblock] = false;
-
-            // printf("    - Block: (%lld)", nblock);
-            for (int i = 0; i < array->ndim; ++i) {
-                // printf(" %lld ", block_index[i]);
-            }
-            // printf("\n");
         } else {
             caterva_iterate_over_block_maskout(array, (int8_t) (ndim + 1), sel_block_size,
                                                o_selection, p_o_sel_block_0, p_o_sel_block_1,
@@ -1697,7 +1682,6 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
             p_ordered_selection_1[ndim]++;
         }
         if (ndim == array->ndim - 1) {
-            // printf("- Chunk: ");
             int64_t chunk_array_strides[CATERVA_MAX_DIM];
             chunk_array_strides[array->ndim - 1] = 1;
             for (int i = array->ndim - 2; i >= 0; --i) {
@@ -1712,11 +1696,6 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
             for (int i = 0; i < array->ndim; ++i) {
                 nchunk += chunk_index[i] * chunk_array_strides[i];
             }
-            // printf("(%lld) ", nchunk);
-            for (int i = 0; i < array->ndim; ++i) {
-                // printf(" %lld ", chunk_index[i]);
-            }
-            // printf("\n");
 
             int64_t nblocks = array->extchunknitems / array->blocknitems;
             caterva_selection_t **p_chunk_selection_0 = malloc(
@@ -1741,11 +1720,6 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
                                                                  p_chunk_selection_1,
                                                                  maskout));
 
-                // printf("- Maskout: ");
-                for (int i = 0; i < nblocks; ++i) {
-                    // printf(" %d ", maskout[i]);
-                }
-                // printf("\n");
                 if (blosc2_set_maskout(array->sc->dctx, maskout, (int) nblocks) !=
                     BLOSC2_ERROR_SUCCESS) {
                     CATERVA_TRACE_ERROR("Error setting the maskout");
@@ -1761,14 +1735,6 @@ int caterva_iterate_over_chunk(caterva_array_t *array, int8_t ndim,
                 CATERVA_TRACE_ERROR("Error decompressing chunk");
                 CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
             }
-            // TODO: Iterate over each chunk and copy data
-            // printf("- Copying data...\n");
-            // printf("    - Chunk data: ");
-            for (int i = 0; i < array->extchunknitems; ++i) {
-                // printf(" %f ", ((double *) data)[i]);
-            }
-            // printf("\n");
-
             caterva_iterate_over_block_copy(array,
                                             0,
                                             chunk_selection_size,
@@ -1842,7 +1808,6 @@ int caterva_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
     }
 
     // Sort selections
-    // printf("Sorting selections...\n");
     caterva_selection_t **ordered_selection = malloc(ndim * sizeof(caterva_selection_t *));
     for (int i = 0; i < ndim; ++i) {
         ordered_selection[i] = malloc(selection_size[i] * sizeof(caterva_selection_t));
@@ -1853,15 +1818,6 @@ int caterva_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
         qsort(ordered_selection[i], selection_size[i], sizeof(caterva_selection_t), caterva_compare_selection);
     }
 
-    for (int i = 0; i < ndim; ++i) {
-        // printf("- Dim %d: |", i);
-        for (int j = 0; j < selection_size[i]; ++j) {
-            // printf(" %lld (%lld) |", ordered_selection[i][j].value, ordered_selection[i][j].index);
-        }
-        // printf("\n");
-    }
-
-    // printf("Selecting chunks...\n");
     // Define pointers to iterate over ordered_selection data
     caterva_selection_t **p_ordered_selection_0 = malloc(ndim * sizeof(caterva_selection_t *));
     caterva_selection_t **p_ordered_selection_1 = malloc(ndim * sizeof(caterva_selection_t *));
