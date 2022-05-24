@@ -57,6 +57,7 @@ cat_precip0[:] = values
 # include <caterva.h>
 # include "../contribs/c-blosc2/include/blosc2/codecs-registry.h"
 # include "../contribs/c-blosc2/plugins/codecs/zfp/blosc2-zfp.h"
+# include "../contribs/c-blosc2/plugins/plugin_utils.h"
 
 int comp(const char* urlpath) {
     blosc_init();
