@@ -13,20 +13,16 @@
 #define CATERVA_CATERVA_UTILS_H_
 
 #include <caterva.h>
+#include <../contribs/c-blosc2/plugins/plugin_utils.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void index_unidim_to_multidim(int8_t ndim, const int64_t *shape, int64_t i, int64_t *index);
-void index_multidim_to_unidim(const int64_t *index, int8_t ndim, const int64_t *strides, int64_t *i);
 
 int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape,
                        const int32_t *blockshape, uint8_t **smeta);
-int32_t deserialize_meta(uint8_t *smeta, uint32_t smeta_len, int8_t *ndim, int64_t *shape,
-                         int32_t *chunkshape, int32_t *blockshape);
-
-void swap_store(void *dest, const void *pa, int size);
 
 int caterva_copy_buffer(int8_t ndim,
                         uint8_t itemsize,
