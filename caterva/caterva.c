@@ -125,8 +125,8 @@ int caterva_update_shape(caterva_array_t *array, int8_t ndim, const int64_t *sha
         uint8_t *smeta = NULL;
         // Serialize the dimension info ...
         int32_t smeta_len =
-                serialize_meta(array->ndim, array->shape, array->chunkshape, array->blockshape,
-                               &smeta);
+                caterva_serialize_meta(array->ndim, array->shape, array->chunkshape, array->blockshape,
+                                       &smeta);
         if (smeta_len < 0) {
             fprintf(stderr, "error during serializing dims info for Caterva");
             return -1;
@@ -203,10 +203,10 @@ int caterva_blosc_array_new(caterva_ctx_t *ctx, caterva_params_t *params,
         return CATERVA_ERR_BLOSC_FAILED;
     }
     uint8_t *smeta = NULL;
-    int32_t smeta_len = serialize_meta(params->ndim,
-                                       (*array)->shape,
-                                       (*array)->chunkshape,
-                                       (*array)->blockshape, &smeta);
+    int32_t smeta_len = caterva_serialize_meta(params->ndim,
+                                               (*array)->shape,
+                                               (*array)->chunkshape,
+                                               (*array)->blockshape, &smeta);
     if (smeta_len < 0) {
         CATERVA_TRACE_ERROR("error during serializing dims info for Caterva");
         return CATERVA_ERR_BLOSC_FAILED;
@@ -348,10 +348,10 @@ int caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array
         CATERVA_TRACE_ERROR("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
     }
-    deserialize_meta(smeta, smeta_len, &params.ndim,
-                     params.shape,
-                     storage.chunkshape,
-                     storage.blockshape);
+    caterva_deserialize_meta(smeta, smeta_len, &params.ndim,
+                             params.shape,
+                             storage.chunkshape,
+                             storage.blockshape);
     free(smeta);
 
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
@@ -1174,7 +1174,7 @@ int caterva_print_meta(caterva_array_t *array){
     if (blosc2_meta_get(array->sc, "caterva", &smeta, &smeta_len) < 0) {
         CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
     }
-    deserialize_meta(smeta, smeta_len, &ndim, shape, chunkshape, blockshape);
+    caterva_deserialize_meta(smeta, smeta_len, &ndim, shape, chunkshape, blockshape);
     free(smeta);
 
     printf("Caterva metalayer parameters: \n Ndim:       %d", ndim);
@@ -1860,4 +1860,101 @@ int caterva_set_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
 
     return caterva_orthogonal_selection(ctx, array, selection, selection_size,
                                         buffer, buffershape, buffersize, false);
+}
+
+
+int32_t caterva_serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape,
+                               const int32_t *blockshape, uint8_t **smeta) {
+    // Allocate space for Caterva metalayer
+    int32_t max_smeta_len = (int32_t) (1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) +
+                                       (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t))));
+    *smeta = malloc((size_t) max_smeta_len);
+    CATERVA_ERROR_NULL(smeta);
+    uint8_t *pmeta = *smeta;
+
+    // Build an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
+    *pmeta++ = 0x90 + 5;
+
+    // version entry
+    *pmeta++ = CATERVA_METALAYER_VERSION;  // positive fixnum (7-bit positive integer)
+
+    // ndim entry
+    *pmeta++ = (uint8_t) ndim;  // positive fixnum (7-bit positive integer)
+
+    // shape entry
+    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
+    for (uint8_t i = 0; i < ndim; i++) {
+        *pmeta++ = 0xd3;  // int64
+        swap_store(pmeta, shape + i, sizeof(int64_t));
+        pmeta += sizeof(int64_t);
+    }
+
+    // chunkshape entry
+    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
+    for (uint8_t i = 0; i < ndim; i++) {
+        *pmeta++ = 0xd2;  // int32
+        swap_store(pmeta, chunkshape + i, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+
+    // blockshape entry
+    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
+    for (uint8_t i = 0; i < ndim; i++) {
+        *pmeta++ = 0xd2;  // int32
+        swap_store(pmeta, blockshape + i, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+    int32_t slen = (int32_t)(pmeta - *smeta);
+
+    return slen;
+}
+
+int32_t caterva_deserialize_meta(uint8_t *smeta, int32_t smeta_len, int8_t *ndim, int64_t *shape,
+                                 int32_t *chunkshape, int32_t *blockshape) {
+    BLOSC_UNUSED_PARAM(smeta_len);
+    uint8_t *pmeta = smeta;
+
+    // Check that we have an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
+    pmeta += 1;
+
+    // version entry
+    // int8_t version = (int8_t)pmeta[0];  // positive fixnum (7-bit positive integer) commented to avoid warning
+    pmeta += 1;
+
+    // ndim entry
+    *ndim = (int8_t)pmeta[0];
+    int8_t ndim_aux = *ndim;  // positive fixnum (7-bit positive integer)
+    pmeta += 1;
+
+    // shape entry
+    // Initialize to ones, as required by Caterva
+    for (int i = 0; i < 8; i++) shape[i] = 1;
+    pmeta += 1;
+    for (int8_t i = 0; i < ndim_aux; i++) {
+        pmeta += 1;
+        swap_store(shape + i, pmeta, sizeof(int64_t));
+        pmeta += sizeof(int64_t);
+    }
+
+    // chunkshape entry
+    // Initialize to ones, as required by Caterva
+    for (int i = 0; i < 8; i++) chunkshape[i] = 1;
+    pmeta += 1;
+    for (int8_t i = 0; i < ndim_aux; i++) {
+        pmeta += 1;
+        swap_store(chunkshape + i, pmeta, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+
+    // blockshape entry
+    // Initialize to ones, as required by Caterva
+    for (int i = 0; i < 8; i++) blockshape[i] = 1;
+    pmeta += 1;
+    for (int8_t i = 0; i < ndim_aux; i++) {
+        pmeta += 1;
+        swap_store(blockshape + i, pmeta, sizeof(int32_t));
+        pmeta += sizeof(int32_t);
+    }
+    int32_t slen = (int32_t)(pmeta - smeta);
+    return slen;
 }

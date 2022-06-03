@@ -716,6 +716,15 @@ int caterva_set_orthogonal_selection(caterva_ctx_t *ctx, caterva_array_t *array,
                                      void *buffer, int64_t *buffershape,
                                      int64_t buffersize);
 
+
+// Metainfo section
+int32_t caterva_serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape,
+                               const int32_t *blockshape, uint8_t **smeta);
+
+int32_t caterva_deserialize_meta(uint8_t *smeta, int32_t smeta_len, int8_t *ndim, int64_t *shape,
+                                 int32_t *chunkshape, int32_t *blockshape);
+
+
 #ifdef __cplusplus
 }
 #endif

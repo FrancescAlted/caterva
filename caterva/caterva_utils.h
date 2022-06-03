@@ -21,9 +21,6 @@ extern "C" {
 
 void index_unidim_to_multidim(int8_t ndim, const int64_t *shape, int64_t i, int64_t *index);
 
-int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape,
-                       const int32_t *blockshape, uint8_t **smeta);
-
 int caterva_copy_buffer(int8_t ndim,
                         uint8_t itemsize,
                         void *src, const int64_t *src_pad_shape,

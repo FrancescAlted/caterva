@@ -26,53 +26,6 @@ void index_unidim_to_multidim(int8_t ndim, const int64_t *shape, int64_t i, int6
     }
 }
 
-int32_t serialize_meta(int8_t ndim, int64_t *shape, const int32_t *chunkshape,
-                              const int32_t *blockshape, uint8_t **smeta) {
-    // Allocate space for Caterva metalayer
-    int32_t max_smeta_len = (int32_t) (1 + 1 + 1 + (1 + ndim * (1 + sizeof(int64_t))) +
-                            (1 + ndim * (1 + sizeof(int32_t))) + (1 + ndim * (1 + sizeof(int32_t))));
-    *smeta = malloc((size_t) max_smeta_len);
-    CATERVA_ERROR_NULL(smeta);
-    uint8_t *pmeta = *smeta;
-
-    // Build an array with 5 entries (version, ndim, shape, chunkshape, blockshape)
-    *pmeta++ = 0x90 + 5;
-
-    // version entry
-    *pmeta++ = CATERVA_METALAYER_VERSION;  // positive fixnum (7-bit positive integer)
-
-    // ndim entry
-    *pmeta++ = (uint8_t) ndim;  // positive fixnum (7-bit positive integer)
-
-    // shape entry
-    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
-    for (uint8_t i = 0; i < ndim; i++) {
-        *pmeta++ = 0xd3;  // int64
-        swap_store(pmeta, shape + i, sizeof(int64_t));
-        pmeta += sizeof(int64_t);
-    }
-
-    // chunkshape entry
-    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
-    for (uint8_t i = 0; i < ndim; i++) {
-        *pmeta++ = 0xd2;  // int32
-        swap_store(pmeta, chunkshape + i, sizeof(int32_t));
-        pmeta += sizeof(int32_t);
-    }
-
-    // blockshape entry
-    *pmeta++ = (uint8_t)(0x90) + ndim;  // fix array with ndim elements
-    for (uint8_t i = 0; i < ndim; i++) {
-        *pmeta++ = 0xd2;  // int32
-        swap_store(pmeta, blockshape + i, sizeof(int32_t));
-        pmeta += sizeof(int32_t);
-    }
-    int32_t slen = (int32_t)(pmeta - *smeta);
-
-    return slen;
-}
-
-
 // copyNdim where N = {2-8} - specializations of copy loops to be used by caterva_copy_buffer
 // since we don't have c++ templates, substitute manual specializations for up to known CATERVA_MAX_DIM (8)
 // it's not pretty, but it substantially reduces overhead vs. the generic method
