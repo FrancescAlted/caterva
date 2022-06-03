@@ -86,7 +86,7 @@ int comp(const char* urlpath) {
         free(blockshape);
         return -1;
     }
-    deserialize_meta(smeta, smeta_len, &ndim, shape_aux, chunkshape, blockshape);
+    caterva_deserialize_meta(smeta, smeta_len, &ndim, shape_aux, chunkshape, blockshape);
     free(smeta);
 
     caterva_config_t cfg = CATERVA_CONFIG_DEFAULTS;
