@@ -12,6 +12,7 @@
 #include <caterva.h>
 
 #include "caterva_utils.h"
+#include "blosc2.h"
 #include <inttypes.h>
 
 
@@ -550,12 +551,12 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
 
     for (int update_nchunk = 0; update_nchunk < update_nchunks; ++update_nchunk) {
         int64_t nchunk_ndim[CATERVA_MAX_DIM] = {0};
-        index_unidim_to_multidim(ndim, update_shape, update_nchunk, nchunk_ndim);
+        blosc2_unidim_to_multidim(ndim, update_shape, update_nchunk, nchunk_ndim);
         for (int i = 0; i < ndim; ++i) {
             nchunk_ndim[i] += update_start[i];
         }
         int64_t nchunk;
-        index_multidim_to_unidim(nchunk_ndim, ndim, chunks_in_array_strides, &nchunk);
+        blosc2_multidim_to_unidim(nchunk_ndim, ndim, chunks_in_array_strides, &nchunk);
 
         // check if the chunk needs to be updated
         int64_t chunk_start[CATERVA_MAX_DIM] = {0};
@@ -601,7 +602,7 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
             CATERVA_ERROR_NULL(block_maskout);
             for (int nblock = 0; nblock < nblocks; ++nblock) {
                 int64_t nblock_ndim[CATERVA_MAX_DIM] = {0};
-                index_unidim_to_multidim(ndim, blocks_in_chunk, nblock, nblock_ndim);
+                blosc2_unidim_to_multidim(ndim, blocks_in_chunk, nblock, nblock_ndim);
 
                 // check if the block needs to be updated
                 int64_t block_start[CATERVA_MAX_DIM] = {0};
@@ -645,7 +646,7 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
 
         for (int nblock = 0; nblock < nblocks; ++nblock) {
             int64_t nblock_ndim[CATERVA_MAX_DIM] = {0};
-            index_unidim_to_multidim(ndim, blocks_in_chunk, nblock, nblock_ndim);
+            blosc2_unidim_to_multidim(ndim, blocks_in_chunk, nblock, nblock_ndim);
 
             // check if the block needs to be updated
             int64_t block_start[CATERVA_MAX_DIM] = {0};
@@ -851,7 +852,7 @@ int caterva_get_slice(caterva_ctx_t *ctx, caterva_array_t *src, const int64_t *s
     int64_t nchunks = (*array)->sc->nchunks;
     for (int nchunk = 0; nchunk < nchunks; ++nchunk) {
         int64_t nchunk_ndim[CATERVA_MAX_DIM] = {0};
-        index_unidim_to_multidim(ndim, chunks_in_array, nchunk, nchunk_ndim);
+        blosc2_unidim_to_multidim(ndim, chunks_in_array, nchunk, nchunk_ndim);
 
         // check if the chunk needs to be updated
         int64_t chunk_start[CATERVA_MAX_DIM] = {0};
@@ -1260,7 +1261,7 @@ int extend_shape(caterva_array_t *array, const int64_t *new_shape, const int64_t
             chunks_in_array[i] = array->extshape[i] / array->chunkshape[i];
         }
         for (int i = 0; i < nchunks; ++i) {
-            index_unidim_to_multidim(ndim, chunks_in_array, i, nchunk_ndim);
+            blosc2_unidim_to_multidim(ndim, chunks_in_array, i, nchunk_ndim);
             for (int j = 0; j < ndim; ++j) {
                 if (start[j] <= (array->chunkshape[j] * nchunk_ndim[j])
                     && (array->chunkshape[j] * nchunk_ndim[j]) < (start[j] + new_shape[j] - aux->shape[j])) {
@@ -1335,7 +1336,7 @@ int shrink_shape(caterva_array_t *array, const int64_t *new_shape, const int64_t
     int64_t nchunk_ndim[CATERVA_MAX_DIM] = {0};
     int64_t nchunks_;
     for (int i = (int)old_nchunks - 1; i >= 0; --i) {
-        index_unidim_to_multidim(ndim, chunks_in_array_old, i, nchunk_ndim);
+        blosc2_unidim_to_multidim(ndim, chunks_in_array_old, i, nchunk_ndim);
         for (int j = 0; j < ndim; ++j) {
             if (start[j] <= (array->chunkshape[j] * nchunk_ndim[j])
                 && (array->chunkshape[j] * nchunk_ndim[j]) < (start[j] + aux->shape[j] - new_shape[j])) {

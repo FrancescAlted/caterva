@@ -10,21 +10,6 @@
  */
 #include <caterva_utils.h>
 
-void index_unidim_to_multidim(int8_t ndim, const int64_t *shape, int64_t i, int64_t *index) {
-    int64_t strides[CATERVA_MAX_DIM];
-    if (ndim == 0) {
-        return;
-    }
-    strides[ndim - 1] = 1;
-    for (int j = ndim - 2; j >= 0; --j) {
-        strides[j] = shape[j + 1] * strides[j + 1];
-    }
-
-    index[0] = i / strides[0];
-    for (int j = 1; j < ndim; ++j) {
-        index[j] = (i % strides[j - 1]) / strides[j];
-    }
-}
 
 // copyNdim where N = {2-8} - specializations of copy loops to be used by caterva_copy_buffer
 // since we don't have c++ templates, substitute manual specializations for up to known CATERVA_MAX_DIM (8)
@@ -206,15 +191,15 @@ void copy_ndim_fallback(const int8_t ndim,
     for (int ncopy = 0; ncopy < number_of_copies; ++ncopy) {
         // Compute the start of the copy
         int64_t copy_start[CATERVA_MAX_DIM] = {0};
-        index_unidim_to_multidim((int8_t)(ndim -1), copy_shape, ncopy, copy_start);
+        blosc2_unidim_to_multidim((int8_t)(ndim -1), copy_shape, ncopy, copy_start);
 
         // Translate this index to the src buffer
         int64_t src_copy_start;
-        index_multidim_to_unidim(copy_start, (int8_t)(ndim - 1), src_strides, &src_copy_start);
+        blosc2_multidim_to_unidim(copy_start, (int8_t)(ndim - 1), src_strides, &src_copy_start);
 
         // Translate this index to the dst buffer
         int64_t dst_copy_start;
-        index_multidim_to_unidim(copy_start, (int8_t)(ndim - 1), dst_strides, &dst_copy_start);
+        blosc2_multidim_to_unidim(copy_start, (int8_t)(ndim - 1), dst_strides, &dst_copy_start);
 
         // Perform the copy
         memcpy(&bdst[dst_copy_start * itemsize],
@@ -253,12 +238,12 @@ int caterva_copy_buffer(int8_t ndim,
 
     // Align the buffers removing unnecessary data
     int64_t src_start_n;
-    index_multidim_to_unidim(src_start, ndim, src_strides, &src_start_n);
+    blosc2_multidim_to_unidim(src_start, ndim, src_strides, &src_start_n);
     uint8_t *bsrc = (uint8_t *) src;
     bsrc = &bsrc[src_start_n * itemsize];
 
     int64_t dst_start_n;
-    index_multidim_to_unidim(dst_start, ndim, dst_strides, &dst_start_n);
+    blosc2_multidim_to_unidim(dst_start, ndim, dst_strides, &dst_start_n);
     uint8_t *bdst = (uint8_t *) dst;
     bdst = &bdst[dst_start_n * itemsize];
 

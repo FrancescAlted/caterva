@@ -19,7 +19,6 @@
 extern "C" {
 #endif
 
-void index_unidim_to_multidim(int8_t ndim, const int64_t *shape, int64_t i, int64_t *index);
 
 int caterva_copy_buffer(int8_t ndim,
                         uint8_t itemsize,

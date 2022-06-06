@@ -57,8 +57,7 @@ cat_precip0[:] = values
 # include <caterva.h>
 # include "../contribs/c-blosc2/include/blosc2/codecs-registry.h"
 # include "../contribs/c-blosc2/plugins/codecs/zfp/blosc2-zfp.h"
-# include "../contribs/c-blosc2/plugins/plugin_utils.h"
-
+#include <blosc2.h>
 int comp(const char* urlpath) {
     blosc_init();
 
@@ -144,7 +143,7 @@ int comp(const char* urlpath) {
     for (int i = 0; i < ntests; ++i) {
         srand(i);
         index = rand() % nelems;
-        index_unidim_to_multidim(ndim, shape, index, index_ndim);
+        blosc2_unidim_to_multidim(ndim, shape, index, index_ndim);
         for (int j = 0; j < ndim; ++j) {
             index_chunk_ndim[j] = index_ndim[j] / chunkshape[j];
             ind_ndim[j] = index_ndim[j] % chunkshape[j];
