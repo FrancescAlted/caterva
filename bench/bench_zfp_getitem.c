@@ -73,7 +73,7 @@ int comp(const char* urlpath) {
 
     // Get multidimensional parameters and configure Caterva array
     int8_t ndim;
-    int32_t shape[4];
+    int64_t shape[4];
     int64_t *shape_aux = malloc(8 * sizeof(int64_t));
     int32_t *chunkshape = malloc(8 * sizeof(int32_t));
     int32_t *blockshape = malloc(8 * sizeof(int32_t));
