@@ -159,7 +159,8 @@ int _cutest_run(int (*test)(void *), void *test_data, char *name) {
         params_strides[i] = params_strides[i - 1] * cutest_params[i - 1].params_len;
     }
 
-    char test_name[MAXLEN_TESTNAME];
+    char test_name[MAXLEN_TESTNAME + 1];
+    char aux[MAXLEN_TESTNAME + 1];
     uint8_t count = 0;
     int num = niters;
     do {
@@ -171,7 +172,8 @@ int _cutest_run(int (*test)(void *), void *test_data, char *name) {
         for (int i = 0; i < nparams; ++i) {
             cutest_params_ind[i] = (int8_t) (niter / params_strides[i] %
                                              cutest_params[i].params_len);
-            snprintf(test_name, MAXLEN_TESTNAME, "%s%s[%d], ", test_name, cutest_params[i].name,
+            strcpy(aux, test_name);
+            snprintf(test_name, MAXLEN_TESTNAME, "%s%s[%d], ", aux, cutest_params[i].name,
                      cutest_params_ind[i]);
         }
         test_name[strlen(test_name) - 1] = 0;

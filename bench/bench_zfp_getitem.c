@@ -134,7 +134,7 @@ int comp(const char* urlpath) {
     int64_t index_ndim[ZFP_MAX_DIM];
     int64_t index_chunk_ndim[ZFP_MAX_DIM];
     int64_t ind_ndim[ZFP_MAX_DIM];
-    int stride_chunk, ind_chunk;
+    int64_t stride_chunk, ind_chunk;
     int64_t nchunk;
     bool needs_free_blosc, needs_free_zfp;
     uint8_t *chunk_blosc, *chunk_zfp;
@@ -190,56 +190,56 @@ int comp(const char* urlpath) {
     return CATERVA_SUCCEED;
 }
 
-int solar1() {
+int solar1(void) {
     const char* urlpath = "../../bench/solar1.cat";
 
     int result = comp(urlpath);
     return result;
 }
 
-int air1() {
+int air1(void) {
     const char* urlpath = "../../bench/air1.cat";
 
     int result = comp(urlpath);
     return result;
 }
 
-int snow1() {
+int snow1(void) {
     const char* urlpath = "../../bench/snow1.cat";
 
     int result = comp(urlpath);
     return result;
 }
 
-int wind1() {
+int wind1(void) {
     const char* urlpath = "../../bench/wind1.cat";
 
     int result = comp(urlpath);
     return result;
 }
 
-int precip1() {
+int precip1(void) {
     const char* urlpath = "../../bench/precip1.cat";
 
     int result = comp(urlpath);
     return result;
 }
 
-int precip2() {
+int precip2(void) {
     const char* urlpath = "../../bench/precip2.cat";
 
     int result = comp(urlpath);
     return result;
 }
 
-int precip3() {
+int precip3(void) {
     const char* urlpath = "../../bench/precip3.cat";
 
     int result = comp(urlpath);
     return result;
 }
 
-int precip3m() {
+int precip3m(void) {
     const char* urlpath = "../../bench/precip-3m.cat";
 
     int result = comp(urlpath);
