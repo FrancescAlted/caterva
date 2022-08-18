@@ -495,7 +495,7 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
     // 0-dim case
     if (ndim == 0) {
         if (set_slice) {
-            int32_t chunk_size = array->itemsize + BLOSC_MAX_OVERHEAD;
+            int32_t chunk_size = array->itemsize + BLOSC2_MAX_OVERHEAD;
             uint8_t *chunk = malloc(chunk_size);
             if (blosc2_compress_ctx(array->sc->cctx, buffer_b, array->itemsize, chunk, chunk_size) < 0) {
                 CATERVA_ERROR(CATERVA_ERR_BLOSC_FAILED);
@@ -739,7 +739,7 @@ int caterva_blosc_slice(caterva_ctx_t *ctx, void *buffer,
 
         if (set_slice) {
             // Recompress the data
-            int32_t chunk_nbytes = data_nbytes + BLOSC_MAX_OVERHEAD;
+            int32_t chunk_nbytes = data_nbytes + BLOSC2_MAX_OVERHEAD;
             uint8_t *chunk = malloc(chunk_nbytes);
             int brc;
             brc = blosc2_compress_ctx(array->sc->cctx, data, data_nbytes, chunk, chunk_nbytes);

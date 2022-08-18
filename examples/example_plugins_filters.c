@@ -32,7 +32,7 @@
 int main() {
     blosc_timestamp_t t0, t1;
 
-    blosc_init();
+    blosc2_init();
     int8_t ndim = 3;
     uint8_t itemsize = sizeof(int64_t);
 
@@ -90,7 +90,7 @@ int main() {
     blosc_set_timestamp(&t1);
     printf("to_buffer: %.4f s\n", blosc_elapsed_secs(t0, t1));
 
-    blosc_destroy();
+    blosc2_destroy();
 
     for (int i = 0; i < buffer_size / itemsize; i++) {
         if (src[i] != buffer[i]) {

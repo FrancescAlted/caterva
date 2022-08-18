@@ -59,7 +59,7 @@ cat_precip0[:] = values
 # include "../contribs/c-blosc2/plugins/codecs/zfp/blosc2-zfp.h"
 #include <blosc2.h>
 int comp(const char* urlpath) {
-    blosc_init();
+    blosc2_init();
 
     blosc2_schunk *schunk = blosc2_schunk_open(urlpath);
 
@@ -185,7 +185,7 @@ int comp(const char* urlpath) {
     if (needs_free_zfp) {
         free(chunk_zfp);
     }
-    blosc_destroy();
+    blosc2_destroy();
 
     return CATERVA_SUCCEED;
 }
