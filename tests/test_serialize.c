@@ -35,12 +35,14 @@ CUTEST_TEST_SETUP(serialize) {
             {5, {1, 1, 1024, 1, 1}, {1, 1, 500, 1, 1}, {1, 1, 200, 1, 1}},
             {6, {5, 1, 200, 3, 1, 2}, {5, 1, 50, 2, 1, 2}, {2, 1, 20, 2, 1, 2}}
     ));
+    CUTEST_PARAMETRIZE(contiguous, bool, CUTEST_DATA(true, false));
 }
 
 
 CUTEST_TEST_TEST(serialize) {
     CUTEST_GET_PARAMETER(shapes, _test_shapes);
     CUTEST_GET_PARAMETER(itemsize, uint8_t);
+    CUTEST_GET_PARAMETER(contiguous, bool);
 
     caterva_params_t params;
     params.itemsize = itemsize;
@@ -51,7 +53,7 @@ CUTEST_TEST_TEST(serialize) {
 
     caterva_storage_t storage = {0};
     storage.urlpath = NULL;
-    storage.contiguous = true;
+    storage.contiguous = contiguous;
     for (int i = 0; i < params.ndim; ++i) {
         storage.chunkshape[i] = shapes.chunkshape[i];
         storage.blockshape[i] = shapes.blockshape[i];
@@ -72,14 +74,13 @@ CUTEST_TEST_TEST(serialize) {
     CATERVA_TEST_ASSERT(caterva_from_buffer(data->ctx, buffer, buffersize, &params, &storage,
                                             &src));
 
-    uint8_t *sframe;
+    uint8_t *cframe;
+    int64_t cframe_len;
     bool needs_free;
-    blosc2_schunk_to_buffer(src->sc, &sframe, &needs_free);
-
-    int64_t slen = blosc2_schunk_frame_len(src->sc);
+    CATERVA_TEST_ASSERT(caterva_to_cframe(data->ctx, src, &cframe, &cframe_len, &needs_free));
 
     caterva_array_t *dest;
-    caterva_from_serial_schunk(data->ctx, sframe, slen, &dest);
+    CATERVA_TEST_ASSERT(caterva_from_cframe(data->ctx, cframe, cframe_len, true, &dest));
 
     /* Fill dest array with caterva_array_t data */
     uint8_t *buffer_dest = malloc(buffersize);
@@ -89,6 +90,10 @@ CUTEST_TEST_TEST(serialize) {
     CATERVA_TEST_ASSERT_BUFFER(buffer, buffer_dest, (int) buffersize);
 
     /* Free mallocs */
+    if (needs_free) {
+        free(cframe);
+    }
+
     free(buffer);
     free(buffer_dest);
     CATERVA_TEST_ASSERT(caterva_free(data->ctx, &src));

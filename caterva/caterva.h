@@ -374,18 +374,32 @@ int
 caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array_t **array);
 
 /**
- * @brief Create a caterva array from a serialized super-chunk. It can only be used if the array
- * is backed by a blosc super-chunk.
+ * Create a serialized super-chunk from a caterva array.
  *
  * @param ctx The caterva context to be used.
- * @param serial_schunk The serialized super-chunk where the caterva array is stored.
- * @param len The size (in bytes) of the serialized super-chunk.
+ * @param array The caterva array to be serialized.
+ * @param cframe The pointer of the buffer where the in-memory array will be copied.
+ * @param cframe_len The length of the in-memory array buffer.
+ * @param needs_free Whether the buffer should be freed or not.
+ *
+ * @return An error code
+ */
+int caterva_to_cframe(caterva_ctx_t *ctx, caterva_array_t *array, uint8_t **cframe,
+                      int64_t *cframe_len, bool *needs_free);
+
+/**
+ * @brief Create a caterva array from a serialized super-chunk.
+ *
+ * @param ctx The caterva context to be used.
+ * @param cframe The buffer of the in-memory array.
+ * @param cframe_len The size (in bytes) of the in-memory array.
+ * @param copy Whether caterva should make a copy of the cframe data or not. The copy will be made to an internal sparse frame.
  * @param array The memory pointer where the array will be created.
  *
  * @return An error code.
  */
-int caterva_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
-                               caterva_array_t **array);
+int caterva_from_cframe(caterva_ctx_t *ctx, uint8_t *cframe, int64_t cframe_len, bool copy,
+                        caterva_array_t **array);
 
 /**
  * @brief Read a caterva array from disk.
