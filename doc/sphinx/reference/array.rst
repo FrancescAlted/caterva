@@ -59,8 +59,13 @@ From Blosc object
 
 .. doxygenfunction:: caterva_from_schunk
 
-.. doxygenfunction:: caterva_from_serial_schunk
 
+From/To cframe buffer
++++++++++++++++++++++
+
+.. doxygenfunction:: caterva_from_cframe
+
+.. doxygenfunction:: caterva_to_cframe
 
 Copying
 +++++++

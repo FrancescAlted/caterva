@@ -375,13 +375,30 @@ int caterva_from_schunk(caterva_ctx_t *ctx, blosc2_schunk *schunk, caterva_array
     return CATERVA_SUCCEED;
 }
 
-int caterva_from_serial_schunk(caterva_ctx_t *ctx, uint8_t *serial_schunk, int64_t len,
-                               caterva_array_t **array) {
+int
+caterva_to_cframe(caterva_ctx_t *ctx, caterva_array_t *array, uint8_t **cframe, int64_t *cframe_len,
+                  bool *needs_free) {
     CATERVA_ERROR_NULL(ctx);
-    CATERVA_ERROR_NULL(serial_schunk);
+    CATERVA_ERROR_NULL(array);
+    CATERVA_ERROR_NULL(cframe);
+    CATERVA_ERROR_NULL(cframe_len);
+    CATERVA_ERROR_NULL(needs_free);
+
+    *cframe_len = blosc2_schunk_to_buffer(array->sc, cframe, needs_free);
+    if (*cframe_len <= 0) {
+        CATERVA_TRACE_ERROR("Error serializing the caterva array");
+        return CATERVA_ERR_BLOSC_FAILED;
+    }
+    return CATERVA_SUCCEED;
+}
+
+int caterva_from_cframe(caterva_ctx_t *ctx, uint8_t *cframe, int64_t cframe_len, bool copy,
+                        caterva_array_t **array) {
+    CATERVA_ERROR_NULL(ctx);
+    CATERVA_ERROR_NULL(cframe);
     CATERVA_ERROR_NULL(array);
 
-    blosc2_schunk *sc = blosc2_schunk_from_buffer(serial_schunk, len, true);
+    blosc2_schunk *sc = blosc2_schunk_from_buffer(cframe, cframe_len, copy);
     if (sc == NULL) {
         CATERVA_TRACE_ERROR("Blosc error");
         return CATERVA_ERR_BLOSC_FAILED;
