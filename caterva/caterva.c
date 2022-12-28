@@ -1946,7 +1946,7 @@ int32_t caterva_deserialize_meta(uint8_t *smeta, int32_t smeta_len, int8_t *ndim
 
     // shape entry
     // Initialize to ones, as required by Caterva
-    for (int i = 0; i < 8; i++) shape[i] = 1;
+    for (int i = 0; i < ndim_aux; i++) shape[i] = 1;
     pmeta += 1;
     for (int8_t i = 0; i < ndim_aux; i++) {
         pmeta += 1;
@@ -1956,7 +1956,7 @@ int32_t caterva_deserialize_meta(uint8_t *smeta, int32_t smeta_len, int8_t *ndim
 
     // chunkshape entry
     // Initialize to ones, as required by Caterva
-    for (int i = 0; i < 8; i++) chunkshape[i] = 1;
+    for (int i = 0; i < ndim_aux; i++) chunkshape[i] = 1;
     pmeta += 1;
     for (int8_t i = 0; i < ndim_aux; i++) {
         pmeta += 1;
@@ -1966,7 +1966,7 @@ int32_t caterva_deserialize_meta(uint8_t *smeta, int32_t smeta_len, int8_t *ndim
 
     // blockshape entry
     // Initialize to ones, as required by Caterva
-    for (int i = 0; i < 8; i++) blockshape[i] = 1;
+    for (int i = 0; i < ndim_aux; i++) blockshape[i] = 1;
     pmeta += 1;
     for (int8_t i = 0; i < ndim_aux; i++) {
         pmeta += 1;
