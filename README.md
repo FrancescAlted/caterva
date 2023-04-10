@@ -1,6 +1,6 @@
 # Caterva
 
-** Important : ** All the features of Caterva have been included in the [C-Blosc2 NDim object](https://www.blosc.org/c-blosc2/c-blosc2.html). As a result, this project is now obsolete.
+**Important:** All the features of Caterva have been included in the [C-Blosc2 NDim object](https://www.blosc.org/c-blosc2/c-blosc2.html). As a result, this project is now obsolete.
 
 [![CI CMake](https://github.com/Blosc/caterva/actions/workflows/cmake.yml/badge.svg)](https://github.com/Blosc/caterva/actions/workflows/cmake.yml)
 [![Documentation Status](https://readthedocs.org/projects/caterva/badge/?version=latest)](https://caterva.readthedocs.io/en/latest/?badge=latest)
